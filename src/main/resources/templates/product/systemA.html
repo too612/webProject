@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>A시스템 - 회사 홈페이지</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2>A시스템</h2>
+        <div class="product-detail">
+            <div class="mb-4">
+                <img src="/api/placeholder/800/400" class="img-fluid" alt="A시스템">
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>제품 특징</h3>
+                    <ul>
+                        <li>특징 1</li>
+                        <li>특징 2</li>
+                        <li>특징 3</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">문의하기</h5>
+                            <p>제품에 대해 궁금하신 점이 있으시다면 문의해주세요.</p>
+                            <a href="/board/inquiry" class="btn btn-primary">문의하기</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

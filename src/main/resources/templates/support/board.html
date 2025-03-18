@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>게시판 - 회사 홈페이지</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <h2 class="mb-4">게시판</h2>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form class="d-flex">
+                        <select class="form-select me-2" style="width: auto;">
+                            <option>제목</option>
+                            <option>내용</option>
+                            <option>작성자</option>
+                            <option>제목+내용</option>
+                        </select>
+                        <input class="form-control me-2" type="search" placeholder="검색어를 입력하세요">
+                        <button class="btn btn-outline-primary" type="submit">검색</button>
+                    </form>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#writeModal">글쓰기</button>
+                </div>
+            </div>
+
+            <!-- 게시글 목록 -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%">번호</th>
+                            <th style="width: 45%">제목</th>
+                            <th style="width: 15%">작성자</th>
+                            <th style="width: 15%">등록일</th>
+                            <th style="width: 15%">조회</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>3</td>
+                            <td>
+                                <a href="#" class="text-decoration-none">새로운 프로젝트 공유</a>
+                                <span class="badge bg-primary ms-2">New</span>
+                                <span class="text-muted">[3]</span>
+                            </td>
+                            <td>김지원</td>
+                            <td>2024-01-15</td>
+                            <td>45</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>
+                                <a href="#" class="text-decoration-none">월간 회의 일정 안내</a>
+                                <span class="text-muted">[1]</span>
+                            </td>
+                            <td>이현우</td>
+                            <td>2024-01-14</td>
+                            <td>32</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <a href="#" class="text-decoration-none">신규 직원 환영합니다</a>
+                                <span class="text-muted">[5]</span>
+                            </td>
+                            <td>박서연</td>
+                            <td>2024-01-13</td>
+                            <td>89</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">이전</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">다음</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- 글쓰기 모달 -->
+        <div class="modal fade" id="writeModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">게시글 작성</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">제목</label>
+                                <input type="text" class="form-control" placeholder="제목을 입력하세요">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">내용</label>
+                                <textarea class="form-control" rows="5" placeholder="내용을 입력하세요"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">파일첨부</label>
+                                <input type="file" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="noticeCheck">
+                                    <label class="form-check-label" for="noticeCheck">
+                                        공지사항으로 등록
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                        <button type="button" class="btn btn-primary">등록</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

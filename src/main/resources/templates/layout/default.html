@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Play | Free Startup and SaaS Landing Page Template by UIdeck</title>
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Play - Free Open Source HTML Bootstrap Template by UIdeck">
+    <meta name="description" content="Play - Free Open Source HTML Bootstrap Template by UIdeck Team">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://uideck.com/play/">
+    <meta property="og:title" content="Play - Free Open Source HTML Bootstrap Template by UIdeck">
+    <meta property="og:description" content="Play - Free Open Source HTML Bootstrap Template by UIdeck Team">
+    <meta property="og:image" content="https://uideck.com/wp-content/uploads/2021/09/play-meta-bs.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://uideck.com/play/">
+    <meta property="twitter:title" content="Play - Free Open Source HTML Bootstrap Template by UIdeck">
+    <meta property="twitter:description" content="Play - Free Open Source HTML Bootstrap Template by UIdeck Team">
+    <meta property="twitter:image" content="https://uideck.com/wp-content/uploads/2021/09/play-meta-bs.jpg">
+
+
+    <!--====== Favicon Icon ======-->
+    <link rel="shortcut icon" th:href="@{/images/favicon.svg}" type="image/svg"/>
+
+    <!-- ===== All CSS files ===== -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/lineicons.css}" rel="stylesheet">
+    <link th:href="@{/css/ud-styles.css}" rel="stylesheet">
+</head>
+<body>
+    
+    <!-- Header -->
+    <div th:replace="~{layout/header :: header}"></div>
+    
+    <!-- Main Content -->
+    <main class="container-fluid p-0">
+        <!-- Navigation -->
+        <div th:if="${currentMenu != null}" class="px-3"> <!-- 내비게이션에만 패딩 추가 -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item" th:text="${currentMenu}"></li>
+                    <li class="breadcrumb-item active" th:if="${currentSubmenu != null}" th:text="${currentSubmenu}"></li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area row"> 
+            <!-- Submenu -->
+            <div class="col-md-3 submenu-area" th:if="${currentMenu != null}">
+                <div th:replace="~{layout/submenu :: submenu}"></div>
+            </div>
+            <!-- Main Content -->
+            <div class="col-md-9" layout:fragment="content" th:if="${currentMenu != null}"></div>
+            <div class="col-md-12" layout:fragment="content" th:if="${currentMenu == null}"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{layout/footer :: footer}"></div>
+    <!-- ====== Back To Top Start ====== -->
+    <a href="javascript:void(0)" class="back-to-top">
+        <i class="lni lni-chevron-up"> </i>
+    </a>
+    <!-- ====== All Javascript Files ====== -->
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/wow.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/d3.v7.min.js}"></script>
+    <script>
+        // ==== for menu scroll
+        const pageLink = document.querySelectorAll(".ud-menu-scroll");
+
+        pageLink.forEach((elem) => {
+        elem.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.querySelector(elem.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+            offsetTop: 1 - 60,
+            });
+        });
+        });
+
+        // section menu active
+        function onScroll(event) {
+        const sections = document.querySelectorAll(".ud-menu-scroll");
+        const scrollPos =
+            window.pageYOffset ||
+            document.documentElement.scrollTop ||
+            document.body.scrollTop;
+        
+        for (let i = 0; i < sections.length; i++) {
+            const currLink = sections[i];
+            const val = currLink.getAttribute("href");
+            const refElement = document.querySelector(val);
+        
+            if (refElement) {  // refElement가 null이 아닌 경우에만 처리
+            const scrollTopMinus = scrollPos + 73;
+            if (
+                refElement.offsetTop <= scrollTopMinus &&
+                refElement.offsetTop + refElement.offsetHeight > scrollTopMinus
+            ) {
+                const activeLink = document.querySelector(".ud-menu-scroll.active");
+                if (activeLink) {
+                activeLink.classList.remove("active");  // <-이 부분 null 체크 추가
+                }
+                currLink.classList.add("active");
+            } else {
+                currLink.classList.remove("active");
+            }
+            }
+        }
+        }
+        window.document.addEventListener("scroll", onScroll);
+    </script>
+
+</body>
+</html>

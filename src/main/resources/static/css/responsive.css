@@ -1,0 +1,85 @@
+/* Mobile Devices (up to 576px) */
+@media (max-width: 576px) {
+    .navbar-brand img {
+        max-height: 30px;
+    }
+
+    .content-area {
+        min-height: 400px;
+    }
+
+    .submenu-area {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Tablets (576px to 768px) */
+@media (min-width: 576px) and (max-width: 768px) {
+    .content-area {
+        min-height: 500px;
+    }
+}
+
+/* Small Desktops (768px to 992px) */
+@media (min-width: 768px) and (max-width: 992px) {
+    .container {
+        max-width: 95%;
+    }
+}
+
+/* Medium Desktops (992px to 1200px) */
+@media (min-width: 992px) and (max-width: 1200px) {
+    .container {
+        max-width: 90%;
+    }
+}
+
+/* Large Desktops (1200px and up) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Common Responsive Adjustments */
+@media (max-width: 768px) {
+    /* Stack Navigation Items */
+    .navigation-area {
+        padding: 0.5rem 0;
+    }
+
+    /* Adjust Footer Layout */
+    .footer {
+        text-align: center;
+    }
+    
+    .footer img {
+        margin-bottom: 1rem;
+    }
+
+    /* Adjust Board Layout */
+    .board-list th,
+    .board-list td {
+        font-size: 0.9rem;
+    }
+
+    /* Stack Search Form Elements */
+    .board-search .form-control,
+    .board-search .btn {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Print Media Query */
+@media print {
+    .navbar,
+    .footer,
+    .submenu-area {
+        display: none;
+    }
+
+    .content-area {
+        margin: 0;
+        padding: 0;
+    }
+}

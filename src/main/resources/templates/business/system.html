@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>시스템소개 - 회사 홈페이지</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2>시스템소개</h2>
+        <div class="system-intro">
+            <div class="mb-5">
+                <h3>시스템 구성도</h3>
+                <img src="/api/placeholder/800/400" class="img-fluid" alt="시스템 구성도">
+            </div>
+            <div class="mb-5">
+                <h3>주요 특징</h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="feature-item">
+                            <h4>확장성</h4>
+                            <p>유연한 시스템 확장 가능</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-item">
+                            <h4>안정성</h4>
+                            <p>검증된 안정적인 운영</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-item">
+                            <h4>효율성</h4>
+                            <p>최적화된 리소스 관리</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

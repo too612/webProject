@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>자료실 - 회사 홈페이지</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <h2 class="mb-4">자료실</h2>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form class="d-flex">
+                        <select class="form-select me-2" style="width: auto;">
+                            <option>전체</option>
+                            <option>제품설명서</option>
+                            <option>카탈로그</option>
+                            <option>기술자료</option>
+                        </select>
+                        <input class="form-control me-2" type="search" placeholder="검색어를 입력하세요">
+                        <button class="btn btn-outline-primary" type="submit">검색</button>
+                    </form>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">제품A 사용설명서</h5>
+                            <p class="card-text">제품A의 상세 사용방법과 주의사항이 포함된 매뉴얼입니다.</p>
+                            <p class="text-muted">
+                                <small>
+                                    파일형식: PDF / 용량: 2.5MB<br>
+                                    등록일: 2024-01-15
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <a href="#" class="btn btn-primary"><i class="bi bi-download"></i> 다운로드</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">2024 제품 카탈로그</h5>
+                            <p class="card-text">2024년

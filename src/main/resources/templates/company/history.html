@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>회사연혁 - 회사 홈페이지</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        .timeline {
+            margin-bottom: 50px;
+        }
+        .year-section {
+            margin-bottom: 20px;
+        }
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        .chart {
+            width: 30%;
+            min-width: 300px;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .chart h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 992px) {
+            .chart {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2>회사연혁</h2>
+        <div class="timeline">
+            <div class="year-section">
+                <h3>2020년</h3>
+                <ul>
+                    <li>글로벌 시장 진출</li>
+                    <li>기술혁신 대상 수상</li>
+                </ul>
+            </div>
+            <div class="year-section">
+                <h3>2010년</h3>
+                <ul>
+                    <li>기업부설연구소 설립</li>
+                    <li>ISO 9001 인증 획득</li>
+                </ul>
+            </div>
+            <div class="year-section">
+                <h3>2000년</h3>
+                <ul>
+                    <li>회사 설립</li>
+                    <li>첫 제품 출시</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>회사 성장 지표</h2>
+        <div class="charts-container">
+            <div class="chart">
+                <h3>연간 매출 성장</h3>
+                <div id="revenue-chart"></div>
+            </div>
+            <div class="chart">
+                <h3>직원 수 증가</h3>
+                <div id="employee-chart"></div>
+            </div>
+            <div class="chart">
+                <h3>해외 시장 점유율</h3>
+                <div id="market-chart"></div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // 데이터 준비
+            const revenueData = [
+                {year: 2000, value: 10},
+                {year: 2005, value: 35},
+                {year: 2010, value: 80},
+                {year: 2015, value: 150},
+                {year: 2020, value: 280}
+            ];
+            
+            const employeeData = [
+                {year: 2000, value: 5},
+                {year: 2005, value: 18},
+                {year: 2010, value: 45},
+                {year: 2015, value: 80},
+                {year: 2020, value: 120}
+            ];
+            
+            const marketShareData = [
+                {region: "북미", percentage: 35},
+                {region: "유럽", percentage: 25},
+                {region: "아시아", percentage: 30},
+                {region: "기타", percentage: 10}
+            ];
+        
+            // 차트 1: 매출 성장 라인 차트
+            function createRevenueChart() {
+                // id로 DOM 요소 확인
+                const container = document.getElementById("revenue-chart");
+                if (!container) {
+                    console.error("revenue-chart 요소를 찾을 수 없습니다");
+                    return;
+                }
+                
+                const width = container.clientWidth || 300;
+                const height = 200;
+                const margin = {top: 20, right: 30, bottom: 40, left: 50};
+                
+                // 기존 SVG 삭제
+                container.innerHTML = '';
+                
+                const svg = d3.select(container)
+                    .append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+                const x = d3.scaleLinear()
+                    .domain([2000, 2020])
+                    .range([0, width - margin.left - margin.right]);
+                
+                const y = d3.scaleLinear()
+                    .domain([0, 300])
+                    .range([height - margin.top - margin.bottom, 0]);
+                
+                // X축
+                svg.append("g")
+                    .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
+                    .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                
+                // Y축
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                
+                // 라인 그리기
+                const line = d3.line()
+                    .x(d => x(d.year))
+                    .y(d => y(d.value))
+                    .curve(d3.curveMonotoneX);
+                
+                svg.append("path")
+                    .datum(revenueData)
+                    .attr("fill", "none")
+                    .attr("stroke", "#4a90e2")
+                    .attr("stroke-width", 2)
+                    .attr("d", line);
+                    
+                // 데이터 포인트
+                svg.selectAll(".dot")
+                    .data(revenueData)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("cx", d => x(d.year))
+                    .attr("cy", d => y(d.value))
+                    .attr("r", 4)
+                    .attr("fill", "#4a90e2");
+            }
+            
+            // 차트 2: 직원 수 증가 바 차트
+            function createEmployeeChart() {
+                const container = document.getElementById("employee-chart");
+                if (!container) {
+                    console.error("employee-chart 요소를 찾을 수 없습니다");
+                    return;
+                }
+                
+                const width = container.clientWidth || 300;
+                const height = 200;
+                const margin = {top: 20, right: 30, bottom: 40, left: 40};
+                
+                // 기존 SVG 삭제
+                container.innerHTML = '';
+                
+                const svg = d3.select(container)
+                    .append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+                const x = d3.scaleBand()
+                    .domain(employeeData.map(d => d.year))
+                    .range([0, width - margin.left - margin.right])
+                    .padding(0.3);
+                
+                const y = d3.scaleLinear()
+                    .domain([0, 150])
+                    .range([height - margin.top - margin.bottom, 0]);
+                
+                // X축
+                svg.append("g")
+                    .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
+                    .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                
+                // Y축
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                
+                // 바 차트 그리기
+                svg.selectAll(".bar")
+                    .data(employeeData)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", d => x(d.year))
+                    .attr("y", d => y(d.value))
+                    .attr("width", x.bandwidth())
+                    .attr("height", d => height - margin.top - margin.bottom - y(d.value))
+                    .attr("fill", "#82c91e");
+            }
+            
+            // 차트 3: 시장 점유율 파이 차트
+            function createMarketChart() {
+                const container = document.getElementById("market-chart");
+                if (!container) {
+                    console.error("market-chart 요소를 찾을 수 없습니다");
+                    return;
+                }
+                
+                const width = container.clientWidth || 300;
+                const height = 200;
+                const radius = Math.min(width, height) / 2 - 40;
+                
+                // 기존 SVG 삭제
+                container.innerHTML = '';
+                
+                const svg = d3.select(container)
+                    .append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", `translate(${width / 2},${height / 2})`);
+                
+                const color = d3.scaleOrdinal()
+                    .domain(marketShareData.map(d => d.region))
+                    .range(d3.schemeCategory10);
+                    
+                const pie = d3.pie()
+                    .value(d => d.percentage);
+                    
+                const path = d3.arc()
+                    .outerRadius(radius)
+                    .innerRadius(0);
+                    
+                const labelArc = d3.arc()
+                    .outerRadius(radius - 30)
+                    .innerRadius(radius - 30);
+                
+                const arcs = svg.selectAll(".arc")
+                    .data(pie(marketShareData))
+                    .enter()
+                    .append("g")
+                    .attr("class", "arc");
+                
+                arcs.append("path")
+                    .attr("d", path)
+                    .attr("fill", d => color(d.data.region));
+                    
+                arcs.append("text")
+                    .attr("transform", d => `translate(${labelArc.centroid(d)})`)
+                    .attr("text-anchor", "middle")
+                    .text(d => d.data.percentage + "%")
+                    .style("font-size", "12px")
+                    .style("fill", "#fff");
+                
+                // 범례
+                const legend = svg.selectAll(".legend")
+                    .data(marketShareData)
+                    .enter()
+                    .append("g")
+                    .attr("class", "legend")
+                    .attr("transform", (d, i) => `translate(-40,${i * 20 - 80})`);
+                    
+                legend.append("rect")
+                    .attr("width", 12)
+                    .attr("height", 12)
+                    .attr("fill", d => color(d.region));
+                    
+                legend.append("text")
+                    .attr("x", 20)
+                    .attr("y", 9)
+                    .text(d => d.region)
+                    .style("font-size", "10px");
+            }
+            
+            // 차트 생성 함수
+            function initCharts() {
+                console.log("차트 초기화 시작...");
+                createRevenueChart();
+                createEmployeeChart();
+                createMarketChart();
+                console.log("차트 초기화 완료");
+            }
+            
+            // 문서 로드 완료 후 차트 생성
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", initCharts);
+            } else {
+                // 이미 DOM이 로드된 경우
+                initCharts();
+            }
+            
+            // 윈도우 로드 시에도 다시 초기화 (Thymeleaf 템플릿 완전 렌더링 후)
+            window.addEventListener("load", initCharts);
+            
+            // 브라우저 크기 변경 시 차트 다시 그리기
+            window.addEventListener("resize", function() {
+                initCharts();
+            });
+            /*]]>*/
+        </script>
+    </div>
+</body>
+</html>

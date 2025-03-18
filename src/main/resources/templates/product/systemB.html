@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>B시스템 - 회사 홈페이지</title>
+    <meta name="description" content="B시스템의 특징과 장점을 확인하세요. 최신 기술과 혁신적인 솔루션을 제공합니다.">
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <!-- 제품 헤더 섹션 -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">홈</a></li>
+                            <li class="breadcrumb-item"><a href="/products">제품</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">B시스템</li>
+                        </ol>
+                    </nav>
+                    <h2 class="display-4 mb-4">B시스템</h2>
+                </div>
+            </div>
+
+            <!-- 제품 상세 정보 -->
+            <div class="product-detail">
+                <!-- 제품 이미지 섹션 -->
+                <div class="mb-5">
+                    <div class="position-relative">
+                        <img src="/api/placeholder/800/400" class="img-fluid rounded shadow" alt="B시스템 제품 이미지">
+                        <div class="position-absolute bottom-0 end-0 p-3">
+                            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                <i class="bi bi-zoom-in"></i> 확대보기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주요 콘텐츠 -->
+                <div class="row">
+                    <!-- 제품 정보 -->
+                    <div class="col-md-8">
+                        <div class="mb-5">
+                            <h3 class="h4 mb-4">제품 특징</h3>
+                            <div class="card-deck">
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">특징 1</h5>
+                                        <p class="card-text">특징 1에 대한 상세 설명이 들어갑니다.</p>
+                                    </div>
+                                </div>
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">특징 2</h5>
+                                        <p class="card-text">특징 2에 대한 상세 설명이 들어갑니다.</p>
+                                    </div>
+                                </div>
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">특징 3</h5>
+                                        <p class="card-text">특징 3에 대한 상세 설명이 들어갑니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 기술 사양 -->
+                        <div class="mb-5">
+                            <h3 class="h4 mb-4">기술 사양</h3>
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">사양 1</th>
+                                        <td>사양 1의 상세 내용</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">사양 2</th>
+                                        <td>사양 2의 상세 내용</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">사양 3</th>
+                                        <td>사양 3의 상세 내용</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 사이드바 -->
+                    <div class="col-md-4">
+                        <!-- 문의하기 카드 -->
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">문의하기</h5>
+                                <p class="card-text">제품에 대해 궁금하신 점이 있으시다면 문의해주세요.</p>
+                                <form th:action="@{/board/inquiry}" method="post" class="mb-3">
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="name" placeholder="이름" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control" name="email" placeholder="이메일" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <textarea class="form-control" name="message" rows="3" placeholder="문의내용" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">문의하기</button>
+                                </form>
+                                <div class="text-center">
+                                    <p class="mb-1">또는</p>
+                                    <a href="tel:02-1234-5678" class="btn btn-outline-secondary w-100 mb-2">
+                                        <i class="bi bi-telephone"></i> 02-1234-5678
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 다운로드 카드 -->
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">자료 다운로드</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <a href="#" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-file-pdf"></i> 제품 카탈로그
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <a href="#" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-file-text"></i> 기술 사양서
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이미지 모달 -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">B시스템 상세 이미지</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img src="/api/placeholder/800/400" class="img-fluid" alt="B시스템 확대 이미지">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

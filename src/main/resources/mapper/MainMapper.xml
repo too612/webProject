@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.mapper.MainMapper">
+    
+    <resultMap id="resultMap1" type="map">
+        <result property="title" column="TITLE"/>
+        <result property="date" column="DATE"/>
+    </resultMap>
+    <select id="getList1" resultMap="resultMap1">
+        SELECT TITLE, DATE FROM NEWS
+    </select>
+
+    <resultMap id="resultMap2" type="map">
+        <result property="title" column="TITLE"/>
+        <result property="date" column="DATE"/>
+    </resultMap>
+    <select id="getList2" resultMap="resultMap2">
+        SELECT TITLE, DATE FROM INQUIRYLIST
+    </select>
+
+</mapper>

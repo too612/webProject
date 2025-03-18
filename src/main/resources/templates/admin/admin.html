@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>관리자 페이지 - 회사 홈페이지</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid py-4">
+            <div class="row">
+                <div class="col-md-2">
+                    <!-- 사이드바 메뉴 -->
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            대시보드
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">회원관리</a>
+                        <a href="#" class="list-group-item list-group-item-action">게시판관리</a>
+                        <a href="#" class="list-group-item list-group-item-action">메뉴관리</a>
+                        <a href="#" class="list-group-item list-group-item-action">통계</a>
+                        <a href="#" class="list-group-item list-group-item-action">설정</a>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <!-- 대시보드 내용 -->
+                    <h2 class="mb-4">관리자 대시보드</h2>
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-white bg-primary">
+                                <div class="card-body">
+                                    <h5 class="card-title">전체 회원수</h5>
+                                    <p class="card-text h2">1,234</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-success">
+                                <div class="card-body">
+                                    <h5 class="card-title">오늘 방문자</h5>
+                                    <p class="card-text h2">89</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-info">
+                                <div class="card-body">
+                                    <h5 class="card-title">신규 게시글</h5>
+                                    <p class="card-text h2">15</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-warning">
+                                <div class="card-body">
+                                    <h5 class="card-title">미처리 문의</h5>
+                                    <p class="card-text h2">7</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 최근 가입 회원 -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">최근 가입 회원</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>이름</th>
+                                            <th>이메일</th>
+                                            <th>가입일</th>
+                                            <th>상태</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>user123</td>
+                                            <td>홍길동</td>
+                                            <td>hong@example.com</td>
+                                            <td>2024-01-15</td>
+                                            <td><span class="badge bg-success">활성</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>user124</td>
+                                            <td>김철수</td>
+                                            <td>kim@example.com</td>
+                                            <td>2024-01-14</td>
+                                            <td><span class="badge bg-warning">대기</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 방문자 통계 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">방문자 통계</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="visitorsChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.0/apexcharts.min.js"></script>
+    <script th:inline="javascript">
+        // 방문자 통계 차트
+        var options = {
+            series: [{
+                name: '방문자수',
+                data: [30, 40, 35, 50, 49, 60, 70]
+            }],
+            chart: {
+                type: 'area',
+                height: 350
+            },
+            xaxis: {
+                categories: ['월', '화', '수', '목', '금', '토', '일']
+            }
+        };
+        var chart = new ApexCharts(document.querySelector("#visitorsChart"), options);
+        chart.render();
+    </script>
+</body>
+</html>

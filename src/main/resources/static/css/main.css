@@ -1,0 +1,87 @@
+/* Common Styles */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.6;
+}
+
+/* Header Styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand img {
+    max-height: 40px;
+}
+
+/* Dropdown Menu Hover Effect */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu {
+    margin-top: 0;
+}
+
+/* Navigation Area */
+.navigation-area {
+    background-color: #f8f9fa;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+}
+
+/* Content Area */
+.content-area {
+    min-height: 600px;
+}
+
+/* Submenu Styles */
+.submenu-area {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.submenu-area .nav-link {
+    color: #333;
+    padding: 0.5rem 1rem;
+}
+
+.submenu-area .nav-link.active {
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+}
+
+/* Board Styles */
+.board-list {
+    margin-top: 2rem;
+}
+
+.board-list th {
+    background-color: #f8f9fa;
+}
+
+.board-search {
+    margin-bottom: 1rem;
+}
+
+.pagination {
+    margin-top: 2rem;
+    justify-content: center;
+}
+
+/* Footer Styles */
+.footer {
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+}
+
+.footer p {
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+}

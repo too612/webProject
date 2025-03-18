@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>경영이념 - 회사 홈페이지</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <h2 class="text-center mb-5">경영이념</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">Vision 2030</h3>
+                            <p class="lead">글로벌 리더십으로 미래를 창조하는 기업</p>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-lightbulb fs-1 text-primary mb-3"></i>
+                                    <h4>혁신</h4>
+                                    <p>지속적인 혁신으로 미래가치 창출</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                                    <h4>인재존중</h4>
+                                    <p>인재중심 경영으로 가치 실현</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-globe fs-1 text-primary mb-3"></i>
+                                    <h4>글로벌</h4>
+                                    <p>세계시장 진출로 성장동력 확보</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <div id="missionChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.0/apexcharts.min.js"></script>
+    <script th:inline="javascript">
+        var options = {
+            series: [{
+                name: '성장률',
+                data: [30, 40, 45, 50, 49, 60]
+            }],
+            chart: {
+                height: 350,
+                type: 'line'
+            },
+            xaxis: {
+                categories: ['2018', '2019', '2020', '2021', '2022', '2023']
+            },
+            title: {
+                text: '연도별 성장률',
+                align: 'center'
+            }
+        };
+        var chart = new ApexCharts(document.querySelector("#missionChart"), options);
+        chart.render();
+    </script>
+</body>
+</html>
