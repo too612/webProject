@@ -1,102 +1,128 @@
 <header th:fragment="header" class="ud-header">
-    <!-- ====== Header Start ====== -->
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-12">
-              <nav class="navbar navbar-expand-lg">
-                <a class="navbar-brand" href="index.html">
-                  <img th:src="@{/images/logo/logo.svg}" alt="Logo" />
-                </a>
-                <button class="navbar-toggler">
-                  <span class="toggler-icon"> </span>
-                  <span class="toggler-icon"> </span>
-                  <span class="toggler-icon"> </span>
-                </button>
-                <div class="navbar-collapse">
-                  <ul id="nav" class="navbar-nav mx-auto">
-                    <li class="nav-item nav-item-has-children">
-                        <a href="javascript:void(0)"> 회사소개 </a>
-                        <ul class="ud-submenu">
-                          <li class="ud-submenu-item">
-                            <a href="/company/ceo" class="ud-submenu-link">CEO 인사말</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/company/history" class="ud-submenu-link">CEO 회사연혁</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/company/mission" class="ud-submenu-link">경영이념</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/company/location" class="ud-submenu-link">오시는길</a>
-                          </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item nav-item-has-children">
-                        <a href="javascript:void(0)"> 사업소개 </a>
-                        <ul class="ud-submenu">
-                          <li class="ud-submenu-item">
-                            <a href="/business/fields" class="ud-submenu-link">사업분야</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/business/system" class="ud-submenu-link">시스템소개</a>
-                          </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item nav-item-has-children">
-                        <a href="javascript:void(0)"> 사업실적 </a>
-                        <ul class="ud-submenu">
-                          <li class="ud-submenu-item">
-                            <a href="/performance/year2000" class="ud-submenu-link">2000년</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/performance/year2010" class="ud-submenu-link">2010년</a>
-                          </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item nav-item-has-children">
-                        <a href="javascript:void(0)"> 제품소개 </a>
-                        <ul class="ud-submenu">
-                          <li class="ud-submenu-item">
-                            <a href="/product/systemA" class="ud-submenu-link">A시스템</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/product/systemB" class="ud-submenu-link">B시스템</a>
-                          </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item nav-item-has-children">
-                        <a href="javascript:void(0)"> 고객지원 </a>
-                        <ul class="ud-submenu">
-                          <li class="ud-submenu-item">
-                            <a href="/support/notice" class="ud-submenu-link">공지사항</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/support/faq" class="ud-submenu-link">FAQ</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/support/qna" class="ud-submenu-link">Q&A</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/support/download" class="ud-submenu-link">자료실</a>
-                          </li>
-                          <li class="ud-submenu-item">
-                            <a href="/support/board" class="ud-submenu-link">게시판</a>
-                          </li>
-                        </ul>
-                    </li>
-                  </ul>
-                </div>
-                <div class="navbar-btn d-none d-sm-inline-block">
-                  <a href="login.html" class="ud-main-btn ud-login-btn">
-                    Sign In
-                  </a>
-                  <a class="ud-main-btn ud-white-btn" href="javascript:void(0)">
-                    Sign Up
-                  </a>
-                </div>
-              </nav>
-            </div>
-          </div>
-        </div>
-      <!-- ====== Header End ====== -->
+  <!-- ====== Material Design Header Start ====== -->
+  <nav class="nav-extended blue lighten-1">
+    <div class="nav-wrapper container">
+      <a href="index.html" class="brand-logo" style="padding-top:8px;">
+        <img th:src="@{/images/logo/logo.svg}" alt="Logo" style="height:40px;vertical-align:middle;">
+      </a>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+      <ul class="right hide-on-med-and-down">
+        <!-- 회사소개 Dropdown -->
+        <li>
+          <a class="dropdown-trigger" href="#!" data-target="company-dropdown">회사소개<i class="material-icons right">arrow_drop_down</i></a>
+        </li>
+        <!-- 사업소개 Dropdown -->
+        <li>
+          <a class="dropdown-trigger" href="#!" data-target="business-dropdown">사업소개<i class="material-icons right">arrow_drop_down</i></a>
+        </li>
+        <!-- 사업실적 Dropdown -->
+        <li>
+          <a class="dropdown-trigger" href="#!" data-target="performance-dropdown">사업실적<i class="material-icons right">arrow_drop_down</i></a>
+        </li>
+        <!-- 제품소개 Dropdown -->
+        <li>
+          <a class="dropdown-trigger" href="#!" data-target="product-dropdown">제품소개<i class="material-icons right">arrow_drop_down</i></a>
+        </li>
+        <!-- 고객지원 Dropdown -->
+        <li>
+          <a class="dropdown-trigger" href="#!" data-target="support-dropdown">고객지원<i class="material-icons right">arrow_drop_down</i></a>
+        </li>
+        <!-- 로그인/회원가입 버튼 -->
+        <li>
+          <a href="login.html" class="btn white blue-text waves-effect waves-blue" style="margin-right:8px;">Sign In</a>
+        </li>
+        <li>
+          <a href="javascript:void(0)" class="btn blue darken-2 waves-effect waves-light">Sign Up</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Dropdown Structures -->
+  <ul id="company-dropdown" class="dropdown-content">
+    <li><a href="/company/ceo">CEO 인사말</a></li>
+    <li><a href="/company/history">CEO 회사연혁</a></li>
+    <li><a href="/company/mission">경영이념</a></li>
+    <li><a href="/company/location">오시는길</a></li>
+  </ul>
+  <ul id="business-dropdown" class="dropdown-content">
+    <li><a href="/business/fields">사업분야</a></li>
+    <li><a href="/business/system">시스템소개</a></li>
+  </ul>
+  <ul id="performance-dropdown" class="dropdown-content">
+    <li><a href="/performance/year2000">2000년</a></li>
+    <li><a href="/performance/year2010">2010년</a></li>
+  </ul>
+  <ul id="product-dropdown" class="dropdown-content">
+    <li><a href="/product/systemA">A시스템</a></li>
+    <li><a href="/product/systemB">B시스템</a></li>
+  </ul>
+  <ul id="support-dropdown" class="dropdown-content">
+    <li><a href="/support/notice">공지사항</a></li>
+    <li><a href="/support/faq">FAQ</a></li>
+    <li><a href="/support/qna">Q&A</a></li>
+    <li><a href="/support/download">자료실</a></li>
+    <li><a href="/support/board">게시판</a></li>
+  </ul>
+
+  <!-- Mobile Sidenav -->
+  <ul class="sidenav" id="mobile-demo">
+    <li>
+      <a class="dropdown-trigger" href="#!" data-target="company-dropdown-mobile">회사소개<i class="material-icons right">arrow_drop_down</i></a>
+    </li>
+    <li>
+      <a class="dropdown-trigger" href="#!" data-target="business-dropdown-mobile">사업소개<i class="material-icons right">arrow_drop_down</i></a>
+    </li>
+    <li>
+      <a class="dropdown-trigger" href="#!" data-target="performance-dropdown-mobile">사업실적<i class="material-icons right">arrow_drop_down</i></a>
+    </li>
+    <li>
+      <a class="dropdown-trigger" href="#!" data-target="product-dropdown-mobile">제품소개<i class="material-icons right">arrow_drop_down</i></a>
+    </li>
+    <li>
+      <a class="dropdown-trigger" href="#!" data-target="support-dropdown-mobile">고객지원<i class="material-icons right">arrow_drop_down</i></a>
+    </li>
+    <li>
+      <a href="login.html" class="btn white blue-text waves-effect waves-blue" style="margin:8px 0;">Sign In</a>
+    </li>
+    <li>
+      <a href="javascript:void(0)" class="btn blue darken-2 waves-effect waves-light" style="margin:8px 0;">Sign Up</a>
+    </li>
+  </ul>
+  <!-- Mobile Dropdowns -->
+  <ul id="company-dropdown-mobile" class="dropdown-content">
+    <li><a href="/company/ceo">CEO 인사말</a></li>
+    <li><a href="/company/history">CEO 회사연혁</a></li>
+    <li><a href="/company/mission">경영이념</a></li>
+    <li><a href="/company/location">오시는길</a></li>
+  </ul>
+  <ul id="business-dropdown-mobile" class="dropdown-content">
+    <li><a href="/business/fields">사업분야</a></li>
+    <li><a href="/business/system">시스템소개</a></li>
+  </ul>
+  <ul id="performance-dropdown-mobile" class="dropdown-content">
+    <li><a href="/performance/year2000">2000년</a></li>
+    <li><a href="/performance/year2010">2010년</a></li>
+  </ul>
+  <ul id="product-dropdown-mobile" class="dropdown-content">
+    <li><a href="/product/systemA">A시스템</a></li>
+    <li><a href="/product/systemB">B시스템</a></li>
+  </ul>
+  <ul id="support-dropdown-mobile" class="dropdown-content">
+    <li><a href="/support/notice">공지사항</a></li>
+    <li><a href="/support/faq">FAQ</a></li>
+    <li><a href="/support/qna">Q&A</a></li>
+    <li><a href="/support/download">자료실</a></li>
+    <li><a href="/support/board">게시판</a></li>
+  </ul>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var dropdowns = document.querySelectorAll('.dropdown-trigger');
+      M.Dropdown.init(dropdowns, {coverTrigger: false, constrainWidth: false});
+      var sidenav = document.querySelectorAll('.sidenav');
+      M.Sidenav.init(sidenav);
+    });
+  </script>
+  <!-- ====== Material Design Header End ====== -->
 </header>

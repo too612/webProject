@@ -1,216 +1,106 @@
-<!-- ====== Footer Start ====== -->
-<footer th:fragment="footer" class="ud-footer wow fadeInUp" data-wow-delay=".15s">
-    <div class="shape shape-1">
-        <img th:src="@{/images/footer/shape-1.svg}" alt="shape"/>
-    </div>
-    <div class="shape shape-2">
-        <img th:src="@{/images/footer/shape-2.svg}" alt="shape"/>
-    </div>
-    <div class="shape shape-3">
-        <img th:src="@{/images/footer/shape-3.svg}" alt="shape"/>
-    </div>
-    <div class="ud-footer-widgets">
-        <div class="container">
+<!-- ====== Footer Start (Materialize) ====== -->
+<footer th:fragment="footer" class="page-footer blue lighten-1">
+  <div class="container">
+    <div class="row">
+      <!-- 로고 및 소개 -->
+      <div class="col s12 m6 l3">
+        <a href="index.html" class="brand-logo" style="display:block;margin-bottom:10px;">
+          <img th:src="@{/images/logo/logo.svg}" alt="logo" style="height:40px;">
+        </a>
+        <p class="white-text" style="font-size:15px;">
+          We create digital experiences for brands and companies by using technology.
+        </p>
+        <div>
+          <a href="https://twitter.com/MusharofChy" class="white-text" style="margin-right:8px;"><i class="material-icons">facebook</i></a>
+          <a href="https://twitter.com/MusharofChy" class="white-text" style="margin-right:8px;"><i class="material-icons">twitter</i></a>
+          <a href="https://twitter.com/MusharofChy" class="white-text" style="margin-right:8px;"><i class="material-icons">instagram</i></a>
+          <a href="https://twitter.com/MusharofChy" class="white-text"><i class="material-icons">linkedin</i></a>
+        </div>
+      </div>
+      <!-- About Us -->
+      <div class="col s12 m6 l2">
+        <h6 class="white-text">About Us</h6>
+        <ul>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Home</a></li>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Features</a></li>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">About</a></li>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Testimonial</a></li>
+        </ul>
+      </div>
+      <!-- Features -->
+      <div class="col s12 m6 l2">
+        <h6 class="white-text">Features</h6>
+        <ul>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">How it works</a></li>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Privacy policy</a></li>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Terms of service</a></li>
+          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Refund policy</a></li>
+        </ul>
+      </div>
+      <!-- Our Products -->
+      <div class="col s12 m6 l2">
+        <h6 class="white-text">Our Products</h6>
+        <ul>
+          <li><a class="grey-text text-lighten-3" href="https://lineicons.com/" target="_blank">Lineicons</a></li>
+          <li><a class="grey-text text-lighten-3" href="https://ecommercehtml.com/" target="_blank">Ecommerce HTML</a></li>
+          <li><a class="grey-text text-lighten-3" href="https://ayroui.com/" target="_blank">Ayro UI</a></li>
+          <li><a class="grey-text text-lighten-3" href="https://graygrids.com/" target="_blank">Plain Admin</a></li>
+        </ul>
+      </div>
+      <!-- Partners -->
+      <div class="col s12 m12 l3">
+        <h6 class="white-text">Partners</h6>
         <div class="row">
-            <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="ud-widget">
-                <a href="index.html" class="ud-footer-logo">
-                <img th:src="@{/images/logo/logo.svg}" alt="logo"/>
-                </a>
-                <p class="ud-widget-desc">
-                We create digital experiences for brands and companies by
-                using technology.
-                </p>
-                <ul class="ud-widget-socials">
-                <li>
-                    <a href="https://twitter.com/MusharofChy">
-                    <i class="lni lni-facebook-filled"></i>
-                    </a>
-                </li>
-                <li>
-                    <a href="https://twitter.com/MusharofChy">
-                    <i class="lni lni-twitter-filled"></i>
-                    </a>
-                </li>
-                <li>
-                    <a href="https://twitter.com/MusharofChy">
-                    <i class="lni lni-instagram-filled"></i>
-                    </a>
-                </li>
-                <li>
-                    <a href="https://twitter.com/MusharofChy">
-                    <i class="lni lni-linkedin-original"></i>
-                    </a>
-                </li>
-                </ul>
-            </div>
-            </div>
-
-            <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6">
-            <div class="ud-widget">
-                <h5 class="ud-widget-title">About Us</h5>
-                <ul class="ud-widget-links">
-                <li>
-                    <a href="javascript:void(0)">Home</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">Features</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">About</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">Testimonial</a>
-                </li>
-                </ul>
-            </div>
-            </div>
-            <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6">
-            <div class="ud-widget">
-                <h5 class="ud-widget-title">Features</h5>
-                <ul class="ud-widget-links">
-                <li>
-                    <a href="javascript:void(0)">How it works</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">Privacy policy</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">Terms of service</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">Refund policy</a>
-                </li>
-                </ul>
-            </div>
-            </div>
-            <div class="col-xl-2 col-lg-3 col-md-6 col-sm-6">
-            <div class="ud-widget">
-                <h5 class="ud-widget-title">Our Products</h5>
-                <ul class="ud-widget-links">
-                <li>
-                    <a
-                    href="https://lineicons.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >Lineicons
-                    </a>
-                </li>
-                <li>
-                    <a
-                    href="https://ecommercehtml.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >Ecommerce HTML</a
-                    >
-                </li>
-                <li>
-                    <a
-                    href="https://ayroui.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >Ayro UI</a
-                    >
-                </li>
-                <li>
-                    <a
-                    href="https://graygrids.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >Plain Admin</a
-                    >
-                </li>
-                </ul>
-            </div>
-            </div>
-            <div class="col-xl-3 col-lg-6 col-md-8 col-sm-10">
-            <div class="ud-widget">
-                <h5 class="ud-widget-title">Partners</h5>
-                <ul class="ud-widget-brands">
-                <li>
-                    <a
-                    href="https://ayroui.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >
-                    <img th:src="@{/images/footer/brands/ayroui.svg}" alt="ayroui"/>
-                    </a>
-                </li>
-                <li>
-                    <a
-                    href="https://ecommercehtml.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >
-                    <img th:src="@{/images/footer/brands/ecommerce-html.svg}" alt="ecommerce-html"/>
-                    </a>
-                </li>
-                <li>
-                    <a
-                    href="https://graygrids.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >
-                    <img th:src="@{/images/footer/brands/graygrids.svg}" alt="graygrids"/>
-                    </a>
-                </li>
-                <li>
-                    <a
-                    href="https://lineicons.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >
-                    <img th:src="@{/images/footer/brands/lineicons.svg}" alt="lineicons"/>
-                    </a>
-                </li>
-                <li>
-                    <a
-                    href="https://uideck.com/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >
-                    <img th:src="@{/images/footer/brands/uideck.svg}" alt="uideck"/>
-                    </a>
-                </li>
-                <li>
-                    <a
-                    href="https://tailwindtemplates.co/"
-                    rel="nofollow noopner"
-                    target="_blank"
-                    >
-                    <img th:src="@{/images/footer/brands/tailwindtemplates.svg}" alt="tailwindtemplates"/>
-                    </a>
-                </li>
-                </ul>
-            </div>
-            </div>
+          <div class="col s4 m4 l4" style="margin-bottom:8px;">
+            <a href="https://ayroui.com/" target="_blank">
+              <img th:src="@{/images/footer/brands/ayroui.svg}" alt="ayroui" class="responsive-img" style="max-height:32px;">
+            </a>
+          </div>
+          <div class="col s4 m4 l4" style="margin-bottom:8px;">
+            <a href="https://ecommercehtml.com/" target="_blank">
+              <img th:src="@{/images/footer/brands/ecommerce-html.svg}" alt="ecommerce-html" class="responsive-img" style="max-height:32px;">
+            </a>
+          </div>
+          <div class="col s4 m4 l4" style="margin-bottom:8px;">
+            <a href="https://graygrids.com/" target="_blank">
+              <img th:src="@{/images/footer/brands/graygrids.svg}" alt="graygrids" class="responsive-img" style="max-height:32px;">
+            </a>
+          </div>
+          <div class="col s4 m4 l4" style="margin-bottom:8px;">
+            <a href="https://lineicons.com/" target="_blank">
+              <img th:src="@{/images/footer/brands/lineicons.svg}" alt="lineicons" class="responsive-img" style="max-height:32px;">
+            </a>
+          </div>
+          <div class="col s4 m4 l4" style="margin-bottom:8px;">
+            <a href="https://uideck.com/" target="_blank">
+              <img th:src="@{/images/footer/brands/uideck.svg}" alt="uideck" class="responsive-img" style="max-height:32px;">
+            </a>
+          </div>
+          <div class="col s4 m4 l4" style="margin-bottom:8px;">
+            <a href="https://tailwindtemplates.co/" target="_blank">
+              <img th:src="@{/images/footer/brands/tailwindtemplates.svg}" alt="tailwindtemplates" class="responsive-img" style="max-height:32px;">
+            </a>
+          </div>
         </div>
-        </div>
+      </div>
     </div>
-    <div class="ud-footer-bottom">
-        <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-            <ul class="ud-footer-bottom-left">
-                <li>
-                <a href="javascript:void(0)">Privacy policy</a>
-                </li>
-                <li>
-                <a href="javascript:void(0)">Support policy</a>
-                </li>
-                <li>
-                <a href="javascript:void(0)">Terms of service</a>
-                </li>
-            </ul>
-            </div>
-            <div class="col-md-4">
-            <p class="ud-footer-bottom-right">
-                Designed and Developed by
-                <a href="https://uideck.com" rel="nofollow">UIdeck</a>
-            </p>
-            </div>
+  </div>
+  <div class="footer-copyright blue darken-2">
+    <div class="container">
+      <div class="row" style="margin-bottom:0;">
+        <div class="col s12 m8">
+          <a href="javascript:void(0)" class="grey-text text-lighten-3" style="margin-right:16px;">Privacy policy</a>
+          <a href="javascript:void(0)" class="grey-text text-lighten-3" style="margin-right:16px;">Support policy</a>
+          <a href="javascript:void(0)" class="grey-text text-lighten-3">Terms of service</a>
         </div>
+        <div class="col s12 m4 right-align">
+          <span class="grey-text text-lighten-3">
+            Designed and Developed by
+            <a href="https://uideck.com" rel="nofollow" class="grey-text text-lighten-4">UIdeck</a>
+          </span>
         </div>
+      </div>
     </div>
-    </footer>
-    <!-- ====== Footer End ====== -->
+  </div>
+</footer>
+<!-- ====== Footer End (Materialize) ====== -->

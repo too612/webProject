@@ -7,17 +7,21 @@
 </head>
 <body>
     <div layout:fragment="content">
-        <h2>CEO 인사말</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <img th:src="@{/images/logo/logo.png}" alt="CEO" class="img-fluid"/>
+        <h4 class="blue-text text-darken-2" style="margin-bottom:32px;">CEO 인사말</h4>
+        <div class="row valign-wrapper">
+            <div class="col s12 m4 center">
+                <img th:src="@{/images/logo/logo.png}" alt="CEO" class="responsive-img z-depth-2" style="max-width:220px;"/>
             </div>
-            <div class="col-md-8">
-                <h3>안녕하십니까?</h3>
-                <p>항상 고객과 함께 성장하는 기업이 되겠습니다.</p>
-                <p>우리 회사는 끊임없는 혁신과 도전을 통해 글로벌 리더로 성장하고 있습니다.</p>
-                <div class="ceo-sign mt-4">
-                    <p>대표이사 홍길동</p>
+            <div class="col s12 m8">
+                <div class="card-panel white">
+                    <h5 class="blue-text text-darken-2">안녕하십니까?</h5>
+                    <p class="grey-text text-darken-2" style="font-size:1.15rem;">
+                        항상 고객과 함께 성장하는 기업이 되겠습니다.<br>
+                        우리 회사는 끊임없는 혁신과 도전을 통해 글로벌 리더로 성장하고 있습니다.
+                    </p>
+                    <div class="right-align" style="margin-top:32px;">
+                        <span class="grey-text text-darken-1" style="font-size:1.1rem;">대표이사 홍길동</span>
+                    </div>
                 </div>
             </div>
         </div>

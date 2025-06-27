@@ -1,69 +1,66 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-   <div th:fragment="submenu">
-      <!-- 회사소개 서브메뉴 -->
-      <div class="list-group" th:if="${currentMenu == '회사소개'}">
-         <a href="/company/ceo" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == 'CEO 인사말'} ? 'active'">CEO 인사말</a>
-         <a href="/company/history" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '회사연혁'} ? 'active'">회사연혁</a>
-         <a href="/company/mission" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '경영이념'} ? 'active'">경영이념</a>
-         <a href="/company/location" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '오시는길'} ? 'active'">오시는길</a>
-      </div>
+<div th:fragment="submenu">
+  <!-- 회사소개 서브메뉴 -->
+  <div class="collection" th:if="${currentMenu == '회사소개'}">
+    <a href="/company/ceo"
+       class="collection-item"
+       th:classappend="${currentSubmenu == 'CEO 인사말'} ? 'active'">CEO 인사말</a>
+    <a href="/company/history"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '회사연혁'} ? 'active'">회사연혁</a>
+    <a href="/company/mission"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '경영이념'} ? 'active'">경영이념</a>
+    <a href="/company/location"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '오시는길'} ? 'active'">오시는길</a>
+  </div>
 
-      <!-- 사업소개 서브메뉴 -->
-      <div class="list-group" th:if="${currentMenu == '사업소개'}">
-         <a href="/business/fields" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '사업분야'} ? 'active'">사업분야</a>
-         <a href="/business/system" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '시스템소개'} ? 'active'">시스템소개</a>
-      </div>
+  <!-- 사업소개 서브메뉴 -->
+  <div class="collection" th:if="${currentMenu == '사업소개'}">
+    <a href="/business/fields"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '사업분야'} ? 'active'">사업분야</a>
+    <a href="/business/system"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '시스템소개'} ? 'active'">시스템소개</a>
+  </div>
 
-      <!-- 사업실적 서브메뉴 -->
-      <div class="list-group" th:if="${currentMenu == '사업실적'}">
-         <a href="/performance/year2000" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '2000년'} ? 'active'">2000년</a>
-         <a href="/performance/year2010" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '2010년'} ? 'active'">2010년</a>
-      </div>
+  <!-- 사업실적 서브메뉴 -->
+  <div class="collection" th:if="${currentMenu == '사업실적'}">
+    <a href="/performance/year2000"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '2000년'} ? 'active'">2000년</a>
+    <a href="/performance/year2010"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '2010년'} ? 'active'">2010년</a>
+  </div>
 
-      <!-- 제품소개 서브메뉴 -->
-      <div class="list-group" th:if="${currentMenu == '제품소개'}">
-         <a href="/product/systemA" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '시스템A'} ? 'active'">시스템A</a>
-         <a href="/product/systemB" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '시스템B'} ? 'active'">시스템B</a>
-      </div>
+  <!-- 제품소개 서브메뉴 -->
+  <div class="collection" th:if="${currentMenu == '제품소개'}">
+    <a href="/product/systemA"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '시스템A'} ? 'active'">시스템A</a>
+    <a href="/product/systemB"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '시스템B'} ? 'active'">시스템B</a>
+  </div>
 
-      <!-- 고객지원 서브메뉴 -->
-      <div class="list-group" th:if="${currentMenu == '고객지원'}">
-         <a href="/support/notice" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '공지사항'} ? 'active'">공지사항</a>
-         <a href="/support/faq" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == 'FAQ'} ? 'active'">FAQ</a>
-         <a href="/support/qna" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == 'Q&A'} ? 'active'">Q&A</a>
-         <a href="/support/download" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '자료실'} ? 'active'">자료실</a>
-         <a href="/support/board" 
-            class="list-group-item list-group-item-action"
-            th:classappend="${currentSubmenu == '게시판'} ? 'active'">게시판</a>
-      </div>
-   </div>
-</html>
+  <!-- 고객지원 서브메뉴 -->
+  <div class="collection" th:if="${currentMenu == '고객지원'}">
+    <a href="/support/notice"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '공지사항'} ? 'active'">공지사항</a>
+    <a href="/support/faq"
+       class="collection-item"
+       th:classappend="${currentSubmenu == 'FAQ'} ? 'active'">FAQ</a>
+    <a href="/support/qna"
+       class="collection-item"
+       th:classappend="${currentSubmenu == 'Q&A'} ? 'active'">Q&A</a>
+    <a href="/support/download"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '자료실'} ? 'active'">자료실</a>
+    <a href="/support/board"
+       class="collection-item"
+       th:classappend="${currentSubmenu == '게시판'} ? 'active'">게시판</a>
+  </div>
+</div>
