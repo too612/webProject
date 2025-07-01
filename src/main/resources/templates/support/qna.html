@@ -1,117 +1,994 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/default}">
+<html lang="ko">
 <head>
-    <title>Q&A - 회사 홈페이지</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대전청소년위캔센터 - 질문과답변</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            background: #f8f9fa;
+            padding: 8px 0;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .header-top .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-main {
+            padding: 10px 0;
+        }
+
+        .header-main .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2196F3;
+        }
+
+        .logo::before {
+            content: "W";
+            background: #2196F3;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .nav-main {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-main a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .nav-main a.active {
+            color: #2196F3;
+        }
+
+        .nav-main a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2196F3;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-icons a {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 16px;
+            color: white;
+        }
+
+        .social-icons .kakao { background: #FEE500; color: #333; }
+        .social-icons .facebook { background: #1877F2; }
+        .social-icons .youtube { background: #FF0000; }
+        .social-icons .blog { background: #03C75A; }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #FFE0B2, #FFCC80);
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .hero-illustration {
+            position: absolute;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.8;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: #E8F5E8;
+            padding: 20px 0;
+        }
+
+        .breadcrumb .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .breadcrumb-item:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .breadcrumb-separator {
+            color: #666;
+            margin: 0 5px;
+        }
+
+        /* Dropdown menus */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.2s;
+            border-radius: 4px;
+            margin: 4px;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f5f5f5;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 0;
+            height: fit-content;
+        }
+
+        .sidebar-header {
+            background: #2196F3;
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar-menu li:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu a:hover {
+            background: #f8f9fa;
+            padding-left: 25px;
+        }
+
+        .sidebar-menu a.active {
+            background: #E3F2FD;
+            color: #2196F3;
+            font-weight: 500;
+        }
+
+        .content-area {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            position: relative;
+        }
+
+        .content-header h2::after {
+            font-size: 12px;
+            color: #2196F3;
+            font-weight: 400;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+        }
+
+        .content-stats {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .breadcrumb-right {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb-right a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+
+        th:first-child {
+            width: 80px;
+            text-align: center;
+        }
+
+        th:nth-child(3) {
+            width: 100px;
+            text-align: center;
+        }
+
+        th:last-child {
+            width: 120px;
+            text-align: center;
+        }
+
+        td {
+            vertical-align: middle;
+        }
+
+        td:first-child {
+            text-align: center;
+            font-weight: 500;
+        }
+
+        td:nth-child(3) {
+            text-align: center;
+            color: #666;
+        }
+
+        td:last-child {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .post-title {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .post-title:hover {
+            color: #2196F3;
+        }
+
+        .status-badge {
+            background: #2196F3;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.answered {
+            background: #4CAF50;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 30px;
+            gap: 5px;
+        }
+
+        .pagination a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            text-decoration: none;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .pagination a:hover {
+            background: #f5f5f5;
+        }
+
+        .pagination a.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        /* Search */
+        .search-area {
+            padding: 20px 30px;
+            border-top: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 250px;
+        }
+
+        .search-btn {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #1976D2;
+        }
+
+        /* Footer */
+        .footer {
+            background: #424242;
+            color: #bbb;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .footer-info {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer-social a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+        }
+
+        .footer-social .facebook { background: #1877F2; }
+        .footer-social .youtube { background: #FF0000; }
+        .footer-social .blog { background: #03C75A; }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .nav-main {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div layout:fragment="content">
-        <div class="container py-5">
-            <h2 class="mb-4">Q&A</h2>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <form class="d-flex">
-                        <select class="form-select me-2" style="width: auto;">
-                            <option>전체</option>
-                            <option>제품문의</option>
-                            <option>A/S문의</option>
-                            <option>기타문의</option>
-                        </select>
-                        <input class="form-control me-2" type="search" placeholder="검색어를 입력하세요">
-                        <button class="btn btn-outline-primary" type="submit">검색</button>
-                    </form>
-                </div>
-                <div class="col-md-6 text-end">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#writeModal">글쓰기</button>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                홈으로 | 회원가입
+            </div>
+        </div>
+        <div class="header-main">
+            <div class="container">
+                <div class="logo">대전청소년위캔센터</div>
+                <nav class="nav-main">
+                    <a href="#">센터소개</a>
+                    <a href="#">시설안내</a>
+                    <a href="#">프로그램안내</a>
+                    <a href="#">예약하기</a>
+                    <a href="#">위캔소식</a>
+                    <a href="#" class="active">열린마당</a>
+                </nav>
+                <div class="social-icons">
+                    <a href="#" class="kakao">K</a>
+                    <a href="#" class="facebook">f</a>
+                    <a href="#" class="youtube">▶</a>
+                    <a href="#" class="blog">B</a>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover">
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>열린마당</h1>
+        <div class="hero-illustration">
+            <!-- Illustration would go here -->
+        </div>
+    </section>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <div class="breadcrumb-item" onclick="location.href='index.html'">
+                    <span class="material-icons">home</span>
+                </div>
+                <span class="breadcrumb-separator">></span>
+                <div class="breadcrumb-item dropdown">
+                    <span>열린마당</span>
+                    <span class="material-icons">expand_more</span>
+                    <div class="dropdown-menu">
+                        <a href="#">센터소개</a>
+                        <a href="#">시설안내</a>
+                        <a href="#">프로그램안내</a>
+                        <a href="#">예약하기</a>
+                        <a href="#">위캔소식</a>
+                        <a href="#">열린마당</a>
+                    </div>
+                </div>
+                <span class="breadcrumb-separator">></span>
+                <div class="breadcrumb-item dropdown">
+                    <span>질문과답변</span>
+                    <span class="material-icons">expand_more</span>
+                    <div class="dropdown-menu">
+                        <a href="#">자료실</a>
+                        <a href="#">질문과답변</a>
+                        <a href="#">자유게시판</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </section>
+
+
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">자료</div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active">시설안내</a></li>
+                <li><a href="#">프로그램안내</a></li>
+                <li><a href="#">열린마당</a></li>
+                <li><a href="#">예약하기</a></li>
+                <li><a href="#">센터소개</a></li>
+                <li><a href="#">위캔소식</a></li>
+            </ul>
+        </aside>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-header">
+                <div>
+                    <h2>질문과 답변</h2>
+                    <div class="content-stats">게시물 수: 84 | 페이지: 1/6</div>
+                </div>
+                <div class="breadcrumb-right">
+                    <a href="#">홈</a> > <a href="#">열린마당</a> > 질문과답변
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
                     <thead>
                         <tr>
                             <th>번호</th>
-                            <th>분류</th>
                             <th>제목</th>
                             <th>작성자</th>
                             <th>등록일</th>
-                            <th>상태</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>제품문의</td>
-                            <td><a href="#" class="text-decoration-none">제품 A 사용 방법 문의</a></td>
-                            <td>홍길동</td>
-                            <td>2024-01-15</td>
-                            <td><span class="badge bg-success">답변완료</span></td>
+                            <td>84</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    청소년상담복지센터와 지역 위캔 기관 연계
+                                    <span class="status-badge">답변</span>
+                                </a>
+                            </td>
+                            <td>◯◯◯</td>
+                            <td>2025-06-12</td>
                         </tr>
                         <tr>
-                            <td>2</td>
-                            <td>A/S문의</td>
-                            <td><a href="#" class="text-decoration-none">수리기간 문의</a></td>
-                            <td>김철수</td>
-                            <td>2024-01-14</td>
-                            <td><span class="badge bg-warning">처리중</span></td>
+                            <td>83</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge">답변</span>
+                                    청소년상담복지센터와 지역 위캔 기관 연계
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2025-06-20</td>
+                        </tr>
+                        <tr>
+                            <td>82</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    월을 넘어선 활동은 날 어어하면 하는 건가요?
+                                </a>
+                            </td>
+                            <td>◯</td>
+                            <td>2025-04-09</td>
+                        </tr>
+                        <tr>
+                            <td>81</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    월을 넘어선 활동은 날 어어하면 하는 건가요?
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2025-04-16</td>
+                        </tr>
+                        <tr>
+                            <td>80</td>
+                            <td>
+                                <a href="#" class="post-title">수산업 어업</a>
+                            </td>
+                            <td>◯</td>
+                            <td>2025-04-06</td>
+                        </tr>
+                        <tr>
+                            <td>79</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    수산업 어업
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2025-04-16</td>
+                        </tr>
+                        <tr>
+                            <td>78</td>
+                            <td>
+                                <a href="#" class="post-title">직업체험 활동</a>
+                            </td>
+                            <td>◯</td>
+                            <td>2025-03-25</td>
+                        </tr>
+                        <tr>
+                            <td>77</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    직업체험 활동
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2025-03-26</td>
+                        </tr>
+                        <tr>
+                            <td>76</td>
+                            <td>
+                                <a href="#" class="post-title">궁금 해요근 시간대</a>
+                            </td>
+                            <td>◯◯◯</td>
+                            <td>2025-02-10</td>
+                        </tr>
+                        <tr>
+                            <td>75</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    궁금 해요근 시간대
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2025-02-12</td>
+                        </tr>
+                        <tr>
+                            <td>74</td>
+                            <td>
+                                <a href="#" class="post-title">무료결제식 죽행사 제정민</a>
+                            </td>
+                            <td>◯</td>
+                            <td>2024-11-22</td>
+                        </tr>
+                        <tr>
+                            <td>73</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    무료결제식 죽행사 제정민
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2024-11-26</td>
+                        </tr>
+                        <tr>
+                            <td>72</td>
+                            <td>
+                                <a href="#" class="post-title">계승부족 및 수 찾게 활동</a>
+                            </td>
+                            <td>◯</td>
+                            <td>2024-11-22</td>
+                        </tr>
+                        <tr>
+                            <td>71</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    계승부족 및 수 찾게 활동
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2024-12-04</td>
+                        </tr>
+                        <tr>
+                            <td>70</td>
+                            <td>
+                                <a href="#" class="post-title">물어보다 청취하다</a>
+                            </td>
+                            <td>◯◯◯</td>
+                            <td>2024-10-13</td>
+                        </tr>
+                        <tr>
+                            <td>69</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    물어보다 청취하다
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2024-10-15</td>
+                        </tr>
+                        <tr>
+                            <td>68</td>
+                            <td>
+                                <a href="#" class="post-title">제안하다</a>
+                            </td>
+                            <td>◯◯◯</td>
+                            <td>2024-08-26</td>
+                        </tr>
+                        <tr>
+                            <td>67</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    제안하다
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2024-08-30</td>
+                        </tr>
+                        <tr>
+                            <td>66</td>
+                            <td>
+                                <a href="#" class="post-title">토록 해드린 민원 응답</a>
+                            </td>
+                            <td>◯◯◯</td>
+                            <td>2024-08-03</td>
+                        </tr>
+                        <tr>
+                            <td>65</td>
+                            <td>
+                                <a href="#" class="post-title">
+                                    <span class="status-badge answered">답변</span>
+                                    토록 해드린 민원 응답
+                                </a>
+                            </td>
+                            <td>관리자</td>
+                            <td>2024-08-20</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">이전</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">다음</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
 
-        <!-- 글쓰기 모달 -->
-        <div class="modal fade" id="writeModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">문의하기</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form>
-                            <div class="mb-3">
-                                <label class="form-label">분류</label>
-                                <select class="form-select">
-                                    <option>제품문의</option>
-                                    <option>A/S문의</option>
-                                    <option>기타문의</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">제목</label>
-                                <input type="text" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">내용</label>
-                                <textarea class="form-control" rows="5"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">파일첨부</label>
-                                <input type="file" class="form-control">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                        <button type="button" class="btn btn-primary">등록</button>
-                    </div>
-                </div>
+            <div class="pagination">
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">4</a>
+                <a href="#">5</a>
+                <a href="#">6</a>
+            </div>
+
+            <div class="search-area">
+                <select class="search-select">
+                    <option>제목</option>
+                    <option>내용</option>
+                    <option>작성자</option>
+                </select>
+                <input type="text" class="search-input" placeholder="검색어를 입력하세요">
+                <button class="search-btn">검색</button>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="logo" style="color: #2196F3; margin-bottom: 10px;">대전청소년위캔센터</div>
+                    <p>주소 : 대전 청소년위캔원 We CaN 센터 | 사업자등록 : 131-82-17285 | 대표자 : 송경태</p>
+                    <p>전화 : 042-822-0000 | 팩스 : 042-822-0000 | 홈페이지 : http://wecan.or.kr</p>
+                    <p>출판신고번호 : 제2021-대전중구-00458호 | 발행인 : 송경태 | 편집인 : 청소년상담복지개발원</p>
+                    <p>전화 : 042-822-0004-5 | 팩스 : 042-222-0040 | E-mail : djywecan@naver.com</p>
+                </div>
+                <div class="footer-social">
+                    <a href="#" class="facebook">f</a>
+                    <a href="#" class="youtube">▶</a>
+                    <a href="#" class="blog">B</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                Copyright by Daejeon Youth WE CAN CENTER. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Breadcrumb dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Close all other dropdowns
+                    dropdowns.forEach(d => {
+                        if (d !== dropdown) {
+                            d.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    this.classList.toggle('active');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function() {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            });
+        });
+
+        // Table row hover effect
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f8f9fa';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = '';
+            });
+        });
+
+        // Search functionality
+        document.querySelector('.search-btn').addEventListener('click', function() {
+            const searchType = document.querySelector('.search-select').value;
+            const searchTerm = document.querySelector('.search-input').value;
+            
+            if (searchTerm.trim()) {
+                alert(`${searchType}에서 "${searchTerm}"를 검색합니다.`);
+            } else {
+                alert('검색어를 입력해주세요.');
+            }
+        });
+
+        // Enter key search
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('.search-btn').click();
+            }
+        });
+
+        // Pagination functionality
+        document.querySelectorAll('.pagination a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all pagination links
+                document.querySelectorAll('.pagination a').forEach(a => a.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Here you would typically load the corresponding page data
+                console.log('Loading page:', this.textContent);
+            });
+        });
+    </script>
 </body>
 </html>
