@@ -17,6 +17,16 @@ public class MainServiceImpl implements MainService {
     @Autowired
     private MainMapper mainMapper;
 
+
+    @Override
+    public List<Map<String, String>> getMenuList(HttpServletRequest request) {
+
+        List<Map<String, String>> list = mainMapper.getMenuList();
+        System.out.println("menuList value--->" + list);
+        return list;
+    }
+
+
     @Override
     public List<Map<String, String>> getList1(HttpServletRequest request) {
 

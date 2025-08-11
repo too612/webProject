@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>대전청소년위캔센터</title>
+    <title>테스트센터</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -608,27 +608,36 @@
                 </div>
             </div>
             <nav class="nav-menu">
-                <div class="nav-item">
-                    <a href="#" class="ripple">센터소개</a>
-                    <div class="dropdown-menu">
-                        <a href="#">인사말</a>
-                        <a href="#">설립목적</a>
-                        <a href="#">주요연혁</a>
-                        <a href="#">직원 및 업무</a>
-                        <a href="#">오시는길</a>
-                    </div>
-                </div>
-                <a href="#" class="ripple">사업안내</a>
-                <a href="#" class="ripple">프로그램안내</a>
-                <a href="#" class="ripple">예약하기</a>
-                <a href="#" class="ripple">위캔소식</a>
-                <div class="nav-item">
-                    <a href="#" class="ripple">열린마당</a>
-                    <div class="dropdown-menu">
-                        <a href="/support/board">자료실</a>
-                        <a href="/support/qna">Q&A</a>
-                    </div>
-                </div>
+                <!--/* 가장 간단한 방법: 중첩 루프 사용 */-->
+                <th:block th:each="menu : ${menuList}">
+                    <!--/* Level 1 메뉴만 처리 */-->
+                    <th:block th:if="${menu['LEVEL'] == '1'}">
+                        <!--/* 하위 메뉴가 있는지 먼저 확인 */-->
+                        <th:block th:with="menuId=${menu['MENU_ID']}">
+                            <!--/* 하위 메뉴 개수 카운트 */-->
+                            <th:block th:with="subMenuCount=0">
+                                <th:block th:each="checkItem : ${menuList}">
+                                    <th:block th:if="${checkItem['UP_MENU_ID'] != null and checkItem['UP_MENU_ID'] == menuId}">
+                                        <th:block th:with="subMenuCount=${subMenuCount + 1}"></th:block>
+                                    </th:block>
+                                </th:block>
+                                
+                                <!--/* 실제 메뉴 렌더링 - 매번 다시 체크 */-->
+                                <!--/* 드롭다운 메뉴 */-->
+                                <div class="nav-item">
+                                    <a href="#" class="ripple" th:text="${menu['MENU_NM']}"></a>
+                                    <div class="dropdown-menu">
+                                        <th:block th:each="subMenu : ${menuList}">
+                                            <a th:if="${subMenu['UP_MENU_ID'] != null and subMenu['UP_MENU_ID'] == menuId}" 
+                                            th:href="${subMenu['PATH'] != null ? subMenu['PATH'] : '#'}" 
+                                            th:text="${subMenu['MENU_NM']}"></a>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </th:block>
+                    </th:block>
+                </th:block>
             </nav>
         </div>
     </header>

@@ -6,6 +6,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface MainService {
+    List<Map<String,String>> getMenuList(HttpServletRequest request);
     List<Map<String,String>> getList1(HttpServletRequest request);
     List<Map<String,String>> getList2(HttpServletRequest request);
 }

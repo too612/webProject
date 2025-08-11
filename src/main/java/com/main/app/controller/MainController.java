@@ -21,6 +21,10 @@ public class MainController {
     @GetMapping("/")
     public String index(Model model, HttpServletRequest request) {
         
+        List<Map<String,String>> menuList = mainService.getMenuList(request);
+        model.addAttribute("menuList", menuList);
+
+
         List<Map<String,String>> list1 = mainService.getList1(request);
         model.addAttribute("newsList", list1);
 
