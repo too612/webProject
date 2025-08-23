@@ -1,0 +1,153 @@
+.main-wrapper {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 0;
+    height: fit-content;
+}
+
+.sidebar-header {
+    background: #2196F3;
+    color: white;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-menu li:last-child {
+    border-bottom: none;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.sidebar-menu a.accordion-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sidebar-menu a .material-icons {
+    font-size: 20px;
+    opacity: 0.7;
+    background: #E3F2FD;
+    color: #2196F3;
+    font-weight: 500;
+}
+
+.sidebar-menu a .expand-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Accordion Panel Styles */
+.submenu-panel {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f8f9fa;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.sidebar-menu li.is-open > .submenu-panel {
+    max-height: 500px; /* A large enough value to show all items */
+    transition: max-height 0.4s ease-in;
+}
+
+.submenu-panel a {
+    padding-left: 40px !important; /* Override base padding for indentation */
+    font-size: 0.95em;
+}
+
+.sidebar-menu li.is-open > .accordion-toggle .expand-icon {
+    transform: rotate(180deg);
+}
+
+.content-area {
+    flex-grow: 1;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: #E8F5E8;
+    padding: 20px 0;
+}
+
+.breadcrumb .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.breadcrumb-item:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+.breadcrumb-separator {
+    color: #666;
+    margin: 0 5px;
+}
+
+/* Styles for content area header, similar to qna.html */
+.content-header {
+    padding: 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.content-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+

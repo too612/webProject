@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @SuppressWarnings("null")
     @Override
     public void addResourceHandlers( ResourceHandlerRegistry registry) {
         /* '/js/**'로 호출하는 자원은 '/static/js/' 폴더 아래에서 찾는다. */ 
@@ -23,7 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/scss/**").addResourceLocations("classpath:/static/scss/").setCachePeriod(60 * 60 * 24 * 365); 
     }
 
-    @SuppressWarnings("null")
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 필요한 인터셉터가 있다면 여기에 추가

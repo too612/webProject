@@ -1,66 +1,46 @@
-<div th:fragment="submenu">
-  <!-- 회사소개 서브메뉴 -->
-  <div class="collection" th:if="${currentMenu == '회사소개'}">
-    <a href="/company/ceo"
-       class="collection-item"
-       th:classappend="${currentSubmenu == 'CEO 인사말'} ? 'active'">CEO 인사말</a>
-    <a href="/company/history"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '회사연혁'} ? 'active'">회사연혁</a>
-    <a href="/company/mission"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '경영이념'} ? 'active'">경영이념</a>
-    <a href="/company/location"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '오시는길'} ? 'active'">오시는길</a>
-  </div>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}"> <!--/* 메인 레이아웃인 layout.html을 바라보도록 수정 */-->
 
-  <!-- 사업소개 서브메뉴 -->
-  <div class="collection" th:if="${currentMenu == '사업소개'}">
-    <a href="/business/fields"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '사업분야'} ? 'active'">사업분야</a>
-    <a href="/business/system"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '시스템소개'} ? 'active'">시스템소개</a>
-  </div>
+<body>
 
-  <!-- 사업실적 서브메뉴 -->
-  <div class="collection" th:if="${currentMenu == '사업실적'}">
-    <a href="/performance/year2000"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '2000년'} ? 'active'">2000년</a>
-    <a href="/performance/year2010"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '2010년'} ? 'active'">2010년</a>
-  </div>
+<div layout:fragment="content">
 
-  <!-- 제품소개 서브메뉴 -->
-  <div class="collection" th:if="${currentMenu == '제품소개'}">
-    <a href="/product/systemA"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '시스템A'} ? 'active'">시스템A</a>
-    <a href="/product/systemB"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '시스템B'} ? 'active'">시스템B</a>
-  </div>
+    <!-- Hero Section -->
+    <section class="hero-section text-center py-5 bg-light" th:if="${currentTopMenu != null}">
+        <div class="container">
+            <!-- th:text를 사용하여 안전하게 텍스트를 설정합니다. -->
+            <h1 class="display-4" th:text="${currentTopMenu.menuName}">메뉴 이름</h1>
+            <!-- MenuDto에 설명 필드(e.g. description)가 있다면 활용할 수 있습니다. -->
+            <p class="lead" th:if="${currentTopMenu.description}" th:text="${currentTopMenu.description}">메뉴 설명</p>
+        </div>
+    </section>
 
-  <!-- 고객지원 서브메뉴 -->
-  <div class="collection" th:if="${currentMenu == '고객지원'}">
-    <a href="/support/notice"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '공지사항'} ? 'active'">공지사항</a>
-    <a href="/support/faq"
-       class="collection-item"
-       th:classappend="${currentSubmenu == 'FAQ'} ? 'active'">FAQ</a>
-    <a href="/support/qna"
-       class="collection-item"
-       th:classappend="${currentSubmenu == 'Q&A'} ? 'active'">Q&A</a>
-    <a href="/support/download"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '자료실'} ? 'active'">자료실</a>
-    <a href="/support/board"
-       class="collection-item"
-       th:classappend="${currentSubmenu == '게시판'} ? 'active'">게시판</a>
-  </div>
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mt-4" th:if="${currentTopMenu != null}">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${currentTopMenu.menuName}">회사소개</li>
+            </ol>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="my-4">
+            <div class="row">
+                <!-- Sidebar (Submenu) -->
+                <!-- 재사용 가능한 사이드바 프래그먼트를 여기에 포함합니다. -->
+                <div th:replace="~{layout/sidebar :: submenu}"></div>
+
+                <!-- Page-specific Content -->
+                <div class="col-lg-9" layout:fragment="page_content">
+                    <!-- ceo.html 같은 페이지의 콘텐츠가 이 부분에 삽입됩니다. -->
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
+
+</body>
+</html>

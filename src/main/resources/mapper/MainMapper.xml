@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.mapper.MainMapper">
-    <select id="getMenuList" resultType="map">
-        SELECT menu_id    AS "MENU_ID"
-              ,menu_nm    AS "MENU_NM"
-              ,up_menu_id AS "UP_MENU_ID"
-              ,level      AS "LEVEL"
-              ,path       AS "PATH"
+    <!-- resultType을 MenuDto로 변경하여 서비스 로직을 단순화합니다. -->
+    <!-- mybatis.configuration.map-underscore-to-camel-case=true 설정 덕분에 DB 컬럼이 DTO 필드에 자동으로 매핑됩니다. -->
+    <select id="getMenuList" resultType="com.main.app.model.MenuDto">
+        SELECT menu_id
+              ,menu_nm AS menuName      -- DTO의 menuName 필드와 명시적으로 매핑
+              ,up_menu_id AS parentId -- MenuDto의 parentId 필드와 매핑하기 위한 별칭
+              ,level
+              ,path
+              ,order_no
           FROM sys_menu_mgt
-         WHERE up_menu_id LIKE 'M_MAIN%'
          ORDER BY level, order_no
     </select>
 

@@ -1,128 +1,34 @@
-<header th:fragment="header" class="ud-header">
-  <!-- ====== Material Design Header Start ====== -->
-  <nav class="nav-extended blue lighten-1">
-    <div class="nav-wrapper container">
-      <a href="index.html" class="brand-logo" style="padding-top:8px;">
-        <img th:src="@{/images/logo/logo.svg}" alt="Logo" style="height:40px;vertical-align:middle;">
-      </a>
-      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-      <ul class="right hide-on-med-and-down">
-        <!-- 회사소개 Dropdown -->
-        <li>
-          <a class="dropdown-trigger" href="#!" data-target="company-dropdown">회사소개<i class="material-icons right">arrow_drop_down</i></a>
-        </li>
-        <!-- 사업소개 Dropdown -->
-        <li>
-          <a class="dropdown-trigger" href="#!" data-target="business-dropdown">사업소개<i class="material-icons right">arrow_drop_down</i></a>
-        </li>
-        <!-- 사업실적 Dropdown -->
-        <li>
-          <a class="dropdown-trigger" href="#!" data-target="performance-dropdown">사업실적<i class="material-icons right">arrow_drop_down</i></a>
-        </li>
-        <!-- 제품소개 Dropdown -->
-        <li>
-          <a class="dropdown-trigger" href="#!" data-target="product-dropdown">제품소개<i class="material-icons right">arrow_drop_down</i></a>
-        </li>
-        <!-- 고객지원 Dropdown -->
-        <li>
-          <a class="dropdown-trigger" href="#!" data-target="support-dropdown">고객지원<i class="material-icons right">arrow_drop_down</i></a>
-        </li>
-        <!-- 로그인/회원가입 버튼 -->
-        <li>
-          <a href="login.html" class="btn white blue-text waves-effect waves-blue" style="margin-right:8px;">Sign In</a>
-        </li>
-        <li>
-          <a href="javascript:void(0)" class="btn blue darken-2 waves-effect waves-light">Sign Up</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Dropdown Structures -->
-  <ul id="company-dropdown" class="dropdown-content">
-    <li><a href="/company/ceo">CEO 인사말</a></li>
-    <li><a href="/company/history">CEO 회사연혁</a></li>
-    <li><a href="/company/mission">경영이념</a></li>
-    <li><a href="/company/location">오시는길</a></li>
-  </ul>
-  <ul id="business-dropdown" class="dropdown-content">
-    <li><a href="/business/fields">사업분야</a></li>
-    <li><a href="/business/system">시스템소개</a></li>
-  </ul>
-  <ul id="performance-dropdown" class="dropdown-content">
-    <li><a href="/performance/year2000">2000년</a></li>
-    <li><a href="/performance/year2010">2010년</a></li>
-  </ul>
-  <ul id="product-dropdown" class="dropdown-content">
-    <li><a href="/product/systemA">A시스템</a></li>
-    <li><a href="/product/systemB">B시스템</a></li>
-  </ul>
-  <ul id="support-dropdown" class="dropdown-content">
-    <li><a href="/support/notice">공지사항</a></li>
-    <li><a href="/support/faq">FAQ</a></li>
-    <li><a href="/support/qna">Q&A</a></li>
-    <li><a href="/support/download">자료실</a></li>
-    <li><a href="/support/board">게시판</a></li>
-  </ul>
-
-  <!-- Mobile Sidenav -->
-  <ul class="sidenav" id="mobile-demo">
-    <li>
-      <a class="dropdown-trigger" href="#!" data-target="company-dropdown-mobile">회사소개<i class="material-icons right">arrow_drop_down</i></a>
-    </li>
-    <li>
-      <a class="dropdown-trigger" href="#!" data-target="business-dropdown-mobile">사업소개<i class="material-icons right">arrow_drop_down</i></a>
-    </li>
-    <li>
-      <a class="dropdown-trigger" href="#!" data-target="performance-dropdown-mobile">사업실적<i class="material-icons right">arrow_drop_down</i></a>
-    </li>
-    <li>
-      <a class="dropdown-trigger" href="#!" data-target="product-dropdown-mobile">제품소개<i class="material-icons right">arrow_drop_down</i></a>
-    </li>
-    <li>
-      <a class="dropdown-trigger" href="#!" data-target="support-dropdown-mobile">고객지원<i class="material-icons right">arrow_drop_down</i></a>
-    </li>
-    <li>
-      <a href="login.html" class="btn white blue-text waves-effect waves-blue" style="margin:8px 0;">Sign In</a>
-    </li>
-    <li>
-      <a href="javascript:void(0)" class="btn blue darken-2 waves-effect waves-light" style="margin:8px 0;">Sign Up</a>
-    </li>
-  </ul>
-  <!-- Mobile Dropdowns -->
-  <ul id="company-dropdown-mobile" class="dropdown-content">
-    <li><a href="/company/ceo">CEO 인사말</a></li>
-    <li><a href="/company/history">CEO 회사연혁</a></li>
-    <li><a href="/company/mission">경영이념</a></li>
-    <li><a href="/company/location">오시는길</a></li>
-  </ul>
-  <ul id="business-dropdown-mobile" class="dropdown-content">
-    <li><a href="/business/fields">사업분야</a></li>
-    <li><a href="/business/system">시스템소개</a></li>
-  </ul>
-  <ul id="performance-dropdown-mobile" class="dropdown-content">
-    <li><a href="/performance/year2000">2000년</a></li>
-    <li><a href="/performance/year2010">2010년</a></li>
-  </ul>
-  <ul id="product-dropdown-mobile" class="dropdown-content">
-    <li><a href="/product/systemA">A시스템</a></li>
-    <li><a href="/product/systemB">B시스템</a></li>
-  </ul>
-  <ul id="support-dropdown-mobile" class="dropdown-content">
-    <li><a href="/support/notice">공지사항</a></li>
-    <li><a href="/support/faq">FAQ</a></li>
-    <li><a href="/support/qna">Q&A</a></li>
-    <li><a href="/support/download">자료실</a></li>
-    <li><a href="/support/board">게시판</a></li>
-  </ul>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var dropdowns = document.querySelectorAll('.dropdown-trigger');
-      M.Dropdown.init(dropdowns, {coverTrigger: false, constrainWidth: false});
-      var sidenav = document.querySelectorAll('.sidenav');
-      M.Sidenav.init(sidenav);
-    });
-  </script>
-  <!-- ====== Material Design Header End ====== -->
-</header>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header th:fragment="header" class="header">
+        <div class="header-top">
+            <div class="container">
+                홈으로 | 회원가입
+            </div>
+        </div>
+        <div class="header-main">
+            <div class="container">
+                <div class="logo">대전청소년위캔센터</div>
+                <nav class="nav-main">
+                    <!-- menuList는 이제 계층 구조를 가진 MenuDto 객체 리스트입니다. -->
+                    <div class="dropdown" th:each="menu : ${menuList}">
+                        <!-- 하위 메뉴가 있으면 링크를 비활성화하고, 없으면 menu.path로 이동합니다. -->
+                        <a th:href="${!#lists.isEmpty(menu.subMenus) ? 'javascript:void(0);' : menu.path}" th:text="${menu.menuName}"></a>
+                        <!-- menu 객체 안의 subMenus 리스트를 순회하여 드롭다운 메뉴를 생성합니다. -->
+                        <div class="dropdown-menu" th:if="${!#lists.isEmpty(menu.subMenus)}">
+                            <a th:each="subMenu : ${menu.subMenus}" th:href="${subMenu.path}" th:text="${subMenu.menuName}"></a>
+                        </div>
+                    </div>
+                </nav>
+                <div class="social-icons">
+                    <a href="#" class="kakao">K</a>
+                    <a href="#" class="facebook">f</a>
+                    <a href="#" class="youtube">▶</a>
+                    <a href="#" class="blog">B</a>
+                </div>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

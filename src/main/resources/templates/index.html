@@ -1,1148 +1,198 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>테스트센터</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header */
-        .header {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-top {
-            background: #f8f9fa;
-            padding: 8px 0;
-            text-align: right;
-            font-size: 12px;
-        }
-
-        .header-top .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header-main {
-            padding: 10px 0;
-        }
-
-        .header-main .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: #2196F3;
-        }
-
-        .logo::before {
-            content: "W";
-            background: #2196F3;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        .nav-main {
-            display: flex;
-            gap: 40px;
-        }
-
-        .nav-main a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            padding: 10px 0;
-            position: relative;
-        }
-
-        .nav-main a.active {
-            color: #2196F3;
-        }
-
-        .nav-main a.active::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #2196F3;
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .social-icons a {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            font-size: 16px;
-            color: white;
-        }
-
-        .social-icons .kakao { background: #FEE500; color: #333; }
-        .social-icons .facebook { background: #1877F2; }
-        .social-icons .youtube { background: #FF0000; }
-        .social-icons .blog { background: #03C75A; }
-
-        /* Dropdown menus */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
-            min-width: 200px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .dropdown:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 20px;
-            text-decoration: none;
-            color: #333;
-            transition: background 0.2s;
-            border-radius: 4px;
-            margin: 4px;
-        }
-
-        .dropdown-menu a:hover {
-            background: #f5f5f5;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #81C784 0%, #4FC3F7 100%);
-            color: white;
-            padding: 80px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="4" fill="rgba(255,255,255,0.1)"/></svg>');
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
-
-        .search-box {
-            display: flex;
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 50px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 20px 30px;
-            border: none;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .search-btn {
-            background: #FF9800;
-            color: white;
-            border: none;
-            padding: 20px 30px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .search-btn:hover {
-            background: #F57C00;
-        }
-
-        .building-illustration {
-            position: absolute;
-            right: 10%;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 300px;
-            height: 200px;
-            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            color: rgba(255,255,255,0.7);
-        }
-
-        /* Services Section */
-        .services {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 40px;
-            align-items: start;
-        }
-
-        .service-cards {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .service-card {
-            background: #FF9800;
-            color: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
-        }
-
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 40px rgba(255, 152, 0, 0.4);
-        }
-
-        .service-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .service-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .hours-card {
-            background: linear-gradient(135deg, #4CAF50, #2196F3);
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-
-        .hours-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .hours-list {
-            list-style: none;
-        }
-
-        .hours-list li {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .hours-list li:last-child {
-            border-bottom: none;
-        }
-
-        /* Programs Section */
-        .programs {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #E3F2FD, #F3E5F5);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 50px;
-            color: #2196F3;
-        }
-
-        .programs-slider {
-            position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-        }
-
-        .programs-track {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .program-card {
-            min-width: 300px;
-            background: white;
-            margin: 0 15px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-
-        .program-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .program-image {
-            height: 200px;
-            background: linear-gradient(45deg, #FF9800, #FF5722);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .program-content {
-            padding: 25px;
-        }
-
-        .program-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .program-date {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .slider-controls {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .slider-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin: 0 10px;
-            cursor: pointer;
-            font-size: 1.5rem;
-            transition: all 0.3s;
-        }
-
-        .slider-btn:hover {
-            background: #1976D2;
-            transform: scale(1.1);
-        }
-
-        /* News Section */
-        .news {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-        }
-
-        .news-column h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #2196F3;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .news-list {
-            list-style: none;
-        }
-
-        .news-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-            transition: background 0.3s;
-        }
-
-        .news-item:hover {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .news-title {
-            flex: 1;
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .news-date {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Footer */
-        .footer {
-            background: #263238;
-            color: white;
-            padding: 50px 0 20px;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-
-        .footer-section h4 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #81C784;
-        }
-
-        .footer-section p,
-        .footer-section a {
-            color: #B0BEC5;
-            text-decoration: none;
-            line-height: 1.8;
-        }
-
-        .footer-section a:hover {
-            color: #81C784;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #37474F;
-            color: #78909C;
-        }
-
-        .partner-logos {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .partner-logo {
-            width: 80px;
-            height: 50px;
-            background: #37474F;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #B0BEC5;
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
-        /* Material Design Ripple Effect */
-        .ripple {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ripple::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .ripple:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .service-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .news-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-menu {
-                flex-wrap: wrap;
-            }
-
-            .nav-menu a {
-                padding: 8px 15px;
-                margin: 5px;
-            }
-
-            .building-illustration {
-                display: none;
-            }
-        }
-    </style>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/portal.css}" />
+    </th:block>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-top">
+    <div layout:fragment="content">
+        <!-- Hero Section -->
+        <section class="hero">
             <div class="container">
-                홈으로 | 회원가입
-            </div>
-        </div>
-        <div class="header-main">
-            <div class="container">
-                <div class="logo">대전청소년위캔센터</div>
-                <nav class="nav-main">
-                    <th:block th:each="menu : ${menuList}">
-                        <th:block th:if="${menu['LEVEL'] == '1'}">
-                            <div class="dropdown">
-                                <a th:href="${menu['PATH'] != null ? menu['PATH'] : '#'}" th:text="${menu['MENU_NM']}"></a>
-                                <div class="dropdown-menu">
-                                    <th:block th:each="subMenu : ${menuList}">
-                                        <a th:if="${subMenu['UP_MENU_ID'] != null and subMenu['UP_MENU_ID'] == menu['MENU_ID']}"
-                                           th:href="${subMenu['PATH'] != null ? subMenu['PATH'] : '#'}"
-                                           th:text="${subMenu['MENU_NM']}"></a>
-                                    </th:block>
-                                </div>
-                            </div>
-                        </th:block>
-                    </th:block>
-                </nav>
-                <div class="social-icons">
-                    <a href="#" class="kakao">K</a>
-                    <a href="#" class="facebook">f</a>
-                    <a href="#" class="youtube">▶</a>
-                    <a href="#" class="blog">B</a>
+                <div class="hero-content">
+                    <h1 class="hero-title">청소년의 꿈과 희망을 응원하는</h1>
+                    <p class="hero-subtitle">대전청소년위캔센터</p>
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="키워드를 입력해주세요">
+                        <button class="search-btn ripple">
+                            <i class="material-icons">search</i>
+                            키워드 검색
+                        </button>
+                    </div>
+                </div>
+                <div class="building-illustration">
+                    <i class="material-icons" style="font-size: 4rem;">business</i>
                 </div>
             </div>
-        </div>
-    </header>
+        </section>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">청소년의 꿈과 희망을 응원하는</h1>
-                <p class="hero-subtitle">대전청소년위캔센터</p>
-                <div class="search-box">
-                    <input type="text" class="search-input" placeholder="키워드를 입력해주세요">
-                    <button class="search-btn ripple">
-                        <i class="material-icons">search</i>
-                        키워드 검색
+        <!-- Services Section -->
+        <section class="services">
+            <div class="container">
+                <div class="services-grid">
+                    <div class="service-cards">
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">psychology</i>
+                            <div class="service-title">상담예약하기</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">celebration</i>
+                            <div class="service-title">활동예약하기</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">groups</i>
+                            <div class="service-title">CYS예약</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">quiz</i>
+                            <div class="service-title">대화방</div>
+                        </div>
+                    </div>
+                    <div class="hours-card">
+                        <h3 class="hours-title">운영 시간 안내</h3>
+                        <ul class="hours-list">
+                            <li>
+                                <span>평일</span>
+                                <span>9:00 ~ 21:30</span>
+                            </li>
+                            <li>
+                                <span>토요일</span>
+                                <span>9:00 ~ 18:30</span>
+                            </li>
+                            <li>
+                                <span>공휴일</span>
+                                <span>9:00 ~ 17:00</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Programs Section -->
+        <section class="programs">
+            <div class="container">
+                <h2 class="section-title">프로그램 안내</h2>
+                <div class="programs-slider">
+                    <div class="programs-track" id="programsTrack">
+                        <div class="program-card">
+                            <div class="program-image">4기 <br>와 너두</div>
+                            <div class="program-content">
+                                <h3 class="program-title">2025년 클라이밍 프로그램 <br>4기 와 너두 클라이밍 신청</h3>
+                                <p class="program-date">2025.06.20</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">과학수사</div>
+                            <div class="program-content">
+                                <h3 class="program-title">2025 특별 프로그램 과학수사의 모든 것</h3>
+                                <p class="program-date">2025.06.11</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">6월 활동</div>
+                            <div class="program-content">
+                                <h3 class="program-title">6월 활동위원 시장에 가면</h3>
+                                <p class="program-date">2025.06.11</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">AI 아카데미</div>
+                            <div class="program-content">
+                                <h3 class="program-title">AI아이 캔 아카데미 STEP2 신청 모집</h3>
+                                <p class="program-date">2025.06.10</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="slider-btn ripple" onclick="slidePrograms(-1)">
+                        <i class="material-icons">chevron_left</i>
+                    </button>
+                    <button class="slider-btn ripple" onclick="slidePrograms(1)">
+                        <i class="material-icons">chevron_right</i>
                     </button>
                 </div>
             </div>
-            <div class="building-illustration">
-                <i class="material-icons" style="font-size: 4rem;">business</i>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Services Section -->
-    <section class="services">
-        <div class="container">
-            <div class="services-grid">
-                <div class="service-cards">
-                    <div class="service-card ripple">
-                        <i class="material-icons service-icon">psychology</i>
-                        <div class="service-title">상담예약하기</div>
+        <!-- News Section -->
+        <section class="news">
+            <div class="container">
+                <div class="news-grid">
+                    <div class="news-column">
+                        <h3>
+                            <i class="material-icons">campaign</i>
+                            공지사항
+                        </h3>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#" class="news-title">5월 위캔톤 이용 안내</a>
+                                <span class="news-date">2025-06-20</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">2025년 대전청소년위캔센터 대전토구 놀북기정센터 버스 운행</a>
+                                <span class="news-date">2025-06-13</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">2025년 대전청소년위캔센터 대전토구 놀북기정센터 버스 운행</a>
+                                <span class="news-date">2025-06-05</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">2025년 7차 새롭공고_진로진학타임(행정)</a>
+                                <span class="news-date">2025-06-05</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">2025년 7월 작업체험반 토요일 운영 안내</a>
+                                <span class="news-date">2025-06-05</span>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="service-card ripple">
-                        <i class="material-icons service-icon">celebration</i>
-                        <div class="service-title">활동예약하기</div>
-                    </div>
-                    <div class="service-card ripple">
-                        <i class="material-icons service-icon">groups</i>
-                        <div class="service-title">CYS예약</div>
-                    </div>
-                    <div class="service-card ripple">
-                        <i class="material-icons service-icon">quiz</i>
-                        <div class="service-title">대화방</div>
-                    </div>
-                </div>
-                <div class="hours-card">
-                    <h3 class="hours-title">운영 시간 안내</h3>
-                    <ul class="hours-list">
-                        <li>
-                            <span>평일</span>
-                            <span>9:00 ~ 21:30</span>
-                        </li>
-                        <li>
-                            <span>토요일</span>
-                            <span>9:00 ~ 18:30</span>
-                        </li>
-                        <li>
-                            <span>공휴일</span>
-                            <span>9:00 ~ 17:00</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Programs Section -->
-    <section class="programs">
-        <div class="container">
-            <h2 class="section-title">프로그램 안내</h2>
-            <div class="programs-slider">
-                <div class="programs-track" id="programsTrack">
-                    <div class="program-card">
-                        <div class="program-image">4기 <br>와 너두</div>
-                        <div class="program-content">
-                            <h3 class="program-title">2025년 클라이밍 프로그램 <br>4기 와 너두 클라이밍 신청</h3>
-                            <p class="program-date">2025.06.20</p>
-                        </div>
-                    </div>
-                    <div class="program-card">
-                        <div class="program-image">과학수사</div>
-                        <div class="program-content">
-                            <h3 class="program-title">2025 특별 프로그램 과학수사의 모든 것</h3>
-                            <p class="program-date">2025.06.11</p>
-                        </div>
-                    </div>
-                    <div class="program-card">
-                        <div class="program-image">6월 활동</div>
-                        <div class="program-content">
-                            <h3 class="program-title">6월 활동위원 시장에 가면</h3>
-                            <p class="program-date">2025.06.11</p>
-                        </div>
-                    </div>
-                    <div class="program-card">
-                        <div class="program-image">AI 아카데미</div>
-                        <div class="program-content">
-                            <h3 class="program-title">AI아이 캔 아카데미 STEP2 신청 모집</h3>
-                            <p class="program-date">2025.06.10</p>
-                        </div>
+                    <div class="news-column">
+                        <h3>
+                            <i class="material-icons">event</i>
+                            체육시설 소식
+                        </h3>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#" class="news-title">7월, 8월 클라이밍 강습 일정</a>
+                                <span class="news-date">2025-06-17</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[2025년] 8층 다목적 체육관 예약진 운영안내</a>
+                                <span class="news-date">2025-06-13</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[2025년 7월] 8층 다목적 체육관 이용 안내</a>
+                                <span class="news-date">2025-06-12</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[2025년 6월] 8층 다목적 체육관 이용 안내</a>
+                                <span class="news-date">2025-05-23</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">6월 클라이밍 강습일정</a>
+                                <span class="news-date">2025-05-16</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="slider-controls">
-                <button class="slider-btn ripple" onclick="slidePrograms(-1)">
-                    <i class="material-icons">chevron_left</i>
-                </button>
-                <button class="slider-btn ripple" onclick="slidePrograms(1)">
-                    <i class="material-icons">chevron_right</i>
-                </button>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- News Section -->
-    <section class="news">
-        <div class="container">
-            <div class="news-grid">
-                <div class="news-column">
-                    <h3>
-                        <i class="material-icons">campaign</i>
-                        공지사항
-                    </h3>
-                    <ul class="news-list">
-                        <li class="news-item">
-                            <a href="#" class="news-title">5월 위캔톤 이용 안내</a>
-                            <span class="news-date">2025-06-20</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">2025년 대전청소년위캔센터 대전토구 놀북기정센터 버스 운행</a>
-                            <span class="news-date">2025-06-13</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">2025년 대전청소년위캔센터 대전토구 놀북기정센터 버스 운행</a>
-                            <span class="news-date">2025-06-05</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">2025년 7차 새롭공고_진로진학타임(행정)</a>
-                            <span class="news-date">2025-06-05</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">2025년 7월 작업체험반 토요일 운영 안내</a>
-                            <span class="news-date">2025-06-05</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="news-column">
-                    <h3>
-                        <i class="material-icons">event</i>
-                        체육시설 소식
-                    </h3>
-                    <ul class="news-list">
-                        <li class="news-item">
-                            <a href="#" class="news-title">7월, 8월 클라이밍 강습 일정</a>
-                            <span class="news-date">2025-06-17</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">[2025년] 8층 다목적 체육관 예약진 운영안내</a>
-                            <span class="news-date">2025-06-13</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">[2025년 7월] 8층 다목적 체육관 이용 안내</a>
-                            <span class="news-date">2025-06-12</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">[2025년 6월] 8층 다목적 체육관 이용 안내</a>
-                            <span class="news-date">2025-05-23</span>
-                        </li>
-                        <li class="news-item">
-                            <a href="#" class="news-title">6월 클라이밍 강습일정</a>
-                            <span class="news-date">2025-05-16</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="partner-logos">
-                <div class="partner-logo">대전 YWCA</div>
-                <div class="partner-logo">여성가족부</div>
-                <div class="partner-logo">대전광역시</div>
-                <div class="partner-logo">대전광역시 유성구</div>
-            </div>
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>대전청소년위캔센터</h4>
-                    <p>주소 : 대전 유성구위원(We Can) 센터</p>
-                    <p>사업자등록번호 : 131-82-17285</p>
-                    <p>대표 : 조정현</p>
-                </div>
-                <div class="footer-section">
-                    <h4>연락처</h4>
-                    <p>주소 : (34636) 대전광역시 유성구 대전로 506</p>
-                    <p>운영기관 : 대전YWCA</p>
-                    <p>전화 : 042-222-0924-5</p>
-                    <p>팩스 : 042-222-0940</p>
-                </div>
-                <div class="footer-section">
-                    <h4>이용안내</h4>
-                    <p>운영시간대 : 월~금 09:00-21:30, 토 09:00-18:30</p>
-                    <p>휴관 : 일요일, 공휴일</p>
-                    <p>이메일 : dywecan@hanmail.net</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>Copyright ⓒ Daejeon Youth WE CAN CENTER. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        let currentSlide = 0;
-        const programsTrack = document.getElementById('programsTrack');
-        const totalSlides = document.querySelectorAll('.program-card').length;
-
-        function slidePrograms(direction) {
-            currentSlide += direction;
-            
-            if (currentSlide < 0) {
-                currentSlide = totalSlides - 3;
-            } else if (currentSlide > totalSlides - 3) {
-                currentSlide = 0;
-            }
-            
-            const translateX = -currentSlide * 330; // 300px card width + 30px margin
-            programsTrack.style.transform = `translateX(${translateX}px)`;
-        }
-
-        // Auto-slide functionality
-        setInterval(() => {
-            slidePrograms(1);
-        }, 5000);
-
-        // Add ripple effect to buttons
-        document.querySelectorAll('.ripple').forEach(button => {
-            button.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                
-                ripple.style.width = ripple.style.height = size + 'px';
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-                ripple.classList.add('ripple-effect');
-                
-                this.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-            });
-        });
-
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Add loading animation
-        window.addEventListener('load', function() {
-            document.body.style.opacity = '0';
-            document.body.style.transition = 'opacity 0.5s ease-in';
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 100);
-        });
-    </script>
-
-<!-- 챗봇 플로팅 버튼 및 챗봇 창 (닫기 기능 포함) -->
-<div id="chatbot-fab" style="
-    position: fixed;
-    right: 32px;
-    bottom: 32px;
-    z-index: 9999;
-    width: 64px;
-    height: 64px;
-    background: #1976D2;
-    border-radius: 50%;
-    box-shadow: 0 4px 16px rgba(33,150,243,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: box-shadow 0.2s;
-">
-    <span class="material-icons" style="color:white; font-size:36px;">smart_toy</span>
-    <!-- X(닫기) 버튼 -->
-    <span id="chatbot-fab-close" class="material-icons" title="챗봇 아이콘 닫기" style="
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background: #fff;
-        color: #1976D2;
-        border-radius: 50%;
-        font-size: 20px;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(33,150,243,0.15);
-        cursor: pointer;
-        border: 1px solid #e0e0e0;
-    ">close</span>
-</div>
-<div id="chatbot-window" style="
-    position: fixed;
-    right: 32px;
-    bottom: 110px;
-    width: 400px;
-    max-width: 95vw;
-    height: 600px;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(33,150,243,0.18);
-    z-index: 10000;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid #e0e0e0;
-    animation: chatbot-pop 0.3s;
-">
-    <!-- 챗봇 헤더 -->
-    <div style="
-        background: #1976D2;
-        color: #fff;
-        padding: 18px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    ">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="material-icons" style="font-size: 28px;">smart_toy</span>
-            <span style="font-size: 18px; font-weight: 600;">위캔센터 챗봇</span>
-        </div>
-        <span id="chatbot-close" class="material-icons" style="cursor:pointer; font-size: 28px;">close</span>
     </div>
-    <!-- 챗봇 메시지 영역 -->
-    <div id="chatbot-messages" style="
-        flex: 1;
-        padding: 24px 16px 16px 16px;
-        overflow-y: auto;
-        background: #f5f7fa;
-        font-size: 15px;
-    ">
-        <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:18px;">
-            <span class="material-icons" style="color:#1976D2;">smart_toy</span>
-            <div style="background:#e3f2fd; color:#1976D2; border-radius:12px; padding:12px 16px; max-width:75%;">
-                안녕하세요! <br> 궁금한 점을 물어보세요.<br>
-                <span style="font-size:13px; color:#888;">예) 운영시간, 예약, 위치 등</span>
-            </div>
-        </div>
-    </div>
-    <!-- 챗봇 입력 영역 -->
-    <form id="chatbot-form" style="
-        display: flex;
-        align-items: center;
-        padding: 12px 16px;
-        border-top: 1px solid #eee;
-        background: #fff;
-    ">
-        <input id="chatbot-input" type="text" placeholder="챗봇에게 물어보세요." autocomplete="off" style="
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 15px;
-            padding: 12px 14px;
-            border-radius: 8px;
-            background: #f5f5f5;
-            margin-right: 8px;
-        ">
-        <button type="submit" style="
-            background: #1976D2;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 18px;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        ">
-            <span class="material-icons" style="font-size:20px;">send</span>
-        </button>
-    </form>
-</div>
-<style>
-    @keyframes chatbot-pop {
-        from { transform: translateY(40px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    @media (max-width: 600px) {
-        #chatbot-window {
-            width: 98vw !important;
-            right: 1vw !important;
-            height: 70vh !important;
-            bottom: 80px !important;
-        }
-        #chatbot-fab {
-            right: 16px !important;
-            bottom: 16px !important;
-        }
-    }
-</style>
-<script>
-    // 챗봇 열기/닫기/아이콘 닫기
-    const chatbotFab = document.getElementById('chatbot-fab');
-    const chatbotWindow = document.getElementById('chatbot-window');
-    const chatbotClose = document.getElementById('chatbot-close');
-    const chatbotFabClose = document.getElementById('chatbot-fab-close');
-
-    chatbotFab.onclick = (e) => {
-        // X버튼 클릭 시에는 챗봇창 열리지 않도록
-        if (e.target === chatbotFabClose) return;
-        chatbotWindow.style.display = 'flex';
-        chatbotFab.style.display = 'none';
-    };
-    chatbotClose.onclick = () => {
-        chatbotWindow.style.display = 'none';
-        chatbotFab.style.display = 'flex';
-    };
-    chatbotFabClose.onclick = (e) => {
-        chatbotFab.style.display = 'none';
-        chatbotWindow.style.display = 'none';
-        e.stopPropagation();
-    };
-
-    // 챗봇 메시지 처리 (간단한 예시)
-    const chatbotForm = document.getElementById('chatbot-form');
-    const chatbotInput = document.getElementById('chatbot-input');
-    const chatbotMessages = document.getElementById('chatbot-messages');
-
-    chatbotForm.onsubmit = function(e) {
-        e.preventDefault();
-        const userMsg = chatbotInput.value.trim();
-        if (!userMsg) return;
-        appendUserMsg(userMsg);
-        chatbotInput.value = '';
-        setTimeout(() => {
-            appendBotMsg(getBotReply(userMsg));
-        }, 700);
-    };
-
-    function appendUserMsg(msg) {
-        const div = document.createElement('div');
-        div.style = "display:flex; justify-content:flex-end; gap:10px; margin-bottom:18px;";
-        div.innerHTML = `
-            <div style="background:#1976D2; color:#fff; border-radius:12px; padding:12px 16px; max-width:75%;">
-                ${escapeHtml(msg)}
-            </div>
-            <span class="material-icons" style="color:#1976D2;">person</span>
-        `;
-        chatbotMessages.appendChild(div);
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    function appendBotMsg(msg) {
-        const div = document.createElement('div');
-        div.style = "display:flex; align-items:flex-start; gap:10px; margin-bottom:18px;";
-        div.innerHTML = `
-            <span class="material-icons" style="color:#1976D2;">smart_toy</span>
-            <div style="background:#e3f2fd; color:#1976D2; border-radius:12px; padding:12px 16px; max-width:75%;">
-                ${msg}
-            </div>
-        `;
-        chatbotMessages.appendChild(div);
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-    function getBotReply(msg) {
-        // 간단한 키워드 응답 예시 (실제 챗봇 연동은 별도 API 필요)
-        msg = msg.toLowerCase();
-        if (msg.includes('운영시간') || msg.includes('시간')) {
-            return '운영시간은 평일 9:00~21:30, 토요일 9:00~18:30, 공휴일 9:00~17:00입니다.';
-        }
-        if (msg.includes('예약')) {
-            return '예약은 홈페이지의 예약하기 메뉴에서 가능합니다.';
-        }
-        if (msg.includes('위치') || msg.includes('오시는길')) {
-            return '대전광역시 유성구 대전로 506, 대전청소년위캔센터입니다.';
-        }
-        if (msg.includes('상담')) {
-            return '상담 예약은 상담예약하기 메뉴를 이용해 주세요.';
-        }
-        if (msg.includes('프로그램')) {
-            return '다양한 프로그램은 프로그램 안내 메뉴에서 확인할 수 있습니다.';
-        }
-        return '죄송해요, 아직 해당 질문에 대한 답변을 준비 중입니다.<br>운영시간, 예약, 위치 등은 바로 안내해 드릴 수 있어요!';
-    }
-    function escapeHtml(text) {
-        return text.replace(/[&<>"']/g, function(m) {
-            return ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            })[m];
-        });
-    }
-    </script>
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/portal.js}" defer></script>
+    </th:block>
+</body>
+</html>
 </body>
 </html>

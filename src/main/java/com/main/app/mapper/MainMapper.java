@@ -5,9 +5,11 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.main.app.model.MenuDto;
+
 @Mapper
 public interface MainMapper {
-    List<Map<String,String>> getMenuList();
+    List<MenuDto> getMenuList();
     List<Map<String,String>> getList1();
     List<Map<String,String>> getList2();
 }

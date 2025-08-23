@@ -1,15 +1,14 @@
 package com.main.app.service.impl;
 
-import java.util.List;
-import java.util.Map;
-
+import com.main.app.mapper.MainMapper;
+import com.main.app.model.MenuDto;
+import com.main.app.service.MainService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.main.app.mapper.MainMapper;
-import com.main.app.service.MainService;
-
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MainServiceImpl implements MainService {
@@ -17,29 +16,18 @@ public class MainServiceImpl implements MainService {
     @Autowired
     private MainMapper mainMapper;
 
-
     @Override
-    public List<Map<String, String>> getMenuList(HttpServletRequest request) {
-
-        List<Map<String, String>> list = mainMapper.getMenuList();
-        System.out.println("menuList value--->" + list);
-        return list;
+    public List<MenuDto> getMenuList() {
+        return mainMapper.getMenuList();
     }
-
 
     @Override
     public List<Map<String, String>> getList1(HttpServletRequest request) {
-
-        List<Map<String, String>> list = mainMapper.getList1();
-        System.out.println("list1 value--->" + list);
-        return list;
+        return mainMapper.getList1();
     }
 
     @Override
     public List<Map<String, String>> getList2(HttpServletRequest request) {
-
-        List<Map<String, String>> list = mainMapper.getList2();
-        System.out.println("list2 value--->" + list);
-        return list;
+        return mainMapper.getList2();
     }
 }
