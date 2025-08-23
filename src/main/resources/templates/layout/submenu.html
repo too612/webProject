@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}"> <!--/* 메인 레이아웃인 layout.html을 바라보도록 수정 */-->
-
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <body>
 
-<div layout:fragment="content">
-
-    <!-- Hero Section -->
-    <section class="hero-section text-center py-5 bg-light" th:if="${currentTopMenu != null}">
-        <div class="container">
-            <!-- th:text를 사용하여 안전하게 텍스트를 설정합니다. -->
-            <h1 class="display-4" th:text="${currentTopMenu.menuName}">메뉴 이름</h1>
-            <!-- MenuDto에 설명 필드(e.g. description)가 있다면 활용할 수 있습니다. -->
-            <p class="lead" th:if="${currentTopMenu.description}" th:text="${currentTopMenu.description}">메뉴 설명</p>
-        </div>
-    </section>
-
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mt-4" th:if="${currentTopMenu != null}">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page" th:text="${currentTopMenu.menuName}">회사소개</li>
-            </ol>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main class="my-4">
-            <div class="row">
-                <!-- Sidebar (Submenu) -->
-                <!-- 재사용 가능한 사이드바 프래그먼트를 여기에 포함합니다. -->
-                <div th:replace="~{layout/sidebar :: submenu}"></div>
-
-                <!-- Page-specific Content -->
-                <div class="col-lg-9" layout:fragment="page_content">
-                    <!-- ceo.html 같은 페이지의 콘텐츠가 이 부분에 삽입됩니다. -->
-                </div>
+    <!--/* submenuLayout Fragment 정의 - layout.html에서 호출됨 */-->
+    <div th:fragment="submenuLayout">
+        
+        <!-- Hero Section -->
+        <section class="hero-section text-center py-5 bg-light" th:if="${currentTopMenu != null}">
+            <div class="container">
+                <h1 class="display-4" th:text="${currentTopMenu.menuName}">메뉴 이름</h1>
+                <!-- description 필드가 없으므로 제거하거나 다른 방식으로 처리 -->
+                <!-- <p class="lead">메뉴에 대한 간단한 설명</p> -->
             </div>
-        </main>
+        </section>
+
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mt-4" th:if="${currentTopMenu != null}">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${currentTopMenu.menuName}">메뉴</li>
+                </ol>
+            </nav>
+
+            <!-- Main Content Area with Sidebar -->
+            <main class="my-4">
+                <div class="row">
+                    <!-- Sidebar (Submenu) -->
+                    <div class="col-lg-3">
+                        <div th:replace="~{layout/sidebar :: sidebarFragment(mainMenuName=${currentMainMenuName}, subMenus=${currentSubMenus})}"></div>
+                    </div>
+
+                    <!-- Page-specific Content -->
+                    <div class="col-lg-9" layout:fragment="content">
+                        <!-- 각 페이지의 콘텐츠가 이 부분에 삽입됩니다. -->
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-</div>
 
 </body>
 </html>

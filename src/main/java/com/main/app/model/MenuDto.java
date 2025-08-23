@@ -15,4 +15,8 @@ public class MenuDto {
     private int level;
     private int orderNo;
     private List<MenuDto> subMenus = new ArrayList<>();
+    private boolean active = false;
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 }

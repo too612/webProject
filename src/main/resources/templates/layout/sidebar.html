@@ -2,21 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <!--
-      'sidebarFragment' 라는 이름의 fragment를 정의합니다.
-      이 fragment는 상위 메뉴 이름(mainMenuName)과 하위 메뉴 리스트(subMenus)를 파라미터로 받습니다.
+      URL 표현식 오류 수정:
+      잘못된 방식: @{${subMenu.path}}
+      올바른 방식: @{__${subMenu.path}__} 또는 직접 변수 사용
     -->
     <aside class="sidebar" th:fragment="sidebarFragment(mainMenuName, subMenus)">
         <h2 th:text="${mainMenuName}">대메뉴 이름</h2>
         <ul>
-            <!--
-              [수정] th:each 루프 내에서 subMenu 객체 자체가 null이거나, subMenu.path가 null일 경우를 모두 방어합니다.
-              1. th:if="${subMenu != null}" : 리스트 내의 null 항목을 안전하게 건너뜁니다.
-              2. th:classappend의 null 체크: path가 null일 경우 비교 연산을 시도하지 않아 오류를 방지합니다.
-              3. th:href의 삼항 연산자: path가 null일 경우 링크가 깨지지 않도록 '#'으로 대체합니다.
-            -->
             <li th:each="subMenu : ${subMenus}" th:if="${subMenu != null}"
-                th:classappend="${subMenu.path != null and #strings.equals(#httpServletRequest.getRequestURI(), subMenu.path) ? 'active' : ''}">
-                <a th:href="${subMenu.path != null ? @{${subMenu.path}} : '#'}" th:text="${subMenu.menuName}">서브메뉴 이름</a>
+                th:classappend="${subMenu.path != null and subMenu.path == currentPath ? 'active' : ''}">
+                <!-- 수정된 URL 표현식 -->
+                <a th:href="${subMenu.path != null ? subMenu.path : '#'}" th:text="${subMenu.menuName}">서브메뉴 이름</a>
             </li>
         </ul>
     </aside>

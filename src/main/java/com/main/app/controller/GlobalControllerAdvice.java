@@ -38,12 +38,18 @@ public class GlobalControllerAdvice {
         for (MenuDto mainMenu : menuList) {
             for (MenuDto subMenu : mainMenu.getSubMenus()) {
                 log.info("DB 메뉴 경로 (subMenu.path): {}", subMenu.getPath());
+                
+                // active 상태 설정 (이 방법이 가장 안전함)
                 if (subMenu.getPath() != null && subMenu.getPath().equals(currentUri)) {
+                    subMenu.setActive(true); // MenuDto에 active 필드와 setter 필요
                     log.info(">>> 매칭 성공! 사이드바 데이터를 모델에 추가합니다.");
                     model.addAttribute("currentMainMenuName", mainMenu.getMenuName());
                     model.addAttribute("currentSubMenus", mainMenu.getSubMenus());
+                    model.addAttribute("currentTopMenu", mainMenu);
                     log.info("==========================================================");
                     return;
+                } else {
+                    subMenu.setActive(false);
                 }
             }
         }
