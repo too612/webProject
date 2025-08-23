@@ -28,7 +28,7 @@
 
         /* Header */
         .header {
-            background: #fff;
+            background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
@@ -36,131 +36,140 @@
         }
 
         .header-top {
+            background: #f8f9fa;
+            padding: 8px 0;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .header-top .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-main {
+            padding: 10px 0;
+        }
+
+        .header-main .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
+            justify-content: space-between;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #4CAF50, #2196F3);
-        }
-
-        .logo-text {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             color: #2196F3;
         }
 
-        .social-links {
+        .logo::before {
+            content: "W";
+            background: #2196F3;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .nav-main {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-main a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .nav-main a.active {
+            color: #2196F3;
+        }
+
+        .nav-main a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #2196F3;
+        }
+
+        .social-icons {
             display: flex;
             gap: 10px;
         }
 
-        .social-btn {
-            width: 35px;
-            height: 35px;
+        .social-icons a {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
+            font-size: 16px;
             color: white;
-            transition: transform 0.2s;
         }
 
-        .social-btn:hover {
-            transform: scale(1.1);
-        }
+        .social-icons .kakao { background: #FEE500; color: #333; }
+        .social-icons .facebook { background: #1877F2; }
+        .social-icons .youtube { background: #FF0000; }
+        .social-icons .blog { background: #03C75A; }
 
-        .social-btn.kakao { background: #FEE500; color: #000; }
-        .social-btn.facebook { background: #1877F2; }
-        .social-btn.youtube { background: #FF0000; }
-        .social-btn.blog { background: #FF6B00; }
-
-        .nav-menu {
-            display: flex;
-            justify-content: center;
-            background: rgba(33, 150, 243, 0.05);
-            padding: 15px 0;
-        }
-
-        .nav-item {
+        /* Dropdown menus */
+        .dropdown {
             position: relative;
-        }
-
-        .nav-menu a {
-            text-decoration: none;
-            color: #333;
-            padding: 10px 30px;
-            margin: 0 5px;
-            border-radius: 25px;
-            transition: all 0.3s;
-            font-weight: 500;
-            display: block;
-        }
-
-        .nav-menu a:hover {
-            background: #2196F3;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
         }
 
         .dropdown-menu {
             position: absolute;
             top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1976D2;
-            min-width: 180px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
             opacity: 0;
             visibility: hidden;
+            transform: translateY(-10px);
             transition: all 0.3s ease;
             z-index: 1000;
-            margin-top: 10px;
         }
 
-        .nav-item:hover .dropdown-menu {
+        .dropdown:hover .dropdown-menu {
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
         }
 
         .dropdown-menu a {
-            color: white;
+            display: block;
             padding: 12px 20px;
-            margin: 0;
-            border-radius: 0;
-            font-size: 14px;
-            font-weight: 400;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .dropdown-menu a:first-child {
-            border-radius: 15px 15px 0 0;
-        }
-
-        .dropdown-menu a:last-child {
-            border-radius: 0 0 15px 15px;
-            border-bottom: none;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.2s;
+            border-radius: 4px;
+            margin: 4px;
         }
 
         .dropdown-menu a:hover {
-            background: rgba(255,255,255,0.1);
-            transform: none;
-            box-shadow: none;
+            background: #f5f5f5;
         }
 
         /* Hero Section */
@@ -594,51 +603,37 @@
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-top">
-                <div class="logo">
-                    <div class="logo-img" style="width: 40px; height: 40px; background: linear-gradient(45deg, #4CAF50, #2196F3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">W</div>
-                    <span class="logo-text">대전청소년위캔센터</span>
-                </div>
-                <div class="social-links">
-                    <a href="#" class="social-btn kakao">K</a>
-                    <a href="#" class="social-btn facebook">f</a>
-                    <a href="#" class="social-btn youtube">▶</a>
-                    <a href="#" class="social-btn blog">B</a>
-                </div>
+        <div class="header-top">
+            <div class="container">
+                홈으로 | 회원가입
             </div>
-            <nav class="nav-menu">
-                <!--/* 가장 간단한 방법: 중첩 루프 사용 */-->
-                <th:block th:each="menu : ${menuList}">
-                    <!--/* Level 1 메뉴만 처리 */-->
-                    <th:block th:if="${menu['LEVEL'] == '1'}">
-                        <!--/* 하위 메뉴가 있는지 먼저 확인 */-->
-                        <th:block th:with="menuId=${menu['MENU_ID']}">
-                            <!--/* 하위 메뉴 개수 카운트 */-->
-                            <th:block th:with="subMenuCount=0">
-                                <th:block th:each="checkItem : ${menuList}">
-                                    <th:block th:if="${checkItem['UP_MENU_ID'] != null and checkItem['UP_MENU_ID'] == menuId}">
-                                        <th:block th:with="subMenuCount=${subMenuCount + 1}"></th:block>
+        </div>
+        <div class="header-main">
+            <div class="container">
+                <div class="logo">대전청소년위캔센터</div>
+                <nav class="nav-main">
+                    <th:block th:each="menu : ${menuList}">
+                        <th:block th:if="${menu['LEVEL'] == '1'}">
+                            <div class="dropdown">
+                                <a th:href="${menu['PATH'] != null ? menu['PATH'] : '#'}" th:text="${menu['MENU_NM']}"></a>
+                                <div class="dropdown-menu">
+                                    <th:block th:each="subMenu : ${menuList}">
+                                        <a th:if="${subMenu['UP_MENU_ID'] != null and subMenu['UP_MENU_ID'] == menu['MENU_ID']}"
+                                           th:href="${subMenu['PATH'] != null ? subMenu['PATH'] : '#'}"
+                                           th:text="${subMenu['MENU_NM']}"></a>
                                     </th:block>
-                                </th:block>
-                                
-                                <!--/* 실제 메뉴 렌더링 - 매번 다시 체크 */-->
-                                <!--/* 드롭다운 메뉴 */-->
-                                <div class="nav-item">
-                                    <a href="#" class="ripple" th:text="${menu['MENU_NM']}"></a>
-                                    <div class="dropdown-menu">
-                                        <th:block th:each="subMenu : ${menuList}">
-                                            <a th:if="${subMenu['UP_MENU_ID'] != null and subMenu['UP_MENU_ID'] == menuId}" 
-                                            th:href="${subMenu['PATH'] != null ? subMenu['PATH'] : '#'}" 
-                                            th:text="${subMenu['MENU_NM']}"></a>
-                                        </th:block>
-                                    </div>
                                 </div>
-                            </th:block>
+                            </div>
                         </th:block>
                     </th:block>
-                </th:block>
-            </nav>
+                </nav>
+                <div class="social-icons">
+                    <a href="#" class="kakao">K</a>
+                    <a href="#" class="facebook">f</a>
+                    <a href="#" class="youtube">▶</a>
+                    <a href="#" class="blog">B</a>
+                </div>
+            </div>
         </div>
     </header>
 

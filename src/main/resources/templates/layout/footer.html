@@ -1,106 +1,70 @@
-<!-- ====== Footer Start (Materialize) ====== -->
-<footer th:fragment="footer" class="page-footer blue lighten-1">
-  <div class="container">
-    <div class="row">
-      <!-- 로고 및 소개 -->
-      <div class="col s12 m6 l3">
-        <a href="index.html" class="brand-logo" style="display:block;margin-bottom:10px;">
-          <img th:src="@{/images/logo/logo.svg}" alt="logo" style="height:40px;">
-        </a>
-        <p class="white-text" style="font-size:15px;">
-          We create digital experiences for brands and companies by using technology.
-        </p>
-        <div>
-          <a href="https://twitter.com/MusharofChy" class="white-text" style="margin-right:8px;"><i class="material-icons">facebook</i></a>
-          <a href="https://twitter.com/MusharofChy" class="white-text" style="margin-right:8px;"><i class="material-icons">twitter</i></a>
-          <a href="https://twitter.com/MusharofChy" class="white-text" style="margin-right:8px;"><i class="material-icons">instagram</i></a>
-          <a href="https://twitter.com/MusharofChy" class="white-text"><i class="material-icons">linkedin</i></a>
+<div th:fragment="footerFragment">
+    <footer class="footer">
+        <div class="container">
+            <div class="partner-logos">
+                <div class="partner-logo">대전 YWCA</div>
+                <div class="partner-logo">여성가족부</div>
+                <div class="partner-logo">대전광역시</div>
+                <div class="partner-logo">대전광역시 유성구</div>
+            </div>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>대전청소년위캔센터</h4>
+                    <p>주소 : 대전 유성구위원(We Can) 센터</p>
+                    <p>사업자등록번호 : 131-82-17285</p>
+                    <p>대표 : 조정현</p>
+                </div>
+                <div class="footer-section">
+                    <h4>연락처</h4>
+                    <p>주소 : (34636) 대전광역시 유성구 대전로 506</p>
+                    <p>운영기관 : 대전YWCA</p>
+                    <p>전화 : 042-222-0924-5</p>
+                    <p>팩스 : 042-222-0940</p>
+                </div>
+                <div class="footer-section">
+                    <h4>이용안내</h4>
+                    <p>운영시간대 : 월~금 09:00-21:30, 토 09:00-18:30</p>
+                    <p>휴관 : 일요일, 공휴일</p>
+                    <p>이메일 : dywecan@hanmail.net</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Copyright ⓒ Daejeon Youth WE CAN CENTER. All rights reserved.</p>
+            </div>
         </div>
-      </div>
-      <!-- About Us -->
-      <div class="col s12 m6 l2">
-        <h6 class="white-text">About Us</h6>
-        <ul>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Home</a></li>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Features</a></li>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">About</a></li>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Testimonial</a></li>
-        </ul>
-      </div>
-      <!-- Features -->
-      <div class="col s12 m6 l2">
-        <h6 class="white-text">Features</h6>
-        <ul>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">How it works</a></li>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Privacy policy</a></li>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Terms of service</a></li>
-          <li><a class="grey-text text-lighten-3" href="javascript:void(0)">Refund policy</a></li>
-        </ul>
-      </div>
-      <!-- Our Products -->
-      <div class="col s12 m6 l2">
-        <h6 class="white-text">Our Products</h6>
-        <ul>
-          <li><a class="grey-text text-lighten-3" href="https://lineicons.com/" target="_blank">Lineicons</a></li>
-          <li><a class="grey-text text-lighten-3" href="https://ecommercehtml.com/" target="_blank">Ecommerce HTML</a></li>
-          <li><a class="grey-text text-lighten-3" href="https://ayroui.com/" target="_blank">Ayro UI</a></li>
-          <li><a class="grey-text text-lighten-3" href="https://graygrids.com/" target="_blank">Plain Admin</a></li>
-        </ul>
-      </div>
-      <!-- Partners -->
-      <div class="col s12 m12 l3">
-        <h6 class="white-text">Partners</h6>
-        <div class="row">
-          <div class="col s4 m4 l4" style="margin-bottom:8px;">
-            <a href="https://ayroui.com/" target="_blank">
-              <img th:src="@{/images/footer/brands/ayroui.svg}" alt="ayroui" class="responsive-img" style="max-height:32px;">
-            </a>
-          </div>
-          <div class="col s4 m4 l4" style="margin-bottom:8px;">
-            <a href="https://ecommercehtml.com/" target="_blank">
-              <img th:src="@{/images/footer/brands/ecommerce-html.svg}" alt="ecommerce-html" class="responsive-img" style="max-height:32px;">
-            </a>
-          </div>
-          <div class="col s4 m4 l4" style="margin-bottom:8px;">
-            <a href="https://graygrids.com/" target="_blank">
-              <img th:src="@{/images/footer/brands/graygrids.svg}" alt="graygrids" class="responsive-img" style="max-height:32px;">
-            </a>
-          </div>
-          <div class="col s4 m4 l4" style="margin-bottom:8px;">
-            <a href="https://lineicons.com/" target="_blank">
-              <img th:src="@{/images/footer/brands/lineicons.svg}" alt="lineicons" class="responsive-img" style="max-height:32px;">
-            </a>
-          </div>
-          <div class="col s4 m4 l4" style="margin-bottom:8px;">
-            <a href="https://uideck.com/" target="_blank">
-              <img th:src="@{/images/footer/brands/uideck.svg}" alt="uideck" class="responsive-img" style="max-height:32px;">
-            </a>
-          </div>
-          <div class="col s4 m4 l4" style="margin-bottom:8px;">
-            <a href="https://tailwindtemplates.co/" target="_blank">
-              <img th:src="@{/images/footer/brands/tailwindtemplates.svg}" alt="tailwindtemplates" class="responsive-img" style="max-height:32px;">
-            </a>
-          </div>
-        </div>
-      </div>
+    </footer>
+
+    <!-- Chatbot -->
+    <div id="chatbot-fab" style="position: fixed; right: 32px; bottom: 32px; z-index: 9999; width: 64px; height: 64px; background: #1976D2; border-radius: 50%; box-shadow: 0 4px 16px rgba(33,150,243,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: box-shadow 0.2s;">
+        <span class="material-icons" style="color:white; font-size:36px;">smart_toy</span>
+        <span id="chatbot-fab-close" class="material-icons" title="챗봇 아이콘 닫기" style="position: absolute; top: -10px; right: -10px; background: #fff; color: #1976D2; border-radius: 50%; font-size: 20px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(33,150,243,0.15); cursor: pointer; border: 1px solid #e0e0e0;">close</span>
     </div>
-  </div>
-  <div class="footer-copyright blue darken-2">
-    <div class="container">
-      <div class="row" style="margin-bottom:0;">
-        <div class="col s12 m8">
-          <a href="javascript:void(0)" class="grey-text text-lighten-3" style="margin-right:16px;">Privacy policy</a>
-          <a href="javascript:void(0)" class="grey-text text-lighten-3" style="margin-right:16px;">Support policy</a>
-          <a href="javascript:void(0)" class="grey-text text-lighten-3">Terms of service</a>
+    <div id="chatbot-window" style="position: fixed; right: 32px; bottom: 110px; width: 400px; max-width: 95vw; height: 600px; background: #fff; border-radius: 18px; box-shadow: 0 8px 32px rgba(33,150,243,0.18); z-index: 10000; display: none; flex-direction: column; overflow: hidden; border: 1px solid #e0e0e0; animation: chatbot-pop 0.3s;">
+        <div style="background: #1976D2; color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;"><span class="material-icons" style="font-size: 28px;">smart_toy</span><span style="font-size: 18px; font-weight: 600;">위캔센터 챗봇</span></div>
+            <span id="chatbot-close" class="material-icons" style="cursor:pointer; font-size: 28px;">close</span>
         </div>
-        <div class="col s12 m4 right-align">
-          <span class="grey-text text-lighten-3">
-            Designed and Developed by
-            <a href="https://uideck.com" rel="nofollow" class="grey-text text-lighten-4">UIdeck</a>
-          </span>
+        <div id="chatbot-messages" style="flex: 1; padding: 24px 16px 16px 16px; overflow-y: auto; background: #f5f7fa; font-size: 15px;">
+            <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:18px;"><span class="material-icons" style="color:#1976D2;">smart_toy</span><div style="background:#e3f2fd; color:#1976D2; border-radius:12px; padding:12px 16px; max-width:75%;">안녕하세요! <br/> 궁금한 점을 물어보세요.<br/><span style="font-size:13px; color:#888;">예) 운영시간, 예약, 위치 등</span></div></div>
         </div>
-      </div>
+        <form id="chatbot-form" style="display: flex; align-items: center; padding: 12px 16px; border-top: 1px solid #eee; background: #fff;">
+            <input id="chatbot-input" type="text" placeholder="챗봇에게 물어보세요." autocomplete="off" style="flex: 1; border: none; outline: none; font-size: 15px; padding: 12px 14px; border-radius: 8px; background: #f5f5f5; margin-right: 8px;">
+            <button type="submit" style="background: #1976D2; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 4px;"><span class="material-icons" style="font-size:20px;">send</span></button>
+        </form>
     </div>
-  </div>
-</footer>
-<!-- ====== Footer End (Materialize) ====== -->
+    <style>
+    /*<![CDATA[*/
+        @keyframes chatbot-pop{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}@media (max-width:600px){#chatbot-window{width:98vw !important;right:1vw !important;height:70vh !important;bottom:80px !important}#chatbot-fab{right:16px !important;bottom:16px !important}}
+    /*]]>*/
+    </style>
+    <script>
+    /*<![CDATA[*/
+        (function() {
+            const chatbotFab=document.getElementById("chatbot-fab"),chatbotWindow=document.getElementById("chatbot-window"),chatbotClose=document.getElementById("chatbot-close"),chatbotFabClose=document.getElementById("chatbot-fab-close");chatbotFab.onclick=e=>{e.target!==chatbotFabClose&&(chatbotWindow.style.display="flex",chatbotFab.style.display="none")};chatbotClose.onclick=()=>{chatbotWindow.style.display="none",chatbotFab.style.display="flex"};chatbotFabClose.onclick=e=>{chatbotFab.style.display="none",chatbotWindow.style.display="none",e.stopPropagation()};const chatbotForm=document.getElementById("chatbot-form"),chatbotInput=document.getElementById("chatbot-input"),chatbotMessages=document.getElementById("chatbot-messages");function escapeHtml(e){return e.replace(/[&<>"']/g,function(e){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[e]})}chatbotForm.onsubmit=function(e){e.preventDefault();const t=chatbotInput.value.trim();if(!t)return;const o=document.createElement("div");o.style="display:flex; justify-content:flex-end; gap:10px; margin-bottom:18px;",o.innerHTML=`\n            <div style="background:#1976D2; color:#fff; border-radius:12px; padding:12px 16px; max-width:75%;">\n                ${escapeHtml(t)}\n            </div>\n            <span class="material-icons" style="color:#1976D2;">person</span>\n        `,chatbotMessages.appendChild(o),chatbotMessages.scrollTop=chatbotMessages.scrollHeight,chatbotInput.value="",setTimeout(()=>{const e=function(e){return(e=e.toLowerCase()).includes("운영시간")||e.includes("시간")?"운영시간은 평일 9:00~21:30, 토요일 9:00~18:30, 공휴일 9:00~17:00입니다.":e.includes("예약")?"예약은 홈페이지의 예약하기 메뉴에서 가능합니다.":e.includes("위치")||e.includes("오시는길")?"대전광역시 유성구 대전로 506, 대전청소년위캔센터입니다.":e.includes("상담")?"상담 예약은 상담예약하기 메뉴를 이용해 주세요.":e.includes("프로그램")?"다양한 프로그램은 프로그램 안내 메뉴에서 확인할 수 있습니다.":"죄송해요, 아직 해당 질문에 대한 답변을 준비 중입니다.<br/>운영시간, 예약, 위치 등은 바로 안내해 드릴 수 있어요!"}(t),o=document.createElement("div");o.style="display:flex; align-items:flex-start; gap:10px; margin-bottom:18px;",o.innerHTML=`\n            <span class="material-icons" style="color:#1976D2;">smart_toy</span>\n            <div style="background:#e3f2fd; color:#1976D2; border-radius:12px; padding:12px 16px; max-width:75%;">\n                ${e}\n            </div>\n        `,chatbotMessages.appendChild(o),chatbotMessages.scrollTop=chatbotMessages.scrollHeight},700)};
+        })();
+    /*]]>*/
+    </script>
+
+    <!-- Common Scripts -->
+    <script th:src="@{/js/common.js}"></script>
+</div>
