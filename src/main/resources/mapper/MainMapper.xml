@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.mapper.MainMapper">
-    <!-- resultType을 MenuDto로 변경하여 서비스 로직을 단순화합니다. -->
-    <!-- mybatis.configuration.map-underscore-to-camel-case=true 설정 덕분에 DB 컬럼이 DTO 필드에 자동으로 매핑됩니다. -->
+    <!-- 메뉴 조회 쿼리 개선: 정렬 조건을 더 명확하게 -->
     <select id="getMenuList" resultType="com.main.app.model.MenuDto">
         SELECT menu_id
-              ,menu_nm AS menuName      -- DTO의 menuName 필드와 명시적으로 매핑
-              ,up_menu_id AS parentId -- MenuDto의 parentId 필드와 매핑하기 위한 별칭
+              ,menu_nm AS menuName
+              ,up_menu_id AS parentId
               ,level
               ,path
               ,order_no
           FROM sys_menu_mgt
-         ORDER BY level, order_no
+         WHERE 1=1
+           -- AND use_yn = 'Y'  -- 사용여부 조건 추가 (필요시)
+         ORDER BY level, order_no, menu_id
+    </select>
+
+    <!-- 특정 레벨의 메뉴만 조회하는 쿼리 추가 -->
+    <select id="getMenuListByLevel" resultType="com.main.app.model.MenuDto" parameterType="int">
+        SELECT menu_id
+              ,menu_nm AS menuName
+              ,up_menu_id AS parentId
+              ,level
+              ,path
+              ,order_no
+          FROM sys_menu_mgt
+         WHERE level = #{level}
+          --  AND use_yn = 'Y'
+         ORDER BY order_no, menu_id
+    </select>
+
+    <!-- 특정 부모 메뉴의 하위 메뉴만 조회하는 쿼리 추가 -->
+    <select id="getSubMenusByParentId" resultType="com.main.app.model.MenuDto" parameterType="string">
+        SELECT menu_id
+              ,menu_nm AS menuName
+              ,up_menu_id AS parentId
+              ,level
+              ,path
+              ,order_no
+          FROM sys_menu_mgt
+         WHERE up_menu_id = #{parentId}
+          --  AND use_yn = 'Y'
+         ORDER BY order_no, menu_id
     </select>
 
     <select id="getList1" resultType="map">
@@ -25,5 +54,4 @@
                DATE  AS "date"
           FROM INQUIRYLIST
     </select>
-
 </mapper>

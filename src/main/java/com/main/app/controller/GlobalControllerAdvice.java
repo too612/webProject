@@ -21,74 +21,91 @@ public class GlobalControllerAdvice {
     @Autowired
     private MenuService menuService;
 
+    /**
+     * 모든 페이지에서 사용할 계층구조 메뉴 리스트
+     */
     @ModelAttribute("menuList")
     public List<MenuDto> menuList() {
         return menuService.getHierarchicalMenus();
     }
 
-    // 최상위 메뉴 이름들을 반환하는 새로운 ModelAttribute
+    /**
+     * 최상위 메뉴 이름들만 추출
+     */
     @ModelAttribute("topMenuNames")
     public List<String> topMenuNames() {
-        List<MenuDto> menuList = menuService.getHierarchicalMenus();
-        return menuList.stream()
+        return menuService.getHierarchicalMenus().stream()
                 .map(MenuDto::getMenuName)
                 .collect(Collectors.toList());
     }
 
-    // 최상위 메뉴 전체 객체들을 반환하는 ModelAttribute (이름과 path 모두 포함)
+    /**
+     * 최상위 메뉴 전체 객체들
+     */
     @ModelAttribute("topMenuList")
     public List<MenuDto> topMenuList() {
-        return menuService.getHierarchicalMenus(); // 이미 최상위 메뉴들만 반환됨
+        return menuService.getHierarchicalMenus();
     }
 
+    /**
+     * 현재 요청 URI를 기반으로 사이드바 관련 속성들을 동적으로 설정
+     */
     @ModelAttribute
     public void addSidebarAttributes(Model model, HttpServletRequest request) {
-        @SuppressWarnings("unchecked")
-        List<MenuDto> menuList = (List<MenuDto>) model.getAttribute("menuList");
-        
-        if (menuList == null) return;
-
         String currentUri = request.getRequestURI();
         log.info("==========================================================");
         log.info("현재 요청 URI (currentUri): {}", currentUri);
         log.info("----------------------------------------------------------");
 
-        for (MenuDto mainMenu : menuList) {
-            for (MenuDto subMenu : mainMenu.getSubMenus()) {
-                log.info("DB 메뉴 경로 (subMenu.path): {}", subMenu.getPath());
-                
-                // active 상태 설정 (이 방법이 가장 안전함)
-                if (subMenu.getPath() != null && subMenu.getPath().equals(currentUri)) {
-                    subMenu.setActive(true); // MenuDto에 active 필드와 setter 필요
-                    log.info(">>> 매칭 성공! 사이드바 데이터를 모델에 추가합니다.");
-                    log.info("currentMainMenuName: " + mainMenu.getMenuName());
-                    log.info("currentSubMenus: " + mainMenu.getSubMenus());
-                    log.info("currentTopMenu: " + mainMenu);
-                    
-                    // 기존 속성들
-                    model.addAttribute("currentMainMenuName", mainMenu.getMenuName());
-                    model.addAttribute("currentSubMenus", mainMenu.getSubMenus());
-                    model.addAttribute("currentTopMenu", mainMenu);
-                    
-                    // 새로 추가: 모든 최상위 메뉴 이름들
-                    List<String> allTopMenuNames = menuList.stream()
-                            .map(MenuDto::getMenuName)
-                            .collect(Collectors.toList());
-                    model.addAttribute("allTopMenuNames", allTopMenuNames);
-                    
-                    // 새로 추가: 모든 최상위 메뉴들 (이름 + path 포함)
-                    model.addAttribute("allTopMenus", menuList);
-                    
-                    log.info("allTopMenuNames: " + allTopMenuNames);
-                    log.info("allTopMenus: " + menuList);
-                    log.info("==========================================================");
-                    return;
-                } else {
-                    subMenu.setActive(false);
-                }
-            }
+        // 현재 경로로 메뉴 찾기
+        MenuDto currentMenu = menuService.findMenuByPath(currentUri);
+        if (currentMenu == null) {
+            log.warn(">>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: {}", currentUri);
+            log.info("==========================================================");
+            return;
         }
-        log.warn(">>> 매칭 실패. 현재 URI에 해당하는 서브메뉴를 찾지 못했습니다.");
+
+        log.info("현재 메뉴: {}", currentMenu.getMenuName());
+
+        // 최상위 부모 메뉴 찾기
+        MenuDto topMenu = menuService.findTopMenuByPath(currentUri);
+        if (topMenu == null) {
+            log.warn(">>> 최상위 메뉴를 찾을 수 없습니다.");
+            log.info("==========================================================");
+            return;
+        }
+
+        // 계층구조 메뉴에서 하위 메뉴들을 포함한 전체 정보 가져오기
+        List<MenuDto> hierarchicalMenus = menuService.getHierarchicalMenus();
+        MenuDto fullTopMenu = hierarchicalMenus.stream()
+                .filter(menu -> menu.getMenuId().equals(topMenu.getMenuId()))
+                .findFirst()
+                .orElse(topMenu);
+
+        // 하위 메뉴들의 active 상태 설정
+        fullTopMenu.getSubMenus().forEach(subMenu -> {
+            boolean isActive = currentUri.equals(subMenu.getPath());
+            subMenu.setActive(isActive);
+            log.info("서브메뉴 '{}' active 상태: {}", subMenu.getMenuName(), isActive);
+        });
+
+        // 모델에 속성 추가
+        model.addAttribute("currentMainMenuName", fullTopMenu.getMenuName());
+        model.addAttribute("currentSubMenus", fullTopMenu.getSubMenus());
+        model.addAttribute("currentTopMenu", fullTopMenu);
+        model.addAttribute("currentMenu", currentMenu);
+        model.addAttribute("currentPath", currentUri);
+
+        // 모든 최상위 메뉴 정보
+        model.addAttribute("allTopMenuNames", hierarchicalMenus.stream()
+                .map(MenuDto::getMenuName)
+                .collect(Collectors.toList()));
+        model.addAttribute("allTopMenus", hierarchicalMenus);
+
+        log.info("currentMainMenuName: {}", fullTopMenu.getMenuName());
+        log.info("currentSubMenus: {}", fullTopMenu.getSubMenus());
+        log.info("currentTopMenu: {}", fullTopMenu);
+        log.info("allTopMenuNames: {}", model.getAttribute("allTopMenuNames"));
         log.info("==========================================================");
     }
 }

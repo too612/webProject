@@ -1,33 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/default}">
+      layout:decorate="~{layout/layout}">
+
 <head>
-    <title>사업분야 - 회사 홈페이지</title>
+    <title>사업안내</title>
+        <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/main.css}" />
+    </th:block>
 </head>
+
 <body>
     <div layout:fragment="content">
-        <h2>사업분야</h2>
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <img src="/api/placeholder/600/300" class="card-img-top" alt="사업분야 1">
-                    <div class="card-body">
-                        <h5 class="card-title">시스템 개발</h5>
-                        <p class="card-text">최신 기술을 활용한 맞춤형 시스템 개발</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <img src="/api/placeholder/600/300" class="card-img-top" alt="사업분야 2">
-                    <div class="card-body">
-                        <h5 class="card-title">컨설팅</h5>
-                        <p class="card-text">전문적인 IT 컨설팅 서비스</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h2>사업안내</h2>
+        <p>저희 회사 홈페이지를 방문해주신 여러분을 진심으로 환영합니다.</p>
+        <p>CEO 인사말 본문 내용이 여기에 들어갑니다.</p>
     </div>
 </body>
 </html>

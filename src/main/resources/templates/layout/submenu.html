@@ -6,7 +6,7 @@
     <!--/* submenuLayout Fragment 정의 - layout.html에서 호출됨 */-->
     <div th:fragment="submenuLayout">
         
-        <!-- Hero Section (QnA 페이지와 동일한 스타일 적용) -->
+        <!-- Hero Section -->
         <section class="hero" th:if="${currentTopMenu != null}">
             <h1 th:text="${currentTopMenu.menuName}">메뉴 이름</h1>
             <div class="hero-illustration">
@@ -14,41 +14,55 @@
             </div>
         </section>
 
-        <!-- Breadcrumb (QnA 페이지와 동일한 구조 적용) -->
+        <!-- Breadcrumb (DB 기반 동적 생성) -->
         <section class="breadcrumb" th:if="${currentTopMenu != null}">
             <div class="container">
                 <nav class="breadcrumb-nav">
+                    <!-- 홈 링크 -->
                     <div class="breadcrumb-item" onclick="location.href='/'">
                         <span class="material-icons">home</span>
                     </div>
                     <span class="breadcrumb-separator">></span>
+                    
+                    <!-- 현재 최상위 메뉴 (드롭다운으로 모든 최상위 메뉴 표시) -->
                     <div class="breadcrumb-item dropdown">
                         <span th:text="${currentTopMenu.menuName}">메뉴</span>
                         <span class="material-icons">expand_more</span>
-                        <div class="dropdown-menu">
-                            <a href="#">센터소개</a>
-                            <a href="#">시설안내</a>
-                            <a href="#">프로그램안내</a>
-                            <a href="#">예약하기</a>
-                            <a href="#">위캔소식</a>
-                            <a href="#" th:text="${currentTopMenu.menuName}">열린마당</a>
+                        <div class="dropdown-menu" th:if="${allTopMenus != null}">
+                            <!-- DB에서 가져온 모든 최상위 메뉴들을 동적으로 표시 -->
+                            <a th:each="topMenu : ${allTopMenus}" 
+                               th:href="${topMenu.path != null and !#strings.isEmpty(topMenu.path) ? topMenu.path : (topMenu.subMenus != null and !#lists.isEmpty(topMenu.subMenus) ? topMenu.subMenus[0].path : 'javascript:void(0);')}"
+                               th:text="${topMenu.menuName}"
+                               th:classappend="${topMenu.path == null and (#lists.isEmpty(topMenu.subMenus) or topMenu.subMenus[0].path == null) ? 'disabled' : ''}">메뉴</a>
                         </div>
                     </div>
-                    <span class="breadcrumb-separator">></span>
-                    <div class="breadcrumb-item dropdown" th:if="${currentSubMenu != null}">
-                        <span th:text="${currentSubMenu.menuName}">서브메뉴</span>
-                        <span class="material-icons">expand_more</span>
-                        <div class="dropdown-menu">
-                            <a th:each="subMenu : ${currentSubMenus}" 
-                               th:href="${subMenu.path ?: '#'}" 
-                               th:text="${subMenu.menuName}">서브메뉴</a>
-                        </div>
-                    </div>
+                    
+                    <!-- 현재 서브메뉴가 있는 경우에만 표시 (level 2 확인 및 active 서브메뉴 표시) -->
+                    <th:block th:if="${currentSubMenus != null and !#lists.isEmpty(currentSubMenus)}">
+                        <!-- active가 true인 서브메뉴 찾기 -->
+                        <th:block th:with="activeSubMenu=${#lists.isEmpty(currentSubMenus) ? null : currentSubMenus.?[active == true][0]}">
+                            <th:block th:if="${activeSubMenu != null and activeSubMenu.level == 2}">
+                                <span class="breadcrumb-separator">></span>
+                                <div class="breadcrumb-item dropdown">
+                                    <!-- 현재 활성화된 서브메뉴 이름 표시 -->
+                                    <span th:text="${activeSubMenu.menuName}">서브메뉴</span>
+                                    <span class="material-icons">expand_more</span>
+                                    <div class="dropdown-menu">
+                                        <!-- 현재 최상위 메뉴의 모든 하위 메뉴들을 동적으로 표시 -->
+                                        <a th:each="subMenu : ${currentSubMenus}" 
+                                           th:href="${subMenu.path != null and !#strings.isEmpty(subMenu.path) ? subMenu.path : 'javascript:void(0);'}"
+                                           th:text="${subMenu.menuName}"
+                                           th:classappend="${(subMenu.path == null or #strings.isEmpty(subMenu.path) ? 'disabled' : '') + (subMenu.active ? ' active' : '')}">서브메뉴</a>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </th:block>
+                    </th:block>
                 </nav>
             </div>
         </section>
 
-        <!-- Main Content Area (QnA 페이지와 동일한 구조) -->
+        <!-- Main Content Area -->
         <main class="main-content">
             <!-- Sidebar -->
             <div th:replace="~{layout/sidebar :: sidebarFragment(mainMenuName=${currentMainMenuName}, subMenus=${currentSubMenus})}"></div>
@@ -61,6 +75,23 @@
             </div>
         </main>
     </div>
+
+    <!-- CSS 스타일 추가 -->
+    <style>
+        .breadcrumb .dropdown-menu a.disabled {
+            color: #999;
+            cursor: default;
+            text-decoration: none;
+            pointer-events: none;
+        }
+        .breadcrumb .dropdown-menu a.active {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        .breadcrumb .dropdown-menu a:hover:not(.disabled) {
+            background-color: #e0e0e0;
+        }
+    </style>
 
 </body>
 </html>

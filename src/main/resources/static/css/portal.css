@@ -471,42 +471,108 @@ body {
     font-size: 0.9rem;
 }
 
-/* Footer */
+/* Footer - main.css와 동일한 통일된 디자인 */
 .footer {
-    background: #263238;
-    color: white;
-    padding: 50px 0 20px;
+    background: #424242;
+    color: #bbb;
+    padding: 40px 0 20px;
+    margin-top: 60px;
+}
+
+.footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .footer-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
     gap: 40px;
-    margin-bottom: 30px;
 }
 
-.footer-section h4 {
-    font-size: 1.2rem;
+.footer-info {
+    flex: 1;
+}
+
+.footer-info .logo {
+    color: #2196F3 !important;
     margin-bottom: 15px;
-    color: #81C784;
+    font-size: 18px;
+    font-weight: 600;
 }
 
-.footer-section p,
-.footer-section a {
-    color: #B0BEC5;
+.footer-details {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.footer-details p {
+    margin: 5px 0;
+    color: #bbb;
+}
+
+.footer-social {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.footer-social a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
-    line-height: 1.8;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.footer-section a:hover {
-    color: #81C784;
+.footer-social a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.footer-social .facebook { 
+    background: #1877F2; 
+}
+
+.footer-social .youtube { 
+    background: #FF0000; 
+}
+
+.footer-social .blog { 
+    background: #03C75A; 
 }
 
 .footer-bottom {
     text-align: center;
     padding-top: 20px;
-    border-top: 1px solid #37474F;
-    color: #78909C;
+    border-top: 1px solid #555;
+    font-size: 12px;
+    color: #888;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .footer-social {
+        justify-content: center;
+    }
+    
+    .footer-details {
+        font-size: 12px;
+    }
 }
 
 .partner-logos {

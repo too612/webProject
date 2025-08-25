@@ -11,13 +11,18 @@
             <div class="container">
                 <div class="logo">대전청소년위캔센터</div>
                 <nav class="nav-main">
-                    <!-- menuList는 이제 계층 구조를 가진 MenuDto 객체 리스트입니다. -->
+                    <!-- menuList는 계층 구조를 가진 MenuDto 객체 리스트 -->
                     <div class="dropdown" th:each="menu : ${menuList}">
-                        <!-- 하위 메뉴가 있으면 링크를 비활성화하고, 없으면 menu.path로 이동합니다. -->
-                        <a th:href="${!#lists.isEmpty(menu.subMenus) ? 'javascript:void(0);' : menu.path}" th:text="${menu.menuName}"></a>
-                        <!-- menu 객체 안의 subMenus 리스트를 순회하여 드롭다운 메뉴를 생성합니다. -->
+                        <!-- path가 있으면 해당 경로로 이동, 없으면 링크 비활성화 -->
+                        <a th:href="${menu.path != null and !#strings.isEmpty(menu.path) ? menu.path : 'javascript:void(0);'}" 
+                           th:text="${menu.menuName}"
+                           th:classappend="${menu.path == null or #strings.isEmpty(menu.path) ? 'disabled' : ''}"></a>
+                        <!-- 하위 메뉴가 있는 경우 드롭다운 메뉴 표시 -->
                         <div class="dropdown-menu" th:if="${!#lists.isEmpty(menu.subMenus)}">
-                            <a th:each="subMenu : ${menu.subMenus}" th:href="${subMenu.path}" th:text="${subMenu.menuName}"></a>
+                            <a th:each="subMenu : ${menu.subMenus}" 
+                               th:href="${subMenu.path != null and !#strings.isEmpty(subMenu.path) ? subMenu.path : 'javascript:void(0);'}"
+                               th:text="${subMenu.menuName}"
+                               th:classappend="${subMenu.path == null or #strings.isEmpty(subMenu.path) ? 'disabled' : ''}"></a>
                         </div>
                     </div>
                 </nav>
@@ -30,5 +35,26 @@
             </div>
         </div>
     </header>
+
+    <!-- CSS 스타일 추가 (필요시 별도 CSS 파일로 분리) -->
+    <style>
+        .nav-main a.disabled {
+            color: #999;
+            cursor: default;
+            text-decoration: none;
+        }
+        .nav-main a.disabled:hover {
+            color: #999;
+        }
+        .dropdown-menu a.disabled {
+            color: #999;
+            cursor: default;
+            text-decoration: none;
+        }
+        .dropdown-menu a.disabled:hover {
+            color: #999;
+            background-color: transparent;
+        }
+    </style>
 </body>
 </html>
