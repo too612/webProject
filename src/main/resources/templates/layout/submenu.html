@@ -6,39 +6,60 @@
     <!--/* submenuLayout Fragment 정의 - layout.html에서 호출됨 */-->
     <div th:fragment="submenuLayout">
         
-        <!-- Hero Section -->
-        <section class="hero-section text-center py-5 bg-light" th:if="${currentTopMenu != null}">
-            <div class="container">
-                <h1 class="display-4" th:text="${currentTopMenu.menuName}">메뉴 이름</h1>
-                <!-- description 필드가 없으므로 제거하거나 다른 방식으로 처리 -->
-                <!-- <p class="lead">메뉴에 대한 간단한 설명</p> -->
+        <!-- Hero Section (QnA 페이지와 동일한 스타일 적용) -->
+        <section class="hero" th:if="${currentTopMenu != null}">
+            <h1 th:text="${currentTopMenu.menuName}">메뉴 이름</h1>
+            <div class="hero-illustration">
+                <!-- Illustration would go here -->
             </div>
         </section>
 
-        <div class="container">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mt-4" th:if="${currentTopMenu != null}">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" th:text="${currentTopMenu.menuName}">메뉴</li>
-                </ol>
-            </nav>
-
-            <!-- Main Content Area with Sidebar -->
-            <main class="my-4">
-                <div class="row">
-                    <!-- Sidebar (Submenu) -->
-                    <div class="col-lg-3">
-                        <div th:replace="~{layout/sidebar :: sidebarFragment(mainMenuName=${currentMainMenuName}, subMenus=${currentSubMenus})}"></div>
+        <!-- Breadcrumb (QnA 페이지와 동일한 구조 적용) -->
+        <section class="breadcrumb" th:if="${currentTopMenu != null}">
+            <div class="container">
+                <nav class="breadcrumb-nav">
+                    <div class="breadcrumb-item" onclick="location.href='/'">
+                        <span class="material-icons">home</span>
                     </div>
-
-                    <!-- Page-specific Content -->
-                    <div class="col-lg-9" layout:fragment="content">
-                        <!-- 각 페이지의 콘텐츠가 이 부분에 삽입됩니다. -->
+                    <span class="breadcrumb-separator">></span>
+                    <div class="breadcrumb-item dropdown">
+                        <span th:text="${currentTopMenu.menuName}">메뉴</span>
+                        <span class="material-icons">expand_more</span>
+                        <div class="dropdown-menu">
+                            <a href="#">센터소개</a>
+                            <a href="#">시설안내</a>
+                            <a href="#">프로그램안내</a>
+                            <a href="#">예약하기</a>
+                            <a href="#">위캔소식</a>
+                            <a href="#" th:text="${currentTopMenu.menuName}">열린마당</a>
+                        </div>
                     </div>
+                    <span class="breadcrumb-separator">></span>
+                    <div class="breadcrumb-item dropdown" th:if="${currentSubMenu != null}">
+                        <span th:text="${currentSubMenu.menuName}">서브메뉴</span>
+                        <span class="material-icons">expand_more</span>
+                        <div class="dropdown-menu">
+                            <a th:each="subMenu : ${currentSubMenus}" 
+                               th:href="${subMenu.path ?: '#'}" 
+                               th:text="${subMenu.menuName}">서브메뉴</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </section>
+
+        <!-- Main Content Area (QnA 페이지와 동일한 구조) -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <div th:replace="~{layout/sidebar :: sidebarFragment(mainMenuName=${currentMainMenuName}, subMenus=${currentSubMenus})}"></div>
+
+            <!-- Page-specific Content -->
+            <div class="content-area">
+                <div layout:fragment="content">
+                    <!-- 각 페이지의 콘텐츠가 이 부분에 삽입됩니다. -->
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
 
 </body>

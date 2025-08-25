@@ -2,17 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <!--
-      URL 표현식 오류 수정:
-      잘못된 방식: @{${subMenu.path}}
-      올바른 방식: @{__${subMenu.path}__} 또는 직접 변수 사용
+      CSS 스타일과 완전히 일치하도록 수정:
+      1. 활성 클래스는 li 태그에 적용 (CSS: .sidebar-menu li.is-active a)
+      2. currentPath와 비교하여 활성 상태 판단
+      3. CSS 클래스명과 일치: 'is-active' 사용
     -->
     <aside class="sidebar" th:fragment="sidebarFragment(mainMenuName, subMenus)">
-        <h2 th:text="${mainMenuName}">대메뉴 이름</h2>
-        <ul>
-            <li th:each="subMenu : ${subMenus}" th:if="${subMenu != null}"
-                th:classappend="${subMenu.path != null and subMenu.path == currentPath ? 'active' : ''}">
-                <!-- 수정된 URL 표현식 -->
-                <a th:href="${subMenu.path != null ? subMenu.path : '#'}" th:text="${subMenu.menuName}">서브메뉴 이름</a>
+        <div class="sidebar-header" th:text="${mainMenuName ?: '자료'}">자료</div>
+        <ul class="sidebar-menu">
+            <li th:each="subMenu : ${subMenus}" 
+                th:if="${subMenu != null}"
+                th:classappend="${subMenu.path != null and subMenu.path == currentPath ? 'is-active' : ''}">
+                <a th:href="${subMenu.path ?: '#'}" th:text="${subMenu.menuName}">서브메뉴 이름</a>
             </li>
         </ul>
     </aside>

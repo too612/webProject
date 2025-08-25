@@ -49,6 +49,8 @@ public class CompanyController {
 
         // 사이드바에서 현재 페이지 메뉴를 'active'로 표시하기 위해 페이지 ID를 모델에 추가합니다.
         model.addAttribute("currentPage", currentPageId);
+        //subMenu
+        model.addAttribute("submenu", "Y");
     }
 
     @GetMapping("/ceo")
