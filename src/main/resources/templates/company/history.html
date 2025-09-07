@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" 
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/default}">
+      layout:decorate="~{layout/layout}">
 <head>
-    <title>회사연혁 - 회사 홈페이지</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-    <style>
+    <title>회사연혁</title>
+    
+    <th:block layout:fragment="css">
+        <style>
+        /* 
+          이 스타일들은 history.html 페이지에만 적용되므로 여기에 유지합니다.
+        */
         .timeline {
             margin-bottom: 50px;
         }
@@ -36,7 +40,8 @@
                 width: 100%;
             }
         }
-    </style>
+        </style>
+    </th:block>
 </head>
 <body>
     <div layout:fragment="content">
@@ -80,6 +85,10 @@
                 <div id="market-chart"></div>
             </div>
         </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
         <script th:inline="javascript">
             /*<![CDATA[*/
             // 데이터 준비
@@ -262,6 +271,6 @@
             });
             /*]]>*/
         </script>
-    </div>
+    </th:block>
 </body>
 </html>

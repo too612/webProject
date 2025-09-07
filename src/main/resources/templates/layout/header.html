@@ -3,14 +3,14 @@
 <body>
     <header th:fragment="header" class="header">
         <div class="header-top">
-            <div class="container">
+            <div class="container desktop-only">
                 홈으로 | 회원가입
             </div>
         </div>
         <div class="header-main">
             <div class="container">
                 <div class="logo">대전청소년위캔센터</div>
-                <nav class="nav-main">
+                <nav class="nav-main desktop-only">
                     <!-- menuList는 계층 구조를 가진 MenuDto 객체 리스트 -->
                     <div class="dropdown" th:each="menu : ${menuList}">
                         <!-- path가 있으면 해당 경로로 이동, 없으면 링크 비활성화 -->
@@ -26,35 +26,20 @@
                         </div>
                     </div>
                 </nav>
-                <div class="social-icons">
+                <div class="social-icons desktop-only">
                     <a href="#" class="kakao">K</a>
                     <a href="#" class="facebook">f</a>
                     <a href="#" class="youtube">▶</a>
                     <a href="#" class="blog">B</a>
                 </div>
+                <!-- Animated Hamburger Icon -->
+                <button id="hamburger-btn" class="hamburger mobile-only" type="button" aria-label="메뉴 열기" aria-controls="mobile-nav" aria-expanded="false">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                    </span>
+                </button>
             </div>
         </div>
     </header>
-
-    <!-- CSS 스타일 추가 (필요시 별도 CSS 파일로 분리) -->
-    <style>
-        .nav-main a.disabled {
-            color: #999;
-            cursor: default;
-            text-decoration: none;
-        }
-        .nav-main a.disabled:hover {
-            color: #999;
-        }
-        .dropdown-menu a.disabled {
-            color: #999;
-            cursor: default;
-            text-decoration: none;
-        }
-        .dropdown-menu a.disabled:hover {
-            color: #999;
-            background-color: transparent;
-        }
-    </style>
 </body>
 </html>
