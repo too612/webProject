@@ -8,10 +8,6 @@
       3. 로그 정보 개선을 위한 디버그 정보 추가
     -->
     <aside class="sidebar" th:fragment="sidebarFragment(mainMenuName, subMenus)">
-        <!-- 메인 메뉴명 표시 (null 체크 강화) -->
-        <div class="sidebar-header" 
-             th:text="${mainMenuName != null and !#strings.isEmpty(mainMenuName) ? mainMenuName : '메뉴'}">메뉴</div>
-        
         <!-- 서브 메뉴 리스트 -->
         <ul class="sidebar-menu" th:if="${subMenus != null and !#lists.isEmpty(subMenus)}">
             <li th:each="subMenu : ${subMenus}" 

@@ -50,21 +50,24 @@
     <nav id="mobile-nav" class="mobile-nav">
         <div class="mobile-nav-header">
             <!-- 패널 상단에도 로고를 표시하여 일관성 유지 -->
-            <div class="logo">대전청소년위캔센터</div>
+            <a href="/" class="logo">대전청소년위캔센터</a>
         </div>
         <div class="mobile-nav-body">
-            <ul class="mobile-menu-list">
-                <!-- 정적 링크 -->
-                <li><a href="/">홈으로</a></li>
-                <li><a href="#">회원가입</a></li>
-            </ul>
+            <!-- 정적 링크: 구조(container)와 콘텐츠(menu)를 분리하여 명확한 중앙 정렬 구현 -->
+            <div class="mobile-static-menu-container"> <!-- 2개의 버튼을 담는 flex 컨테이너 -->
+                <a href="/">홈으로</a>
+                <a href="#">회원가입</a>
+            </div>
+
             <ul class="mobile-menu-list">
                 <!-- 동적 메뉴 (아코디언) -->
                 <li th:each="menu : ${menuList}" th:classappend="${!#lists.isEmpty(menu.subMenus) ? 'has-submenu' : ''}">
-                    <a th:href="${#lists.isEmpty(menu.subMenus) ? menu.path : 'javascript:void(0);'}" th:text="${menu.menuName}">1차 메뉴</a>
-                    <button th:if="${!#lists.isEmpty(menu.subMenus)}" class="submenu-toggle-btn" aria-label="하위 메뉴 열기">
-                        <span class="material-icons">expand_more</span>
-                    </button>
+                    <div class="menu-item-row"> <!-- 버튼 위치 문제를 해결하기 위한 래퍼 -->
+                        <a th:href="${#lists.isEmpty(menu.subMenus) ? menu.path : 'javascript:void(0);'}" th:text="${menu.menuName}">1차 메뉴</a>
+                        <button th:if="${!#lists.isEmpty(menu.subMenus)}" class="submenu-toggle-btn" aria-label="하위 메뉴 열기">
+                            <span class="material-icons">expand_more</span>
+                        </button>
+                    </div>
                     <ul class="submenu" th:if="${!#lists.isEmpty(menu.subMenus)}">
                         <li th:each="subMenu : ${menu.subMenus}"><a th:href="${subMenu.path}" th:text="${subMenu.menuName}">2차 메뉴</a></li>
                     </ul>

@@ -54,6 +54,28 @@ ul, li {
     border-bottom: 1px solid #e9ecef;
 }
 
+/* 헤더 상단 링크 (홈으로, 회원가입) */
+.header-top-links {
+    display: inline-flex; /* text-align: right에 의해 우측 정렬되도록 */
+    align-items: center;
+}
+
+.header-top-links a {
+    padding: 4px 0; /* 불필요한 좌우 패딩 제거 */
+    transition: color 0.2s ease;
+}
+
+.header-top-links a:hover {
+    color: #2196F3; /* 호버 시 텍스트 색상 변경으로 대체 */
+}
+
+/* 링크 사이에 구분선 추가 */
+.header-top-links a + a {
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid #dee2e6;
+}
+
 .header-main {
     padding: 10px 0;
 }
@@ -458,53 +480,85 @@ ul, li {
     padding: 0 20px;
 }
 
-/* 사이드바 */
+
+/* =========================================================
+   4-x. 사이드바 개선 (TO-BE 스타일, Material Design 반영)
+   ---------------------------------------------------------
+   - HTML 구조는 그대로 유지 (sidebar.html 수정 없음)
+   - PC 버전: 카드형 스타일 + Material hover/active 효과
+   - Mobile 버전: sidebar 자체는 숨김 (기존 로직 유지)
+   - 홈 아이콘은 제거 (breadcrumb에서 관리)
+   ========================================================= */
+
+/* 전체 사이드바 컨테이너 */
 .sidebar {
-    width: 250px;
+    width: 260px; /* 살짝 넓게 */
     flex-shrink: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: #fff;
+    border-radius: 16px; /* Material Design 둥근 모서리 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* 더 부드러운 그림자 */
     height: fit-content;
+    overflow: hidden; /* 내부 요소 튀어나옴 방지 */
 }
 
-.sidebar-header {
-    background: #2196F3;
-    color: white;
-    padding: 20px;
-    border-radius: 12px 12px 0 0;
-    font-size: 18px;
-    font-weight: 600;
-}
-
+/* 메뉴 리스트 기본 */
 .sidebar-menu li {
     border-bottom: 1px solid #f0f0f0;
 }
 
+/* 메뉴 항목 링크 */
 .sidebar-menu a {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 16px 20px;
-    transition: all 0.2s;
+    font-size: 15px;
+    color: #333;
+    transition: background 0.2s, color 0.2s;
+    position: relative; /* ripple 효과 기준 */
 }
 
+/* ripple 효과를 적용하려면 sidebar.html에서 a 태그에 class="ripple" 추가 가능 */
+
+/* Hover 상태 */
 .sidebar-menu a:hover {
     background-color: #f5f5f5;
 }
 
+/* Active 상태 */
 .sidebar-menu li.is-active a {
-    background-color: #E3F2FD;
-    color: #2196F3;
+    background-color: #E3F2FD; /* Material Light Blue background */
+    color: #2196F3; /* Primary 강조 */
     font-weight: 600;
-    border-left: 4px solid #2196F3;
+    border-left: 4px solid #2196F3; /* 시각적 강조 라인 */
 }
 
+/* 비활성화된 메뉴 */
+.sidebar-menu a.disabled {
+    color: #aaa !important;
+    cursor: not-allowed !important;
+}
+
+/* 빈 메뉴 안내 */
 .sidebar-empty {
     padding: 20px;
     text-align: center;
-    color: #666;
+    color: #999;
     font-style: italic;
+    font-size: 14px;
+    background: #fafafa;
+}
+
+/* 반응형 처리 (모바일에서는 숨김 유지) */
+@media (max-width: 992px) {
+    .sidebar {
+        display: none; /* breadcrumb로 대체 */
+    }
+     /* 모바일에서는 breadcrumb의 첫 번째 항목(홈)과 구분자 숨김 */
+    .breadcrumb-nav .breadcrumb-item:first-child,
+    .breadcrumb-nav .breadcrumb-item:first-child + .breadcrumb-separator {
+        display: none;
+    }
 }
 
 /* 콘텐츠 영역 */
@@ -717,6 +771,11 @@ ul, li {
    7. 반응형 처리 (모바일 대응)
    ============================= */
 @media (max-width: 992px) {
+    /* 모바일에서는 최상단 '홈으로 | 회원가입' 영역 숨김 */
+    .header-top {
+        display: none;
+    }
+
     .nav-main {
         display: none; /* 태블릿부터는 GNB 숨김 (햄버거 메뉴로 대체) */
     }
@@ -892,11 +951,14 @@ ul, li {
     border-bottom: none;
 }
 .mobile-menu-list li {
-    position: relative;
     border-bottom: 1px solid #f1f3f5;
 }
 .mobile-menu-list li:last-child {
     border-bottom: none;
+}
+/* 1차 메뉴 행의 위치 기준 설정 */
+.menu-item-row {
+    position: relative;
 }
 .mobile-menu-list li a {
     display: block;
@@ -905,7 +967,7 @@ ul, li {
 }
 
 /* 아코디언 서브메뉴 */
-.mobile-menu-list li.has-submenu > a {
+li.has-submenu .menu-item-row > a {
     padding-right: 50px; /* 토글 버튼 공간 확보 */
 }
 .submenu-toggle-btn {
@@ -917,13 +979,14 @@ ul, li {
     background: none;
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
+    display: flex; /* 아이콘을 중앙 정렬하기 위해 flex 사용 */
+    align-items: center; /* 아이콘을 버튼의 수직 중앙에 배치 */
     justify-content: center;
     color: #868e96;
     transition: transform 0.2s ease;
 }
-li.has-submenu.submenu-open > .submenu-toggle-btn {
+/* 메뉴가 열렸을 때 화살표 회전 (HTML 구조 변경으로 > 선택자 제거) */
+li.has-submenu.submenu-open .submenu-toggle-btn {
     transform: rotate(180deg);
 }
 .submenu {
@@ -936,6 +999,29 @@ li.has-submenu.submenu-open > .submenu {
 .submenu li a {
     padding-left: 40px; /* 들여쓰기 */
     font-weight: 400;
+}
+
+/* 모바일 메뉴: 정적 링크 (홈으로 | 회원가입) - 2버튼 레이아웃 */
+.mobile-static-menu-container {
+    display: flex; /* 자식 요소(a)들을 가로로 배치 */
+    border-bottom: 8px solid #f1f3f5; /* 다른 메뉴 리스트와의 구분선 */
+}
+
+.mobile-static-menu-container a {
+    flex: 1; /* 각 링크가 동일한 너비를 차지하도록 설정 (50%) */
+    padding: 16px 0;
+    text-align: center; /* 텍스트를 버튼 중앙에 배치 */
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-static-menu-container a:hover {
+    background-color: #f5f5f5;
+}
+
+/* 두 버튼 사이의 구분선 */
+.mobile-static-menu-container a:first-child {
+    border-right: 1px solid #e9ecef;
 }
 
 /* 배경 오버레이 */
