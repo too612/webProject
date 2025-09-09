@@ -1109,3 +1109,297 @@
 2025-09-09 22:23:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
 2025-09-09 22:23:08 [http-nio-8080-exec-7] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /error
 2025-09-09 22:23:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/ceo
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 센터소개
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: true
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: false
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:23:59 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:23:59 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:23:59 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /error
+2025-09-09 22:23:59 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:23:59 [http-nio-8080-exec-1] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /error
+2025-09-09 22:23:59 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/mission
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 설립목적
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: false
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: true
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:24:00 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:01 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:01 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /error
+2025-09-09 22:24:01 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:24:01 [http-nio-8080-exec-5] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /error
+2025-09-09 22:24:01 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:07 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:07 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /
+2025-09-09 22:24:07 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:24:07 [http-nio-8080-exec-10] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /
+2025-09-09 22:24:07 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/ceo
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 센터소개
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: true
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: false
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:24:08 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /support/qna
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: Q&A
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '자료실' active 상태: false
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 'Q&A' active 상태: true
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 위캔소식
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_05_01, menuName=자료실, menuUrl=null, parentId=M_MAIN_05, path=/support/board, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_05_02, menuName=Q&A, menuUrl=null, parentId=M_MAIN_05, path=/support/qna, level=2, orderNo=2, subMenus=[], active=true)]
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_05, menuName=위캔소식, menuUrl=null, parentId=M_MAIN, path=null, level=1, orderNo=5, subMenus=[MenuDto(menuId=M_MAIN_05_01, menuName=자료실, menuUrl=null, parentId=M_MAIN_05, path=/support/board, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_05_02, menuName=Q&A, menuUrl=null, parentId=M_MAIN_05, path=/support/qna, level=2, orderNo=2, subMenus=[], active=true)], active=false)
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:24:15 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:29:18 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-09-09 22:29:18 [Thread-5] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-09 22:29:19 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-09-09 22:29:19 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-09-09 22:29:19 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-09-09 22:29:19 [restartedMain] INFO  com.main.app.AppApplication - Starting AppApplication using Java 17.0.9 with PID 14640 (C:\privWork\workspace\webProject\bin\main started by msi in c:\privWork\workspace\webProject)
+2025-09-09 22:29:19 [restartedMain] INFO  com.main.app.AppApplication - No active profile set, falling back to 1 default profile: "default"
+2025-09-09 22:29:19 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-09 22:29:19 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-09 22:29:19 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-09-09 22:29:19 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-09 22:29:19 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 313 ms
+2025-09-09 22:29:19 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'globalControllerAdvice' defined in file [C:\privWork\workspace\webProject\bin\main\com\main\app\controller\GlobalControllerAdvice.class]: Failed to instantiate [com.main.app.controller.GlobalControllerAdvice]: Constructor threw exception
+2025-09-09 22:29:19 [restartedMain] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2025-09-09 22:29:19 [restartedMain] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-09-09 22:29:19 [restartedMain] ERROR o.s.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'globalControllerAdvice' defined in file [C:\privWork\workspace\webProject\bin\main\com\main\app\controller\GlobalControllerAdvice.class]: Failed to instantiate [com.main.app.controller.GlobalControllerAdvice]: Constructor threw exception
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1343) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1228) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1155) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1121) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1056) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987) ~[spring-context-6.2.3.jar:6.2.3]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.3.jar:6.2.3]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.3.jar:3.4.3]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.3.jar:3.4.3]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.3.jar:3.4.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.3.jar:3.4.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.3.jar:3.4.3]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.3.jar:3.4.3]
+	at com.main.app.AppApplication.main(AppApplication.java:12) ~[main/:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.4.3.jar:3.4.3]
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.main.app.controller.GlobalControllerAdvice]: Constructor threw exception
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:222) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:122) ~[spring-beans-6.2.3.jar:6.2.3]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1337) ~[spring-beans-6.2.3.jar:6.2.3]
+	... 24 common frames omitted
+Caused by: java.lang.Error: Unresolved compilation problems: 
+	Syntax error, insert "}" to complete MethodBody
+	Type mismatch: cannot convert from Stream<MenuDto> to List<String>
+	Syntax error, insert ";" to complete BlockStatements
+	model cannot be resolved
+	hierarchicalMenus cannot be resolved to a variable
+	model cannot be resolved
+	hierarchicalMenus cannot be resolved to a variable
+	model cannot be resolved
+	hierarchicalMenus cannot be resolved to a variable
+	hierarchicalMenus cannot be resolved
+	Syntax error on token ".", { expected
+	Syntax error on token(s), misplaced construct(s)
+	Syntax error on token "topMenuList", AnnotationName expected after this token
+	topMenuNames cannot be resolved to a variable
+
+	at com.main.app.controller.GlobalControllerAdvice.<init>(GlobalControllerAdvice.java:39) ~[main/:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:196) ~[spring-beans-6.2.3.jar:6.2.3]
+	... 26 common frames omitted
+2025-09-09 22:29:46 [restartedMain] INFO  com.main.app.AppApplication - Starting AppApplication using Java 17.0.9 with PID 14640 (C:\privWork\workspace\webProject\bin\main started by msi in c:\privWork\workspace\webProject)
+2025-09-09 22:29:46 [restartedMain] INFO  com.main.app.AppApplication - No active profile set, falling back to 1 default profile: "default"
+2025-09-09 22:29:47 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-09 22:29:47 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-09 22:29:47 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-09-09 22:29:47 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-09 22:29:47 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 329 ms
+2025-09-09 22:29:47 [restartedMain] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page template: index
+2025-09-09 22:29:47 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-09-09 22:29:47 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-09-09 22:29:47 [restartedMain] INFO  com.main.app.AppApplication - Started AppApplication in 0.519 seconds (process running for 3957.617)
+2025-09-09 22:29:47 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-09-09 22:29:49 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-09-09 22:29:49 [Thread-7] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-09-09 22:29:50 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-09-09 22:29:50 [restartedMain] INFO  com.main.app.AppApplication - Starting AppApplication using Java 17.0.9 with PID 14640 (C:\privWork\workspace\webProject\bin\main started by msi in c:\privWork\workspace\webProject)
+2025-09-09 22:29:50 [restartedMain] INFO  com.main.app.AppApplication - No active profile set, falling back to 1 default profile: "default"
+2025-09-09 22:29:50 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-09-09 22:29:50 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-09-09 22:29:50 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.36]
+2025-09-09 22:29:50 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-09-09 22:29:50 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 258 ms
+2025-09-09 22:29:50 [restartedMain] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page template: index
+2025-09-09 22:29:50 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-09-09 22:29:50 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-09-09 22:29:50 [restartedMain] INFO  com.main.app.AppApplication - Started AppApplication in 0.413 seconds (process running for 3961.066)
+2025-09-09 22:29:50 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@106a9cbe
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:29:54 [http-nio-8080-exec-1] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /
+2025-09-09 22:29:54 [http-nio-8080-exec-1] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/ceo
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 센터소개
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: true
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: false
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:29:57 [http-nio-8080-exec-2] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /business/fields
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 사업안내
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '사업영역' active 상태: true
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '사업시스템' active 상태: false
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 사업안내
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_02_01, menuName=사업영역, menuUrl=null, parentId=M_MAIN_02, path=/business/fields, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_02_02, menuName=사업시스템, menuUrl=null, parentId=M_MAIN_02, path=/business/system, level=2, orderNo=2, subMenus=[], active=false)]
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_02, menuName=사업안내, menuUrl=null, parentId=M_MAIN, path=/business/fields, level=1, orderNo=2, subMenus=[MenuDto(menuId=M_MAIN_02_01, menuName=사업영역, menuUrl=null, parentId=M_MAIN_02, path=/business/fields, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_02_02, menuName=사업시스템, menuUrl=null, parentId=M_MAIN_02, path=/business/system, level=2, orderNo=2, subMenus=[], active=false)], active=false)
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:29:59 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /support/board
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 자료실
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '자료실' active 상태: true
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 'Q&A' active 상태: false
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 위캔소식
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_05_01, menuName=자료실, menuUrl=null, parentId=M_MAIN_05, path=/support/board, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_05_02, menuName=Q&A, menuUrl=null, parentId=M_MAIN_05, path=/support/qna, level=2, orderNo=2, subMenus=[], active=false)]
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_05, menuName=위캔소식, menuUrl=null, parentId=M_MAIN, path=null, level=1, orderNo=5, subMenus=[MenuDto(menuId=M_MAIN_05_01, menuName=자료실, menuUrl=null, parentId=M_MAIN_05, path=/support/board, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_05_02, menuName=Q&A, menuUrl=null, parentId=M_MAIN_05, path=/support/qna, level=2, orderNo=2, subMenus=[], active=false)], active=false)
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:30:01 [http-nio-8080-exec-4] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:05 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:05 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /
+2025-09-09 22:30:05 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:05 [http-nio-8080-exec-5] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /
+2025-09-09 22:30:05 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/location
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 오시는길
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: false
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: false
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: true
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=true)]
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=true)], active=false)
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:30:07 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/history
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 주요연혁
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: false
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: false
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: true
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:30:08 [http-nio-8080-exec-7] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /business/fields
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 사업안내
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '사업영역' active 상태: true
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '사업시스템' active 상태: false
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 사업안내
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_02_01, menuName=사업영역, menuUrl=null, parentId=M_MAIN_02, path=/business/fields, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_02_02, menuName=사업시스템, menuUrl=null, parentId=M_MAIN_02, path=/business/system, level=2, orderNo=2, subMenus=[], active=false)]
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_02, menuName=사업안내, menuUrl=null, parentId=M_MAIN, path=/business/fields, level=1, orderNo=2, subMenus=[MenuDto(menuId=M_MAIN_02_01, menuName=사업영역, menuUrl=null, parentId=M_MAIN_02, path=/business/fields, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_02_02, menuName=사업시스템, menuUrl=null, parentId=M_MAIN_02, path=/business/system, level=2, orderNo=2, subMenus=[], active=false)], active=false)
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:30:12 [http-nio-8080-exec-8] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/ceo
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 센터소개
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: true
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: false
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:30:13 [http-nio-8080-exec-9] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /company/mission
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 현재 메뉴: 설립목적
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '인사말' active 상태: false
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '설립목적' active 상태: true
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '주요연혁' active 상태: false
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - 서브메뉴 '오시는길' active 상태: false
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - currentMainMenuName: 센터소개
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - currentSubMenus: [MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)]
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - currentTopMenu: MenuDto(menuId=M_MAIN_01, menuName=센터소개, menuUrl=null, parentId=M_MAIN, path=/company/ceo, level=1, orderNo=1, subMenus=[MenuDto(menuId=M_MAIN_01_01, menuName=인사말, menuUrl=null, parentId=M_MAIN_01, path=/company/ceo, level=2, orderNo=1, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_02, menuName=설립목적, menuUrl=null, parentId=M_MAIN_01, path=/company/mission, level=2, orderNo=2, subMenus=[], active=true), MenuDto(menuId=M_MAIN_01_03, menuName=주요연혁, menuUrl=null, parentId=M_MAIN_01, path=/company/history, level=2, orderNo=3, subMenus=[], active=false), MenuDto(menuId=M_MAIN_01_04, menuName=오시는길, menuUrl=null, parentId=M_MAIN_01, path=/company/location, level=2, orderNo=4, subMenus=[], active=false)], active=false)
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - allTopMenuNames: [센터소개, 사업안내, 프로그램안내, 예약하기, 위캔소식]
+2025-09-09 22:30:15 [http-nio-8080-exec-10] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:31:28 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:31:28 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /
+2025-09-09 22:31:28 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:31:28 [http-nio-8080-exec-3] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /
+2025-09-09 22:31:28 [http-nio-8080-exec-3] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:31:30 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:31:30 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /
+2025-09-09 22:31:30 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:31:30 [http-nio-8080-exec-5] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /
+2025-09-09 22:31:30 [http-nio-8080-exec-5] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:31:39 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================
+2025-09-09 22:31:39 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - 현재 요청 URI (currentUri): /
+2025-09-09 22:31:39 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ----------------------------------------------------------
+2025-09-09 22:31:39 [http-nio-8080-exec-6] WARN  c.m.a.c.GlobalControllerAdvice - >>> 현재 URI에 해당하는 메뉴를 찾을 수 없습니다: /
+2025-09-09 22:31:39 [http-nio-8080-exec-6] INFO  c.m.a.c.GlobalControllerAdvice - ==========================================================

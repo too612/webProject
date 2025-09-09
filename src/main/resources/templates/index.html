@@ -5,9 +5,6 @@
 <head>
     <meta charset="UTF-8">
     <title>대전청소년위캔센터</title>
-    <th:block layout:fragment="css">
-        <!-- portal.css의 내용은 main.css로 통합되었으므로, 이 링크는 제거합니다. -->
-    </th:block>
 </head>
 <body>
     <div layout:fragment="content">
@@ -186,12 +183,5 @@
         </section>
 
     </div>
-    <!-- 
-      layout.html의 프래그먼트 이름이 'scripts'(복수형)이므로 일치시켜줍니다.
-      이렇게 해야 portal.js가 정상적으로 로드됩니다.
-    -->
-    <th:block layout:fragment="scripts">
-        <script th:src="@{/js/portal.js}" defer></script>
-    </th:block>
 </body>
 </html>

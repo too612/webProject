@@ -21,37 +21,32 @@ public class GlobalControllerAdvice {
     @Autowired
     private MenuService menuService;
 
-    /**
-     * 모든 페이지에서 사용할 계층구조 메뉴 리스트
-     */
-    @ModelAttribute("menuList")
-    public List<MenuDto> menuList() {
-        return menuService.getHierarchicalMenus();
-    }
 
     /**
-     * 최상위 메뉴 이름들만 추출
-     */
-    @ModelAttribute("topMenuNames")
-    public List<String> topMenuNames() {
-        return menuService.getHierarchicalMenus().stream()
-                .map(MenuDto::getMenuName)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 최상위 메뉴 전체 객체들
-     */
-    @ModelAttribute("topMenuList")
-    public List<MenuDto> topMenuList() {
-        return menuService.getHierarchicalMenus();
-    }
-
-    /**
-     * 현재 요청 URI를 기반으로 사이드바 관련 속성들을 동적으로 설정
+     * 모든 페이지에서 사용할 공통 모델 속성을 추가합니다.
+     * - 메뉴 관련 속성 (계층 메뉴, 최상위 메뉴 등)
+     * - 현재 요청 URI 기반의 사이드바 속성
+     * getHierarchicalMenus() 호출을 한 번으로 최적화합니다.
      */
     @ModelAttribute
-    public void addSidebarAttributes(Model model, HttpServletRequest request) {
+    public void addCommonAttributes(Model model, HttpServletRequest request) {
+        // getHierarchicalMenus()를 한 번만 호출하여 결과를 재사용
+        List<MenuDto> hierarchicalMenus = menuService.getHierarchicalMenus();
+
+        // 모든 페이지에서 공통으로 사용하는 메뉴 속성 추가
+        // 'topMenuList'와 'allTopMenus'는 템플릿 호환성을 위해 둘 다 추가합니다.
+        model.addAttribute("menuList", hierarchicalMenus);
+        model.addAttribute("topMenuList", hierarchicalMenus);
+        model.addAttribute("allTopMenus", hierarchicalMenus);
+
+        List<String> topMenuNames = hierarchicalMenus.stream()
+                .map(MenuDto::getMenuName)
+                .collect(Collectors.toList());
+        // 'topMenuNames'와 'allTopMenuNames'는 템플릿 호환성을 위해 둘 다 추가합니다.
+        model.addAttribute("topMenuNames", topMenuNames);
+        model.addAttribute("allTopMenuNames", topMenuNames);
+
+        // 현재 요청 URI를 기반으로 사이드바 관련 속성들을 동적으로 설정
         String currentUri = request.getRequestURI();
         log.info("==========================================================");
         log.info("현재 요청 URI (currentUri): {}", currentUri);
@@ -75,19 +70,20 @@ public class GlobalControllerAdvice {
             return;
         }
 
-        // 계층구조 메뉴에서 하위 메뉴들을 포함한 전체 정보 가져오기
-        List<MenuDto> hierarchicalMenus = menuService.getHierarchicalMenus();
+        // 계층구조 메뉴에서 하위 메뉴들을 포함한 전체 정보 가져오기 (이미 조회한 hierarchicalMenus 재사용)
         MenuDto fullTopMenu = hierarchicalMenus.stream()
                 .filter(menu -> menu.getMenuId().equals(topMenu.getMenuId()))
                 .findFirst()
                 .orElse(topMenu);
 
         // 하위 메뉴들의 active 상태 설정
-        fullTopMenu.getSubMenus().forEach(subMenu -> {
-            boolean isActive = currentUri.equals(subMenu.getPath());
-            subMenu.setActive(isActive);
-            log.info("서브메뉴 '{}' active 상태: {}", subMenu.getMenuName(), isActive);
-        });
+        if (fullTopMenu.getSubMenus() != null) {
+            fullTopMenu.getSubMenus().forEach(subMenu -> {
+                boolean isActive = currentUri.equals(subMenu.getPath());
+                subMenu.setActive(isActive);
+                log.info("서브메뉴 '{}' active 상태: {}", subMenu.getMenuName(), isActive);
+            });
+        }
 
         // 모델에 속성 추가
         model.addAttribute("currentMainMenuName", fullTopMenu.getMenuName());
@@ -96,16 +92,10 @@ public class GlobalControllerAdvice {
         model.addAttribute("currentMenu", currentMenu);
         model.addAttribute("currentPath", currentUri);
 
-        // 모든 최상위 메뉴 정보
-        model.addAttribute("allTopMenuNames", hierarchicalMenus.stream()
-                .map(MenuDto::getMenuName)
-                .collect(Collectors.toList()));
-        model.addAttribute("allTopMenus", hierarchicalMenus);
-
         log.info("currentMainMenuName: {}", fullTopMenu.getMenuName());
         log.info("currentSubMenus: {}", fullTopMenu.getSubMenus());
         log.info("currentTopMenu: {}", fullTopMenu);
-        log.info("allTopMenuNames: {}", model.getAttribute("allTopMenuNames"));
+        log.info("allTopMenuNames: {}", topMenuNames);
         log.info("==========================================================");
     }
 }
