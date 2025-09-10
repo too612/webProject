@@ -95,7 +95,7 @@ ul, li {
 }
 
 .logo::before {
-    content: "W";
+    content: "L";
     background: #2196F3;
     color: white;
     width: 32px;

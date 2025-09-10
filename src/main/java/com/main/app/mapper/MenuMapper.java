@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import com.main.app.model.MenuDto;
 
 @Mapper
-public interface MainMapper {
+public interface MenuMapper {
     /**
      * 모든 메뉴 조회
      */

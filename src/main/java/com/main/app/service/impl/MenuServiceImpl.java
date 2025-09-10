@@ -1,6 +1,6 @@
 package com.main.app.service.impl;
 
-import com.main.app.mapper.MainMapper;
+import com.main.app.mapper.MenuMapper;
 import com.main.app.model.MenuDto;
 import com.main.app.service.MenuService;
 import org.slf4j.Logger;
@@ -19,11 +19,11 @@ public class MenuServiceImpl implements MenuService {
     private static final Logger log = LoggerFactory.getLogger(MenuServiceImpl.class);
 
     @Autowired
-    private MainMapper mainMapper;
+    private MenuMapper menuMapper;
 
     @Override
     public List<MenuDto> getHierarchicalMenus() {
-        List<MenuDto> allMenus = mainMapper.getMenuList();
+        List<MenuDto> allMenus = menuMapper.getMenuList();
         if (allMenus == null || allMenus.isEmpty()) {
             log.warn("메뉴 데이터가 없습니다.");
             return new ArrayList<>();
@@ -50,7 +50,7 @@ public class MenuServiceImpl implements MenuService {
                     parent.getSubMenus().add(menu);
                 } else {
                     log.warn("부모 메뉴를 찾을 수 없습니다. menuId: {}, parentId: {}", 
-                             menu.getMenuId(), menu.getParentId());
+                            menu.getMenuId(), menu.getParentId());
                 }
             }
         }
@@ -73,7 +73,7 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<MenuDto> getTopLevelMenus() {
-        return mainMapper.getMenuListByLevel(1);
+        return menuMapper.getMenuListByLevel(1);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class MenuServiceImpl implements MenuService {
             return null;
         }
 
-        List<MenuDto> allMenus = mainMapper.getMenuList();
+        List<MenuDto> allMenus = menuMapper.getMenuList();
         return allMenus.stream()
                 .filter(menu -> path.equals(menu.getPath()))
                 .findFirst()
@@ -102,7 +102,7 @@ public class MenuServiceImpl implements MenuService {
         }
 
         // 부모 메뉴를 찾아 올라가기
-        List<MenuDto> allMenus = mainMapper.getMenuList();
+        List<MenuDto> allMenus = menuMapper.getMenuList();
         MenuDto topMenu = currentMenu;
         
         while (topMenu.getLevel() > 1 && topMenu.getParentId() != null) {
