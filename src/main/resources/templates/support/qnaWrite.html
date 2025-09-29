@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>대전청소년위캔센터 - 질문과답변 작성</title>
+    <th:block layout:fragment="css">
+        <style>
+            .qna-content-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #e9ecef;
+                margin-bottom: 20px;
+            }
+            .qna-content-header h2 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 600;
+            }
+            .breadcrumb-right {
+                font-size: 14px;
+                color: #6c757d;
+                padding-top: 8px;
+            }
+            .write-form-container {
+                padding: 20px 0;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+            }
+            .form-control {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 16px;
+            }
+            textarea.form-control {
+                height: 250px;
+                resize: vertical;
+            }
+            .btn-area {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 30px;
+            }
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            .btn-primary { background-color: #2196F3; color: white; }
+            .btn-secondary { background-color: #6c757d; color: white; }
+            .btn-danger { background-color: #dc3545; color: white; }
+            .btn-list { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
+
+            .hidden-form {
+                display: none;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="qna-content-header">
+            <div>
+                <h2 th:text="${board.rqstNo == null ? '질문과 답변 작성' : '질문과 답변 수정'}">질문과 답변 작성</h2>
+            </div>
+            <div class="breadcrumb-right">
+                <a th:href="@{/}">홈</a> > <a th:href="@{/support/qna}">열린마당</a> > 질문과답변
+            </div>
+        </div>
+
+        <div class="write-form-container">
+            <form id="writeForm" th:object="${board}" method="post">
+                <input type="hidden" th:field="*{rqstNo}"/>
+
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" class="form-control" th:field="*{title}" placeholder="제목을 입력하세요." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="rqstId">작성자</label>
+                    <input type="text" id="rqstId" class="form-control" th:field="*{rqstId}" placeholder="작성자명을 입력하세요." required th:readonly="${board.rqstNo != null}">
+                </div>
+
+                <div class="form-group">
+                    <label for="cont">내용</label>
+                    <textarea id="cont" class="form-control" th:field="*{cont}" placeholder="내용을 입력하세요." required></textarea>
+                </div>
+
+                <div class="btn-area">
+                    <!-- 새 글 작성 시 -->
+                    <button th:if="*{rqstNo == null}" type="button" id="saveBtn" class="btn btn-primary">저장</button>
+
+                    <!-- 기존 글 수정 시 -->
+                    <button th:if="*{rqstNo != null}" type="button" id="updateBtn" class="btn btn-primary">수정</button>
+                    <button th:if="*{rqstNo != null}" type="button" id="deleteBtn" class="btn btn-danger">삭제</button>
+
+                    <button type="button" class="btn btn-list" th:onclick="|location.href='@{/support/qna}'|">목록</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 삭제 확인을 위한 숨겨진 폼 -->
+        <form id="deleteForm" th:action="@{/support/qna/delete}" method="post" class="hidden-form">
+            <input type="hidden" name="rqstNo" th:value="${board.rqstNo}" />
+        </form>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            const form = document.getElementById('writeForm');
+
+            // 저장 버튼
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function() {
+                    if (form.checkValidity()) {
+                        form.action = '/support/qna/write';
+                        form.submit();
+                    } else {
+                        form.reportValidity();
+                    }
+                });
+            }
+
+            // 수정 버튼
+            const updateBtn = document.getElementById('updateBtn');
+            if (updateBtn) {
+                updateBtn.addEventListener('click', function() {
+                    if (form.checkValidity()) {
+                        form.action = '/support/qna/update';
+                        form.submit();
+                    } else {
+                        form.reportValidity();
+                    }
+                });
+            }
+
+            // 삭제 버튼
+            const deleteBtn = document.getElementById('deleteBtn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    if (confirm('정말로 삭제하시겠습니까?')) {
+                        document.getElementById('deleteForm').submit();
+                    }
+                });
+            }
+        </script>
+    </th:block>
+</body>
+</html>

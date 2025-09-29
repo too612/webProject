@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.mapper.AutoNoMapper">
+    
+    
+    <select id="selectAutoInfo" parameterType="java.util.Map" resultType="java.util.Map">
+        select pre_fix
+              ,date_type
+          from sys_auto_no
+         where pre_fix = #{PRE_FIX}
+    </select>
+    
+    <select id="selectAutoDtlInfo"  parameterType="java.util.Map" resultType="java.util.Map">
+        select pre_fix
+              ,reg_date
+              ,last_number
+          from sys_auto_no_dtl
+         where pre_fix = #{PRE_FIX}
+           and reg_date = #{REG_DATE}
+    </select>
+
+    <insert id="insertAutoDtl" parameterType="java.util.Map">
+        insert into sys_auto_no_dtl (pre_fix, reg_date, last_number)
+        values (#{PRE_FIX}, #{REG_DATE}, (SELECT LPAD((COALESCE(MAX(last_number)::int, 0) + 1)::text, 4, '0')
+                                           FROM sys_auto_no_dtl
+                                          WHERE pre_fix = #{PRE_FIX}
+                                            AND reg_date = #{REG_DATE}))
+    </insert>
+
+    <update id="updateAutoDtl" parameterType="java.util.Map">
+        update sys_auto_no_dtl
+           set last_number = LPAD((last_number::int + 1)::text, 4, '0')
+         where pre_fix = #{PRE_FIX}
+           and reg_date = #{REG_DATE}
+    </update>
+
+    <select id="getAutoNoKey" parameterType="java.util.Map" resultType="String">
+        SELECT a.pre_fix || CASE WHEN a.date_type = 'YYYYMMDD' THEN TO_CHAR(to_date(b.reg_date, 'YYYYMMDD'), 'YYYYMMDD') END || b.last_number 
+          FROM sys_auto_no a
+          JOIN sys_auto_no_dtl b ON a.pre_fix = b.pre_fix
+         WHERE a.pre_fix = #{PRE_FIX}
+           AND b.reg_date = #{REG_DATE}
+    </select>
+</mapper>

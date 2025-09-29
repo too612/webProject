@@ -113,12 +113,17 @@
 <body>
     <!-- layout.html의 content 프래그먼트에 삽입될 내용 -->
     <div layout:fragment="content">
+        <!-- 메시지 표시 영역 -->
+        <div th:if="${message}" class="alert alert-info" role="alert" style="margin-bottom: 20px; padding: 15px; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px;">
+            <p th:text="${message}" style="margin: 0;"></p>
+        </div>
+
         <div class="qna-content-header">
             <div>
                 <h2>질문과 답변</h2>
-                <div class="content-stats">게시물 수: 84 | 페이지: 1/6</div>
+                <div class="content-stats" th:if="${!paging.isEmpty()}">게시물 수: <span th:text="${paging.totalElements}">0</span> | 페이지: <span th:text="${paging.number + 1}">0</span>/<span th:text="${paging.totalPages}">0</span></div>
             </div>
-            <div class="breadcrumb-right">
+            <div class="breadcrumb-right" style="display: none;"> <!-- breadcrumb은 공통 레이아웃에서 처리하므로 숨김 -->
                 <a href="#">홈</a> > <a href="#">열린마당</a> > 질문과답변
             </div>
         </div>
@@ -127,235 +132,94 @@
             <table>
                 <thead>
                     <tr>
-                        <th>번호</th>
+                        <th style="width: 10%;">번호</th>
+                        <th style="width: 10%; display: none;">Key</th>
                         <th>제목</th>
-                        <th>작성자</th>
-                        <th>등록일</th>
+                        <th style="width: 15%;">작성자</th>
+                        <th style="width: 15%;">등록일</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>84</td>
+                <tbody th:if="${!#lists.isEmpty(boards)}">
+                    <!-- iterStat을 사용하여 반복 상태(index 등)에 접근 -->
+                    <tr th:each="board, iterStat : ${boards}">
+                        <!-- 전체 게시물 수에서 (현재페이지 * 페이지사이즈 + 현재 index)를 빼서 역순 번호 계산 -->
+                        <td th:text="${paging.totalElements - (paging.number * paging.size) - iterStat.index}">번호</td>
+                        <td th:text="${board.rqstNo}" style="display: none;">Key</td>
                         <td>
-                            <a href="#" class="post-title">
-                                청소년상담복지센터와 지역 위캔 기관 연계
-                                <span class="status-badge">답변</span>
+                            <a th:href="@{/support/qna/write(rqstNo=${board.rqstNo})}" class="post-title" th:text="${board.title}">
+                                게시글 제목
                             </a>
+                            <!-- 답변 여부(ansYn)에 따라 답변 완료 배지를 표시하는 로직 (필요시 주석 해제) -->
+                            <!-- <span th:if="${board.ansYn == 'Y'}" class="status-badge">답변</span> -->
                         </td>
-                        <td>◯◯◯</td>
-                        <td>2025-06-12</td>
+                        <td th:text="${board.rqstId}">작성자</td>
+                        <td th:text="${board.insDt != null ? #temporals.format(board.insDt, 'yyyy-MM-dd') : ''}">2025-01-01</td>
                     </tr>
+                </tbody>
+                <tbody th:if="${#lists.isEmpty(boards)}">
                     <tr>
-                        <td>83</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge">답변</span>
-                                청소년상담복지센터와 지역 위캔 기관 연계
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2025-06-20</td>
-                    </tr>
-                    <tr>
-                        <td>82</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                월을 넘어선 활동은 날 어어하면 하는 건가요?
-                            </a>
-                        </td>
-                        <td>◯</td>
-                        <td>2025-04-09</td>
-                    </tr>
-                    <tr>
-                        <td>81</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                월을 넘어선 활동은 날 어어하면 하는 건가요?
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2025-04-16</td>
-                    </tr>
-                    <tr>
-                        <td>80</td>
-                        <td>
-                            <a href="#" class="post-title">수산업 어업</a>
-                        </td>
-                        <td>◯</td>
-                        <td>2025-04-06</td>
-                    </tr>
-                    <tr>
-                        <td>79</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                수산업 어업
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2025-04-16</td>
-                    </tr>
-                    <tr>
-                        <td>78</td>
-                        <td>
-                            <a href="#" class="post-title">직업체험 활동</a>
-                        </td>
-                        <td>◯</td>
-                        <td>2025-03-25</td>
-                    </tr>
-                    <tr>
-                        <td>77</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                직업체험 활동
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2025-03-26</td>
-                    </tr>
-                    <tr>
-                        <td>76</td>
-                        <td>
-                            <a href="#" class="post-title">궁금 해요근 시간대</a>
-                        </td>
-                        <td>◯◯◯</td>
-                        <td>2025-02-10</td>
-                    </tr>
-                    <tr>
-                        <td>75</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                궁금 해요근 시간대
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2025-02-12</td>
-                    </tr>
-                    <tr>
-                        <td>74</td>
-                        <td>
-                            <a href="#" class="post-title">무료결제식 죽행사 제정민</a>
-                        </td>
-                        <td>◯</td>
-                        <td>2024-11-22</td>
-                    </tr>
-                    <tr>
-                        <td>73</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                무료결제식 죽행사 제정민
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2024-11-26</td>
-                    </tr>
-                    <tr>
-                        <td>72</td>
-                        <td>
-                            <a href="#" class="post-title">계승부족 및 수 찾게 활동</a>
-                        </td>
-                        <td>◯</td>
-                        <td>2024-11-22</td>
-                    </tr>
-                    <tr>
-                        <td>71</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                계승부족 및 수 찾게 활동
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2024-12-04</td>
-                    </tr>
-                    <tr>
-                        <td>70</td>
-                        <td>
-                            <a href="#" class="post-title">물어보다 청취하다</a>
-                        </td>
-                        <td>◯◯◯</td>
-                        <td>2024-10-13</td>
-                    </tr>
-                    <tr>
-                        <td>69</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                물어보다 청취하다
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2024-10-15</td>
-                    </tr>
-                    <tr>
-                        <td>68</td>
-                        <td>
-                            <a href="#" class="post-title">제안하다</a>
-                        </td>
-                        <td>◯◯◯</td>
-                        <td>2024-08-26</td>
-                    </tr>
-                    <tr>
-                        <td>67</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                제안하다
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2024-08-30</td>
-                    </tr>
-                    <tr>
-                        <td>66</td>
-                        <td>
-                            <a href="#" class="post-title">토록 해드린 민원 응답</a>
-                        </td>
-                        <td>◯◯◯</td>
-                        <td>2024-08-03</td>
-                    </tr>
-                    <tr>
-                        <td>65</td>
-                        <td>
-                            <a href="#" class="post-title">
-                                <span class="status-badge answered">답변</span>
-                                토록 해드린 민원 응답
-                            </a>
-                        </td>
-                        <td>관리자</td>
-                        <td>2024-08-20</td>
+                        <td colspan="4" style="text-align: center;">게시글이 없습니다.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="pagination">
-            <a href="#" class="active">1</a>
-            <a href="#">2</a>
-            <a href="#">3</a>
-            <a href="#">4</a>
-            <a href="#">5</a>
-            <a href="#">6</a>
+        <!-- Pagination -->
+        <div class="pagination" th:if="${!paging.isEmpty()}">
+            <!--/*
+                페이지네이션 로직:
+                - paging: Spring Data의 Page 객체
+                - number: 현재 페이지 (0부터 시작)
+                - totalPages: 전체 페이지 수
+                - size: 페이지당 보여줄 항목 수 (여기서는 10으로 가정)
+            */-->
+            <!-- 처음으로 이동 -->
+            <a th:href="@{/support/qna(page=0, searchType=${param.searchType}, keyword=${param.keyword})}" th:if="${paging.number > 0}"><span>&laquo;</span></a>
+            <!-- 이전 블록으로 이동 -->
+            <a th:href="@{/support/qna(page=${(paging.number/10)*10 - 1}, searchType=${param.searchType}, keyword=${param.keyword})}" th:if="${paging.number >= 10}"><span>&lt;</span></a>
+        
+            <!-- 페이지 번호 -->
+            <a th:each="page: ${#numbers.sequence( (paging.number/10)*10 + 1, T(java.lang.Math).min((paging.number/10)*10 + 10, paging.totalPages) )}"
+               th:href="@{/support/qna(page=${page - 1}, searchType=${param.searchType}, keyword=${param.keyword})}"
+               th:text="${page}"
+               th:classappend="${page == paging.number + 1} ? 'active' : ''"></a>
+        
+            <!-- 다음 블록으로 이동 -->
+            <a th:href="@{/support/qna(page=${(paging.number/10)*10 + 10}, searchType=${param.searchType}, keyword=${param.keyword})}" th:if="${(paging.number/10)*10 + 10 < paging.totalPages}"><span>&gt;</span></a>
+            <!-- 마지막으로 이동 -->
+            <a th:href="@{/support/qna(page=${paging.totalPages - 1}, searchType=${param.searchType}, keyword=${param.keyword})}" th:if="${paging.number < paging.totalPages - 1}"><span>&raquo;</span></a>
         </div>
 
         <div class="search-area">
-            <select class="search-select">
-                <option>제목</option>
-                <option>내용</option>
-                <option>작성자</option>
+            <select id="searchType" class="search-select" name="searchType">
+                <option value="title" th:selected="${param.searchType == 'title'}">제목</option>
+                <option value="cont" th:selected="${param.searchType == 'cont'}">내용</option>
+                <option value="rqstId" th:selected="${param.searchType == 'rqstId'}">작성자</option>
             </select>
-            <input type="text" class="search-input" placeholder="검색어를 입력하세요">
-            <button class="search-btn">검색</button>
+            <input id="keyword" type="text" class="search-input" placeholder="검색어를 입력하세요" name="keyword" th:value="${param.keyword}">
+            <button class="search-btn" id="search">검색</button>
+            <button class="search-btn" id="write">글쓰기</button>
         </div>
     </div>
 
     <th:block layout:fragment="scripts">
         <script>
             // 페이지네이션, 검색 등 이 페이지에만 필요한 스크립트
+            document.getElementById('search').addEventListener('click', function() {
+                const searchType = document.getElementById('searchType').value;
+                const keyword = document.getElementById('keyword').value;
+
+                if (!keyword.trim()) {
+                    alert('검색어를 입력해주세요.');
+                    return;
+                }
+
+                location.href = '/support/qna?searchType=' + searchType + '&keyword=' + encodeURIComponent(keyword);
+            });
+
+            document.getElementById('write').addEventListener('click', function() {
+                location.href = '/support/qna/write';
+            });
         </script>
     </th:block>
 </body>

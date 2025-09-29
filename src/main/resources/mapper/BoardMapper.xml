@@ -2,30 +2,137 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.mapper.BoardMapper">
     
-    <select id="selectAllBoards" resultType="Board">
-        SELECT * FROM board ORDER BY created_at DESC
+    <resultMap id="boardResultMap" type="com.main.app.model.Board">
+        <id property="rqstNo" column="rqst_no"/>
+        <result property="privRqstNo" column="priv_rqst_no"/>
+        <result property="title" column="title"/>
+        <result property="cont" column="cont"/>
+        <result property="rqstId" column="rqst_id"/>
+        <result property="insDt" column="ins_dt"/>
+        <result property="uptDt" column="upt_dt"/>
+    </resultMap>
+
+    <select id="selectAllBoards" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT rqst_no
+              ,priv_rqst_no
+              ,title
+              ,cont
+              ,rqst_id
+              ,ins_dt
+              ,upt_dt
+          FROM board
+         order by rqst_no desc
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countAllBoards" resultType="long">
+        SELECT count(*) FROM board
+    </select>
+
+    <select id="getBoardInfo" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT rqst_no
+              ,priv_rqst_no
+              ,title
+              ,cont
+              ,rqst_id
+              ,ins_dt
+              ,upt_dt
+          FROM board
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        cont LIKE CONCAT('%', #{keyword}, '%')
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+         order by rqst_no desc
+    </select>
+
+    <select id="searchBoards" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT
+            rqst_no,
+            priv_rqst_no,
+            title,
+            cont,
+            rqst_id,
+            ins_dt,
+            upt_dt
+        FROM board
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'cont'">
+                        cont LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'rqstId'">
+                        rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY rqst_no DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countSearchedBoards" parameterType="java.util.Map" resultType="long">
+        SELECT
+            count(*)
+        FROM board
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'cont'">
+                        cont LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'rqstId'">
+                        rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectLatestBoards" resultMap="boardResultMap">
+        SELECT rqst_no, priv_rqst_no, title, cont, rqst_id, ins_dt, upt_dt
+          FROM board 
+         ORDER BY ins_dt DESC LIMIT 10
     </select>
     
-    <select id="selectLatestBoards" resultType="Board">
-        SELECT * FROM board ORDER BY created_at DESC LIMIT 10
+    <select id="selectBoardById" parameterType="string" resultMap="boardResultMap">
+        SELECT rqst_no, priv_rqst_no, title, cont, rqst_id, ins_dt, upt_dt 
+          FROM board 
+         WHERE rqst_no = #{rqstNo}
     </select>
     
-    <select id="selectBoardById" parameterType="long" resultType="Board">
-        SELECT * FROM board WHERE id = #{id}
-    </select>
-    
-    <insert id="insertBoard" parameterType="Board" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO board (title, content, author, created_at)
-        VALUES (#{title}, #{content}, #{author}, NOW())
+    <insert id="insertBoard" parameterType="com.main.app.model.Board">
+        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt)
+        VALUES (#{rqstNo}, #{title}, #{cont}, #{rqstId}, NOW(), NOW())
     </insert>
     
-    <update id="updateBoard" parameterType="Board">
+    <update id="updateBoard" parameterType="com.main.app.model.Board">
         UPDATE board 
-        SET title = #{title}, content = #{content}, updated_at = NOW()
-        WHERE id = #{id}
+           SET title = #{title}, 
+               cont = #{cont}, 
+               upt_dt = NOW()
+         WHERE rqst_no = #{rqstNo}
     </update>
     
-    <delete id="deleteBoard" parameterType="long">
-        DELETE FROM board WHERE id = #{id}
+    <delete id="deleteBoard" parameterType="string">
+        DELETE FROM board WHERE rqst_no = #{id}
     </delete>
 </mapper>

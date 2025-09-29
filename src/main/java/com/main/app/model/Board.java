@@ -5,13 +5,11 @@ import java.time.LocalDateTime;
 
 @Data
 public class Board {
-    private Long id;
+    private String rqstNo;
+    private String privRqstNo;
     private String title;
-    private String content;
-    private String author;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String category;
-    private Integer viewCount;
-    private String status;
+    private String cont;
+    private String rqstId;
+    private LocalDateTime insDt;
+    private LocalDateTime uptDt;
 }

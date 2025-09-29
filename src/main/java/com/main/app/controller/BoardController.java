@@ -25,17 +25,17 @@ public class BoardController {
     //     return "index";
     // }
 
-    @GetMapping("/board/list")
-    public String boardList(Model model) {
-        model.addAttribute("boards", boardService.getAllBoards());
-        return "board/list";
-    }
+    // @GetMapping("/board/list")
+    // public String boardList(Model model) {
+    //     model.addAttribute("boards", boardService.getAllBoards());
+    //     return "board/list";
+    // }
 
-    @GetMapping("/board/{id}")
-    public String boardView(@PathVariable Long id, Model model) {
-        model.addAttribute("board", boardService.getBoard(id));
-        return "board/view";
-    }
+    // @GetMapping("/board/{id}")
+    // public String boardView(@PathVariable("id") String id, Model model) {
+    //     model.addAttribute("board", boardService.getBoard(id));
+    //     return "support/qnaWrite"; // 상세/수정 페이지
+    // }
 
     @PostMapping("/api/board")
     @ResponseBody
