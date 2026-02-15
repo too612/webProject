@@ -6,7 +6,21 @@
             <div class="container desktop-only">
                 <div class="header-top-links">
                     <a href="/">홈으로</a>
-                    <a href="#">회원가입</a>
+                    <span class="separator">|</span>
+                    <!-- 로그인 안 했을 때 -->
+                    <span th:if="${sessionUserId == null}">
+                        <a href="/user/login">로그인</a>
+                        <span class="separator">|</span>
+                        <a href="/user/register">회원가입</a>
+                    </span>
+                    <!-- 로그인 했을 때 -->
+                    <span th:if="${sessionUserId != null}">
+                        <span style="color: #4CAF50; font-weight: 500;" th:text="${sessionUserName} + '님 환영합니다'">사용자님 환영합니다</span>
+                        <span class="separator">|</span>
+                        <a href="/user/mypage">마이페이지</a>
+                        <span class="separator">|</span>
+                        <a href="/user/logout">로그아웃</a>
+                    </span>
                 </div>
             </div>
         </div>

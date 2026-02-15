@@ -24,16 +24,6 @@ public class MainController {
         return "index";
     }
 
-    @GetMapping("/login")
-    public String getLogin(Model model) {
-        return "admin/login";
-    }
-
-    @GetMapping("/register")
-    public String getRegister(Model model) {
-        return "admin/register";
-    }
-
     @GetMapping("/admin")
     public String getAdmin(Model model) {
         return "admin/admin";

@@ -58,6 +58,7 @@ ul, li {
 .header-top-links {
     display: inline-flex; /* text-align: right에 의해 우측 정렬되도록 */
     align-items: center;
+    gap: 8px; /* 요소 사이 간격 */
 }
 
 .header-top-links a {
@@ -69,7 +70,19 @@ ul, li {
     color: #2196F3; /* 호버 시 텍스트 색상 변경으로 대체 */
 }
 
-/* 링크 사이에 구분선 추가 */
+.header-top-links span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* span 내부 요소 사이 간격 */
+}
+
+/* 구분자 스타일 */
+.header-top-links .separator {
+    color: #dee2e6;
+    font-size: 12px;
+}
+
+/* 링크 사이에 구분선 추가 (기존 방식 호환) */
 .header-top-links a + a {
     margin-left: 12px;
     padding-left: 12px;

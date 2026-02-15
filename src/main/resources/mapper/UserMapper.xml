@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.mapper.UserMapper">
+    
+    <resultMap id="userResultMap" type="com.main.app.model.UserDto">
+        <id property="userSeq" column="user_seq"/>
+        <result property="userId" column="user_id"/>
+        <result property="password" column="password"/>
+        <result property="userName" column="user_name"/>
+        <result property="email" column="email"/>
+        <result property="phone" column="phone"/>
+        <result property="birthDate" column="birth_date"/>
+        <result property="gender" column="gender"/>
+        <result property="status" column="status"/>
+        <result property="agreeTerms" column="agree_terms"/>
+        <result property="agreePrivacy" column="agree_privacy"/>
+        <result property="agreeMarketing" column="agree_marketing"/>
+        <result property="insDt" column="ins_dt"/>
+        <result property="uptDt" column="upt_dt"/>
+        <result property="lastLoginDt" column="last_login_dt"/>
+        <result property="loginFailCnt" column="login_fail_cnt"/>
+        <result property="lockExpireDt" column="lock_expire_dt"/>
+    </resultMap>
+    
+    <!-- 사용자 ID로 사용자 정보 조회 -->
+    <select id="selectUserByUserId" parameterType="String" resultMap="userResultMap">
+        SELECT user_seq
+             , user_id
+             , password
+             , user_name
+             , email
+             , phone
+             , birth_date
+             , gender
+             , status
+             , agree_terms
+             , agree_privacy
+             , agree_marketing
+             , ins_dt
+             , upt_dt
+             , last_login_dt
+             , login_fail_cnt
+             , lock_expire_dt
+          FROM users
+         WHERE user_id = #{userId}
+           AND status != 'D'
+    </select>
+    
+    <!-- 사용자 시퀀스로 사용자 정보 조회 -->
+    <select id="selectUserBySeq" parameterType="Long" resultMap="userResultMap">
+        SELECT user_seq
+             , user_id
+             , password
+             , user_name
+             , email
+             , phone
+             , birth_date
+             , gender
+             , status
+             , agree_terms
+             , agree_privacy
+             , agree_marketing
+             , ins_dt
+             , upt_dt
+             , last_login_dt
+             , login_fail_cnt
+             , lock_expire_dt
+          FROM users
+         WHERE user_seq = #{userSeq}
+           AND status != 'D'
+    </select>
+    
+    <!-- 이메일로 사용자 정보 조회 -->
+    <select id="selectUserByEmail" parameterType="String" resultMap="userResultMap">
+        SELECT user_seq
+             , user_id
+             , password
+             , user_name
+             , email
+             , phone
+             , birth_date
+             , gender
+             , status
+             , agree_terms
+             , agree_privacy
+             , agree_marketing
+             , ins_dt
+             , upt_dt
+             , last_login_dt
+             , login_fail_cnt
+             , lock_expire_dt
+          FROM users
+         WHERE email = #{email}
+           AND status != 'D'
+    </select>
+    
+    <!-- 사용자 ID 중복 체크 -->
+    <select id="checkUserIdExists" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM users
+         WHERE user_id = #{userId}
+           AND status != 'D'
+    </select>
+    
+    <!-- 이메일 중복 체크 -->
+    <select id="checkEmailExists" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM users
+         WHERE email = #{email}
+           AND status != 'D'
+    </select>
+    
+    <!-- 사용자 등록 -->
+    <insert id="insertUser" parameterType="com.main.app.model.UserDto">
+        INSERT INTO users (
+            user_id
+          , password
+          , user_name
+          , email
+          , phone
+          , birth_date
+          , gender
+          , status
+          , agree_terms
+          , agree_privacy
+          , agree_marketing
+          , ins_dt
+          , upt_dt
+          , login_fail_cnt
+        ) VALUES (
+            #{userId}
+          , #{password}
+          , #{userName}
+          , #{email}
+          , #{phone}
+          , #{birthDate}
+          , #{gender}
+          , 'A'
+          , #{agreeTerms}
+          , #{agreePrivacy}
+          , #{agreeMarketing}
+          , NOW()
+          , NOW()
+          , 0
+        )
+    </insert>
+    
+    <!-- 사용자 정보 수정 -->
+    <update id="updateUser" parameterType="com.main.app.model.UserDto">
+        UPDATE users
+           SET user_name = #{userName}
+             , email = #{email}
+             , phone = #{phone}
+             , birth_date = #{birthDate}
+             , gender = #{gender}
+             , upt_dt = NOW()
+         WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 마지막 로그인 일시 업데이트 -->
+    <update id="updateLastLoginDt" parameterType="String">
+        UPDATE users
+           SET last_login_dt = NOW()
+         WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 로그인 실패 횟수 증가 -->
+    <update id="increaseLoginFailCnt" parameterType="String">
+        UPDATE users
+           SET login_fail_cnt = COALESCE(login_fail_cnt, 0) + 1
+         WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 로그인 실패 횟수 초기화 -->
+    <update id="resetLoginFailCnt" parameterType="String">
+        UPDATE users
+           SET login_fail_cnt = 0
+             , lock_expire_dt = NULL
+         WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 계정 잠금 설정 -->
+    <update id="lockAccount">
+        UPDATE users
+           SET status = 'I'
+             , lock_expire_dt = #{lockExpireDt}::timestamp
+         WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 계정 상태 변경 -->
+    <update id="updateStatus">
+        UPDATE users
+           SET status = #{status}
+             , upt_dt = NOW()
+         WHERE user_id = #{userId}
+    </update>
+    
+    <!-- 비밀번호 변경 -->
+    <update id="updatePassword">
+        UPDATE users
+           SET password = #{password}
+             , upt_dt = NOW()
+         WHERE user_id = #{userId}
+    </update>
+    
+</mapper>

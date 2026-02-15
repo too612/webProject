@@ -10,18 +10,65 @@
         <result property="rqstId" column="rqst_id"/>
         <result property="insDt" column="ins_dt"/>
         <result property="uptDt" column="upt_dt"/>
+        <result property="views" column="views"/>
+        <result property="groupNo" column="group_no"/>
+        <result property="parentNo" column="parent_no"/>
+        <result property="depth" column="depth"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="secret" column="secret"/>
+        <result property="password" column="password"/>
     </resultMap>
 
     <select id="selectAllBoards" parameterType="java.util.Map" resultMap="boardResultMap">
+        WITH RECURSIVE BoardTree AS (
+            SELECT rqst_no
+                 , priv_rqst_no
+                 , title
+                 , cont
+                 , rqst_id
+                 , ins_dt
+                 , upt_dt
+                 , views
+                 , rqst_no AS root_group_no
+                 , parent_no
+                 , depth
+                 , order_no
+                 , CAST(order_no AS CHAR(200)) AS sort_path
+                 , ins_dt AS root_ins_dt
+              FROM board
+             WHERE parent_no IS NULL OR parent_no = '' OR parent_no = '0'
+            UNION ALL
+            SELECT B.rqst_no
+                 , B.priv_rqst_no
+                 , B.title
+                 , B.cont
+                 , B.rqst_id
+                 , B.ins_dt
+                 , B.upt_dt
+                 , B.views
+                 , P.root_group_no
+                 , B.parent_no
+                 , B.depth
+                 , B.order_no
+                 , CONCAT(P.sort_path, '-', B.order_no)
+                 , P.root_ins_dt
+              FROM board B
+              JOIN BoardTree P ON B.parent_no = P.rqst_no
+        )
         SELECT rqst_no
-              ,priv_rqst_no
-              ,title
-              ,cont
-              ,rqst_id
-              ,ins_dt
-              ,upt_dt
-          FROM board
-         order by rqst_no desc
+             , priv_rqst_no
+             , title
+             , cont
+             , rqst_id
+             , ins_dt
+             , upt_dt
+             , views
+             , root_group_no AS group_no
+             , parent_no
+             , depth
+             , order_no
+          FROM BoardTree
+         ORDER BY root_ins_dt DESC, sort_path ASC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -32,39 +79,53 @@
     </select>
 
     <select id="getBoardInfo" parameterType="java.util.Map" resultMap="boardResultMap">
-        SELECT rqst_no
-              ,priv_rqst_no
-              ,title
-              ,cont
-              ,rqst_id
-              ,ins_dt
-              ,upt_dt
-          FROM board
+        SELECT A.rqst_no
+              ,A.priv_rqst_no
+              ,A.title
+              ,A.cont
+              ,A.rqst_id
+              ,A.ins_dt
+              ,A.upt_dt
+              ,A.group_no
+              ,A.parent_no
+              ,A.depth
+              ,A.order_no
+          FROM board A
+          JOIN board B ON A.group_no = B.rqst_no
         <where>
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'title'">
-                        title LIKE CONCAT('%', #{keyword}, '%')
+                        A.title LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <otherwise>
-                        cont LIKE CONCAT('%', #{keyword}, '%')
+                        A.cont LIKE CONCAT('%', #{keyword}, '%')
                     </otherwise>
                 </choose>
             </if>
         </where>
-         order by rqst_no desc
+         ORDER BY B.ins_dt DESC, A.order_no ASC, A.ins_dt ASC
     </select>
 
     <select id="searchBoards" parameterType="java.util.Map" resultMap="boardResultMap">
-        SELECT
-            rqst_no,
-            priv_rqst_no,
-            title,
-            cont,
-            rqst_id,
-            ins_dt,
-            upt_dt
-        FROM board
+        WITH RECURSIVE BoardTree AS (
+            SELECT rqst_no, priv_rqst_no, title, cont, rqst_id, ins_dt, upt_dt, views
+                 , rqst_no AS root_group_no
+                 , parent_no, depth, order_no
+                 , CAST(order_no AS CHAR(200)) AS sort_path
+                 , ins_dt AS root_ins_dt
+              FROM board
+             WHERE parent_no IS NULL OR parent_no = '' OR parent_no = '0'
+            UNION ALL
+            SELECT B.rqst_no, B.priv_rqst_no, B.title, B.cont, B.rqst_id, B.ins_dt, B.upt_dt, B.views
+                 , P.root_group_no
+                 , B.parent_no, B.depth, B.order_no
+                 , CONCAT(P.sort_path, '-', B.order_no)
+                 , P.root_ins_dt
+              FROM board B
+              JOIN BoardTree P ON B.parent_no = P.rqst_no
+        )
+        SELECT * FROM BoardTree
         <where>
             <if test="keyword != null and keyword != ''">
                 <choose>
@@ -80,7 +141,7 @@
                 </choose>
             </if>
         </where>
-        ORDER BY rqst_no DESC
+        ORDER BY root_ins_dt DESC, sort_path ASC
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -120,14 +181,38 @@
     </select>
     
     <insert id="insertBoard" parameterType="com.main.app.model.Board">
-        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt)
-        VALUES (#{rqstNo}, #{title}, #{cont}, #{rqstId}, NOW(), NOW())
+        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt, views, group_no, parent_no, depth, order_no, secret, password)
+        SELECT #{rqstNo}
+             , #{title}
+             , #{cont}
+             , #{rqstId}
+             , NOW()
+             , NOW()
+             , 0
+             , COALESCE(NULLIF(#{groupNo}, ''), P.group_no, #{rqstNo})
+             , #{parentNo}
+             , COALESCE(#{depth}, COALESCE(P.depth, -1) + 1)
+             , #{orderNo}
+             , COALESCE(#{secret}, 'N')
+             , #{password}
+          FROM (SELECT 1) AS dummy
+          LEFT JOIN board P ON P.rqst_no = #{parentNo}
     </insert>
     
+    <!-- 답글 작성을 위한 순서 조정 (같은 그룹 내에서 부모글 뒤에 오는 글들의 순서를 1씩 증가) -->
+    <update id="updateReplyOrder" parameterType="java.util.Map">
+        UPDATE board
+           SET order_no = order_no + 1
+         WHERE group_no = #{groupNo}
+           AND order_no > #{orderNo}
+    </update>
+
     <update id="updateBoard" parameterType="com.main.app.model.Board">
         UPDATE board 
            SET title = #{title}, 
                cont = #{cont}, 
+               secret = COALESCE(#{secret}, 'N'),
+               password = #{password},
                upt_dt = NOW()
          WHERE rqst_no = #{rqstNo}
     </update>
@@ -135,4 +220,165 @@
     <delete id="deleteBoard" parameterType="string">
         DELETE FROM board WHERE rqst_no = #{id}
     </delete>
+
+    <!-- ========================================== -->
+    <!-- Q&A 게시판 전용 쿼리 (계층형, BoardDto 사용) -->
+    <!-- ========================================== -->
+    
+    <select id="selectBoardList" resultType="com.main.app.model.BoardDto">
+        SELECT A.rqst_no
+             , A.title
+             , A.cont
+             , A.rqst_id
+             , A.ins_dt
+             , A.views
+             , A.depth
+             , A.group_no
+             , A.secret
+             , (SELECT COUNT(*) FROM file_table WHERE board_no = A.rqst_no) > 0 AS hasFile 
+             , (SELECT COALESCE(SUM(file_size), 0) FROM file_table WHERE board_no = A.rqst_no) AS totalFileSize
+             , (SELECT COUNT(*) FROM comment WHERE board_no = A.rqst_no AND (parent_comment_id IS NULL OR parent_comment_id = 0)) AS commentCount
+          FROM board A
+          JOIN board B ON A.group_no = B.rqst_no
+         WHERE 1=1
+         <if test="keyword != null and keyword != ''">
+             AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))
+         </if>
+         <!-- 계층형 정렬: 그룹 번호 역순, 그룹 내 순서 정순 -->
+         ORDER BY B.ins_dt DESC, A.order_no ASC, A.ins_dt ASC
+         LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="selectBoardDetail" resultType="com.main.app.model.BoardDto">
+        SELECT A.rqst_no   AS rqstNo
+             , A.title     AS title
+             , A.cont      AS cont
+             , A.rqst_id   AS rqstId
+             , A.ins_dt    AS insDt
+             , A.upt_dt    AS uptDt
+             , A.views     AS views
+             , A.group_no  AS groupNo
+             , A.parent_no AS parentNo
+             , A.depth     AS depth
+             , A.order_no  AS orderNo
+             , A.secret    AS secret
+             , A.password  AS password
+             , (SELECT COUNT(*) FROM file_table WHERE board_no = A.rqst_no) > 0 AS hasFile
+          FROM board A
+         WHERE A.rqst_no = #{rqstNo}
+    </select>
+
+    <!-- 조회수 증가 -->
+    <update id="updateReadCount" parameterType="string">
+        UPDATE board SET views = COALESCE(views, 0) + 1 WHERE rqst_no = #{rqstNo}
+    </update>
+
+    <!-- 파일 등록 -->
+    <insert id="insertFile" parameterType="com.main.app.model.FileDto">
+        INSERT INTO file_table (board_no, org_file_nm, stored_file_nm, file_size, file_path, ins_dt)
+        VALUES (#{boardNo}, #{orgFileNm}, #{storedFileNm}, #{fileSize}, #{filePath}, NOW())
+    </insert>
+
+    <!-- 파일 목록 조회 -->
+    <select id="selectFileList" parameterType="string" resultType="com.main.app.model.FileDto">
+        SELECT file_id        AS fileId
+             , board_no       AS boardNo
+             , org_file_nm    AS orgFileNm
+             , stored_file_nm AS storedFileNm
+             , COALESCE(file_size, 0) AS fileSize
+             , file_path      AS filePath
+             , ins_dt         AS insDt
+          FROM file_table
+         WHERE board_no = #{boardNo}
+    </select>
+
+    <!-- 게시글의 파일 전체 삭제 (수정/삭제 시 사용) -->
+    <delete id="deleteFiles" parameterType="string">
+        DELETE FROM file_table WHERE board_no = #{boardNo}
+    </delete>
+
+    <!-- 파일 단건 조회 -->
+
+    <select id="selectFile" parameterType="long" resultType="com.main.app.model.FileDto">
+        SELECT file_id        AS fileId
+             , board_no       AS boardNo
+             , org_file_nm    AS orgFileNm
+             , stored_file_nm AS storedFileNm
+             , COALESCE(file_size, 0) AS fileSize
+             , file_path      AS filePath
+             , ins_dt         AS insDt
+          FROM file_table
+         WHERE file_id = #{fileId}
+    </select>
+
+    <!-- 댓글 목록 조회 -->
+    <resultMap id="commentResultMap" type="com.main.app.model.CommentDto">
+        <id property="commentId" column="comment_id"/>
+        <result property="boardNo" column="board_no"/>
+        <result property="writer" column="writer"/>
+        <result property="content" column="content"/>
+        <result property="insDt" column="ins_dt"/>
+        <result property="likes" column="likes"/>
+        <result property="dislikes" column="dislikes"/>
+        <result property="parentCommentId" column="parent_comment_id"/>
+        <result property="secret" column="secret"/>
+        <result property="password" column="password"/>
+        <result property="spoiler" column="spoiler"/>
+        <collection property="replies" column="comment_id" javaType="java.util.List" ofType="com.main.app.model.CommentDto" select="selectReplies"/>
+    </resultMap>
+
+    <select id="selectCommentList" parameterType="string" resultMap="commentResultMap">
+        SELECT comment_id, board_no, writer, content, ins_dt, likes, dislikes, parent_comment_id, secret, password, spoiler
+          FROM comment
+         WHERE board_no = #{boardNo}
+           AND (parent_comment_id IS NULL OR parent_comment_id = 0)
+         ORDER BY ins_dt ASC
+    </select>
+
+    <select id="selectReplies" parameterType="long" resultMap="commentResultMap">
+        SELECT comment_id, board_no, writer, content, ins_dt, likes, dislikes, parent_comment_id, secret, password, spoiler
+          FROM comment
+         WHERE parent_comment_id = #{commentId}
+         ORDER BY ins_dt ASC
+    </select>
+
+    <!-- 댓글 등록 -->
+    <insert id="insertComment" parameterType="com.main.app.model.CommentDto">
+        INSERT INTO comment (board_no, writer, content, ins_dt, likes, dislikes, parent_comment_id, secret, password, spoiler)
+        VALUES (#{boardNo}, #{writer}, #{content}, NOW(), 0, 0, #{parentCommentId}, COALESCE(#{secret}, 'N'), #{password}, COALESCE(#{spoiler}, 'N'))
+    </insert>
+
+    <!-- 댓글 좋아요 증가 -->
+    <update id="increaseLike" parameterType="int">
+        UPDATE comment
+           SET likes = likes + 1
+         WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- 댓글 좋아요 감소 -->
+    <update id="decreaseLike" parameterType="int">
+        UPDATE comment
+           SET likes = likes - 1
+         WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- 댓글 싫어요 증가 -->
+    <update id="increaseDislike" parameterType="int">
+        UPDATE comment
+           SET dislikes = dislikes + 1
+         WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- 댓글 싫어요 감소 -->
+    <update id="decreaseDislike" parameterType="int">
+        UPDATE comment
+           SET dislikes = dislikes - 1
+         WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- 댓글 단건 조회 (최신 좋아요/싫어요 수 반환용) -->
+    <select id="selectCommentById" parameterType="int" resultMap="commentResultMap">
+        SELECT * FROM comment WHERE comment_id = #{commentId}
+    </select>
+
 </mapper>

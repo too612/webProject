@@ -5,6 +5,10 @@
 <head>
     <title>대전청소년위캔센터 - 질문과답변 작성</title>
     <th:block layout:fragment="css">
+        <!-- Summernote Lite CSS (Bootstrap 의존성 없음) -->
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+        <!-- Material Icons (파일 아이콘 등을 위해 추가) -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <style>
             .qna-content-header {
                 display: flex;
@@ -68,6 +72,25 @@
             .hidden-form {
                 display: none;
             }
+            /* 에디터 스타일 조정 */
+            .note-editor .note-toolbar {
+                background-color: #f8f9fa;
+            }
+            /* 기존 첨부파일 목록 스타일 */
+            .current-file-list {
+                margin-top: 10px;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+            }
+            .current-file-item {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                margin-bottom: 5px;
+                font-size: 14px;
+            }
         </style>
     </th:block>
 </head>
@@ -77,14 +100,25 @@
             <div>
                 <h2 th:text="${board.rqstNo == null ? '질문과 답변 작성' : '질문과 답변 수정'}">질문과 답변 작성</h2>
             </div>
-            <div class="breadcrumb-right">
-                <a th:href="@{/}">홈</a> > <a th:href="@{/support/qna}">열린마당</a> > 질문과답변
+            <div class="breadcrumb-right" style="display: none;">
+                <a th:href="@{/}">홈</a> > <a th:href="@{/board}">열린마당</a> > 질문과답변
             </div>
         </div>
 
         <div class="write-form-container">
-            <form id="writeForm" th:object="${board}" method="post">
+            <!-- 파일 업로드를 위해 enctype 추가 -->
+            <form id="writeForm" th:object="${board}" method="post" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{rqstNo}"/>
+                <!-- 답글 작성 시 부모 글 번호를 유지하기 위한 필드 추가 -->
+                <input type="hidden" th:if="${board.parentNo != null}" th:field="*{parentNo}"/>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="secret" th:field="*{secret}" value="Y" style="width: auto; margin: 0;">
+                        <label for="secret" style="margin: 0; cursor: pointer;">비밀글 설정</label>
+                    </div>
+                    <input type="password" id="password" class="form-control" th:field="*{password}" placeholder="비밀번호 (비밀글 설정 시 필수)" style="width: 250px;" autocomplete="new-password">
+                </div>
 
                 <div class="form-group">
                     <label for="title">제목</label>
@@ -98,7 +132,23 @@
 
                 <div class="form-group">
                     <label for="cont">내용</label>
-                    <textarea id="cont" class="form-control" th:field="*{cont}" placeholder="내용을 입력하세요." required></textarea>
+                    <textarea id="summernote" name="cont" class="form-control" th:utext="*{cont}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="files">첨부파일</label>
+                    <input type="file" id="files" name="files" class="form-control" multiple>
+                    <small class="text-muted" style="color: #888; margin-top: 5px; display: block;">* 여러 개의 파일을 선택할 수 있습니다.</small>
+                    
+                    <!-- 기존 첨부파일 목록 표시 (수정 시 확인용) -->
+                    <div class="current-file-list" th:if="${board.fileList != null and !board.fileList.isEmpty()}">
+                        <div style="font-weight: 600; margin-bottom: 8px;">현재 첨부된 파일</div>
+                        <div class="current-file-item" th:each="file : ${board.fileList}">
+                            <span class="material-icons" style="font-size: 16px; color: #666;">attach_file</span>
+                            <span th:text="${file.orgFileNm}">파일명</span>
+                            <span style="color: #888;" th:if="${file.fileSize != null}" th:with="sizeMb=${file.fileSize / 1048576.0}" th:text="|(${#numbers.formatDecimal(sizeMb, 1, 2)}MB)|"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="btn-area">
@@ -109,27 +159,70 @@
                     <button th:if="*{rqstNo != null}" type="button" id="updateBtn" class="btn btn-primary">수정</button>
                     <button th:if="*{rqstNo != null}" type="button" id="deleteBtn" class="btn btn-danger">삭제</button>
 
-                    <button type="button" class="btn btn-list" th:onclick="|location.href='@{/support/qna}'|">목록</button>
+                    <button type="button" class="btn btn-list" th:onclick="|location.href='@{/board}'|">목록</button>
                 </div>
             </form>
         </div>
         
         <!-- 삭제 확인을 위한 숨겨진 폼 -->
-        <form id="deleteForm" th:action="@{/support/qna/delete}" method="post" class="hidden-form">
+        <form id="deleteForm" th:action="@{/board/delete}" method="post" class="hidden-form">
             <input type="hidden" name="rqstNo" th:value="${board.rqstNo}" />
         </form>
     </div>
 
     <th:block layout:fragment="scripts">
+        <!-- JQuery (Summernote 의존성) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Summernote Lite JS -->
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+
         <script>
+            // Summernote 초기화
+            $(document).ready(function() {
+                $('#summernote').summernote({
+                    placeholder: '내용을 입력하세요.',
+                    tabsize: 2,
+                    height: 400,
+                    lang: 'ko-KR',
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ]
+                });
+            });
+
             const form = document.getElementById('writeForm');
 
             // 저장 버튼
             const saveBtn = document.getElementById('saveBtn');
             if (saveBtn) {
                 saveBtn.addEventListener('click', function() {
+                    // 비밀글 체크 시 비밀번호 입력 확인
+                    const secretChk = document.getElementById('secret');
+                    const passwordInput = document.getElementById('password');
+                    if (secretChk.checked && !passwordInput.value.trim()) {
+                        alert('비밀글로 설정하려면 비밀번호를 입력해야 합니다.');
+                        passwordInput.focus();
+                        return;
+                    }
+
+                    // Summernote 내용 빈값 체크
+                    if ($('#summernote').summernote('isEmpty')) {
+                        alert('내용을 입력해주세요.');
+                        return;
+                    }
+
+                    // Summernote 에디터의 내용을 textarea에 동기화
+                    $('#summernote').val($('#summernote').summernote('code'));
+
                     if (form.checkValidity()) {
-                        form.action = '/support/qna/write';
+                        form.action = '/board/write';
                         form.submit();
                     } else {
                         form.reportValidity();
@@ -141,8 +234,26 @@
             const updateBtn = document.getElementById('updateBtn');
             if (updateBtn) {
                 updateBtn.addEventListener('click', function() {
+                    // 비밀글 체크 시 비밀번호 입력 확인
+                    const secretChk = document.getElementById('secret');
+                    const passwordInput = document.getElementById('password');
+                    if (secretChk.checked && !passwordInput.value.trim()) {
+                        alert('비밀글로 설정하려면 비밀번호를 입력해야 합니다.');
+                        passwordInput.focus();
+                        return;
+                    }
+
+                    // Summernote 내용 빈값 체크
+                    if ($('#summernote').summernote('isEmpty')) {
+                        alert('내용을 입력해주세요.');
+                        return;
+                    }
+
+                    // Summernote 에디터의 내용을 textarea에 동기화
+                    $('#summernote').val($('#summernote').summernote('code'));
+
                     if (form.checkValidity()) {
-                        form.action = '/support/qna/update';
+                        form.action = '/board/update';
                         form.submit();
                     } else {
                         form.reportValidity();

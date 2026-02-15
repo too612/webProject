@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>작은도서관 - 질문과답변 상세</title>
+    <meta name="_csrf" th:content="${_csrf?.token}" th:if="${_csrf} != null">
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}" th:if="${_csrf} != null">
+    <th:block layout:fragment="css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <style>
+            /* 게시글 상세 스타일 */
+            .view-header {
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+            .view-title {
+                font-size: 26px;
+                font-weight: 700;
+                margin-bottom: 15px;
+                color: #333;
+            }
+            .view-meta {
+                display: flex;
+                gap: 20px;
+                color: #666;
+                font-size: 14px;
+            }
+            .view-content {
+                min-height: 300px;
+                padding: 20px 0;
+                line-height: 1.6;
+                border-bottom: 1px solid #eee;
+            }
+            .file-area {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border: 1px solid #e9ecef;
+            }
+            .file-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 5px;
+            }
+            .file-item a {
+                color: #333;
+                text-decoration: none;
+            }
+            .file-item a:hover {
+                text-decoration: underline;
+                color: #2196F3;
+            }
+
+            /* 유튜브 스타일 댓글 섹션 */
+            .comment-section {
+                margin-top: 50px;
+            }
+            .comment-header {
+                display: flex;
+                align-items: center;
+                gap: 30px;
+                margin-bottom: 24px;
+            }
+            .comment-count {
+                font-size: 20px;
+                font-weight: 700;
+            }
+            .sort-menu {
+                display: flex;
+                gap: 15px;
+                cursor: pointer;
+                font-weight: 600;
+                color: #606060;
+                font-size: 14px;
+            }
+            .sort-item.active {
+                color: #0f0f0f;
+            }
+            
+            /* 댓글 입력창 */
+            .comment-input-area {
+                display: flex;
+                gap: 16px;
+                margin-bottom: 32px;
+            }
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: #e0e0e0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: #555;
+            }
+            .input-wrapper {
+                flex: 1;
+            }
+            .comment-input {
+                width: 100%;
+                border: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 8px 0;
+                font-size: 14px;
+                resize: none;
+                outline: none;
+                transition: border-bottom 0.2s;
+                height: 30px;
+                overflow-y: hidden;
+            }
+            .comment-input:focus {
+                border-bottom: 2px solid #0f0f0f;
+            }
+            .input-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+                margin-top: 8px;
+            }
+
+            /* 댓글 리스트 */
+            .comment-list {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .comment-item {
+                display: flex;
+                gap: 16px;
+            }
+            .comment-body {
+                flex: 1;
+            }
+            .comment-author-line {
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+                margin-bottom: 4px;
+            }
+            .author-name {
+                font-size: 13px;
+                font-weight: 600;
+                color: #0f0f0f;
+            }
+            .comment-time {
+                font-size: 12px;
+                color: #606060;
+            }
+            .comment-text {
+                font-size: 14px;
+                color: #0f0f0f;
+                line-height: 1.4;
+                margin-bottom: 8px;
+            }
+            .comment-actions {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                color: #0f0f0f;
+                font-size: 12px;
+            }
+            .action-btn {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                color: #0f0f0f;
+            }
+            .action-btn:hover {
+                opacity: 0.8;
+            }
+            .material-icons.small-icon {
+                font-size: 16px;
+            }
+            
+            /* 대댓글 (Nested) */
+            .reply-list {
+                margin-top: 10px;
+                margin-left: 0; /* 아바타 너비만큼 밀지 않고 별도 처리 */
+            }
+            .reply-item {
+                display: flex;
+                gap: 16px;
+                margin-top: 16px;
+            }
+
+            .btn-primary { background-color: #065fd4; color: white; border: none; padding: 8px 16px; border-radius: 18px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; }
+            .btn-secondary { background-color: transparent; color: #0f0f0f; border: none; padding: 8px 16px; border-radius: 18px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; }
+            .btn-secondary:hover { background-color: #e5e5e5; }
+            
+            /* 답글 토글 버튼 및 계층형 스타일 */
+            .reply-toggle-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: #065fd4;
+                font-size: 12px;
+                font-weight: 500;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                margin-top: 8px;
+            }
+            .reply-toggle-btn:hover {
+                opacity: 0.8;
+            }
+            .reply-connector {
+                width: 24px;
+                height: 24px;
+                border-left: 2px solid #e0e0e0;
+                border-bottom: 2px solid #e0e0e0;
+                border-bottom-left-radius: 12px;
+                margin-top: -14px;
+                margin-right: 4px;
+                flex-shrink: 0;
+            }
+            
+            /* 좋아요/싫어요 활성화 스타일 */
+            .action-btn.active-like {
+                color: #2196F3;
+            }
+            .action-btn.active-dislike {
+                color: #f44336;
+            }
+            
+            /* 스포일러 및 비밀 댓글 스타일 */
+            .spoiler-content {
+                filter: blur(6px);
+                cursor: pointer;
+                user-select: none;
+                transition: filter 0.3s;
+                background: #f0f0f0;
+                color: transparent;
+                text-shadow: 0 0 8px rgba(0,0,0,0.5);
+            }
+            .spoiler-content.revealed {
+                filter: none;
+                background: transparent;
+                color: inherit;
+                text-shadow: none;
+                user-select: auto;
+            }
+            .secret-content {
+                color: #888;
+                font-style: italic;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .comment-options {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 8px;
+                font-size: 13px;
+                color: #555;
+                align-items: center;
+            }
+            .comment-options label {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+            }
+            .comment-password {
+                border: none;
+                border-bottom: 1px solid #ddd;
+                padding: 2px 5px;
+                font-size: 12px;
+                width: 120px;
+                outline: none;
+            }
+
+            /* =============================
+               모바일 반응형 처리
+               ============================= */
+            @media (max-width: 768px) {
+                /* 본문 내 이미지 자동 조절 */
+                .view-content img {
+                    max-width: 100% !important;
+                    height: auto !important;
+                    display: block;
+                    margin: 10px auto;
+                }
+
+                /* 제목 크기 조정 */
+                .view-title {
+                    font-size: 20px;
+                    line-height: 1.4;
+                }
+
+                /* 메타 정보 세로 배치 */
+                .view-meta {
+                    flex-direction: column;
+                    gap: 8px;
+                }
+
+                /* 버튼 영역 조정 */
+                .view-actions {
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+
+                .view-actions .btn {
+                    padding: 10px 16px;
+                    font-size: 13px;
+                }
+
+                /* 댓글 영역 조정 */
+                .comment-count {
+                    font-size: 18px;
+                }
+
+                .comment-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+
+                /* 댓글 아바타 크기 축소 */
+                .user-avatar {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 12px;
+                }
+
+                /* 댓글 입력창 */
+                .comment-input {
+                    font-size: 13px;
+                }
+
+                /* 댓글 아이템 */
+                .comment-item {
+                    gap: 12px;
+                }
+
+                .author-name {
+                    font-size: 12px;
+                }
+
+                .comment-text {
+                    font-size: 13px;
+                }
+
+                /* 파일 영역 */
+                .file-area {
+                    padding: 12px;
+                }
+
+                .file-item {
+                    font-size: 13px;
+                    word-break: break-all;
+                }
+
+                /* 테이블 가로 스크롤 */
+                .view-content table {
+                    display: block;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+
+                /* 본문 내 비디오/iframe 반응형 */
+                .view-content iframe,
+                .view-content video {
+                    max-width: 100% !important;
+                    height: auto !important;
+                }
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- 게시글 본문 영역 -->
+        <div class="view-header">
+            <h2 class="view-title" th:text="${board.title}">게시글 제목입니다.</h2>
+            <div class="view-meta">
+                <span><i class="material-icons" style="font-size:16px; vertical-align:text-bottom;">person</i> <span th:text="${board.rqstId}">작성자</span></span>
+                <span><i class="material-icons" style="font-size:16px; vertical-align:text-bottom;">calendar_today</i> <span th:text="${board.insDt != null ? #temporals.format(board.insDt, 'yyyy-MM-dd HH:mm') : ''}">2025-01-01</span></span>
+                <span>조회수: <span th:text="${board.views != null ? board.views : 0}">0</span></span>
+            </div>
+        </div>
+
+        <!-- Summernote로 작성된 내용은 HTML 태그가 포함되므로 utext 사용 -->
+        <div class="view-content" th:utext="${board.cont}">
+            게시글 내용이 여기에 표시됩니다.
+        </div>
+
+        <!-- 파일 첨부 영역 (파일이 있을 경우에만 표시) -->
+        <div class="file-area" th:if="${board.fileList != null and !board.fileList.isEmpty()}">
+            <div class="file-item" th:each="file : ${board.fileList}">
+                <i class="material-icons">attach_file</i>
+                <a th:href="@{/board/download(fileId=${file.fileId})}">
+                    <span th:text="${file.orgFileNm}">첨부파일.pdf</span>
+                    <span th:if="${file.fileSize != null}" th:with="sizeMb=${file.fileSize / 1048576.0}" th:text="| (${#numbers.formatDecimal(sizeMb, 1, 2)}MB)|"></span>
+                </a>
+            </div>
+        </div>
+        
+        <div style="text-align: right; margin-bottom: 40px;">
+            <!-- 본인 글일 경우 수정/삭제 버튼 표시 -->
+            <a th:href="@{/board/write(rqstNo=${board.rqstNo})}" class="btn btn-secondary" style="border: 1px solid #ddd;">수정</a>
+            <a th:href="@{/board}" class="btn btn-secondary" style="border: 1px solid #ddd;">목록으로</a>
+            <!-- 답글 작성 버튼 (계층형 게시판) -->
+            <a th:href="@{/board/reply(parentNo=${board.rqstNo})}" class="btn btn-primary">답글작성</a>
+        </div>
+
+        <hr>
+
+        <!-- 댓글 섹션 (유튜브 스타일) -->
+        <div class="comment-section">
+            <div class="comment-header">
+                <div class="comment-count">댓글 <span th:text="${commentCount != null ? commentCount : 0}">5</span>개</div>
+                <div class="sort-menu">
+                    <div class="sort-item"><i class="material-icons" style="font-size: 18px; vertical-align: middle;">sort</i> 정렬 기준</div>
+                    <div class="sort-item active" onclick="sortComments('popular', this)">인기순</div>
+                    <div class="sort-item" onclick="sortComments('latest', this)">최신순</div>
+                </div>
+            </div>
+
+            <!-- 댓글 작성 폼 -->
+            <div class="comment-input-area">
+                <div class="user-avatar">나</div>
+                <div class="input-wrapper">
+                    <form action="/board/comment/write" method="post">
+                        <input type="hidden" name="boardNo" th:value="${board.rqstNo}">
+                        
+                        <!-- 댓글 옵션 -->
+                        <div class="comment-options">
+                            <label><input type="checkbox" name="secret" value="Y"> 비밀글</label>
+                            <label><input type="checkbox" name="spoiler" value="Y"> 스포일러</label>
+                            <input type="password" name="password" class="comment-password" placeholder="비밀번호 (선택)">
+                        </div>
+
+                        <input type="text" class="comment-input" placeholder="댓글 추가..." name="content">
+                        <div class="input-actions">
+                            <button type="button" class="btn-secondary">취소</button>
+                            <button type="submit" class="btn-primary">댓글</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 댓글 리스트 -->
+            <div class="comment-list">
+                <!-- 재귀적 댓글 렌더링을 위한 프래그먼트 정의 -->
+                <th:block th:fragment="commentTree(commentList, depth)">
+                <div th:each="comment : ${commentList}" class="comment-wrapper" th:data-likes="${comment.likes}" th:data-date="${comment.insDt}">
+                    <div class="comment-item">
+                    <div class="user-avatar" th:text="${#strings.substring(comment.writer, 0, 1)}">A</div>
+                    <div class="comment-body">
+                        <div class="comment-author-line">
+                            <span class="author-name" th:text="${comment.writer}">작성자</span>
+                            <span class="comment-time" th:text="${comment.timeAgo}">2시간 전</span>
+                        </div>
+                        
+                        <!-- 댓글 내용 표시 로직 -->
+                        <div class="comment-text">
+                            <!-- 1. 비밀 댓글인 경우 -->
+                            <div th:if="${comment.secret == 'Y'}" class="secret-content">
+                                <i class="material-icons" style="font-size: 14px;">lock</i>
+                                <span>관리자만 볼 수 있는 댓글입니다.</span>
+                            </div>
+                            
+                            <!-- 2. 스포일러 댓글인 경우 (비밀글이 아닐 때) -->
+                            <div th:if="${comment.secret != 'Y' and comment.spoiler == 'Y'}" class="spoiler-content" onclick="toggleSpoiler(this)" title="클릭하여 내용 보기">
+                                <span th:text="${comment.content}">스포일러 내용</span>
+                            </div>
+
+                            <!-- 3. 일반 댓글 -->
+                            <div th:if="${comment.secret != 'Y' and comment.spoiler != 'Y'}" th:text="${comment.content}">
+                                일반 내용
+                            </div>
+                        </div>
+                        
+                        <div class="comment-actions">
+                            <!-- 좋아요 (추천) -->
+                            <button class="action-btn" 
+                                    th:classappend="${userVotes != null and userVotes.get(comment.commentId) == 'like'} ? 'active-like' : ''"
+                                    th:onclick="|toggleLike(this, ${comment.commentId})|">
+                                <i class="material-icons small-icon">thumb_up_off_alt</i>
+                                <span th:text="${comment.likes > 0 ? comment.likes : ''}">12</span>
+                            </button>
+                            <!-- 싫어요 (비추천) -->
+                            <button class="action-btn" 
+                                    th:classappend="${userVotes != null and userVotes.get(comment.commentId) == 'dislike'} ? 'active-dislike' : ''"
+                                    th:onclick="|toggleDislike(this, ${comment.commentId})|">
+                                <i class="material-icons small-icon">thumb_down_off_alt</i>
+                                <span th:text="${comment.dislikes > 0 ? comment.dislikes : ''}"></span>
+                            </button>
+                            <button class="action-btn" style="font-weight: 500;" onclick="toggleReplyForm(this)">답글</button>
+                        </div>
+
+                        <!-- 답글 작성 폼 (숨김) -->
+                        <div class="reply-form-container" style="display: none; margin-top: 10px;">
+                            <form action="/board/comment/write" method="post">
+                                <input type="hidden" name="boardNo" th:value="${board.rqstNo}">
+                                <input type="hidden" name="parentCommentId" th:value="${comment.commentId}">
+                                
+                                <!-- 대댓글 옵션 -->
+                                <div class="comment-options" style="margin-bottom: 5px;">
+                                    <label><input type="checkbox" name="secret" value="Y"> 비밀글</label>
+                                    <label><input type="checkbox" name="spoiler" value="Y"> 스포일러</label>
+                                    <input type="password" name="password" class="comment-password" placeholder="비밀번호 (선택)">
+                                </div>
+
+                                <div style="display: flex; gap: 10px;">
+                                    <div class="user-avatar" style="width: 24px; height: 24px; font-size: 12px;">나</div>
+                                    <div style="flex: 1;">
+                                        <input type="text" class="comment-input" placeholder="답글 추가..." name="content" required>
+                                        <div class="input-actions" style="display: flex; justify-content: flex-end; margin-top: 5px;">
+                                            <button type="button" class="btn-secondary" onclick="toggleReplyForm(this)">취소</button>
+                                            <button type="submit" class="btn-primary">답글</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- 답글 보기/숨기기 버튼 (위치 이동: Action Bar 아래) -->
+                        <th:block th:if="${not #lists.isEmpty(comment.replies) and depth == 0}">
+                            <button class="reply-toggle-btn" onclick="toggleReplies(this)">
+                                <i class="material-icons small-icon">arrow_drop_down</i>
+                                <span class="btn-text">답글 보기</span>
+                            </button>
+                        </th:block>
+
+                        <!-- 대댓글 (Nested Comments) -->
+                        <!-- 재귀 호출: 답글이 있으면 자기 자신(commentTree)을 다시 호출 -->
+                        <th:block th:if="${not #lists.isEmpty(comment.replies)}">
+                            <!-- 최상위 댓글(depth=0)인 경우 컨테이너만 생성 (버튼은 위로 이동됨) -->
+                            <th:block th:if="${depth == 0}">
+                                <div class="reply-container" style="display: none; margin-left: 40px; margin-top: 10px; border-left: 2px solid #f0f0f0; padding-left: 10px;">
+                                    <th:block th:replace="~{::commentTree(${comment.replies}, ${depth + 1})}"></th:block>
+                                </div>
+                            </th:block>
+                            <!-- 대댓글(depth > 0)인 경우 버튼 없이 바로 하위 댓글 렌더링 (들여쓰기만 적용) -->
+                            <th:block th:if="${depth > 0}">
+                                <div class="nested-reply-container" style="margin-left: 40px; margin-top: 10px; border-left: 2px solid #f0f0f0; padding-left: 10px;">
+                                    <th:block th:replace="~{::commentTree(${comment.replies}, ${depth + 1})}"></th:block>
+                                </div>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </div>
+                </div>
+                </th:block>
+
+                <!-- 초기 호출 -->
+                <th:block th:replace="~{::commentTree(${comments}, 0)}"></th:block>
+                
+                <!-- 댓글이 없을 경우 -->
+                <div th:if="${comments == null or comments.isEmpty()}" style="text-align: center; padding: 20px; color: #666;">
+                    첫 번째 댓글을 남겨보세요!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            // 댓글 입력창 포커스 시 버튼 표시 효과 등 UI 스크립트
+            const commentInput = document.querySelector('.comment-input');
+            const inputActions = document.querySelector('.input-actions');
+            
+            if(commentInput) {
+                commentInput.addEventListener('focus', function() {
+                    inputActions.style.display = 'flex';
+                });
+            }
+
+            // 페이지 로드 시 답글 개수 계산 (모든 하위 대댓글 포함)
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.reply-toggle-btn').forEach(btn => {
+                    const wrapper = btn.closest('.comment-body');
+                    const container = wrapper ? wrapper.querySelector('.reply-container') : null;
+                    if (container && container.classList.contains('reply-container')) {
+                        // reply-container 내부의 모든 .comment-wrapper 개수를 셈
+                        const count = container.querySelectorAll('.comment-wrapper').length;
+                        const textSpan = btn.querySelector('.btn-text');
+                        if (textSpan) textSpan.textContent = `답글 ${count}개 보기`;
+                    }
+                });
+            });
+
+            // 답글 폼 토글
+            function toggleReplyForm(btn) {
+                // 클릭된 버튼이 속한 comment-body 영역을 찾음
+                const commentBody = btn.closest('.comment-body');
+                const replyForm = commentBody.querySelector('.reply-form-container');
+                
+                if (replyForm) {
+                    const isHidden = replyForm.style.display === 'none';
+                    replyForm.style.display = isHidden ? 'block' : 'none';
+                    if (isHidden) {
+                        const input = replyForm.querySelector('input[name="content"]');
+                        if (input) input.focus();
+                    }
+                }
+            }
+
+            // 좋아요/싫어요 기능
+            function toggleLike(btn, commentId) {
+                updateLikeStatus(btn, commentId, 'like');
+            }
+
+            function toggleDislike(btn, commentId) {
+                updateLikeStatus(btn, commentId, 'dislike');
+            }
+
+            function updateLikeStatus(btn, commentId, action) {
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                const headers = { 'Content-Type': 'application/json' };
+
+                if (csrfHeader && csrfToken) {
+                    headers[csrfHeader] = csrfToken;
+                }
+
+                // 서버로 좋아요/싫어요 요청 전송
+                fetch('/board/comment/vote', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ commentId: String(commentId), action: action })
+                })
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error('Network response was not ok.');
+                })
+                .then(data => {
+                    // 성공 시 UI 업데이트 (서버에서 최신 좋아요 수를 반환한다고 가정)
+                    const wrapper = btn.closest('.comment-actions');
+                    const likeBtn = wrapper.querySelector('button[onclick*="toggleLike"]');
+                    const dislikeBtn = wrapper.querySelector('button[onclick*="toggleDislike"]');
+                    const likeSpan = likeBtn.querySelector('span');
+                    const dislikeSpan = dislikeBtn.querySelector('span');
+                    
+                    if (likeSpan && data.likes !== undefined) {
+                        likeSpan.innerText = data.likes > 0 ? data.likes : '';
+                    }
+                    if (dislikeSpan && data.dislikes !== undefined) {
+                        dislikeSpan.innerText = data.dislikes > 0 ? data.dislikes : '';
+                    }
+                    
+                    // 클래스 토글
+                    likeBtn.classList.remove('active-like');
+                    dislikeBtn.classList.remove('active-dislike');
+                    
+                    if (data.userVote === 'like') likeBtn.classList.add('active-like');
+                    if (data.userVote === 'dislike') dislikeBtn.classList.add('active-dislike');
+
+                    // 정렬 데이터 업데이트
+                    const item = btn.closest('.comment-wrapper');
+                    if(item && data.likes !== undefined) item.dataset.likes = data.likes;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('처리에 실패했습니다.');
+                });
+            }
+
+            // 댓글 정렬
+            function sortComments(type, el) {
+                // 활성화 스타일 처리
+                document.querySelectorAll('.sort-menu .sort-item').forEach(item => item.classList.remove('active'));
+                el.classList.add('active');
+
+                const list = document.querySelector('.comment-list');
+                // .comment-list의 직계 자식인 .comment-wrapper만 선택하여 정렬 (대댓글 제외)
+                const items = Array.from(list.children).filter(child => child.classList.contains('comment-wrapper'));
+
+                items.sort((a, b) => {
+                    if (type === 'popular') {
+                        return (parseInt(b.dataset.likes) || 0) - (parseInt(a.dataset.likes) || 0);
+                    } else {
+                        return new Date(b.dataset.date || 0) - new Date(a.dataset.date || 0);
+                    }
+                });
+
+                items.forEach(item => list.appendChild(item));
+            }
+
+            // 답글 토글
+            function toggleReplies(btn) {
+                const wrapper = btn.closest('.comment-body');
+                const container = wrapper ? wrapper.querySelector('.reply-container') : null;
+                if (!container) return;
+
+                const icon = btn.querySelector('.material-icons');
+                const textSpan = btn.querySelector('.btn-text');
+                const isHidden = container.style.display === 'none';
+                
+                if (isHidden) {
+                    container.style.display = 'block';
+                    icon.textContent = 'arrow_drop_up';
+                    textSpan.textContent = '답글 숨기기';
+                } else {
+                    container.style.display = 'none';
+                    icon.textContent = 'arrow_drop_down';
+                    // 닫을 때 다시 개수 계산해서 표시
+                    const count = container.querySelectorAll('.comment-wrapper').length;
+                    textSpan.textContent = `답글 ${count}개 보기`;
+                }
+            }
+
+            // 스포일러 토글
+            function toggleSpoiler(element) {
+                element.classList.toggle('revealed');
+            }
+        </script>
+    </th:block>
+</body>
+</html>
