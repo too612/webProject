@@ -11,7 +11,7 @@
               ,order_no
           FROM sys_menu_mgt
          WHERE 1=1
-           -- AND use_yn = 'Y'  -- 사용여부 조건 추가 (필요시)
+           AND menu_id like 'M_MAIN%'
          ORDER BY level, order_no, menu_id
     </select>
 

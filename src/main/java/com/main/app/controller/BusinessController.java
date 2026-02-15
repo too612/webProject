@@ -7,20 +7,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/business")
 public class BusinessController {
+
+    /**
+     * 사업소개 페이지들의 공통 모델 속성을 설정합니다.
+     * GlobalControllerAdvice에서 이미 모든 메뉴 관련 정보를 처리하므로
+     * 여기서는 submenu 플래그만 설정합니다.
+     * 
+     * @param model 뷰에 전달할 모델 객체
+     */
+    private void addBusinessPageAttributes(Model model) {
+        // submenu 사용 플래그 설정 - 이것만으로도 레이아웃에서 submenu 영역이 표시됩니다
+        model.addAttribute("submenu", "Y");
+        
+        // 추가적인 페이지별 설정이 필요한 경우 여기에 추가
+        // 예: model.addAttribute("pageType", "business");
+    }
     
     @GetMapping("/fields")
-    public String getFields(Model model) {
-        model.addAttribute("currentMenu", "사업소개");
-        model.addAttribute("currentSubmenu", "사업분야");
+    public String fieldsPage(Model model) {
+        // 공통 속성 설정
+        addBusinessPageAttributes(model);
+        
+        // 사업분야 페이지 특정 데이터가 필요한 경우 여기에 추가
+        // 예: model.addAttribute("fieldList", businessService.getFields());
+        
         return "business/fields";
     }
     
 
     @GetMapping("/system")
-    public String getSystem(Model model) {
-        model.addAttribute("currentMenu", "사업소개");
-        model.addAttribute("currentSubmenu", "시스템소개");
+    public String systemPage(Model model) {
+        addBusinessPageAttributes(model);
         return "business/system";
     }
     
+    // 향후 사업소개 관련 페이지가 추가될 경우,
+    // 동일한 패턴으로 메소드를 추가하면 됩니다.
 }

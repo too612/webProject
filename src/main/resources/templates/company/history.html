@@ -4,273 +4,128 @@
       layout:decorate="~{layout/layout}">
 <head>
     <title>회사연혁</title>
-    
-    <th:block layout:fragment="css">
-        <style>
-        /* 
-          이 스타일들은 history.html 페이지에만 적용되므로 여기에 유지합니다.
-        */
-        .timeline {
-            margin-bottom: 50px;
+    <style>
+        .history-content {
+            max-width: 900px;
+            line-height: 1.8;
+            color: #444;
+            font-size: 15px;
         }
-        .year-section {
-            margin-bottom: 20px;
+
+        .history-timeline {
+            margin-top: 30px;
+            border-left: 2px solid #e0e0e0;
+            padding-left: 0;
         }
-        .charts-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-top: 40px;
+
+        .history-item {
+            padding-left: 30px;
+            padding-bottom: 40px;
+            position: relative;
         }
-        .chart {
-            width: 30%;
-            min-width: 300px;
-            margin-bottom: 30px;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+
+        .history-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .history-item:before {
+            content: '';
+            width: 12px;
+            height: 12px;
             background: #fff;
+            border: 3px solid #666;
+            border-radius: 50%;
+            position: absolute;
+            left: -7px;
+            top: 5px;
         }
-        .chart h5 {
-            text-align: center;
-            margin-bottom: 20px;
+
+        .history-year {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
         }
-        @media (max-width: 992px) {
-            .chart {
-                width: 100%;
+
+        .history-item ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .history-item li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .history-item li:before {
+            content: '-';
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .history-content {
+                line-height: 1.6;
             }
         }
-        </style>
-    </th:block>
+    </style>
 </head>
 <body>
     <div layout:fragment="content">
-        <h4 class="blue-text text-darken-2" style="margin-bottom:32px;">회사연혁</h4>
-        <div class="timeline z-depth-1 white">
-            <div class="year-section">
-                <h5 class="blue-text text-darken-1"><i class="material-icons left">event</i>2020년</h5>
-                <ul class="browser-default">
-                    <li>글로벌 시장 진출</li>
-                    <li>기술혁신 대상 수상</li>
-                </ul>
-            </div>
-            <div class="year-section">
-                <h5 class="blue-text text-darken-1"><i class="material-icons left">event</i>2010년</h5>
-                <ul class="browser-default">
-                    <li>기업부설연구소 설립</li>
-                    <li>ISO 9001 인증 획득</li>
-                </ul>
-            </div>
-            <div class="year-section">
-                <h5 class="blue-text text-darken-1"><i class="material-icons left">event</i>2000년</h5>
-                <ul class="browser-default">
-                    <li>회사 설립</li>
-                    <li>첫 제품 출시</li>
-                </ul>
-            </div>
-        </div>
-        
-        <h4 class="blue-text text-darken-2" style="margin-top:48px;">회사 성장 지표</h4>
-        <div class="charts-container">
-            <div class="chart z-depth-1">
-                <h5 class="blue-text text-darken-1">연간 매출 성장</h5>
-                <div id="revenue-chart"></div>
-            </div>
-            <div class="chart z-depth-1">
-                <h5 class="blue-text text-darken-1">직원 수 증가</h5>
-                <div id="employee-chart"></div>
-            </div>
-            <div class="chart z-depth-1">
-                <h5 class="blue-text text-darken-1">해외 시장 점유율</h5>
-                <div id="market-chart"></div>
+        <div class="history-content">
+            <div class="history-timeline">
+                <div class="history-item">
+                    <div class="history-year">2024년</div>
+                    <ul>
+                        <li>Java 21 마이그레이션 프로젝트 완료 (금융권)</li>
+                        <li>AWS 클라우드 전환 컨설팅 수행</li>
+                    </ul>
+                </div>
+                
+                <div class="history-item">
+                    <div class="history-year">2020년</div>
+                    <ul>
+                        <li>마이크로서비스 아키텍처 도입 프로젝트</li>
+                        <li>공공기관 시스템 현대화 사업 수주</li>
+                    </ul>
+                </div>
+                
+                <div class="history-item">
+                    <div class="history-year">2015년</div>
+                    <ul>
+                        <li>모바일 뱅킹 시스템 구축</li>
+                        <li>직원 50명 규모로 확대</li>
+                    </ul>
+                </div>
+                
+                <div class="history-item">
+                    <div class="history-year">2010년</div>
+                    <ul>
+                        <li>대기업 ERP 시스템 구축 프로젝트</li>
+                        <li>기업부설연구소 인증</li>
+                    </ul>
+                </div>
+                
+                <div class="history-item">
+                    <div class="history-year">2005년</div>
+                    <ul>
+                        <li>중견기업 그룹웨어 개발 및 공급</li>
+                        <li>전자정부 프레임워크 기반 프로젝트 수행</li>
+                    </ul>
+                </div>
+                
+                <div class="history-item">
+                    <div class="history-year">2001년</div>
+                    <ul>
+                        <li>회사 설립 (자본금 5천만원, 직원 5명)</li>
+                        <li>중소기업 대상 웹 솔루션 개발 시작</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-
-    <th:block layout:fragment="scripts">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            // 데이터 준비
-            const revenueData = [
-                {year: 2000, value: 10},
-                {year: 2005, value: 35},
-                {year: 2010, value: 80},
-                {year: 2015, value: 150},
-                {year: 2020, value: 280}
-            ];
-            
-            const employeeData = [
-                {year: 2000, value: 5},
-                {year: 2005, value: 18},
-                {year: 2010, value: 45},
-                {year: 2015, value: 80},
-                {year: 2020, value: 120}
-            ];
-            
-            const marketShareData = [
-                {region: "북미", percentage: 35},
-                {region: "유럽", percentage: 25},
-                {region: "아시아", percentage: 30},
-                {region: "기타", percentage: 10}
-            ];
-        
-            // 차트 1: 매출 성장 라인 차트
-            function createRevenueChart() {
-                const container = document.getElementById("revenue-chart");
-                if (!container) return;
-                const width = container.clientWidth || 300;
-                const height = 200;
-                const margin = {top: 20, right: 30, bottom: 40, left: 50};
-                container.innerHTML = '';
-                const svg = d3.select(container)
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("transform", `translate(${margin.left},${margin.top})`);
-                const x = d3.scaleLinear()
-                    .domain([2000, 2020])
-                    .range([0, width - margin.left - margin.right]);
-                const y = d3.scaleLinear()
-                    .domain([0, 300])
-                    .range([height - margin.top - margin.bottom, 0]);
-                svg.append("g")
-                    .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
-                    .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-                svg.append("g")
-                    .call(d3.axisLeft(y));
-                const line = d3.line()
-                    .x(d => x(d.year))
-                    .y(d => y(d.value))
-                    .curve(d3.curveMonotoneX);
-                svg.append("path")
-                    .datum(revenueData)
-                    .attr("fill", "none")
-                    .attr("stroke", "#4a90e2")
-                    .attr("stroke-width", 2)
-                    .attr("d", line);
-                svg.selectAll(".dot")
-                    .data(revenueData)
-                    .enter().append("circle")
-                    .attr("class", "dot")
-                    .attr("cx", d => x(d.year))
-                    .attr("cy", d => y(d.value))
-                    .attr("r", 4)
-                    .attr("fill", "#4a90e2");
-            }
-            
-            // 차트 2: 직원 수 증가 바 차트
-            function createEmployeeChart() {
-                const container = document.getElementById("employee-chart");
-                if (!container) return;
-                const width = container.clientWidth || 300;
-                const height = 200;
-                const margin = {top: 20, right: 30, bottom: 40, left: 40};
-                container.innerHTML = '';
-                const svg = d3.select(container)
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("transform", `translate(${margin.left},${margin.top})`);
-                const x = d3.scaleBand()
-                    .domain(employeeData.map(d => d.year))
-                    .range([0, width - margin.left - margin.right])
-                    .padding(0.3);
-                const y = d3.scaleLinear()
-                    .domain([0, 150])
-                    .range([height - margin.top - margin.bottom, 0]);
-                svg.append("g")
-                    .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
-                    .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-                svg.append("g")
-                    .call(d3.axisLeft(y));
-                svg.selectAll(".bar")
-                    .data(employeeData)
-                    .enter().append("rect")
-                    .attr("class", "bar")
-                    .attr("x", d => x(d.year))
-                    .attr("y", d => y(d.value))
-                    .attr("width", x.bandwidth())
-                    .attr("height", d => height - margin.top - margin.bottom - y(d.value))
-                    .attr("fill", "#82c91e");
-            }
-            
-            // 차트 3: 시장 점유율 파이 차트
-            function createMarketChart() {
-                const container = document.getElementById("market-chart");
-                if (!container) return;
-                const width = container.clientWidth || 300;
-                const height = 200;
-                const radius = Math.min(width, height) / 2 - 40;
-                container.innerHTML = '';
-                const svg = d3.select(container)
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g")
-                    .attr("transform", `translate(${width / 2},${height / 2})`);
-                const color = d3.scaleOrdinal()
-                    .domain(marketShareData.map(d => d.region))
-                    .range(d3.schemeCategory10);
-                const pie = d3.pie()
-                    .value(d => d.percentage);
-                const path = d3.arc()
-                    .outerRadius(radius)
-                    .innerRadius(0);
-                const labelArc = d3.arc()
-                    .outerRadius(radius - 30)
-                    .innerRadius(radius - 30);
-                const arcs = svg.selectAll(".arc")
-                    .data(pie(marketShareData))
-                    .enter()
-                    .append("g")
-                    .attr("class", "arc");
-                arcs.append("path")
-                    .attr("d", path)
-                    .attr("fill", d => color(d.data.region));
-                arcs.append("text")
-                    .attr("transform", d => `translate(${labelArc.centroid(d)})`)
-                    .attr("text-anchor", "middle")
-                    .text(d => d.data.percentage + "%")
-                    .style("font-size", "12px")
-                    .style("fill", "#fff");
-                // 범례
-                const legend = svg.selectAll(".legend")
-                    .data(marketShareData)
-                    .enter()
-                    .append("g")
-                    .attr("class", "legend")
-                    .attr("transform", (d, i) => `translate(-40,${i * 20 - 80})`);
-                legend.append("rect")
-                    .attr("width", 12)
-                    .attr("height", 12)
-                    .attr("fill", d => color(d.region));
-                legend.append("text")
-                    .attr("x", 20)
-                    .attr("y", 9)
-                    .text(d => d.region)
-                    .style("font-size", "10px");
-            }
-            
-            // 차트 생성 함수
-            function initCharts() {
-                createRevenueChart();
-                createEmployeeChart();
-                createMarketChart();
-            }
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", initCharts);
-            } else {
-                initCharts();
-            }
-            window.addEventListener("load", initCharts);
-            window.addEventListener("resize", function() {
-                initCharts();
-            });
-            /*]]>*/
-        </script>
-    </th:block>
 </body>
 </html>

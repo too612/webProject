@@ -5,13 +5,163 @@
 
 <head>
     <title>CEO 인사말</title>
+    <style>
+        .ceo-greeting {
+            max-width: 1000px;
+            display: flex;
+            gap: 50px;
+        }
+
+        .ceo-left {
+            flex: 1;
+        }
+
+        .ceo-image-wrapper {
+            flex: 0 0 280px;
+            align-self: flex-start;
+            position: sticky;
+            top: 20px;
+        }
+
+        .ceo-image-wrapper img {
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        .ceo-header {
+            text-align: right;
+            margin-bottom: 50px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .ceo-header h2 {
+            font-size: 20px;
+            font-weight: 400;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .ceo-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .greeting-content {
+            line-height: 2.0;
+            color: #444;
+            font-size: 15px;
+        }
+
+        .greeting-content p {
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .greeting-content p:first-of-type {
+            margin-top: 0;
+        }
+
+        .emphasis {
+            margin: 40px 0;
+            padding-left: 20px;
+            border-left: 3px solid #555;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 60px;
+            padding-top: 30px;
+        }
+
+        .signature .date {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .signature .name {
+            font-size: 18px;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .ceo-greeting {
+                max-width: 100%;
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .ceo-image-wrapper {
+                flex: 0 0 auto;
+                position: static;
+            }
+
+            .greeting-content {
+                line-height: 1.8;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <h2>CEO 인사말</h2>
-        <p>저희 회사 홈페이지를 방문해주신 여러분을 진심으로 환영합니다.</p>
-        <p>CEO 인사말 본문 내용이 여기에 들어갑니다.</p>
+        <div class="ceo-greeting">
+            <div class="ceo-left">
+                <div class="ceo-header">
+                    <h2>대표이사</h2>
+                    <div class="ceo-name">홍길동</div>
+                </div>
+
+                <div class="greeting-content">
+                    <p>
+                        안녕하십니까. 저희 홈페이지를 방문해 주신 여러분께 감사드립니다.
+                    </p>
+
+                    <p>
+                        2001년 설립 이후 저희는 고객사의 요구사항을 정확히 파악하고 
+                        실질적인 솔루션을 제공하는 것에 집중해 왔습니다. 
+                        그 결과 지금까지 200여 개 이상의 프로젝트를 성공적으로 수행하였으며, 
+                        다양한 산업 분야의 고객들과 지속적인 파트너십을 유지하고 있습니다.
+                    </p>
+
+                    <p>
+                        최근 몇 년간 IT 환경은 빠르게 변화하고 있습니다. 
+                        저희는 단순히 변화에 대응하는 것을 넘어, 
+                        고객이 필요로 하는 기술을 먼저 연구하고 내재화하여 
+                        실무에 적용할 수 있도록 준비하고 있습니다.
+                    </p>
+
+                    <div class="emphasis">
+                        특히 레거시 시스템의 현대화와 클라우드 마이그레이션 분야에서 
+                        축적된 경험을 바탕으로 안정적이고 효율적인 전환을 지원하고 있습니다.
+                    </div>
+
+                    <p>
+                        작은 회사지만 한 건 한 건의 프로젝트에 최선을 다하고 있으며, 
+                        납품 후에도 지속적인 기술 지원과 유지보수를 통해 
+                        고객의 시스템이 안정적으로 운영될 수 있도록 노력하고 있습니다.
+                    </p>
+
+                    <p>
+                        앞으로도 변함없이 고객의 신뢰에 보답하는 기업이 되겠습니다.
+                        감사합니다.
+                    </p>
+
+                    <div class="signature">
+                        <div class="date">2026년 2월</div>
+                        <div class="name">대표이사 홍길동</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ceo-image-wrapper">
+                <img src="/img/ceo-profile.png" alt="대표이사 홍길동">
+            </div>
+        </div>
     </div>
 </body>
 </html>
