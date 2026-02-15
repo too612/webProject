@@ -35,7 +35,7 @@ public class CompanyController {
         return "company/ceo";
     }
 
-    @GetMapping("/mission")
+    @GetMapping("/mission") 
     public String missionPage(Model model) {
         addCompanyPageAttributes(model);
         return "company/mission";
