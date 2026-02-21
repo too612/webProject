@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>회원가입 - 다사랑교회</title>
+    <style>
+        .form-text.error {
+            color: #dc3545;
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        .form-text.success {
+            color: #28a745;
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <h2 class="text-center mb-4">회원가입</h2>
+                            <!-- 에러/성공 메시지 -->
+                            <div th:if="${error}" class="alert alert-danger" role="alert">
+                                <span th:text="${errorMessage}"></span>
+                            </div>
+                            <div th:if="${success}" class="alert alert-success" role="alert">
+                                <span th:text="${successMessage}"></span>
+                                <a href="/user/login" class="alert-link">로그인하러 가기</a>
+                            </div>
+                            <form th:action="@{/user/register}" method="post" id="registerForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">아이디</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="userId" id="userId" required>
+                                            <button class="btn btn-outline-secondary" type="button" id="checkUserIdBtn">중복확인</button>
+                                        </div>
+                                        <div id="userIdMessage" class="form-text"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">이름</label>
+                                        <input type="text" class="form-control" name="userName" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">비밀번호</label>
+                                        <input type="password" class="form-control" name="password" id="password" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">비밀번호 확인</label>
+                                        <input type="password" class="form-control" id="passwordConfirm" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">이메일</label>
+                                    <div class="input-group">
+                                        <input type="email" class="form-control" name="email" id="email" required>
+                                        <button class="btn btn-outline-secondary" type="button" id="checkEmailBtn">중복확인</button>
+                                    </div>
+                                    <div id="emailMessage" class="form-text"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">휴대폰 번호</label>
+                                    <input type="tel" class="form-control" name="phone" required placeholder="010-1234-5678">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">생년월일</label>
+                                        <input type="date" class="form-control" name="birthDate">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">성별</label>
+                                        <select class="form-select" name="gender">
+                                            <option value="">선택</option>
+                                            <option value="M">남성</option>
+                                            <option value="F">여성</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">약관 동의</label>
+                                    <div class="form-check">
+                                        <input type="hidden" name="agreeTerms" value="false">
+                                        <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                        <label class="form-check-label" for="agreeTerms">
+                                            이용약관에 동의합니다
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="hidden" name="agreePrivacy" value="false">
+                                        <input type="checkbox" class="form-check-input" id="agreePrivacy">
+                                        <label class="form-check-label" for="agreePrivacy">
+                                            개인정보 처리방침에 동의합니다
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="hidden" name="agreeMarketing" value="false">
+                                        <input type="checkbox" class="form-check-input" id="agreeMarketing">
+                                        <label class="form-check-label" for="agreeMarketing">
+                                            마케팅 정보 수신에 동의합니다 (선택)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">가입하기</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userIdChecked = false;
+        let emailChecked = false;
+
+        // 아이디 중복확인
+        document.getElementById('checkUserIdBtn').addEventListener('click', function() {
+            const userId = document.getElementById('userId').value.trim();
+            const messageEl = document.getElementById('userIdMessage');
+
+            if (!userId) {
+                messageEl.textContent = '아이디를 입력해주세요.';
+                messageEl.className = 'form-text error';
+                return;
+            }
+
+            if (userId.length < 4) {
+                messageEl.textContent = '아이디는 4자 이상이어야 합니다.';
+                messageEl.className = 'form-text error';
+                return;
+            }
+
+            fetch('/user/check-userid?userId=' + encodeURIComponent(userId))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        messageEl.textContent = '✓ 사용 가능한 아이디입니다.';
+                        messageEl.className = 'form-text success';
+                        userIdChecked = true;
+                    } else {
+                        messageEl.textContent = '✗ 이미 사용중인 아이디입니다.';
+                        messageEl.className = 'form-text error';
+                        userIdChecked = false;
+                    }
+                })
+                .catch(error => {
+                    messageEl.textContent = '오류가 발생했습니다.';
+                    messageEl.className = 'form-text error';
+                    console.error('Error:', error);
+                });
+        });
+
+        // 이메일 중복확인
+        document.getElementById('checkEmailBtn').addEventListener('click', function() {
+            const email = document.getElementById('email').value.trim();
+            const messageEl = document.getElementById('emailMessage');
+
+            if (!email) {
+                messageEl.textContent = '이메일을 입력해주세요.';
+                messageEl.className = 'form-text error';
+                return;
+            }
+
+            fetch('/user/check-email?email=' + encodeURIComponent(email))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        messageEl.textContent = '✓ 사용 가능한 이메일입니다.';
+                        messageEl.className = 'form-text success';
+                        emailChecked = true;
+                    } else {
+                        messageEl.textContent = '✗ 이미 사용중인 이메일입니다.';
+                        messageEl.className = 'form-text error';
+                        emailChecked = false;
+                    }
+                })
+                .catch(error => {
+                    messageEl.textContent = '오류가 발생했습니다.';
+                    messageEl.className = 'form-text error';
+                    console.error('Error:', error);
+                });
+        });
+
+        // 폼 제출
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            console.log('=== 폼 제출 시작 ===');
+
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('passwordConfirm').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+
+            console.log('Password:', password.length);
+            console.log('PasswordConfirm:', passwordConfirm.length);
+            console.log('Agree Terms:', agreeTerms);
+
+            // 비밀번호 확인
+            if (password !== passwordConfirm) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('비밀번호는 6자 이상이어야 합니다.');
+                return;
+            }
+
+            // 이용약관 동의 확인
+            if (!agreeTerms) {
+                alert('이용약관에 동의해야 합니다.');
+                return;
+            }
+
+            console.log('=== 폼 검증 통과 ===');
+
+            // checkbox 값을 hidden input에 반영
+            document.querySelector('input[name="agreeTerms"][type="hidden"]').value = 
+                document.getElementById('agreeTerms').checked ? 'true' : 'false';
+            document.querySelector('input[name="agreePrivacy"][type="hidden"]').value = 
+                document.getElementById('agreePrivacy').checked ? 'true' : 'false';
+            document.querySelector('input[name="agreeMarketing"][type="hidden"]').value = 
+                document.getElementById('agreeMarketing').checked ? 'true' : 'false';
+
+            console.log('=== 폼 제출 중 ===');
+            
+            // 폼 제출
+            this.submit();
+        });
+
+        // Enter 키로 중복확인 버튼 작동
+        document.getElementById('userId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('checkUserIdBtn').click();
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('checkEmailBtn').click();
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

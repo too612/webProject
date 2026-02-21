@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>다사랑교회 - 오시는길</title>
+    <th:block layout:fragment="css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <style>
+            .location-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 30px;
+            }
+
+            .location-header {
+                text-align: center;
+                margin-bottom: 40px;
+                padding-bottom: 30px;
+                border-bottom: 2px solid #e9ecef;
+            }
+
+            .location-header h2 {
+                font-size: 32px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .location-header p {
+                font-size: 16px;
+                color: #666;
+            }
+
+            .location-main {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+
+            .map-section {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .map-tabs {
+                display: flex;
+                gap: 10px;
+                border-bottom: 2px solid #e9ecef;
+            }
+
+            .map-tab {
+                padding: 12px 20px;
+                background: none;
+                border: none;
+                font-size: 16px;
+                font-weight: 600;
+                color: #999;
+                cursor: pointer;
+                transition: all 0.3s;
+                border-bottom: 3px solid transparent;
+                position: relative;
+                bottom: -2px;
+            }
+
+            .map-tab.active {
+                color: #2196F3;
+                border-bottom-color: #2196F3;
+            }
+
+            .map-tab:hover {
+                color: #333;
+            }
+
+            .map-container {
+                width: 100%;
+                height: 450px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #f5f5f5;
+            }
+
+            .map-container iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+
+            .map-content {
+                display: none;
+            }
+
+            .map-content.active {
+                display: block;
+            }
+
+            .info-section {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .info-card {
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 20px;
+                background: #f9f9f9;
+            }
+
+            .info-card h4 {
+                font-size: 14px;
+                font-weight: 700;
+                color: #666;
+                text-transform: uppercase;
+                margin: 0 0 12px 0;
+                letter-spacing: 0.5px;
+            }
+
+            .address-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .address-item:last-child {
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .address-content {
+                flex: 1;
+            }
+
+            .address-label {
+                font-size: 12px;
+                color: #999;
+                margin-bottom: 4px;
+            }
+
+            .address-value {
+                font-size: 15px;
+                color: #333;
+                line-height: 1.4;
+                word-break: break-word;
+                font-weight: 500;
+            }
+
+            .copy-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                background: #2196F3;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+
+            .copy-btn:hover {
+                background: #1976D2;
+                transform: scale(1.05);
+            }
+
+            .copy-btn.copied {
+                background: #4CAF50;
+            }
+
+            .contact-card {
+                border: 1px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 20px;
+                background: #fff3f0;
+            }
+
+            .contact-card h4 {
+                font-size: 14px;
+                font-weight: 700;
+                color: #d32f2f;
+                text-transform: uppercase;
+                margin: 0 0 12px 0;
+                letter-spacing: 0.5px;
+            }
+
+            .contact-items {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .contact-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 15px;
+                color: #333;
+            }
+
+            .contact-item .material-icons {
+                font-size: 20px;
+                color: #2196F3;
+            }
+
+            .notice-section {
+                background: #e3f2fd;
+                border-left: 4px solid #2196F3;
+                border-radius: 4px;
+                padding: 15px 20px;
+                margin-top: 20px;
+                font-size: 14px;
+                color: #424242;
+                line-height: 1.6;
+            }
+
+            .navigation-links {
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: white;
+                color: #2196F3;
+                text-decoration: none;
+                border: 1px solid #2196F3;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.3s;
+                cursor: pointer;
+            }
+
+            .nav-link:hover {
+                background: #2196F3;
+                color: white;
+            }
+
+            .nav-link .material-icons {
+                font-size: 18px;
+            }
+
+            @media (max-width: 768px) {
+                .location-main {
+                    grid-template-columns: 1fr;
+                }
+
+                .location-header h2 {
+                    font-size: 24px;
+                }
+
+                .location-container {
+                    padding: 20px;
+                }
+
+                .map-container {
+                    height: 350px;
+                }
+
+                .address-item {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .copy-btn {
+                    align-self: flex-start;
+                }
+            }
+        </style>
+    </th:block>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            // 지도 탭 전환
+            document.querySelectorAll('.map-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const mapType = this.dataset.map;
+                    
+                    // 활성화된 탭 업데이트
+                    document.querySelectorAll('.map-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 활성화된 지도 업데이트
+                    document.querySelectorAll('.map-content').forEach(m => m.classList.remove('active'));
+                    document.getElementById('map-' + mapType).classList.add('active');
+                });
+            });
+
+            // 주소 복사 함수
+            function copyAddress(text, button) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = button.innerHTML;
+                    button.classList.add('copied');
+                    button.innerHTML = '<span class="material-icons">check</span>';
+                    
+                    setTimeout(() => {
+                        button.classList.remove('copied');
+                        button.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    alert('복사에 실패했습니다.');
+                });
+            }
+
+            // 네비게이션 기능
+            function navigateTo(address) {
+                const encodedAddress = encodeURIComponent(address);
+                // 모바일인지 데스크톱인지 확인
+                const isMobile = /iPhone|iPad|iPod|Android|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    // 모바일: 기본 지도 앱 또는 웹 지도로 열기
+                    window.location.href = `geo:0,0?q=${encodedAddress}`;
+                } else {
+                    // 데스크톱: 구글 지도로 열기
+                    window.open(`https://www.google.com/maps/search/${encodedAddress}`, '_blank');
+                }
+            }
+        </script>
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="location-container">
+            <div class="location-header">
+                <h2>오시는길</h2>
+                <p>다사랑교회를 방문하시는 길을 안내해드립니다.</p>
+            </div>
+
+            <div class="location-main">
+            <!-- 지도 섹션 -->
+            <div class="map-section">
+                <div class="map-tabs">
+                    <button class="map-tab active" data-map="naver">네이버지도</button>
+                    <button class="map-tab" data-map="kakao">카카오지도</button>
+                    <button class="map-tab" data-map="google">구글지도</button>
+                </div>
+
+                <!-- 네이버 지도 -->
+                <div id="map-naver" class="map-content active">
+                    <div class="map-container">
+                        <iframe 
+                            src="https://map.naver.com/index.nhn?query=경기%20오산시%20오산로132번길%2028-19&mapmode=0" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:none;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- 카카오 지도 -->
+                <div id="map-kakao" class="map-content">
+                    <div class="map-container">
+                        <iframe 
+                            src="https://map.kakao.com/?urlLevel=3&itemId=21519898&q=다사랑교회&searchType=s" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:none;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- 구글 지도 -->
+                <div id="map-google" class="map-content">
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3171.7391234567!2d127.07215!3d37.15456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357b7a8f0000001d%3A0x1a1a1a1a1a1a1a1a!2s%EB%8B%A4%EC%82%AC%EB%9E%91%EA%B5%90%ED%9A%8C!5e0!3m2!1sko!2skr!4v" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:none;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 정보 섹션 -->
+            <div class="info-section">
+                <!-- 주소 정보 -->
+                <div class="info-card">
+                    <h4>주소</h4>
+                    <div class="address-item">
+                        <div class="address-content">
+                            <div class="address-label">도로명주소</div>
+                            <div class="address-value">경기 오산시 오산로132번길 28-19 승희프라자 5층</div>
+                        </div>
+                        <button class="copy-btn" 
+                                onclick="copyAddress('경기 오산시 오산로132번길 28-19 승희프라자 5층', this)"
+                                title="복사">
+                            <span class="material-icons">content_copy</span>
+                        </button>
+                    </div>
+
+                    <div class="address-item">
+                        <div class="address-content">
+                            <div class="address-label">지번</div>
+                            <div class="address-value">경기 오산시 원동 404-13</div>
+                        </div>
+                        <button class="copy-btn" 
+                                onclick="copyAddress('경기 오산시 원동 404-13', this)"
+                                title="복사">
+                            <span class="material-icons">content_copy</span>
+                        </button>
+                    </div>
+
+                    <div class="address-item">
+                        <div class="address-content">
+                            <div class="address-label">우편번호</div>
+                            <div class="address-value">18143</div>
+                        </div>
+                        <button class="copy-btn" 
+                                onclick="copyAddress('18143', this)"
+                                title="복사">
+                            <span class="material-icons">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 연락처 -->
+                <div class="contact-card">
+                    <h4>연락처</h4>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <span class="material-icons">phone</span>
+                            <span>031-XXXX-XXXX</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="material-icons">email</span>
+                            <span>info@dasarang.church</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="material-icons">schedule</span>
+                            <span>주일 오전 11:00 / 저녁 2:00 예배</span>
+                        </div>
+                    </div>
+
+                    <!-- 길찾기 버튼 -->
+                    <div class="navigation-links">
+                        <button class="nav-link" 
+                                onclick="navigateTo('경기 오산시 오산로132번길 28-19')">
+                            <span class="material-icons">navigation</span>
+                            길찾기
+                        </button>
+                        <a href="tel:031-XXXX-XXXX" class="nav-link">
+                            <span class="material-icons">call</span>
+                            전화
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 안내 메시지 -->
+                <div class="notice-section">
+                    <strong>📍 오실 때 참고하세요</strong><br/>
+                    • 교회는 오산로132번길에 위치한 승희프라자 5층에 있습니다.<br/>
+                    • 주차장은 건물 지하에 있습니다.<br/>
+                    • 계단 또는 엘리베이터로 5층으로 이동하신 후 입장하시면 됩니다.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>식당봉사 일정 관리</title>
+    <style>
+        .search-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .search-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .search-item input,
+        .search-item select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .grid-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .grid-table thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .grid-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .grid-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .grid-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .grid-table tbody tr.clickable {
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .list-table thead {
+            background-color: #f8f9fa;
+        }
+
+        .list-table th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .list-table td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .list-table input,
+        .list-table select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .file-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .file-input-group input[type="file"] {
+            flex: 1;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .pagination button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- 페이지 타이틀 -->
+        <div class="page-header">
+            <h1>식당봉사 일정 관리</h1>
+            <p>식당봉사 일정 및 예산을 관리합니다</p>
+        </div>
+
+        <!-- 검색 조건 -->
+        <div class="search-container">
+            <div class="search-row">
+                <div class="search-item">
+                    <label for="searchCell">담당셀</label>
+                    <input type="text" id="searchCell" placeholder="담당셀을 입력하세요">
+                </div>
+                <div class="search-item">
+                    <label for="searchDate">봉사일자</label>
+                    <input type="date" id="searchDate">
+                </div>
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="searchDiningList()">조회</button>
+                <button class="btn btn-success" onclick="openAddModal()">등록</button>
+                <button class="btn btn-secondary" onclick="downloadExcel()">엑셀다운</button>
+            </div>
+        </div>
+
+        <!-- 그리드 -->
+        <div class="grid-container">
+            <table class="grid-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">번호</th>
+                        <th style="width: 15%;">담당셀</th>
+                        <th style="width: 12%;">봉사일자</th>
+                        <th style="width: 12%;">부여예산</th>
+                        <th style="width: 12%;">추가지출액</th>
+                        <th style="width: 12%;">합계</th>
+                        <th style="width: 17%;">비고</th>
+                        <th style="width: 12%;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="diningListBody">
+                    <tr class="clickable" onclick="openDetailModal(1)">
+                        <td>1</td>
+                        <td>알파셀</td>
+                        <td>2025-02-20</td>
+                        <td>500,000원</td>
+                        <td>50,000원</td>
+                        <td>550,000원</td>
+                        <td>잘 진행됨</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openDetailModal(1)">수정</button>
+                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteRecord(1)">삭제</button>
+                        </td>
+                    </tr>
+                    <tr class="clickable" onclick="openDetailModal(2)">
+                        <td>2</td>
+                        <td>베타셀</td>
+                        <td>2025-02-13</td>
+                        <td>500,000원</td>
+                        <td>0원</td>
+                        <td>500,000원</td>
+                        <td>예정</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openDetailModal(2)">수정</button>
+                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteRecord(2)">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="noData" class="no-data" style="display: none;">
+                등록된 봉사 일정이 없습니다.
+            </div>
+        </div>
+
+        <!-- 페이지 네이션 -->
+        <div class="pagination">
+            <button onclick="goToPage(0)">이전</button>
+            <button class="active" onclick="goToPage(1)">1</button>
+            <button onclick="goToPage(2)">2</button>
+            <button onclick="goToPage(3)">3</button>
+            <button onclick="goToPage(1)">다음</button>
+        </div>
+    </div>
+
+    <!-- 식당봉사 상세/등록 모달 -->
+    <div id="diningModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">식당봉사 등록</h2>
+                <span class="close-btn" onclick="closeDiningModal()">&times;</span>
+            </div>
+
+            <form id="diningForm">
+                <!-- 담당셀 -->
+                <div class="form-group">
+                    <label for="cellName">담당셀 <span style="color: red;">*</span></label>
+                    <input type="text" id="cellName" placeholder="담당셀을 입력하세요" required>
+                </div>
+
+                <!-- 봉사 일자 -->
+                <div class="form-group">
+                    <label for="serviceDate">봉사 일자 <span style="color: red;">*</span></label>
+                    <input type="date" id="serviceDate" required>
+                </div>
+
+                <!-- 부여예산 및 추가지출액 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="allocatedBudget">부여예산 <span style="color: red;">*</span></label>
+                        <input type="number" id="allocatedBudget" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalExpense">추가지출액</label>
+                        <input type="number" id="additionalExpense" placeholder="0" value="0">
+                    </div>
+                </div>
+
+                <!-- 비고 -->
+                <div class="form-group">
+                    <label for="diningMemo">비고</label>
+                    <textarea id="diningMemo" placeholder="특이사항을 입력하세요"></textarea>
+                </div>
+
+                <!-- 추가 지원 성도 -->
+                <div class="form-group">
+                    <label>추가 지원 성도</label>
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">번호</th>
+                                <th style="width: 45%;">이름</th>
+                                <th style="width: 40%;">연락처</th>
+                                <th style="width: 10%;">삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supportersTableBody">
+                            <tr>
+                                <td>1</td>
+                                <td><input type="text" placeholder="이름"></td>
+                                <td><input type="text" placeholder="010-0000-0000"></td>
+                                <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addSupporterRow()">행 추가</button>
+                </div>
+
+                <!-- 음식 종류 -->
+                <div class="form-group">
+                    <label>음식 종류</label>
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">번호</th>
+                                <th style="width: 50%;">음식명</th>
+                                <th style="width: 35%;">수량/준비사항</th>
+                                <th style="width: 10%;">삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="foodTableBody">
+                            <tr>
+                                <td>1</td>
+                                <td><input type="text" placeholder="음식명"></td>
+                                <td><input type="text" placeholder="예: 20인분"></td>
+                                <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addFoodRow()">행 추가</button>
+                </div>
+
+                <!-- 첨부파일 -->
+                <div class="form-group">
+                    <label for="diningAttachment">첨부파일</label>
+                    <div class="file-input-group">
+                        <input type="file" id="diningAttachment" accept=".pdf,.doc,.docx,.xls,.xlsx,.hwp,.jpg,.jpeg,.png">
+                        <button type="button" class="btn btn-secondary" onclick="uploadFile()">업로드</button>
+                    </div>
+                    <div id="attachmentList" style="margin-top: 10px; font-size: 13px;"></div>
+                </div>
+
+                <!-- 모달 버튼 -->
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeDiningModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = '식당봉사 등록';
+            document.getElementById('diningForm').reset();
+            document.getElementById('supportersTableBody').innerHTML = `
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="이름"></td>
+                    <td><input type="text" placeholder="010-0000-0000"></td>
+                    <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button></td>
+                </tr>
+            `;
+            document.getElementById('foodTableBody').innerHTML = `
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="음식명"></td>
+                    <td><input type="text" placeholder="예: 20인분"></td>
+                    <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button></td>
+                </tr>
+            `;
+            document.getElementById('attachmentList').innerHTML = '';
+            document.getElementById('diningModal').classList.add('active');
+        }
+
+        function openDetailModal(diningId) {
+            document.getElementById('modalTitle').innerText = '식당봉사 수정';
+            document.getElementById('diningModal').classList.add('active');
+        }
+
+        function closeDiningModal() {
+            document.getElementById('diningModal').classList.remove('active');
+        }
+
+        function addSupporterRow() {
+            const tbody = document.getElementById('supportersTableBody');
+            const rowCount = tbody.children.length + 1;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="text" placeholder="이름"></td>
+                <td><input type="text" placeholder="010-0000-0000"></td>
+                <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        function addFoodRow() {
+            const tbody = document.getElementById('foodTableBody');
+            const rowCount = tbody.children.length + 1;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="text" placeholder="음식명"></td>
+                <td><input type="text" placeholder="예: 20인분"></td>
+                <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteRow(this)">삭제</button></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        function deleteRow(btn) {
+            btn.parentElement.parentElement.remove();
+            // 번호 재정렬
+            const tbody = btn.closest('table').querySelector('tbody');
+            Array.from(tbody.children).forEach((row, index) => {
+                row.cells[0].innerText = index + 1;
+            });
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('diningAttachment');
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                document.getElementById('attachmentList').innerHTML += `
+                    <div style="padding: 5px; background-color: #f8f9fa; border-radius: 3px; margin-bottom: 5px;">
+                        ${fileName}
+                        <button type="button" style="float: right; background: none; border: none; color: red; cursor: pointer;" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                `;
+            }
+        }
+
+        function searchDiningList() {
+            alert('검색기능: 서버 연동이 필요합니다');
+        }
+
+        function downloadExcel() {
+            alert('엑셀 다운로드: 서버 연동이 필요합니다');
+        }
+
+        function deleteRecord(recordId) {
+            if (confirm('정말로 삭제하시겠습니까?')) {
+                alert('삭제: 서버 연동이 필요합니다');
+            }
+        }
+
+        function goToPage(page) {
+            alert('페이지 이동: 서버 연동이 필요합니다');
+        }
+
+        document.getElementById('diningForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            alert('저장: 서버 연동이 필요합니다');
+            closeDiningModal();
+        });
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('diningModal');
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+
+</html>

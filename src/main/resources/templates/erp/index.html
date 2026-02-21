@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>ERP - 업무관리시스템</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Hero Section -->
+        <section class="hero main-page">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">ERP 시스템</h1>
+                    <p class="hero-subtitle">교회 업무를 효율적으로 관리하고 통합 운영하세요</p>
+                </div>
+                <div class="building-illustration">
+                    <i class="material-icons" style="font-size: 4rem;">dashboard</i>
+                </div>
+            </div>
+        </section>
+
+        <!-- ERP Core Functions Section -->
+        <section class="services">
+            <div class="container">
+                <div class="services-grid">
+                    <div class="service-cards">
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">bar_chart</i>
+                            <div class="service-title">대시보드</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">people</i>
+                            <div class="service-title">회원관리</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">attach_money</i>
+                            <div class="service-title">재무관리</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">event_note</i>
+                            <div class="service-title">출석관리</div>
+                        </div>
+                    </div>
+                    <div class="hours-card">
+                        <h3 class="hours-title">시스템 정보</h3>
+                        <ul class="hours-list">
+                            <li>
+                                <span>접근시간</span>
+                                <span>24시간 운영</span>
+                            </li>
+                            <li>
+                                <span>사용자</span>
+                                <span>교회 임직원</span>
+                            </li>
+                            <li>
+                                <span>목적</span>
+                                <span>업무 효율화</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features Section -->
+        <section class="programs">
+            <div class="container">
+                <h2 class="section-title">주요 기능</h2>
+                <div class="programs-slider">
+                    <div class="programs-track" id="programsTrack">
+                        <div class="program-card">
+                            <div class="program-image">📊</div>
+                            <div class="program-content">
+                                <h3 class="program-title">실시간 대시보드</h3>
+                                <p class="program-date">주요 통계를 한눈에 파악</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">👥</div>
+                            <div class="program-content">
+                                <h3 class="program-title">회원 정보 통합 관리</h3>
+                                <p class="program-date">체계적인 회원 데이터 관리</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">💰</div>
+                            <div class="program-content">
+                                <h3 class="program-title">재무 현황 관리</h3>
+                                <p class="program-date">수입/지출 통합 관리 및 분석</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">📋</div>
+                            <div class="program-content">
+                                <h3 class="program-title">출석 자동 관리</h3>
+                                <p class="program-date">예배 및 모임 출석 현황 추적</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="slider-btn ripple" onclick="slidePrograms(-1)">
+                        <i class="material-icons">chevron_left</i>
+                    </button>
+                    <button class="slider-btn ripple" onclick="slidePrograms(1)">
+                        <i class="material-icons">chevron_right</i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Management Section -->
+        <section class="news">
+            <div class="container">
+                <div class="news-grid">
+                    <div class="news-column">
+                        <h3>
+                            <i class="material-icons">settings</i>
+                            시스템 관리
+                        </h3>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#" class="news-title">메뉴 권한 설정 업데이트</a>
+                                <span class="news-date">2025-02-20</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">사용자 계정 관리 안내</a>
+                                <span class="news-date">2025-02-15</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">시스템 보안 업데이트 적용</a>
+                                <span class="news-date">2025-02-10</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">데이터 백업 완료 보고</a>
+                                <span class="news-date">2025-02-05</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">월간 점검 일정 공지</a>
+                                <span class="news-date">2025-01-30</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="news-column">
+                        <h3>
+                            <i class="material-icons">notifications</i>
+                            최근 업데이트
+                        </h3>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#" class="news-title">회원 수정 기능 개선</a>
+                                <span class="news-date">2025-02-19</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">재무 리포트 생성 속도 최적화</a>
+                                <span class="news-date">2025-02-18</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">모바일 접근성 강화</a>
+                                <span class="news-date">2025-02-17</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">출석 통계 분석 기능 추가</a>
+                                <span class="news-date">2025-02-16</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">사용자 인터페이스 개선</a>
+                                <span class="news-date">2025-02-15</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

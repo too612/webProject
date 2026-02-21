@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>셀모임 통합현황</title>
+    <style>
+        .search-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .search-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .search-item input,
+        .search-item select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .grid-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .grid-table thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .grid-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .grid-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .grid-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .grid-table tbody tr.clickable {
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .members-table thead {
+            background-color: #f8f9fa;
+        }
+
+        .members-table th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .members-table td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .members-table input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .file-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .file-input-group input[type="file"] {
+            flex: 1;
+        }
+
+        .file-input-group .btn-secondary {
+            padding: 8px 15px;
+            white-space: nowrap;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .pagination button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- 페이지 타이틀 -->
+        <div class="page-header">
+            <h1>셀모임 통합현황</h1>
+            <p>전체 셀모임의 현황을 관리합니다</p>
+        </div>
+
+        <!-- 검색 조건 -->
+        <div class="search-container">
+            <div class="search-row">
+                <div class="search-item">
+                    <label for="searchCellName">셀명</label>
+                    <input type="text" id="searchCellName" placeholder="셀명을 입력하세요">
+                </div>
+                <div class="search-item">
+                    <label for="searchCellLeader">셀장</label>
+                    <input type="text" id="searchCellLeader" placeholder="셀장 이름을 입력하세요">
+                </div>
+                <div class="search-item">
+                    <label for="searchStatus">상태</label>
+                    <select id="searchStatus">
+                        <option value="">전체</option>
+                        <option value="active">운영중</option>
+                        <option value="inactive">휴지중</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="searchCellList()">조회</button>
+                <button class="btn btn-success" onclick="openAddModal()">등록</button>
+                <button class="btn btn-secondary" onclick="downloadExcel()">엑셀다운</button>
+            </div>
+        </div>
+
+        <!-- 그리드 -->
+        <div class="grid-container">
+            <table class="grid-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">번호</th>
+                        <th style="width: 20%;">셀명</th>
+                        <th style="width: 15%;">셀장</th>
+                        <th style="width: 10%;">셀원 수</th>
+                        <th style="width: 15%;">상태</th>
+                        <th style="width: 15%;">등록일</th>
+                        <th style="width: 15%;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="cellListBody">
+                    <tr class="clickable" onclick="openDetailModal(1)">
+                        <td>1</td>
+                        <td>알파셀</td>
+                        <td>김철수</td>
+                        <td>8</td>
+                        <td><span style="color: #28a745;">운영중</span></td>
+                        <td>2025-01-15</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openDetailModal(1)">수정</button>
+                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteCellGroup(1)">삭제</button>
+                        </td>
+                    </tr>
+                    <tr class="clickable" onclick="openDetailModal(2)">
+                        <td>2</td>
+                        <td>베타셀</td>
+                        <td>이영희</td>
+                        <td>6</td>
+                        <td><span style="color: #28a745;">운영중</span></td>
+                        <td>2025-02-01</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openDetailModal(2)">수정</button>
+                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteCellGroup(2)">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="noData" class="no-data" style="display: none;">
+                등록된 셀이 없습니다.
+            </div>
+        </div>
+
+        <!-- 페이지 네이션 -->
+        <div class="pagination">
+            <button onclick="goToPage(0)">이전</button>
+            <button class="active" onclick="goToPage(1)">1</button>
+            <button onclick="goToPage(2)">2</button>
+            <button onclick="goToPage(3)">3</button>
+            <button onclick="goToPage(1)">다음</button>
+        </div>
+    </div>
+
+    <!-- 셀 정보 상세/등록 모달 -->
+    <div id="cellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">셀 등록</h2>
+                <span class="close-btn" onclick="closeCellModal()">&times;</span>
+            </div>
+
+            <form id="cellForm">
+                <!-- 셀명 -->
+                <div class="form-group">
+                    <label for="cellName">셀명 <span style="color: red;">*</span></label>
+                    <input type="text" id="cellName" placeholder="셀명을 입력하세요" required>
+                </div>
+
+                <!-- 셀장 -->
+                <div class="form-group">
+                    <label for="cellLeader">셀장 <span style="color: red;">*</span></label>
+                    <input type="text" id="cellLeader" placeholder="셀장 이름을 입력하세요" required>
+                </div>
+
+                <!-- 셀원 목록 -->
+                <div class="form-group">
+                    <label>셀원 관리</label>
+                    <table class="members-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">번호</th>
+                                <th style="width: 40%;">이름</th>
+                                <th style="width: 40%;">연락처</th>
+                                <th style="width: 15%;">삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <tr>
+                                <td>1</td>
+                                <td><input type="text" placeholder="이름"></td>
+                                <td><input type="text" placeholder="010-0000-0000"></td>
+                                <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteMemberRow(this)">삭제</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-secondary btn-sm" style="margin-top: 10px;" onclick="addMemberRow()">행 추가</button>
+                </div>
+
+                <!-- 첨부파일 -->
+                <div class="form-group">
+                    <label for="cellAttachment">첨부파일</label>
+                    <div class="file-input-group">
+                        <input type="file" id="cellAttachment" accept=".pdf,.doc,.docx,.xls,.xlsx,.hwp,.jpg,.jpeg,.png">
+                        <button type="button" class="btn btn-secondary" onclick="uploadFile()">업로드</button>
+                    </div>
+                    <div id="attachmentList" style="margin-top: 10px; font-size: 13px;"></div>
+                </div>
+
+                <!-- 비고 -->
+                <div class="form-group">
+                    <label for="cellMemo">비고</label>
+                    <textarea id="cellMemo" placeholder="특이사항을 입력하세요"></textarea>
+                </div>
+
+                <!-- 모달 버튼 -->
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeCellModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 셀 등록 모달 열기
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = '셀 등록';
+            document.getElementById('cellForm').reset();
+            document.getElementById('membersTableBody').innerHTML = `
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" placeholder="이름"></td>
+                    <td><input type="text" placeholder="010-0000-0000"></td>
+                    <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteMemberRow(this)">삭제</button></td>
+                </tr>
+            `;
+            document.getElementById('cellModal').classList.add('active');
+        }
+
+        // 셀 상세 정보 모달 열기
+        function openDetailModal(cellId) {
+            document.getElementById('modalTitle').innerText = '셀 정보 수정';
+            // 여기에 서버에서 데이터를 가져와서 폼에 채우는 로직 추가
+            document.getElementById('cellModal').classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeCellModal() {
+            document.getElementById('cellModal').classList.remove('active');
+        }
+
+        // 셀원 행 추가
+        function addMemberRow() {
+            const tbody = document.getElementById('membersTableBody');
+            const rowCount = tbody.children.length + 1;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="text" placeholder="이름"></td>
+                <td><input type="text" placeholder="010-0000-0000"></td>
+                <td><button type="button" class="btn btn-sm btn-danger" onclick="deleteMemberRow(this)">삭제</button></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        // 셀원 행 삭제
+        function deleteMemberRow(btn) {
+            btn.parentElement.parentElement.remove();
+            // 번호 재정렬
+            const tbody = document.getElementById('membersTableBody');
+            Array.from(tbody.children).forEach((row, index) => {
+                row.cells[0].innerText = index + 1;
+            });
+        }
+
+        // 파일 업로드
+        function uploadFile() {
+            const fileInput = document.getElementById('cellAttachment');
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                document.getElementById('attachmentList').innerHTML += `
+                    <div style="padding: 5px; background-color: #f8f9fa; border-radius: 3px; margin-bottom: 5px;">
+                        ${fileName}
+                        <button type="button" style="float: right; background: none; border: none; color: red; cursor: pointer;" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 조회
+        function searchCellList() {
+            alert('검색기능: 시 서버 연동이 필요합니다');
+        }
+
+        // 엑셀 다운로드
+        function downloadExcel() {
+            alert('엑셀 다운로드: 서버 연동이 필요합니다');
+        }
+
+        // 셀 삭제
+        function deleteCellGroup(cellId) {
+            if (confirm('정말로 삭제하시겠습니까?')) {
+                alert('삭제: 서버 연동이 필요합니다');
+            }
+        }
+
+        // 페이지 이동
+        function goToPage(page) {
+            alert('페이지 이동: 서버 연동이 필요합니다');
+        }
+
+        // 폼 제출
+        document.getElementById('cellForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            alert('저장: 서버 연동이 필요합니다');
+            closeCellModal();
+        });
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function (event) {
+            const modal = document.getElementById('cellModal');
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+
+</html>

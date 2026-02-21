@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>다사랑교회 - 문의사항</title>
+    <th:block layout:fragment="css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <style>
+            .qna-content-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #e9ecef;
+                margin-bottom: 20px;
+            }
+            .qna-content-header h2 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 600;
+            }
+            .content-stats {
+                font-size: 12px;
+                color: #6c757d;
+                margin-top: 5px;
+            }
+            .breadcrumb-right {
+                font-size: 14px;
+                color: #6c757d;
+                padding-top: 8px;
+            }
+            .status-badge {
+                display: inline-block;
+                padding: 3px 8px;
+                font-size: 12px;
+                font-weight: 600;
+                border-radius: 12px;
+                color: white;
+                background-color: #4CAF50;
+                margin-right: 8px;
+                vertical-align: middle;
+            }
+            .status-badge.pending {
+                background-color: #ff9800;
+            }
+            .table-container {
+                overflow-x: auto;
+                margin-bottom: 20px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 16px;
+                text-align: left;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            th {
+                background: #f8f9fa;
+                font-weight: 600;
+            }
+            .post-title {
+                font-weight: 500;
+                color: #333;
+                text-decoration: none;
+            }
+            .post-title:hover {
+                color: #2196F3;
+                text-decoration: underline;
+            }
+            .pagination {
+                display: flex;
+                justify-content: center;
+                padding: 30px 0;
+                gap: 5px;
+            }
+            .pagination a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                color: #666;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+            .pagination a:hover {
+                background: #f5f5f5;
+            }
+            .pagination a.active {
+                background: #2196F3;
+                color: white;
+                border-color: #2196F3;
+            }
+            .search-area {
+                border-top: 1px solid #e0e0e0;
+                background: #f8f9fa;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                margin: 0 -30px -30px;
+                padding: 20px 30px;
+            }
+            .search-input-group {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            .search-button-group {
+                display: flex;
+                gap: 10px;
+            }
+            .search-select, .search-input {
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+            }
+            .search-input { width: 250px; }
+            .search-btn {
+                padding: 10px 20px;
+                background: #2196F3;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+            }
+            .search-btn:hover {
+                background: #1976D2;
+            }
+            #write {
+                background: #4CAF50;
+            }
+            #write:hover {
+                background: #45a049;
+            }
+            .content-area {
+                background: white;
+                border-radius: 8px;
+                padding: 30px;
+                margin-bottom: 20px;
+            }
+            .lock-icon {
+                font-size: 16px;
+                color: #ff9800;
+                vertical-align: middle;
+                margin-right: 4px;
+            }
+            .author-info {
+                font-size: 13px;
+                color: #999;
+            }
+
+            @media (max-width: 768px) {
+                .search-area {
+                    flex-direction: column;
+                    gap: 12px;
+                    padding: 15px;
+                }
+                .search-input-group {
+                    flex-direction: column;
+                    width: 100%;
+                }
+                .search-input {
+                    width: 100% !important;
+                }
+                .search-button-group {
+                    width: 100%;
+                    gap: 8px;
+                }
+                .search-btn {
+                    flex: 1;
+                    padding: 12px;
+                }
+                .content-area {
+                    padding: 15px;
+                }
+                .qna-content-header {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                .qna-content-header h2 {
+                    font-size: 20px;
+                }
+                th, td {
+                    padding: 12px;
+                    font-size: 13px;
+                }
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="content-area">
+            <!-- 메시지 표시 영역 -->
+            <div th:if="${message}" class="alert alert-info" role="alert" style="margin-bottom: 20px; padding: 15px; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px;">
+                <p th:text="${message}" style="margin: 0;"></p>
+            </div>
+
+            <div class="qna-content-header">
+                <div>
+                    <h2>문의사항</h2>
+                    <div class="content-stats" th:if="${paging != null and !paging.isEmpty()}">
+                        게시물 수: <span th:text="${paging.totalElements}">0</span> | 페이지: <span th:text="${paging.number + 1}">0</span>/<span th:text="${paging.totalPages}">0</span>
+                    </div>
+                </div>
+                <div class="breadcrumb-right">
+                    <span>홈</span> > <span>지원</span> > <span>문의사항</span>
+                </div>
+            </div>
+
+            <!-- 게시물 목록 테이블 -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">번호</th>
+                            <th style="width: 50%;">제목</th>
+                            <th style="width: 15%;">작성자</th>
+                            <th style="width: 15%;">작성일</th>
+                            <th style="width: 10%;">답변</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="post, status : ${posts}">
+                            <td th:text="${paging?.totalElements - (paging?.number * paging?.size) - status.index}">1</td>
+                            <td>
+                                <a href="#" th:href="@{/support/qna/view(id=${post.id})}" class="post-title" th:text="${post.title}">게시물 제목</a>
+                            </td>
+                            <td class="author-info" th:text="${post.author}">작성자</td>
+                            <td th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd')}" class="author-info">2026-02-21</td>
+                            <td style="text-align: center;">
+                                <span class="status-badge" th:if="${post.answer}">완료</span>
+                                <span class="status-badge pending" th:unless="${post.answer}">대기중</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(posts)}">
+                            <td colspan="5" style="text-align: center; color: #999; padding: 40px;">등록된 게시물이 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="pagination" th:if="${paging != null and paging.totalPages > 0}">
+                <!-- 이전 페이지 -->
+                <a th:if="${paging.hasPrevious()}" 
+                   th:href="@{/support/qna(page=${paging.number - 1})}"
+                   style="text-decoration: none;">
+                    <span class="material-icons">chevron_left</span>
+                </a>
+
+                <!-- 페이지 번호 -->
+                <th:block th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}">
+                    <a th:href="@{/support/qna(page=${page})}" 
+                       th:classappend="${page == paging.number ? 'active' : ''}"
+                       th:text="${page + 1}"
+                       style="text-decoration: none;">1</a>
+                </th:block>
+
+                <!-- 다음 페이지 -->
+                <a th:if="${paging.hasNext()}" 
+                   th:href="@{/support/qna(page=${paging.number + 1})}"
+                   style="text-decoration: none;">
+                    <span class="material-icons">chevron_right</span>
+                </a>
+            </div>
+
+            <!-- 검색 및 등록 영역 -->
+            <div class="search-area">
+                <div class="search-input-group">
+                    <select class="search-select" id="searchType">
+                        <option value="title">제목</option>
+                        <option value="author">작성자</option>
+                        <option value="content">내용</option>
+                    </select>
+                    <input type="text" class="search-input" id="searchInput" placeholder="검색어를 입력하세요.">
+                </div>
+                <div class="search-button-group">
+                    <button class="search-btn" onclick="doSearch()">검색</button>
+                    <button class="search-btn" id="write" onclick="location.href='/support/qna/write'">글쓰기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script>
+            function doSearch() {
+                const searchType = document.getElementById('searchType').value;
+                const searchInput = document.getElementById('searchInput').value;
+                
+                if (!searchInput.trim()) {
+                    alert('검색어를 입력해주세요.');
+                    return;
+                }
+                
+                // 실제 검색 기능 구현
+                // location.href = `/support/qna?searchType=${searchType}&keyword=${encodeURIComponent(searchInput)}`;
+                alert('검색 기능은 추후 구현됩니다.');
+            }
+        </script>
+    </th:block>
+</body>
+</html>

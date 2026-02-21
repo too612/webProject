@@ -1,7 +1,8 @@
 # 프로젝트 구조 문서
+이 사이트는 한국어 사이트 입니다. 모든 답변은 한국어로 하세요.
 
 ## 📋 개요
-이 문서는 **작은도서관** 웹 프로젝트의 전체 골격과 구조를 설명합니다.
+이 문서는 **다사랑교회** 웹 프로젝트의 전체 골격과 구조를 설명합니다.
 `ceo.html`을 기점으로 분석한 레이아웃 시스템, 컨트롤러 구조, 데이터 흐름 등을 포함합니다.
 
 ---
@@ -187,7 +188,7 @@ layout.html (기본 레이아웃)
         </span>
     </div>
     <div class="header-main">
-        <a href="/" class="logo">작은도서관</a>
+        <a href="/" class="logo">다사랑교회</a>
         <!-- 데스크톱 메뉴 (드롭다운) -->
         <nav class="nav-main desktop-only">
             <div class="dropdown" th:each="menu : ${menuList}">

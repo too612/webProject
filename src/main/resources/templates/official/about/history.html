@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>교회 연혁</title>
+    <style>
+        .history-wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 10px 0 40px;
+        }
+
+        .history-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .history-header h2 {
+            margin: 0 0 6px;
+            font-size: 24px;
+            color: #222;
+        }
+
+        .history-header p {
+            margin: 0;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        .timeline {
+            border-left: 2px solid #d0d0d0;
+            padding-left: 22px;
+        }
+
+        .timeline-item {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -31px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            background: #444;
+            border-radius: 50%;
+        }
+
+        .timeline-year {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .timeline-list {
+            margin: 0;
+            padding-left: 18px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 18px;
+            }
+
+            .timeline-item::before {
+                left: -27px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="history-wrap">
+            <div class="history-header">
+                <h2>하나님이 인도하신 길</h2>
+                <p>
+                    작은 모임으로 시작한 교회가 오늘에 이르기까지의 여정을
+                    연도별로 정리했습니다. 필요한 내용은 언제든 수정하실 수 있습니다.
+                </p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">2025년</div>
+                    <ul class="timeline-list">
+                        <li>새 성전 리모델링 및 예배 공간 확장</li>
+                        <li>다음 세대 교육관 개관</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2023년</div>
+                    <ul class="timeline-list">
+                        <li>지역 돌봄 사역 센터 설립</li>
+                        <li>전 교인 성경통독 캠페인 진행</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2018년</div>
+                    <ul class="timeline-list">
+                        <li>해외 단기 선교팀 파송</li>
+                        <li>청년부 및 직장인 소그룹 확대</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2010년</div>
+                    <ul class="timeline-list">
+                        <li>교회 창립 및 첫 예배 드림</li>
+                        <li>지역사회 섬김 사역 시작</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

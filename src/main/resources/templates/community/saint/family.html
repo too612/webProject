@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>경조사 관리</title>
+    <style>
+        .family-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-kakao {
+            background-color: #FEE500;
+            color: #000;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-kakao:hover {
+            background-color: #FFDD00;
+        }
+
+        .btn-sms {
+            background-color: #00C73C;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-sms:hover {
+            background-color: #00B135;
+        }
+
+        /* 검색 영역 */
+        .search-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        /* 테이블 스타일 */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .event-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-wedding {
+            background-color: #FFE5E5;
+            color: #D32F2F;
+        }
+
+        .badge-birthday {
+            background-color: #FFF4E5;
+            color: #F57C00;
+        }
+
+        .badge-funeral {
+            background-color: #E8EAF6;
+            color: #303F9F;
+        }
+
+        .badge-etc {
+            background-color: #F3E5F5;
+            color: #7B1FA2;
+        }
+
+        /* 페이지네이션 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 30px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pagination button.active {
+            background-color: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 0;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="family-container">
+        <div class="page-header">
+            <h2>경조사 관리</h2>
+            <button class="btn btn-primary" onclick="openModal()">경조사 등록</button>
+        </div>
+
+        <!-- 검색 영역 -->
+        <div class="search-area">
+            <select class="search-select" id="searchType">
+                <option value="name">성명</option>
+                <option value="type">경조사 유형</option>
+                <option value="location">장소</option>
+            </select>
+            <input type="text" class="search-input" id="searchKeyword" placeholder="검색어를 입력하세요">
+            <button class="btn btn-primary" onclick="searchEvents()">검색</button>
+            <button class="btn btn-secondary" onclick="resetSearch()">초기화</button>
+        </div>
+
+        <!-- 경조사 목록 테이블 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>경조사 유형</th>
+                        <th>성명</th>
+                        <th>관계</th>
+                        <th>일시</th>
+                        <th>장소</th>
+                        <th>연락처</th>
+                        <th>등록일</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="eventTableBody">
+                    <!-- 샘플 데이터 -->
+                    <tr>
+                        <td>5</td>
+                        <td><span class="event-type-badge badge-wedding">결혼</span></td>
+                        <td>김철수</td>
+                        <td>신랑</td>
+                        <td>2024-03-15 14:00</td>
+                        <td>서울 웨딩홀</td>
+                        <td>010-1234-5678</td>
+                        <td>2024-02-20</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-kakao" onclick="sendKakao(5)" title="카카오톡 발송">
+                                    <span>💬</span>
+                                </button>
+                                <button class="btn btn-sms" onclick="sendSMS(5)" title="문자 발송">
+                                    <span>📱</span>
+                                </button>
+                                <button class="btn btn-primary" onclick="editEvent(5)">수정</button>
+                                <button class="btn btn-secondary" onclick="deleteEvent(5)">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><span class="event-type-badge badge-birthday">칠순</span></td>
+                        <td>이영희</td>
+                        <td>본인</td>
+                        <td>2024-03-10 12:00</td>
+                        <td>대전 한정식당</td>
+                        <td>010-2345-6789</td>
+                        <td>2024-02-18</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-kakao" onclick="sendKakao(4)">💬</button>
+                                <button class="btn btn-sms" onclick="sendSMS(4)">📱</button>
+                                <button class="btn btn-primary" onclick="editEvent(4)">수정</button>
+                                <button class="btn btn-secondary" onclick="deleteEvent(4)">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><span class="event-type-badge badge-funeral">장례</span></td>
+                        <td>박민수</td>
+                        <td>부친상</td>
+                        <td>2024-03-05 09:00</td>
+                        <td>대전 장례식장 3호실</td>
+                        <td>010-3456-7890</td>
+                        <td>2024-03-03</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-kakao" onclick="sendKakao(3)">💬</button>
+                                <button class="btn btn-sms" onclick="sendSMS(3)">📱</button>
+                                <button class="btn btn-primary" onclick="editEvent(3)">수정</button>
+                                <button class="btn btn-secondary" onclick="deleteEvent(3)">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><span class="event-type-badge badge-etc">돌잔치</span></td>
+                        <td>최지우</td>
+                        <td>딸</td>
+                        <td>2024-02-28 11:00</td>
+                        <td>서울 파티룸</td>
+                        <td>010-4567-8901</td>
+                        <td>2024-02-10</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-kakao" onclick="sendKakao(2)">💬</button>
+                                <button class="btn btn-sms" onclick="sendSMS(2)">📱</button>
+                                <button class="btn btn-primary" onclick="editEvent(2)">수정</button>
+                                <button class="btn btn-secondary" onclick="deleteEvent(2)">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><span class="event-type-badge badge-birthday">환갑</span></td>
+                        <td>정수진</td>
+                        <td>본인</td>
+                        <td>2024-02-20 18:00</td>
+                        <td>대전 레스토랑</td>
+                        <td>010-5678-9012</td>
+                        <td>2024-02-01</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-kakao" onclick="sendKakao(1)">💬</button>
+                                <button class="btn btn-sms" onclick="sendSMS(1)">📱</button>
+                                <button class="btn btn-primary" onclick="editEvent(1)">수정</button>
+                                <button class="btn btn-secondary" onclick="deleteEvent(1)">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="pagination">
+            <button>&laquo;</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <button>5</button>
+            <button>&raquo;</button>
+        </div>
+    </div>
+
+    <!-- 경조사 등록/수정 모달 -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">경조사 등록</h3>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <input type="hidden" id="eventId">
+                    
+                    <div class="form-group">
+                        <label for="eventType">경조사 유형 *</label>
+                        <select id="eventType" required>
+                            <option value="">선택하세요</option>
+                            <option value="wedding">결혼</option>
+                            <option value="birthday">생일/환갑/칠순</option>
+                            <option value="funeral">장례</option>
+                            <option value="etc">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">성명 *</label>
+                            <input type="text" id="name" placeholder="홍길동" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="relation">관계</label>
+                            <input type="text" id="relation" placeholder="예: 신랑, 부친상, 본인">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventDate">일시 *</label>
+                            <input type="datetime-local" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact">연락처</label>
+                            <input type="tel" id="contact" placeholder="010-1234-5678">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">장소 *</label>
+                        <input type="text" id="location" placeholder="장소명 및 주소" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">상세주소</label>
+                        <input type="text" id="address" placeholder="상세주소 입력">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="memo">메모</label>
+                        <textarea id="memo" placeholder="추가 정보를 입력하세요"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveEvent()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메시지 발송 모달 -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="messageModalTitle">메시지 발송</h3>
+                <button class="close" onclick="closeMessageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="messageForm">
+                    <div class="form-group">
+                        <label for="recipients">받는 사람</label>
+                        <input type="text" id="recipients" placeholder="여러 명일 경우 쉼표(,)로 구분" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="messageType">발송 방법</label>
+                        <select id="messageType" onchange="updateMessageTemplate()">
+                            <option value="kakao">카카오톡</option>
+                            <option value="sms">문자메시지</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="messageTemplate">메시지 템플릿</label>
+                        <select id="messageTemplate" onchange="applyTemplate()">
+                            <option value="">직접 입력</option>
+                            <option value="wedding">결혼 축하</option>
+                            <option value="birthday">생신 축하</option>
+                            <option value="funeral">조의</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="messageContent">메시지 내용</label>
+                        <textarea id="messageContent" rows="8" placeholder="메시지 내용을 입력하세요"></textarea>
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            * 카카오톡: 최대 1,000자 / 문자메시지: 최대 2,000자 (LMS)
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMessageModal()">취소</button>
+                <button class="btn btn-success" onclick="sendMessage()">발송</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        // 모달 열기
+        function openModal() {
+            document.getElementById('modalTitle').textContent = '경조사 등록';
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventId').value = '';
+            document.getElementById('eventModal').style.display = 'block';
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+
+        // 경조사 수정
+        function editEvent(id) {
+            document.getElementById('modalTitle').textContent = '경조사 수정';
+            document.getElementById('eventId').value = id;
+            // TODO: 서버에서 데이터 로드
+            document.getElementById('eventModal').style.display = 'block';
+            alert('경조사 수정 기능입니다. (ID: ' + id + ')\n서버 연동이 필요합니다.');
+        }
+
+        // 경조사 저장
+        function saveEvent() {
+            const form = document.getElementById('eventForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const eventData = {
+                id: document.getElementById('eventId').value,
+                type: document.getElementById('eventType').value,
+                name: document.getElementById('name').value,
+                relation: document.getElementById('relation').value,
+                date: document.getElementById('eventDate').value,
+                contact: document.getElementById('contact').value,
+                location: document.getElementById('location').value,
+                address: document.getElementById('address').value,
+                memo: document.getElementById('memo').value
+            };
+
+            console.log('저장할 데이터:', eventData);
+            alert('경조사가 저장되었습니다.\n서버 연동이 필요합니다.');
+            closeModal();
+        }
+
+        // 경조사 삭제
+        function deleteEvent(id) {
+            if (confirm('정말로 삭제하시겠습니까?')) {
+                console.log('삭제할 ID:', id);
+                alert('경조사가 삭제되었습니다.\n서버 연동이 필요합니다.');
+            }
+        }
+
+        // 검색
+        function searchEvents() {
+            const searchType = document.getElementById('searchType').value;
+            const keyword = document.getElementById('searchKeyword').value;
+            console.log('검색:', searchType, keyword);
+            alert('검색 기능입니다.\n서버 연동이 필요합니다.');
+        }
+
+        // 검색 초기화
+        function resetSearch() {
+            document.getElementById('searchKeyword').value = '';
+            document.getElementById('searchType').value = 'name';
+            alert('검색이 초기화되었습니다.\n서버 연동이 필요합니다.');
+        }
+
+        // 카카오톡 발송
+        function sendKakao(id) {
+            document.getElementById('messageModalTitle').textContent = '카카오톡 발송';
+            document.getElementById('messageType').value = 'kakao';
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        // 문자메시지 발송
+        function sendSMS(id) {
+            document.getElementById('messageModalTitle').textContent = '문자메시지 발송';
+            document.getElementById('messageType').value = 'sms';
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        // 메시지 모달 닫기
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        // 메시지 템플릿 적용
+        function applyTemplate() {
+            const template = document.getElementById('messageTemplate').value;
+            const messageContent = document.getElementById('messageContent');
+
+            const templates = {
+                wedding: '결혼을 진심으로 축하드립니다.\n두 분의 앞날에 행복이 가득하시길 기원합니다.\n\n[장소] \n[일시] ',
+                birthday: '생신을 진심으로 축하드립니다.\n항상 건강하시고 행복하시길 기원합니다.',
+                funeral: '삼가 고인의 명복을 빕니다.\n유가족 여러분께 깊은 위로의 말씀을 전합니다.'
+            };
+
+            if (template && templates[template]) {
+                messageContent.value = templates[template];
+            }
+        }
+
+        // 메시지 발송
+        function sendMessage() {
+            const recipients = document.getElementById('recipients').value;
+            const messageType = document.getElementById('messageType').value;
+            const content = document.getElementById('messageContent').value;
+
+            if (!recipients || !content) {
+                alert('받는 사람과 메시지 내용을 입력해주세요.');
+                return;
+            }
+
+            console.log('메시지 발송:', { recipients, messageType, content });
+            alert('메시지가 발송되었습니다.\n(실제 발송을 위해서는 카카오톡/SMS API 연동이 필요합니다)');
+            closeMessageModal();
+        }
+
+        // 메시지 방법 변경 시
+        function updateMessageTemplate() {
+            const messageType = document.getElementById('messageType').value;
+            document.getElementById('messageModalTitle').textContent = 
+                messageType === 'kakao' ? '카카오톡 발송' : '문자메시지 발송';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const eventModal = document.getElementById('eventModal');
+            const messageModal = document.getElementById('messageModal');
+            if (event.target == eventModal) {
+                closeModal();
+            }
+            if (event.target == messageModal) {
+                closeMessageModal();
+            }
+        }
+    </script>
+</th:block>
+</body>
+</html>

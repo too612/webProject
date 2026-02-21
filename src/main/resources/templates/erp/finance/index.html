@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Management - ERP</title>
+</head>
+<body>
+    <div th:replace="layout/header :: header"></div>
+    
+    <main>
+        <section class="finance-section">
+            <h1>Finance Management</h1>
+            <div class="finance-summary">
+                <div class="summary-card">
+                    <h3>Total Income</h3>
+                    <p th:text="${totalIncome} ?: '$0'">$0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Expenses</h3>
+                    <p th:text="${totalExpenses} ?: '$0'">$0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Balance</h3>
+                    <p th:text="${balance} ?: '$0'">$0</p>
+                </div>
+            </div>
+            <div class="finance-controls">
+                <button><a href="#">Add Income</a></button>
+                <button><a href="#">Add Expense</a></button>
+                <button><a href="#">View Report</a></button>
+            </div>
+        </section>
+    </main>
+    
+    <div th:replace="layout/footer :: footer"></div>
+</body>
+</html>

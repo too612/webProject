@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>커뮤니티</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Hero Section -->
+        <section class="hero main-page">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">교회 커뮤니티</h1>
+                    <p class="hero-subtitle">형제자매들과 함께 나누고 소통하는 공간</p>
+                </div>
+                <div class="building-illustration">
+                    <i class="material-icons" style="font-size: 4rem;">groups</i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Functions Section -->
+        <section class="services">
+            <div class="container">
+                <div class="services-grid">
+                    <div class="service-cards">
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">chat_bubble</i>
+                            <div class="service-title">질문 & 답변</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">note</i>
+                            <div class="service-title">자유로운 나눔</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">favorite</i>
+                            <div class="service-title">기도 요청</div>
+                        </div>
+                        <div class="service-card ripple">
+                            <i class="material-icons service-icon">celebration</i>
+                            <div class="service-title">간증 나누기</div>
+                        </div>
+                    </div>
+                    <div class="hours-card">
+                        <h3 class="hours-title">커뮤니티 안내</h3>
+                        <ul class="hours-list">
+                            <li>
+                                <span>운영시간</span>
+                                <span>24시간 개방</span>
+                            </li>
+                            <li>
+                                <span>회원 현황</span>
+                                <span th:text="${memberCount != null} ? ${memberCount} : '등록 대기'">Loading</span>
+                            </li>
+                            <li>
+                                <span>활동 중심</span>
+                                <span>신앙 나눔과 상호교제</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Discussions Section -->
+        <section class="programs">
+            <div class="container">
+                <h2 class="section-title">인기 있는 글</h2>
+                <div class="programs-slider">
+                    <div class="programs-track" id="programsTrack">
+                        <div class="program-card">
+                            <div class="program-image">🙏</div>
+                            <div class="program-content">
+                                <h3 class="program-title">신앙생활 중 어려움을 겪고 계신 분들을 위한 기도</h3>
+                                <p class="program-date">2025.02.20</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">⛪</div>
+                            <div class="program-content">
+                                <h3 class="program-title">이번 주일 예배는 저희 함께 드려요!</h3>
+                                <p class="program-date">2025.02.19</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">💝</div>
+                            <div class="program-content">
+                                <h3 class="program-title">사랑의 선교 활동에 함께하실 분들을 찾습니다</h3>
+                                <p class="program-date">2025.02.18</p>
+                            </div>
+                        </div>
+                        <div class="program-card">
+                            <div class="program-image">✨</div>
+                            <div class="program-content">
+                                <h3 class="program-title">신앙의 깊이를 높이는 영적 서적 추천</h3>
+                                <p class="program-date">2025.02.17</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <button class="slider-btn ripple" onclick="slidePrograms(-1)">
+                        <i class="material-icons">chevron_left</i>
+                    </button>
+                    <button class="slider-btn ripple" onclick="slidePrograms(1)">
+                        <i class="material-icons">chevron_right</i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community News Section -->
+        <section class="news">
+            <div class="container">
+                <div class="news-grid">
+                    <div class="news-column">
+                        <h3>
+                            <i class="material-icons">announcement</i>
+                            공지사항
+                        </h3>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#" class="news-title">2025년 상반기 커뮤니티 활동 계획 안내</a>
+                                <span class="news-date">2025-02-20</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">커뮤니티 이용 규칙 및 예절 안내</a>
+                                <span class="news-date">2025-02-15</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">새로운 모임 개설 신청 접수 중</a>
+                                <span class="news-date">2025-02-10</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">신입 회원 환영 이벤트 안내</a>
+                                <span class="news-date">2025-02-05</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">커뮤니티 서버 관리 점검 공지</a>
+                                <span class="news-date">2025-01-30</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="news-column">
+                        <h3>
+                            <i class="material-icons">event</i>
+                            최근 활동
+                        </h3>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#" class="news-title">[찬양팀] 새로운 찬양곡 연습 일정</a>
+                                <span class="news-date">2025-02-19</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[청년회] 다음 주 야외 활동 계획</a>
+                                <span class="news-date">2025-02-18</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[여성회] 정기 모임 참석 안내</a>
+                                <span class="news-date">2025-02-17</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[선교팀] 월례 기도회 개최</a>
+                                <span class="news-date">2025-02-16</span>
+                            </li>
+                            <li class="news-item">
+                                <a href="#" class="news-title">[어린이회] 봄 학기 개강 예정</a>
+                                <span class="news-date">2025-02-15</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>
