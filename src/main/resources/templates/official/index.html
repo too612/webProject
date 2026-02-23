@@ -4,116 +4,200 @@
       layout:decorate="~{layout/layout}">
 <head>
     <meta charset="UTF-8">
-    <title>교회시스템</title>
+    <title>다사랑교회 - 두날개로 날아오르는 건강한 교회</title>
+    <!--/* 페이지별 추가 CSS */-->
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/portal.css}">
+    </th:block>
 </head>
 <body>
     <div layout:fragment="content">
-        <!-- Hero Section -->
-        <section class="hero main-page">
-            <div class="container">
-                <div class="hero-content">
-                    <h1 class="hero-title">다사랑교회</h1>
-                    <p class="hero-subtitle">교회시스템</p>
-                    <div class="search-box">
-                        <input type="text" class="search-input" placeholder="키워드를 입력해주세요">
-                        <button class="search-btn ripple">
-                            <i class="material-icons">search</i>
-                            키워드 검색
-                        </button>
-                    </div>
-                </div>
-                <div class="building-illustration">
-                    <i class="material-icons" style="font-size: 4rem;">business</i>
-                </div>
-            </div>
-        </section>
-
-        <!-- Services Section -->
-        <section class="services">
-            <div class="container">
-                <div class="services-grid">
-                    <div class="service-cards">
-                        <div class="service-card ripple">
-                            <i class="material-icons service-icon">psychology</i>
-                            <div class="service-title">상담예약하기</div>
+        <!-- Main Visual Section -->
+        <section class="main-visual">
+            <div class="visual-overlay">
+                <div class="container">
+                    <div class="visual-content">
+                        <p class="visual-subtitle">WELCOME TO</p>
+                        <h1 class="visual-title">다사랑교회</h1>
+                        <p class="visual-description">두날개로 날아오르는 건강한 교회입니다.<br>교회의 머리이신 예수 그리스도와 같은 말, 같은 마음, 같은 뜻으로 하나되는 교회입니다.</p>
+                        <div class="visual-buttons">
+                            <a href="#" class="btn-visual primary">주일설교 듣기</a>
+                            <a href="#" class="btn-visual secondary">새가족 등록</a>
                         </div>
-                        <div class="service-card ripple">
-                            <i class="material-icons service-icon">celebration</i>
-                            <div class="service-title">활동예약하기</div>
-                        </div>
-                        <div class="service-card ripple">
-                            <i class="material-icons service-icon">groups</i>
-                            <div class="service-title">CYS예약</div>
-                        </div>
-                        <div class="service-card ripple">
-                            <i class="material-icons service-icon">quiz</i>
-                            <div class="service-title">대화방</div>
-                        </div>
-                    </div>
-                    <div class="hours-card">
-                        <h3 class="hours-title">운영 시간 안내</h3>
-                        <ul class="hours-list">
-                            <li>
-                                <span>평일</span>
-                                <span>9:00 ~ 21:30</span>
-                            </li>
-                            <li>
-                                <span>토요일</span>
-                                <span>9:00 ~ 18:30</span>
-                            </li>
-                            <li>
-                                <span>공휴일</span>
-                                <span>9:00 ~ 17:00</span>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Programs Section -->
-        <section class="programs">
+        <!-- Quick Menu Section -->
+        <section class="quick-menu">
             <div class="container">
-                <h2 class="section-title">프로그램 안내</h2>
-                <div class="programs-slider">
-                    <div class="programs-track" id="programsTrack">
-                        <div class="program-card">
-                            <div class="program-image">4기 <br>와 너두</div>
-                            <div class="program-content">
-                                <h3 class="program-title">2025년 클라이밍 프로그램 <br>4기 와 너두 클라이밍 신청</h3>
-                                <p class="program-date">2025.06.20</p>
+                <div class="quick-grid">
+                    <a href="#" class="quick-item">
+                        <div class="quick-icon">
+                            <i class="material-icons">live_tv</i>
+                        </div>
+                        <span>주일설교</span>
+                    </a>
+                    <a href="#" class="quick-item">
+                        <div class="quick-icon">
+                            <i class="material-icons">person_add</i>
+                        </div>
+                        <span>새가족등록</span>
+                    </a>
+                    <a href="#" class="quick-item">
+                        <div class="quick-icon">
+                            <i class="material-icons">menu_book</i>
+                        </div>
+                        <span>주보</span>
+                    </a>
+                    <a href="#" class="quick-item">
+                        <div class="quick-icon">
+                            <i class="material-icons">volunteer_activism</i>
+                        </div>
+                        <span>온라인헌금</span>
+                    </a>
+                    <a href="#" class="quick-item">
+                        <div class="quick-icon">
+                            <i class="material-icons">calendar_today</i>
+                        </div>
+                        <span>예배시간</span>
+                    </a>
+                    <a href="#" class="quick-item">
+                        <div class="quick-icon">
+                            <i class="material-icons">place</i>
+                        </div>
+                        <span>오시는길</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Introduction Section -->
+        <section class="introduction">
+            <div class="container">
+                <div class="intro-grid">
+                    <div class="intro-card">
+                        <div class="intro-header">
+                            <i class="material-icons">waving_hand</i>
+                            <h3>환영인사</h3>
+                        </div>
+                        <p class="intro-text">
+                            풍성한교회는 두날개로 날아오르는 건강한 교회입니다. 
+                            교회는 예수 그리스도를 나의 주, 나의 하나님으로 고백하는 성도들의 모임입니다.
+                        </p>
+                        <a href="#" class="intro-link">자세히 보기 <i class="material-icons">arrow_forward</i></a>
+                    </div>
+                    <div class="intro-card highlight">
+                        <div class="intro-header">
+                            <i class="material-icons">church</i>
+                            <h3>교회 소개</h3>
+                        </div>
+                        <p class="intro-text">
+                            세상에서 가장 건강한 교회, 세상에서 가장 아름답고 행복한 교회에 오신 여러분을 환영합니다.
+                        </p>
+                        <a href="#" class="intro-link">자세히 보기 <i class="material-icons">arrow_forward</i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="material-icons">photo_library</i>
+                    풍성한 갤러리
+                </h2>
+                <div class="gallery-grid">
+                    <div class="gallery-card">
+                        <div class="gallery-image">
+                            <img src="/img/gallery1.jpg" alt="두날개 필리핀선교센터" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="gallery-placeholder">
+                                <i class="material-icons">image</i>
                             </div>
                         </div>
-                        <div class="program-card">
-                            <div class="program-image">과학수사</div>
-                            <div class="program-content">
-                                <h3 class="program-title">2025 특별 프로그램 과학수사의 모든 것</h3>
-                                <p class="program-date">2025.06.11</p>
+                        <div class="gallery-content">
+                            <h4>두날개 필리핀선교센터 선교 보고</h4>
+                            <p class="gallery-date">2024.11.03</p>
+                        </div>
+                    </div>
+                    <div class="gallery-card">
+                        <div class="gallery-image">
+                            <img src="/img/gallery2.jpg" alt="두날개프로세스" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="gallery-placeholder">
+                                <i class="material-icons">image</i>
                             </div>
                         </div>
-                        <div class="program-card">
-                            <div class="program-image">6월 활동</div>
-                            <div class="program-content">
-                                <h3 class="program-title">6월 활동위원 시장에 가면</h3>
-                                <p class="program-date">2025.06.11</p>
+                        <div class="gallery-content">
+                            <h4>2024 제10기 두날개프로세스 5단계 집중훈련</h4>
+                            <p class="gallery-date">2024.11.03</p>
+                        </div>
+                    </div>
+                    <div class="gallery-card">
+                        <div class="gallery-image">
+                            <img src="/img/gallery3.jpg" alt="국제컨퍼런스" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="gallery-placeholder">
+                                <i class="material-icons">image</i>
                             </div>
                         </div>
-                        <div class="program-card">
-                            <div class="program-image">AI 아카데미</div>
-                            <div class="program-content">
-                                <h3 class="program-title">AI아이 캔 아카데미 STEP2 신청 모집</h3>
-                                <p class="program-date">2025.06.10</p>
+                        <div class="gallery-content">
+                            <h4>2024 두날개 국제컨퍼런스의 은혜</h4>
+                            <p class="gallery-date">2024.11.03</p>
+                        </div>
+                    </div>
+                    <div class="gallery-card">
+                        <div class="gallery-image">
+                            <img src="/img/gallery4.jpg" alt="세계비전" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="gallery-placeholder">
+                                <i class="material-icons">image</i>
                             </div>
+                        </div>
+                        <div class="gallery-content">
+                            <h4>세계비전 두날개프로세스 제10기 1단계 집중훈련</h4>
+                            <p class="gallery-date">2024.11.03</p>
                         </div>
                     </div>
                 </div>
-                <div class="slider-controls">
-                    <button class="slider-btn ripple" onclick="slidePrograms(-1)">
-                        <i class="material-icons">chevron_left</i>
-                    </button>
-                    <button class="slider-btn ripple" onclick="slidePrograms(1)">
-                        <i class="material-icons">chevron_right</i>
-                    </button>
+            </div>
+        </section>
+
+        <!-- Worship Time Section -->
+        <section class="worship-time">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="material-icons">schedule</i>
+                    예배 시간 안내
+                </h2>
+                <div class="worship-grid">
+                    <div class="worship-card">
+                        <div class="worship-icon">
+                            <i class="material-icons">wb_sunny</i>
+                        </div>
+                        <h4>주일 1부 예배</h4>
+                        <p>오전 9:00</p>
+                    </div>
+                    <div class="worship-card">
+                        <div class="worship-icon">
+                            <i class="material-icons">wb_twilight</i>
+                        </div>
+                        <h4>주일 2부 예배</h4>
+                        <p>오전 11:00</p>
+                    </div>
+                    <div class="worship-card">
+                        <div class="worship-icon">
+                            <i class="material-icons">nights_stay</i>
+                        </div>
+                        <h4>수요 예배</h4>
+                        <p>오후 7:30</p>
+                    </div>
+                    <div class="worship-card">
+                        <div class="worship-icon">
+                            <i class="material-icons">brightness_3</i>
+                        </div>
+                        <h4>금요 예배</h4>
+                        <p>오후 8:00</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -129,52 +213,52 @@
                         </h3>
                         <ul class="news-list">
                             <li class="news-item">
-                                <a href="#" class="news-title">5월 위캔톤 이용 안내</a>
-                                <span class="news-date">2025-06-20</span>
+                                <a href="#" class="news-title">두날개 국제컨퍼런스 안내</a>
+                                <span class="news-date">2026-02-20</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">2025년 대전청소년위캔센터 대전토구 놀북기정센터 버스 운행</a>
-                                <span class="news-date">2025-06-13</span>
+                                <a href="#" class="news-title">2026년 양육 프로세스 일정 안내</a>
+                                <span class="news-date">2026-02-15</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">2025년 대전청소년위캔센터 대전토구 놀북기정센터 버스 운행</a>
-                                <span class="news-date">2025-06-05</span>
+                                <a href="#" class="news-title">새가족반 개강 안내</a>
+                                <span class="news-date">2026-02-10</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">2025년 7차 새롭공고_진로진학타임(행정)</a>
-                                <span class="news-date">2025-06-05</span>
+                                <a href="#" class="news-title">주차장 이용 안내</a>
+                                <span class="news-date">2026-02-05</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">2025년 7월 작업체험반 토요일 운영 안내</a>
-                                <span class="news-date">2025-06-05</span>
+                                <a href="#" class="news-title">교회 방역 안내</a>
+                                <span class="news-date">2026-02-01</span>
                             </li>
                         </ul>
                     </div>
                     <div class="news-column">
                         <h3>
-                            <i class="material-icons">event</i>
-                            체육시설 소식
+                            <i class="material-icons">groups</i>
+                            공동체 이야기
                         </h3>
                         <ul class="news-list">
                             <li class="news-item">
-                                <a href="#" class="news-title">7월, 8월 클라이밍 강습 일정</a>
-                                <span class="news-date">2025-06-17</span>
+                                <a href="#" class="news-title">청년부 겨울수련회 후기</a>
+                                <span class="news-date">2026-02-18</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">[2025년] 8층 다목적 체육관 예약진 운영안내</a>
-                                <span class="news-date">2025-06-13</span>
+                                <a href="#" class="news-title">장년부 기도회 안내</a>
+                                <span class="news-date">2026-02-14</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">[2025년 7월] 8층 다목적 체육관 이용 안내</a>
-                                <span class="news-date">2025-06-12</span>
+                                <a href="#" class="news-title">유아부 특별 프로그램</a>
+                                <span class="news-date">2026-02-12</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">[2025년 6월] 8층 다목적 체육관 이용 안내</a>
-                                <span class="news-date">2025-05-23</span>
+                                <a href="#" class="news-title">선교팀 활동 보고</a>
+                                <span class="news-date">2026-02-08</span>
                             </li>
                             <li class="news-item">
-                                <a href="#" class="news-title">6월 클라이밍 강습일정</a>
-                                <span class="news-date">2025-05-16</span>
+                                <a href="#" class="news-title">찬양팀 연습 일정</a>
+                                <span class="news-date">2026-02-03</span>
                             </li>
                         </ul>
                     </div>

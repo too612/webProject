@@ -50,15 +50,9 @@
     <nav id="mobile-nav" class="mobile-nav">
         <div class="mobile-nav-header">
             <!-- 패널 상단에도 로고를 표시하여 일관성 유지 -->
-            <a href="/" class="logo">다사랑교회</a>
+            <a href="/" class="mobile-logo">다사랑교회</a>
         </div>
         <div class="mobile-nav-body">
-            <!-- 정적 링크: 구조(container)와 콘텐츠(menu)를 분리하여 명확한 중앙 정렬 구현 -->
-            <div class="mobile-static-menu-container"> <!-- 2개의 버튼을 담는 flex 컨테이너 -->
-                <a href="/">홈으로</a>
-                <a href="#">회원가입</a>
-            </div>
-
             <ul class="mobile-menu-list">
                 <!-- 동적 메뉴 (아코디언) -->
                 <li th:each="menu : ${menuList}" th:classappend="${!#lists.isEmpty(menu.subMenus) ? 'has-submenu' : ''}">
@@ -73,6 +67,24 @@
                     </ul>
                 </li>
             </ul>
+        </div>
+        
+        <!-- 하단 액션 버튼 영역 -->
+        <div class="mobile-nav-footer">
+            <div class="mobile-footer-top">
+                <a href="/user/login">로그인</a>
+                <span class="footer-separator">|</span>
+                <a href="/user/register">회원가입</a>
+            </div>
+            <div class="mobile-footer-select">
+                <select class="family-site-select" onchange="if(this.value) window.open(this.value);">
+                    <option value="">FAMILY SITE</option>
+                    <option value="http://busan.psh.or.kr">부산비전센터</option>
+                    <option value="http://ilsan.psh.or.kr">일산드림센터</option>
+                    <option value="https://twowings.or.kr">두날개교회</option>
+                    <option value="https://youtube.com">유튜브 채널</option>
+                </select>
+            </div>
         </div>
     </nav>
     <div id="mobile-nav-overlay" class="mobile-nav-overlay"></div>
