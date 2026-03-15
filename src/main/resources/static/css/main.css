@@ -58,7 +58,7 @@ ul, li {
 .header-top-links {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .header-top-links a {
@@ -74,7 +74,7 @@ ul, li {
 .header-top-links span {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 /* 구분자 스타일 */
@@ -85,58 +85,126 @@ ul, li {
 
 /* 링크 사이에 구분선 추가 */
 .header-top-links a + a {
-    margin-left: 12px;
-    padding-left: 12px;
+    margin-left: 10px;
+    padding-left: 10px;
     border-left: 1px solid #dee2e6;
 }
 
 .header-main {
-    padding: 15px 0;
+    padding: 8px 0;
 }
 
 .header-main .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    min-height: 64px;
 }
 
-.logo {
+.header-main .container.erp-wide {
+    max-width: 1520px;
+}
+
+.header-main .logo {
     display: flex;
     align-items: center;
-    font-size: 22px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #5C6BC0, #7986CB);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 1px;
+    flex: 0 0 auto;
+    height: 64px;
+    line-height: 0;
     transition: all 0.3s ease;
 }
 
-.logo:hover {
+.header-main .logo:hover {
     transform: translateY(-2px);
 }
 
-.logo::before {
-    content: "✟";
-    background: linear-gradient(135deg, #5C6BC0, #7986CB);
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    font-weight: bold;
-    font-size: 24px;
-    box-shadow: 0 4px 12px rgba(92, 107, 192, 0.3);
+.header-main .logo img {
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: 360px;
+    object-fit: contain;
 }
 
 /* GNB (메인 네비게이션) */
 .nav-main {
     display: flex;
-    gap: 40px;
+    gap: 52px;
+}
+
+@media (min-width: 993px) {
+    .header-main {
+        padding: 6px 0;
+    }
+
+    .header-main .container {
+        min-height: 70px;
+    }
+
+    .header-main .logo {
+        height: 70px;
+    }
+
+    .header-main .container .nav-main.desktop-only {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .header-main .container.erp-wide .nav-main.erp-menu.desktop-only {
+        width: calc(100% - 360px);
+        justify-content: center;
+        gap: 14px;
+    }
+}
+
+@media (min-width: 993px) and (max-width: 1199px) {
+    .header-main .logo {
+        height: 64px;
+    }
+
+    .nav-main {
+        gap: 38px;
+    }
+}
+
+@media (min-width: 1200px) and (max-width: 1279px) {
+    .nav-main {
+        gap: 44px;
+    }
+
+    .header-main .container.erp-wide {
+        max-width: 1320px;
+    }
+
+    .nav-main.erp-menu {
+        gap: 16px;
+    }
+
+    .nav-main.erp-menu > .dropdown > a {
+        font-size: 13px;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1439px) {
+    .nav-main {
+        gap: 48px;
+    }
+
+    .header-main .container.erp-wide {
+        max-width: 1420px;
+    }
+
+    .nav-main.erp-menu {
+        gap: 18px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .nav-main {
+        gap: 52px;
+    }
 }
 
 .nav-main a {
@@ -145,6 +213,17 @@ ul, li {
     position: relative;
     transition: color 0.3s ease;
     font-size: 15px;
+}
+
+.nav-main.erp-menu {
+    gap: 18px;
+    flex-wrap: nowrap;
+}
+
+.nav-main.erp-menu > .dropdown > a {
+    font-size: 14px;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .nav-main a:hover {
@@ -166,43 +245,6 @@ ul, li {
     width: 100%;
 }
 
-.social-icons {
-    display: flex;
-    gap: 10px;
-}
-
-.social-icons a {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.social-icons a img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.social-icons a:hover img {
-    transform: scale(1.1);
-}
-
-.social-icons a:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.social-icons .kakao { background: #FEE500; color: #333; }
-.social-icons .facebook { background: #1877F2; }
-.social-icons .youtube { background: #FF0000; }
-.social-icons .blog { background: #03C75A; }
-
 /* 드롭다운 메뉴 - 교회 디자인 */
 .dropdown {
     position: relative;
@@ -213,7 +255,7 @@ ul, li {
     top: 100%;
     left: 0;
     background: white;
-    min-width: 220px;
+    min-width: 200px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     border-radius: 12px;
     opacity: 0;
@@ -233,7 +275,7 @@ ul, li {
 
 .dropdown-menu a {
     display: block;
-    padding: 12px 18px;
+    padding: 10px 14px;
     transition: all 0.3s ease;
     border-radius: 8px;
     font-size: 14px;
@@ -243,7 +285,7 @@ ul, li {
 .dropdown-menu a:hover {
     background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
     color: #5C6BC0;
-    padding-left: 24px;
+    padding-left: 20px;
     box-shadow: 0 2px 8px rgba(92, 107, 192, 0.1);
 }
 
@@ -426,11 +468,24 @@ ul, li {
     flex: 1;
 }
 
-.footer-info .logo {
-    color: #2196F3 !important;
+.footer-info .footer-logo {
+    display: inline-flex;
+    align-items: center;
     margin-bottom: 15px;
-    font-size: 18px;
-    font-weight: 600;
+}
+
+.footer-info .footer-logo img {
+    display: block;
+    height: 70px;
+    width: auto;
+    max-width: 420px;
+    object-fit: contain;
+}
+
+@media (max-width: 1199px) {
+    .footer-info .footer-logo img {
+        height: 64px;
+    }
 }
 
 .footer-details {
@@ -540,7 +595,7 @@ ul, li {
     display: none !important;
 }
 .desktop-only {
-    display: flex !important; /* nav-main, social-icons는 flex 기반 */
+    display: flex !important; /* header GNB(nav-main)는 flex 기반 */
 }
 .header-top .container.desktop-only {
     display: block !important;

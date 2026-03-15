@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle != null ? pageTitle : '공통코드관리'}">공통코드관리</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/erp.css}">
+    </th:block>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="erp-dashboard-wrap">
+            <div class="container">
+                <div class="erp-header-card">
+                    <div>
+                        <h1 class="erp-title" th:text="${pageTitle != null ? pageTitle : '공통코드관리'}">공통코드관리</h1>
+                        <p class="erp-subtitle"
+                            th:text="${pageDescription != null ? pageDescription : '시스템 전역에서 사용하는 공통코드 항목을 관리하는 기본 화면입니다.'}">
+                            시스템 전역에서 사용하는 공통코드 항목을 관리하는 기본 화면입니다.</p>
+                    </div>
+                </div>
+                <section class="erp-card">
+                    <div class="erp-card-head">
+                        <h2>기본 정보</h2>
+                    </div>
+                    <div class="erp-simple-list">
+                        <p>메뉴 ID: <strong th:text="${menuId != null ? menuId : 'M_ADM_02_01'}">M_ADM_02_01</strong></p>
+                        <p>상위 메뉴 ID: <strong
+                                th:text="${parentMenuId != null ? parentMenuId : 'M_ADM_02'}">M_ADM_02</strong></p>
+                        <p>경로: <strong
+                                th:text="${pagePath != null ? pagePath : '/system/config/code'}">/system/config/code</strong>
+                        </p>
+                        <p>상세 기능은 추후 구현 예정입니다.</p>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

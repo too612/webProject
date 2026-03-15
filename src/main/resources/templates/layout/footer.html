@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <body>
     <footer th:fragment="footer" class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="logo">다사랑교회</div>
+                    <a href="/" class="footer-logo" aria-label="다사랑교회 홈">
+                        <img th:src="@{/img/logo.png}" src="/img/logo.png" alt="다사랑교회 로고">
+                    </a>
                     <div class="footer-details">
                         <p>주소 : 세종특별자치시 집현북로 52 | 사업자등록 : 131-82-17285 | 대표자 : 홍길동</p>
                         <p>전화 : 042-822-0000 | 팩스 : 042-822-0000 | 홈페이지 : http://libary.or.kr</p>
@@ -31,4 +34,5 @@
         </div>
     </footer>
 </body>
+
 </html>

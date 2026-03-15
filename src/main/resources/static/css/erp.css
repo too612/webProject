@@ -3,4 +3,513 @@
    - ERP 시스템 페이지 전용 CSS
    ========================================================= */
 
-/* 여기에 erp/index.html에 필요한 스타일을 추가하세요 */
+.erp-dashboard-wrap {
+   padding: 36px 0 56px;
+}
+
+.erp-header-card {
+   background: #fff;
+   border-radius: 16px;
+   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+   padding: 24px;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 18px;
+   margin-bottom: 22px;
+}
+
+.erp-title {
+   font-size: 28px;
+   font-weight: 700;
+   color: #2b2f42;
+   margin-bottom: 8px;
+}
+
+.erp-subtitle {
+   color: #6d7589;
+   font-size: 15px;
+}
+
+.erp-main-btn {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   background: #5c6bc0;
+   color: #fff;
+   border-radius: 10px;
+   padding: 10px 14px;
+   font-weight: 600;
+   transition: all 0.2s ease;
+}
+
+.erp-main-btn:hover {
+   background: #4e5caf;
+   transform: translateY(-1px);
+}
+
+.erp-grid {
+   display: grid;
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   gap: 20px;
+}
+
+.erp-card {
+   background: #fff;
+   border-radius: 16px;
+   padding: 20px;
+   border: 1px solid #edf0f5;
+   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.erp-card-head {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 14px;
+}
+
+.erp-card-head h2 {
+   font-size: 21px;
+   color: #283046;
+}
+
+.erp-plus-btn {
+   width: 34px;
+   height: 34px;
+   border-radius: 50%;
+   background: #f2f4fb;
+   color: #5c6bc0;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 22px;
+   font-weight: 700;
+   line-height: 1;
+   transition: all 0.2s ease;
+}
+
+.erp-plus-btn:hover {
+   background: #5c6bc0;
+   color: #fff;
+}
+
+.erp-stat-grid {
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   gap: 12px;
+}
+
+.erp-stat-item {
+   border: 1px solid #e9edf5;
+   border-radius: 12px;
+   padding: 14px;
+   background: #fafbff;
+}
+
+.erp-stat-label {
+   color: #6d7589;
+   font-size: 13px;
+   margin-bottom: 4px;
+}
+
+.erp-stat-value {
+   font-size: 24px;
+   font-weight: 700;
+   color: #293044;
+}
+
+.erp-task-list {
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
+.erp-task-list li {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 10px;
+   border: 1px solid #e9edf5;
+   border-radius: 10px;
+   padding: 10px 12px;
+   background: #fff;
+}
+
+.task-title {
+   color: #2e3448;
+   font-size: 14px;
+   font-weight: 500;
+}
+
+.task-badge {
+   background: #eef2ff;
+   color: #4d5cb0;
+   border-radius: 999px;
+   font-size: 12px;
+   padding: 4px 9px;
+   font-weight: 600;
+   white-space: nowrap;
+}
+
+.task-badge.is-warning {
+   background: #fff1ee;
+   color: #d96a48;
+}
+
+.task-badge.is-done {
+   background: #eaf8ef;
+   color: #2d9661;
+}
+
+.erp-chart-wrap {
+   border: 1px solid #e9edf5;
+   border-radius: 12px;
+   padding: 14px;
+   background: #fff;
+}
+
+.chart-legend {
+   display: flex;
+   gap: 14px;
+   flex-wrap: wrap;
+   color: #5c647a;
+   font-size: 13px;
+   margin-bottom: 10px;
+}
+
+.chart-legend span {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+}
+
+.legend-dot {
+   width: 11px;
+   height: 11px;
+   border-radius: 50%;
+   display: inline-block;
+}
+
+.legend-dot.budget {
+   background: #cfd8ff;
+}
+
+.legend-dot.income {
+   background: #5c6bc0;
+}
+
+.legend-dot.expense {
+   background: #ef5350;
+}
+
+.offering-chart {
+   width: 100%;
+   height: 220px;
+}
+
+.offering-chart .axis {
+   stroke: #d2d8e8;
+   stroke-width: 1.5;
+}
+
+.offering-chart .bar {
+   fill: #d5ddff;
+}
+
+.offering-chart .line-income,
+.offering-chart .line-expense {
+   fill: none;
+   stroke-width: 3;
+}
+
+.offering-chart .line-income {
+   stroke: #5c6bc0;
+}
+
+.offering-chart .line-expense {
+   stroke: #ef5350;
+}
+
+.offering-chart .point.income {
+   fill: #5c6bc0;
+}
+
+.offering-chart .point.expense {
+   fill: #ef5350;
+}
+
+.offering-chart text {
+   fill: #737b90;
+   font-size: 12px;
+}
+
+.erp-shortcut-list {
+   display: grid;
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   gap: 10px;
+}
+
+.erp-shortcut-list a {
+   border: 1px solid #e8ebf3;
+   border-radius: 10px;
+   padding: 11px 12px;
+   font-weight: 500;
+   color: #364057;
+   background: #fff;
+   transition: all 0.2s ease;
+}
+
+.erp-shortcut-list a:hover {
+   border-color: #5c6bc0;
+   color: #5c6bc0;
+   transform: translateY(-1px);
+}
+
+.sermon-toolbar {
+   margin-bottom: 12px;
+}
+
+.sermon-filter-group {
+   display: flex;
+   gap: 8px;
+   flex-wrap: wrap;
+}
+
+.sermon-filter-btn {
+   border: 1px solid #dbe1f0;
+   background: #fff;
+   color: #4c5774;
+   border-radius: 999px;
+   padding: 6px 12px;
+   font-size: 13px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.2s ease;
+}
+
+.sermon-filter-btn:hover,
+.sermon-filter-btn.is-active {
+   border-color: #5c6bc0;
+   color: #5c6bc0;
+   background: #eef1ff;
+}
+
+.sermon-task-list .sermon-task-item {
+   align-items: flex-start;
+}
+
+.sermon-task-item .task-main {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   flex-wrap: wrap;
+}
+
+.sermon-task-item .task-actions {
+   display: flex;
+   align-items: center;
+}
+
+.task-action-btn {
+   border: 1px solid #dbe1f0;
+   border-radius: 8px;
+   padding: 6px 10px;
+   color: #46506c;
+   font-size: 13px;
+   font-weight: 600;
+   transition: all 0.2s ease;
+}
+
+.task-action-btn:hover {
+   border-color: #5c6bc0;
+   color: #5c6bc0;
+}
+
+.sermon-task-item.is-hidden {
+   display: none;
+}
+
+.sermon-write-card {
+   padding: 22px;
+}
+
+.sermon-write-form {
+   width: 100%;
+}
+
+.sermon-form-grid {
+   display: grid;
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   gap: 14px;
+}
+
+.sermon-form-grid label {
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+   color: #39445f;
+   font-size: 14px;
+   font-weight: 600;
+}
+
+.sermon-form-grid label.full {
+   grid-column: 1 / -1;
+}
+
+.sermon-form-grid input,
+.sermon-form-grid select,
+.sermon-form-grid textarea {
+   border: 1px solid #dde3f1;
+   border-radius: 10px;
+   padding: 10px 12px;
+   font-size: 14px;
+   font-family: inherit;
+   color: #2e3550;
+   background: #fff;
+}
+
+.sermon-form-grid textarea {
+   resize: vertical;
+   min-height: 130px;
+}
+
+.sermon-form-actions {
+   margin-top: 14px;
+   display: flex;
+   justify-content: flex-end;
+}
+
+.erp-ready-toolbar {
+   border: 1px solid #e6ebf5;
+   border-radius: 12px;
+   background: #f9fbff;
+   padding: 14px;
+   margin-bottom: 12px;
+}
+
+.erp-ready-meta {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   margin-bottom: 10px;
+   flex-wrap: wrap;
+}
+
+.erp-ready-badge {
+   display: inline-flex;
+   align-items: center;
+   border-radius: 999px;
+   background: #eef2ff;
+   color: #4d5cb0;
+   padding: 4px 10px;
+   font-size: 12px;
+   font-weight: 700;
+}
+
+.erp-ready-path {
+   color: #6e7790;
+   font-size: 12px;
+}
+
+.erp-ready-controls {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 10px;
+   flex-wrap: wrap;
+}
+
+.erp-ready-search {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   flex-wrap: wrap;
+}
+
+.erp-ready-search input {
+   border: 1px solid #d8deed;
+   border-radius: 9px;
+   padding: 8px 10px;
+   min-width: 240px;
+   font-size: 13px;
+   color: #313a52;
+   background: #fff;
+}
+
+.erp-ready-actions {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+}
+
+.erp-ready-btn {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   border: 1px solid #d6dded;
+   border-radius: 9px;
+   background: #fff;
+   color: #46506c;
+   font-size: 13px;
+   font-weight: 600;
+   padding: 8px 12px;
+   cursor: pointer;
+   transition: all 0.2s ease;
+}
+
+.erp-ready-btn:hover {
+   border-color: #5c6bc0;
+   color: #5c6bc0;
+}
+
+.erp-ready-btn.is-primary {
+   border-color: #5c6bc0;
+   background: #5c6bc0;
+   color: #fff;
+}
+
+.erp-ready-btn.is-primary:hover {
+   background: #4e5caf;
+   border-color: #4e5caf;
+   color: #fff;
+}
+
+.erp-ready-btn.is-search {
+   border-color: #5c6bc0;
+   color: #5c6bc0;
+}
+
+@media (max-width: 1024px) {
+   .erp-grid {
+      grid-template-columns: 1fr;
+   }
+
+   .erp-header-card {
+      flex-direction: column;
+      align-items: flex-start;
+   }
+}
+
+@media (max-width: 768px) {
+   .erp-title {
+      font-size: 24px;
+   }
+
+   .erp-stat-grid,
+   .erp-shortcut-list {
+      grid-template-columns: 1fr;
+   }
+
+   .sermon-form-grid {
+      grid-template-columns: 1fr;
+   }
+
+   .erp-card-head h2 {
+      font-size: 19px;
+   }
+
+   .erp-ready-search input {
+      min-width: 180px;
+   }
+}

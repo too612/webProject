@@ -21,7 +21,6 @@ public class GlobalControllerAdvice {
     @Autowired
     private com.main.app.common.service.MenuService menuService;
 
-
     /**
      * 모든 페이지에서 사용할 공통 모델 속성을 추가합니다.
      * - 메뉴 관련 속성 (계층 메뉴, 최상위 메뉴 등)
@@ -34,9 +33,9 @@ public class GlobalControllerAdvice {
         Object userId = session.getAttribute("userId");
         Object userName = session.getAttribute("userName");
         Object loginUser = session.getAttribute("loginUser");
-        
+
         log.info(">>> [SESSION] userId: {}, userName: {}, loginUser: {}", userId, userName, loginUser);
-        
+
         if (userId != null) {
             model.addAttribute("sessionUserId", userId);
             model.addAttribute("sessionUserName", userName);
@@ -45,13 +44,14 @@ public class GlobalControllerAdvice {
         } else {
             log.info(">>> [SESSION] 세션에 userId 없음");
         }
-        
+
         // 현재 요청 URI를 기반으로 systemType 결정
         String currentUri = request.getRequestURI();
         log.info(">>> [DEBUG] 현재 요청 URI: {}", currentUri);
-        
+
         String systemType = extractSystemType(currentUri);
         log.info(">>> [DEBUG] 추출된 systemType: {}", systemType);
+        model.addAttribute("currentSystemType", systemType);
 
         // 우선 추출된 systemType으로 메뉴 조회
         List<MenuDto> hierarchicalMenus = menuService.getHierarchicalMenus(systemType);
@@ -76,7 +76,7 @@ public class GlobalControllerAdvice {
         MenuDto currentMenu = findBestMatchMenu(hierarchicalMenus, currentUri);
 
         // 커뮤니티 경로 통일 전 기존 경로와의 호환 처리
-        if (currentMenu == null && currentUri.startsWith("/community/")) {
+        if (currentMenu == null && isPathMatch(currentUri, "/community")) {
             String legacyUri = currentUri.substring("/community".length());
             if (legacyUri.isEmpty()) {
                 legacyUri = "/";
@@ -87,9 +87,21 @@ public class GlobalControllerAdvice {
             }
         }
 
+        // 시스템 경로 호환 처리: DB에는 /user/... 형태인데 실제 요청은 /system/user/... 인 경우 대응
+        if (currentMenu == null && isPathMatch(currentUri, "/system")) {
+            String legacyUri = currentUri.substring("/system".length());
+            if (legacyUri.isEmpty()) {
+                legacyUri = "/";
+            }
+            currentMenu = findBestMatchMenu(hierarchicalMenus, legacyUri);
+            if (currentMenu != null) {
+                log.info(">>> [DEBUG] system legacy 경로로 메뉴 매칭 성공: {}", legacyUri);
+            }
+        }
+
         // URI prefix 기준 systemType이 맞지 않는 경우를 대비해 다른 시스템 메뉴에서 재탐색
         if (currentMenu == null) {
-            String[] candidates = {"community", "erp", "official"};
+            String[] candidates = { "community", "erp", "system", "official" };
             for (String candidate : candidates) {
                 if (candidate.equals(systemType)) {
                     continue;
@@ -146,12 +158,13 @@ public class GlobalControllerAdvice {
         }
 
         // 모델에 속성 추가
+        model.addAttribute("currentSystemType", systemType);
         model.addAttribute("currentMainMenuName", fullTopMenu.getMenuName());
         model.addAttribute("currentSubMenus", fullTopMenu.getSubMenus());
         model.addAttribute("currentTopMenu", fullTopMenu);
         model.addAttribute("currentMenu", currentMenu);
         model.addAttribute("currentPath", currentUri);
-        
+
         log.info(">>> [DEBUG] 모델 설정 완료. currentSubMenus 존재 여부: {}", (fullTopMenu.getSubMenus() != null));
     }
 
@@ -187,6 +200,7 @@ public class GlobalControllerAdvice {
 
     /**
      * URI에서 systemType을 추출합니다.
+     * 
      * @param uri 현재 요청 URI
      * @return systemType (official, erp, community) 또는 null
      */
@@ -194,22 +208,37 @@ public class GlobalControllerAdvice {
         if (uri == null || uri.isEmpty()) {
             return null;
         }
-        
+
         // URI 패턴에 따라 systemType 결정
-        if (uri.startsWith("/official")) {
+        if (isPathMatch(uri, "/official")) {
             return "official";
-        } else if (uri.startsWith("/erp")) {
+        } else if (isPathMatch(uri, "/system")) {
+            return "system";
+        } else if (isPathMatch(uri, "/erp")
+                || isPathMatch(uri, "/humen")
+                || isPathMatch(uri, "/account")
+                || isPathMatch(uri, "/sermon")
+                || isPathMatch(uri, "/training")
+                || isPathMatch(uri, "/ministry")
+                || isPathMatch(uri, "/event")
+                || isPathMatch(uri, "/facility")
+                || isPathMatch(uri, "/comm")
+                || isPathMatch(uri, "/stats")) {
             return "erp";
-        } else if (uri.startsWith("/community")
-                || uri.startsWith("/group")
-                || uri.startsWith("/facilities")
-                || uri.startsWith("/saint")
-                || uri.startsWith("/world")
-                || uri.startsWith("/board")) {
+        } else if (isPathMatch(uri, "/community")
+                || isPathMatch(uri, "/group")
+                || isPathMatch(uri, "/facilities")
+                || isPathMatch(uri, "/saint")
+                || isPathMatch(uri, "/world")
+                || isPathMatch(uri, "/board")) {
             return "community";
         }
-        
+
         // 기본값은 official (메인 페이지 등)
         return "official";
+    }
+
+    private boolean isPathMatch(String uri, String basePath) {
+        return uri != null && (uri.equals(basePath) || uri.startsWith(basePath + "/"));
     }
 }

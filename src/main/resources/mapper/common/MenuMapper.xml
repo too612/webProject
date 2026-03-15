@@ -6,9 +6,9 @@
         SELECT menu_id
               ,menu_nm AS menuName
               ,up_menu_id AS parentId
-              ,level
+              ,CAST(level AS INTEGER) AS level
               ,path
-              ,order_no
+              ,CAST(order_no AS INTEGER) AS order_no
           FROM sys_menu_mgt
          WHERE 1=1
            <if test="systemType != null and systemType != ''">
@@ -19,13 +19,16 @@
                <when test="systemType == 'erp'">
                AND menu_id LIKE 'M_SYS%'
                </when>
+               <when test="systemType == 'system'">
+               AND menu_id LIKE 'M_ADM%'
+               </when>
                <when test="systemType == 'community'">
                AND menu_id LIKE 'M_GEN%'
                </when>
            </choose>
            </if>
            -- AND use_yn = 'Y'  -- 사용여부 조건 추가 (필요시)
-         ORDER BY level, order_no, menu_id
+            ORDER BY CAST(level AS INTEGER), CAST(order_no AS INTEGER), menu_id
     </select>
 
     <!-- 특정 레벨의 메뉴만 조회하는 쿼리 추가 -->
@@ -33,11 +36,11 @@
         SELECT menu_id
               ,menu_nm AS menuName
               ,up_menu_id AS parentId
-              ,level
+              ,CAST(level AS INTEGER) AS level
               ,path
-              ,order_no
+              ,CAST(order_no AS INTEGER) AS order_no
           FROM sys_menu_mgt
-         WHERE level = #{level}
+         WHERE CAST(level AS INTEGER) = #{level}
            <if test="systemType != null and systemType != ''">
            <choose>
                <when test="systemType == 'official'">
@@ -46,13 +49,16 @@
                <when test="systemType == 'erp'">
                AND menu_id LIKE 'M_SYS%'
                </when>
+               <when test="systemType == 'system'">
+               AND menu_id LIKE 'M_ADM%'
+               </when>
                <when test="systemType == 'community'">
                AND menu_id LIKE 'M_GEN%'
                </when>
            </choose>
            </if>
           --  AND use_yn = 'Y'
-         ORDER BY order_no, menu_id
+            ORDER BY CAST(order_no AS INTEGER), menu_id
     </select>
 
     <!-- 특정 부모 메뉴의 하위 메뉴만 조회하는 쿼리 추가 -->
@@ -60,9 +66,9 @@
         SELECT menu_id
               ,menu_nm AS menuName
               ,up_menu_id AS parentId
-              ,level
+              ,CAST(level AS INTEGER) AS level
               ,path
-              ,order_no
+              ,CAST(order_no AS INTEGER) AS order_no
           FROM sys_menu_mgt
          WHERE up_menu_id = #{parentId}
            <if test="systemType != null and systemType != ''">
@@ -73,13 +79,16 @@
                <when test="systemType == 'erp'">
                AND menu_id LIKE 'M_SYS%'
                </when>
+               <when test="systemType == 'system'">
+               AND menu_id LIKE 'M_ADM%'
+               </when>
                <when test="systemType == 'community'">
                AND menu_id LIKE 'M_GEN%'
                </when>
            </choose>
            </if>
           --  AND use_yn = 'Y'
-         ORDER BY order_no, menu_id
+            ORDER BY CAST(order_no AS INTEGER), menu_id
     </select>
 
     <select id="getList1" resultType="map">
