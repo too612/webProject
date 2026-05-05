@@ -1,0 +1,172 @@
+﻿=== FRONTEND CSS STATS ===
+
+=== TEMPLATE HTML MAPPING ===
+
+BackendHtml                            BackendLines BackendHasCode FrontMatchCo
+                                                                            unt
+-----------                            ------------ -------------- ------------
+auth\user\login.html                            264           True            1
+auth\user\mypage.html                            36           True            1
+auth\user\register.html                         543           True            1
+community\facilities\calendar.html              712           True            0
+community\facilities\dining.html                644           True            0
+community\facilities\prayer.html                514           True            0
+community\group\groupa1.html                    599           True            0
+community\group\groupb2.html                    599           True            0
+community\group\manager.html                    581           True            0
+community\index.html                            354           True            5
+community\saint\family.html                     714           True            0
+community\saint\job.html                        855           True            0
+community\saint\pray.html                       364           True            0
+community\saint\sales.html                      824           True            0
+community\support\board.html                    770           True            3
+community\support\qna.html                      986           True            3
+community\support\qnaView.html                  722           True            1
+community\support\qnaWrite.html                 276           True            1
+community\world\christian.html                  852           True            0
+community\world\economic.html                   891           True            0
+community\world\health.html                    1067           True            0
+erp\account\budget.html                           6           True            0
+erp\account\expense.html                          6           True            0
+erp\account\input.html                            6           True            0
+erp\account\manager.html                         37           True            0
+erp\account\report.html                           6           True            0
+erp\comm\message.html                             6           True            0
+erp\comm\newsletter.html                          6           True            0
+erp\comm\notice.html                              6           True            0
+erp\comm\prayer.html                              6           True            0
+erp\event\apply.html                              6           True            0
+erp\event\calendar.html                           6           True            0
+erp\event\participant.html                        6           True            0
+erp\event\result.html                             6           True            0
+erp\facility\inventory.html                       6           True            0
+erp\facility\maintenance.html                     6           True            0
+erp\facility\reservation.html                     6           True            0
+erp\facility\vehicle.html                         6           True            0
+erp\humen\change.html                            12           True            0
+erp\humen\district.html                          12           True            0
+erp\humen\manager.html                           37           True            0
+erp\humen\newcomer.html                          12           True            0
+erp\index.html                                  163           True            5
+erp\ministry\department.html                      6           True            0
+erp\ministry\report.html                          6           True            0
+erp\ministry\schedule.html                        6           True            0
+erp\ministry\volunteer.html                       6           True            0
+erp\sermon\archive.html                          12           True            0
+erp\sermon\attendance.html                       12           True            0
+erp\sermon\manager.html                          41           True            0
+erp\sermon\order.html                            12           True            0
+erp\sermon\write.html                            12           True            8
+erp\stats\attendance.html                        31           True            0
+erp\stats\dashboard.html                          6           True            0
+erp\stats\ministry.html                           6           True            0
+erp\stats\offering.html                           6           True            0
+erp\training\attendance.html                      6           True            0
+erp\training\complete.html                        6           True            0
+erp\training\course.html                          6           True            0
+erp\training\student.html                         6           True            0
+layout\footer.html                               38           True            1
+layout\header.html                               68           True            1
+layout\layout.html                               97           True            4
+layout\sidebar.html                              34           True            1
+layout\submenu.html                              79           True            1
+official\about\beliefs.html                     113           True            1
+official\about\history.html                     128           True            1
+official\about\pastor.html                      167           True            1
+official\about\vision.html                      139           True            1
+official\admin\admin.html                       135           True            0
+official\admin\login.html                        45           True            1
+official\admin\register.html                    259           True            1
+official\index.html                             271           True            5
+official\ministries\children.html               884           True            3
+official\ministries\childrenView.html           636           True            1
+official\ministries\childrenWrite.html          254           True            1
+official\ministries\mission.html                884           True            3
+official\ministries\missionView.html            636           True            1
+official\ministries\missionWrite.html           254           True            1
+official\ministries\youth.html                  884           True            3
+official\ministries\youthView.html              636           True            1
+official\ministries\youthWrite.html             254           True            1
+official\news\announcement.html                 884           True            3
+official\news\announcementView.html             636           True            1
+official\news\announcementWrite.html            254           True            1
+official\news\bulletin.html                     884           True            3
+official\news\bulletinView.html                 636           True            1
+official\news\bulletinWrite.html                254           True            1
+official\news\event.html                        616           True            1
+official\news\registration.html                 884           True            3
+official\news\registrationView.html             636           True            1
+official\news\registrationWrite.html            254           True            1
+official\support\faq.html                       566           True            1
+official\support\location.html                  485           True            1
+official\support\qna.html                       312           True            3
+official\support\qnaView.html                   440           True            1
+official\support\qnaWrite.html                  249           True            1
+official\worship\live.html                      209           True            1
+official\worship\sermons.html                   989           True            3
+official\worship\sermonsView.html               722           True            1
+official\worship\sermonsWrite.html              277           True            1
+official\worship\time.html                      214           True            1
+system\backup\history.html                       44           True            1
+system\backup\policy.html                        44           True            0
+system\config\code.html                          44           True            0
+system\config\menu.html                          44           True            1
+system\index.html                               100           True            5
+system\log\audit.html                            44           True            0
+system\log\system.html                           44           True            3
+system\user\manager.html                         44           True            0
+system\user\role.html                            44           True            0
+
+
+
+=== STATIC CSS PRESENCE IN FRONTEND ===
+
+Css           BackendLines FrontExists FrontLines FrontHasCode
+---           ------------ ----------- ---------- ------------
+community.css          826        True         21         True
+erp.css                516        True         21         True
+main.css              1023       False          0        False
+portal.css             592        True        592         True
+system.css             176        True         20         True
+
+
+
+=== STATIC JS PRESENCE IN FRONTEND ===
+
+Js         BackendLines FrontMatchCount FrontSample                            
+--         ------------ --------------- -----------                            
+chatbot.js          160               2 components\chatbot\Chatbot.js; compo...
+common.js           136               2 types\common.types.js; types\common....
+
+
+
+=== STATIC IMG PRESENCE IN FRONTEND/public/img ===
+
+Img                 InFrontendPublic
+---                 ----------------
+btn_lm_facebook.png             True
+btn_lm_kakao.png                True
+btn_lm_youtube.png              True
+btn_sm_facebook.png             True
+btn_sm_kakao.png                True
+btn_sm_tel.png                  True
+btn_sm_youtube.png              True
+logo.png                        True
+
+
+
+=== PLACEHOLDER KEYWORD SEARCH ===
+
+Path                                                                           
+----                                                                           
+C:\privWork\workspace\webProject\frontend\src\components\chatbot\Chatbot.tsx   
+C:\privWork\workspace\webProject\frontend\src\components\common\SearchBar.tsx  
+C:\privWork\workspace\webProject\frontend\src\pages\erp\ErpDetailPage.tsx      
+C:\privWork\workspace\webProject\frontend\src\pages\official\index\OfficialI...
+C:\privWork\workspace\webProject\frontend\src\pages\official\index\OfficialI...
+C:\privWork\workspace\webProject\frontend\src\pages\official\index\OfficialI...
+C:\privWork\workspace\webProject\frontend\src\styles\portal.css                
+C:\privWork\workspace\webProject\frontend\src\styles\portal.css                
+
+
+

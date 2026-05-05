@@ -287,11 +287,50 @@
              AND A.board_type = #{boardType}
          </if>
          <if test="keyword != null and keyword != ''">
-             AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))
+             <choose>
+                 <when test="searchType == 'title'">
+                     AND A.title LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'content'">
+                     AND A.cont LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'writer'">
+                     AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <otherwise>
+                     AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))
+                 </otherwise>
+             </choose>
          </if>
          <!-- 계층형 정렬: 그룹 번호 역순, 그룹 내 순서 정순 -->
          ORDER BY B.ins_dt DESC, A.order_no ASC, A.ins_dt ASC
          LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countBoardList" parameterType="java.util.Map" resultType="long">
+        SELECT COUNT(*)
+          FROM board A
+          JOIN board B ON A.group_no = B.rqst_no
+         WHERE 1=1
+         <if test="boardType != null and boardType != ''">
+             AND A.board_type = #{boardType}
+         </if>
+         <if test="keyword != null and keyword != ''">
+             <choose>
+                 <when test="searchType == 'title'">
+                     AND A.title LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'content'">
+                     AND A.cont LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'writer'">
+                     AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <otherwise>
+                     AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))
+                 </otherwise>
+             </choose>
+         </if>
     </select>
 
         <select id="selectBoardDetail" parameterType="java.util.Map" resultType="com.main.app.common.dto.BoardDto">
@@ -349,6 +388,10 @@
     <!-- 게시글의 파일 전체 삭제 (수정/삭제 시 사용) -->
     <delete id="deleteFiles" parameterType="string">
         DELETE FROM file_table WHERE board_no = #{boardNo}
+    </delete>
+
+    <delete id="deleteComments" parameterType="string">
+        DELETE FROM comment WHERE board_no = #{boardNo}
     </delete>
 
     <!-- 파일 단건 조회 -->

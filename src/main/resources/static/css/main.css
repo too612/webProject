@@ -153,9 +153,17 @@ ul, li {
     }
 
     .header-main .container.erp-wide .nav-main.erp-menu.desktop-only {
-        width: calc(100% - 360px);
-        justify-content: center;
-        gap: 14px;
+            /* ERP: M_SYS_xx 개수 기반으로 가용폭 균등 분배 */
+        position: static;
+        transform: none;
+        left: auto;
+        flex: 1;
+            display: grid !important;
+            grid-template-columns: repeat(var(--erp-menu-count, 10), minmax(84px, 1fr));
+            justify-content: stretch;
+            gap: 12px;
+        margin-left: 24px;
+        overflow-x: auto;
     }
 }
 
@@ -216,11 +224,19 @@ ul, li {
 }
 
 .nav-main.erp-menu {
-    gap: 18px;
+    gap: 12px;
     flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+/* ERP 드롭다운 항목은 셀 폭을 꽉 채워 사용 */
+.nav-main.erp-menu > .dropdown {
+    min-width: 0;
 }
 
 .nav-main.erp-menu > .dropdown > a {
+    display: block;
+    text-align: center;
     font-size: 14px;
     white-space: nowrap;
     line-height: 1.2;

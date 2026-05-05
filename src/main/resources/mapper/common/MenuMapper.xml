@@ -25,6 +25,9 @@
                <when test="systemType == 'community'">
                AND menu_id LIKE 'M_GEN%'
                </when>
+               <when test="systemType == 'mypage'">
+               AND menu_id LIKE 'M_MYPAGE%'
+               </when>
            </choose>
            </if>
            -- AND use_yn = 'Y'  -- 사용여부 조건 추가 (필요시)
@@ -55,6 +58,9 @@
                <when test="systemType == 'community'">
                AND menu_id LIKE 'M_GEN%'
                </when>
+               <when test="systemType == 'mypage'">
+               AND menu_id LIKE 'M_MYPAGE%'
+               </when>
            </choose>
            </if>
           --  AND use_yn = 'Y'
@@ -84,6 +90,9 @@
                </when>
                <when test="systemType == 'community'">
                AND menu_id LIKE 'M_GEN%'
+               </when>
+               <when test="systemType == 'mypage'">
+               AND menu_id LIKE 'M_MYPAGE%'
                </when>
            </choose>
            </if>

@@ -87,7 +87,10 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
     public void deleteBoard(String id) {
+        boardMapper.deleteComments(id);
+        boardMapper.deleteFiles(id);
         boardMapper.deleteBoard(id);
     }
 
@@ -96,6 +99,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Page<BoardDto> getBoardList(Pageable pageable, String searchType, String keyword, String boardType) {
         Map<String, Object> params = new HashMap<>();
+        params.put("searchType", searchType);
         params.put("keyword", keyword);
         params.put("size", pageable.getPageSize());
         params.put("offset", pageable.getOffset());
@@ -105,9 +109,7 @@ public class BoardServiceImpl implements BoardService {
         if (list == null) {
             list = Collections.emptyList();
         }
-        Map<String, Object> countParams = new HashMap<>();
-        countParams.put("boardType", boardType);
-        long total = boardMapper.countAllBoards(countParams);
+        long total = boardMapper.countBoardList(params);
 
         return new PageImpl<>(list, pageable, total);
     }
@@ -175,12 +177,14 @@ public class BoardServiceImpl implements BoardService {
     private void processFiles(String boardNo, List<MultipartFile> files) {
         if (files != null && !files.isEmpty()) {
             for (MultipartFile mf : files) {
-                if (mf.isEmpty()) continue;
+                if (mf.isEmpty())
+                    continue;
                 try {
                     String orgName = mf.getOriginalFilename();
                     String storedName = UUID.randomUUID().toString() + "_" + orgName;
                     File dest = new File(uploadPath + storedName);
-                    if (!dest.getParentFile().exists()) dest.getParentFile().mkdirs();
+                    if (!dest.getParentFile().exists())
+                        dest.getParentFile().mkdirs();
                     mf.transferTo(dest);
 
                     FileDto fileDto = new FileDto();
@@ -221,11 +225,15 @@ public class BoardServiceImpl implements BoardService {
     public void handleVote(Long commentId, String action, String previousVote) {
         int id = commentId.intValue();
         if (previousVote == null) {
-            if ("like".equals(action)) boardMapper.increaseLike(id);
-            else boardMapper.increaseDislike(id);
+            if ("like".equals(action))
+                boardMapper.increaseLike(id);
+            else
+                boardMapper.increaseDislike(id);
         } else if (previousVote.equals(action)) {
-            if ("like".equals(action)) boardMapper.decreaseLike(id);
-            else boardMapper.decreaseDislike(id);
+            if ("like".equals(action))
+                boardMapper.decreaseLike(id);
+            else
+                boardMapper.decreaseDislike(id);
         } else {
             if ("like".equals(action)) {
                 boardMapper.decreaseDislike(id);

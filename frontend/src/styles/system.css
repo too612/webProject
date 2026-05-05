@@ -1,0 +1,341 @@
+/* =========================================================
+   system.css - system/index.html 전용 스타일
+   ========================================================= */
+
+.sys-wrap {
+    padding: 40px 0 64px;
+    background:
+        radial-gradient(circle at 10% 12%, rgba(27, 124, 109, 0.14), transparent 38%),
+        radial-gradient(circle at 86% 8%, rgba(30, 67, 146, 0.12), transparent 40%),
+        linear-gradient(180deg, #f5f8fc 0%, #f8fbff 55%, #ffffff 100%);
+}
+
+.sys-hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: stretch;
+    margin-bottom: 22px;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #113a5c 0%, #1f6f78 58%, #2b8a7e 100%);
+    color: #f5f9ff;
+    box-shadow: 0 16px 32px rgba(16, 46, 73, 0.22);
+}
+
+.sys-kicker {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(232, 243, 255, 0.86);
+    margin-bottom: 10px;
+}
+
+.sys-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.sys-subtitle {
+    font-size: 15px;
+    color: rgba(240, 248, 255, 0.9);
+}
+
+.sys-status {
+    min-width: 230px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    padding: 16px;
+    backdrop-filter: blur(2px);
+}
+
+.sys-status-label {
+    font-size: 12px;
+    color: rgba(236, 247, 255, 0.86);
+    margin-bottom: 6px;
+}
+
+.sys-status-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.sys-status-time {
+    font-size: 13px;
+    color: rgba(236, 247, 255, 0.9);
+}
+
+.sys-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.sys-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #dde6f1;
+    box-shadow: 0 8px 18px rgba(8, 33, 56, 0.08);
+}
+
+.sys-card-head {
+    margin-bottom: 14px;
+}
+
+.sys-card-head h2 {
+    font-size: 20px;
+    color: #18324a;
+}
+
+.sys-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.sys-metric-item {
+    border: 1px solid #dce7f3;
+    border-radius: 12px;
+    padding: 14px;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.sys-metric-label {
+    color: #5f7388;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.sys-metric-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #173f5f;
+}
+
+.sys-link-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.sys-link-grid a {
+    border: 1px solid #d8e4ef;
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+    color: #1b3f5d;
+    background: #ffffff;
+    transition: all 0.18s ease;
+}
+
+.sys-link-grid a:hover {
+    border-color: #2b8a7e;
+    color: #156357;
+    background: #f3fbf8;
+    transform: translateY(-1px);
+}
+
+.system-basic-card {
+    margin-bottom: 20px;
+}
+
+.sys-simple-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #24445f;
+    line-height: 1.7;
+}
+
+.sys-simple-list p {
+    margin: 0;
+}
+
+.sys-simple-list a {
+    color: #156357;
+    font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+    .sys-hero {
+        flex-direction: column;
+    }
+
+    .sys-status {
+        min-width: 100%;
+    }
+
+    .sys-metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .sys-wrap {
+        padding: 24px 0 44px;
+    }
+
+    .sys-grid,
+    .sys-link-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sys-title {
+        font-size: 24px;
+    }
+
+    .sys-metric-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   시스템관리 카테고리 배너
+   ========================================================= */
+
+.sys-category-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #1e3a5f, #1e40af);
+}
+
+.sys-category-banner-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.sys-category-banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sys-category-banner-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.92;
+}
+
+.sys-category-banner-desc {
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+
+/* =========================================================
+   SYSTEM 하위 페이지 톤 오버라이드
+   - erp-section/erp-table 공용 컴포넌트에 시스템 색상 적용
+   ========================================================= */
+
+.sys-category-banner {
+    box-shadow: 0 12px 24px rgba(22, 56, 98, 0.24);
+}
+
+.sys-wrap .erp-section,
+.sys-wrap .erp-list-page,
+.content-area .erp-section,
+.content-area .erp-list-page {
+    background:
+        linear-gradient(150deg, rgba(234, 244, 251, 0.9), rgba(255, 255, 255, 0.96) 26%, rgba(242, 250, 248, 0.92));
+    border-color: #d5e3ef;
+    box-shadow: 0 16px 30px rgba(10, 37, 62, 0.09);
+}
+
+.sys-wrap .erp-list-page::before,
+.sys-wrap .erp-section::before,
+.content-area .erp-list-page::before,
+.content-area .erp-section::before {
+    background: radial-gradient(circle, rgba(28, 126, 118, 0.16), transparent 70%);
+}
+
+.sys-wrap .erp-page-title,
+.sys-wrap .erp-section-title,
+.content-area .erp-page-title,
+.content-area .erp-section-title {
+    color: #163e5f;
+}
+
+.sys-wrap .erp-page-desc,
+.sys-wrap .erp-section-desc,
+.content-area .erp-page-desc,
+.content-area .erp-section-desc {
+    color: #46627f;
+}
+
+.sys-wrap .erp-btn,
+.content-area .erp-btn {
+    border-color: #c4d6e7;
+    color: #1f4664;
+}
+
+.sys-wrap .erp-btn:hover,
+.content-area .erp-btn:hover {
+    border-color: #2b8a7e;
+    color: #155b53;
+    background: #eef9f6;
+}
+
+.sys-wrap .erp-btn.primary,
+.content-area .erp-btn.primary {
+    border-color: #1f7a73;
+    background: linear-gradient(135deg, #2a8e81, #1f7a73);
+    box-shadow: 0 8px 16px rgba(31, 122, 115, 0.24);
+}
+
+.sys-wrap .erp-btn.primary:hover,
+.content-area .erp-btn.primary:hover {
+    background: linear-gradient(135deg, #227f74, #196960);
+}
+
+.sys-wrap .erp-input:focus,
+.sys-wrap .erp-search-input:focus,
+.content-area .erp-input:focus,
+.content-area .erp-search-input:focus {
+    border-color: #2b8a7e;
+    box-shadow: 0 0 0 4px rgba(43, 138, 126, 0.16);
+}
+
+.sys-wrap .erp-table thead th,
+.content-area .erp-table thead th {
+    background: linear-gradient(180deg, #edf7f6, #e6f2f0);
+    color: #1a4a60;
+    border-bottom-color: #cee1df;
+}
+
+.sys-wrap .erp-table tbody tr:hover td,
+.content-area .erp-table tbody tr:hover td {
+    background: #f2fbf8;
+}
+
+.sys-wrap .erp-badge.badge-active,
+.content-area .erp-badge.badge-active {
+    background: #e5f7f2;
+    color: #166956;
+    border-color: #b7e4d8;
+}
+
+.sys-wrap .erp-badge.badge-danger,
+.content-area .erp-badge.badge-danger {
+    background: #fff0ef;
+    color: #9a3a33;
+    border-color: #f0c5c0;
+}
+
+.sys-list-page {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}

@@ -37,7 +37,8 @@
                 <a href="/" class="logo" aria-label="다사랑교회 홈">
                     <img th:src="@{/img/logo.png}" src="/img/logo.png" alt="다사랑교회 로고">
                 </a>
-                <nav class="nav-main desktop-only" th:classappend="${currentSystemType == 'erp'} ? 'erp-menu' : ''">
+                <nav class="nav-main desktop-only" th:classappend="${currentSystemType == 'erp'} ? 'erp-menu' : ''"
+                    th:style="${currentSystemType == 'erp'} ? '--erp-menu-count:' + #lists.size(menuList) + ';' : ''">
                     <!-- menuList는 계층 구조를 가진 MenuDto 객체 리스트 -->
                     <div class="dropdown" th:each="menu : ${menuList}">
                         <!-- path가 있으면 해당 경로로 이동, 없으면 링크 비활성화 -->

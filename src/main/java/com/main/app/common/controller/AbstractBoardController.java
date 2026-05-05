@@ -15,142 +15,103 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriUtils;
 
+import org.springframework.http.HttpStatus;
+
+import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.BoardDto;
 import com.main.app.common.dto.CommentDto;
 import com.main.app.common.dto.FileDto;
-import com.main.app.common.dto.MenuDto;
 import com.main.app.common.helper.BoardContext;
 import com.main.app.common.service.BoardService;
-import com.main.app.common.service.MenuService;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletRequest;
 
 public abstract class AbstractBoardController {
 
     @Autowired
     protected BoardService boardService;
 
-    @Autowired
-    protected MenuService menuService;
-
     protected abstract BoardContext getBoardContext();
 
-    @ModelAttribute
-    public void addAttributes(Model model, HttpServletRequest request) {
-        model.addAttribute("submenu", "Y");
-
-        // URI에서 systemType 추출
-        String uri = request.getRequestURI();
-        String systemType = extractSystemType(uri);
-
-        List<MenuDto> menus = menuService.getHierarchicalMenus(systemType);
-        BoardContext context = getBoardContext();
-        String targetPath = context.getTargetMenuPath();
-        String legacyTargetPath = targetPath;
-        if (targetPath.startsWith("/community")) {
-            legacyTargetPath = targetPath.substring("/community".length());
-            if (legacyTargetPath.isEmpty()) {
-                legacyTargetPath = "/";
-            }
-        }
-        String activePath = context.getBasePath();
-
-        for (MenuDto topMenu : menus) {
-            List<MenuDto> subMenus = topMenu.getSubMenus();
-            if (subMenus != null) {
-                for (MenuDto sub : subMenus) {
-                        boolean matchesTarget = targetPath.equals(sub.getPath())
-                            || legacyTargetPath.equals(sub.getPath());
-                        if (matchesTarget) {
-                        model.addAttribute("currentMenu", topMenu.getMenuName());
-                        model.addAttribute("currentSubmenu", sub.getMenuName());
-
-                        for (MenuDto s : subMenus) {
-                            boolean isActive = targetPath.equals(s.getPath())
-                                || legacyTargetPath.equals(s.getPath());
-                            s.setActive(isActive);
-                            if (isActive) s.setPath(activePath);
-                        }
-                        model.addAttribute("currentSubMenus", subMenus);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
     @GetMapping
-    public String list(Model model,
-                       @RequestParam(name = "page", defaultValue = "0") int page,
-                       @RequestParam(name = "searchType", required = false) String searchType,
-                       @RequestParam(name = "keyword", required = false) String keyword) {
+    @ResponseBody
+    public ApiResponse<Page<BoardDto>> list(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "searchType", required = false) String searchType,
+            @RequestParam(name = "keyword", required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, 10);
         Page<BoardDto> paging = boardService.getBoardList(pageable, searchType, keyword, getBoardContext().getBoardType());
-        model.addAttribute("boards", paging.getContent());
-        model.addAttribute("paging", paging);
-        return getBoardContext().getListView();
+        return ApiResponse.ok(paging);
     }
 
     @GetMapping("/write")
-    public String writeForm(Model model, @RequestParam(name = "rqstNo", required = false) String rqstNo) {
+    @ResponseBody
+    public ApiResponse<BoardDto> writeForm(@RequestParam(name = "rqstNo", required = false) String rqstNo) {
         if (rqstNo != null) {
             BoardDto board = boardService.getBoardDetail(rqstNo, getBoardContext().getBoardType());
-            model.addAttribute("board", board);
+            return ApiResponse.ok(board);
         } else {
             BoardDto board = new BoardDto();
             board.setBoardType(getBoardContext().getBoardType());
-            model.addAttribute("board", board);
+            return ApiResponse.ok(board);
         }
-        return getBoardContext().getWriteView();
     }
 
     @GetMapping("/reply")
-    public String replyForm(Model model, @RequestParam(name = "parentNo") String parentNo) {
+    @ResponseBody
+    public ApiResponse<BoardDto> replyForm(@RequestParam(name = "parentNo") String parentNo) {
         BoardDto parent = boardService.getBoardDetail(parentNo, getBoardContext().getBoardType());
         BoardDto reply = new BoardDto();
         reply.setParentNo(parentNo);
         reply.setTitle("RE: " + parent.getTitle());
         reply.setBoardType(getBoardContext().getBoardType());
-        model.addAttribute("board", reply);
-        return getBoardContext().getWriteView();
+        return ApiResponse.ok(reply);
     }
 
     @PostMapping("/write")
-    public String save(BoardDto board, @RequestParam(name = "files", required = false) List<MultipartFile> files) {
+    @ResponseBody
+    public ApiResponse<Map<String, String>> save(BoardDto board,
+            @RequestParam(name = "files", required = false) List<MultipartFile> files) {
         if (board.getOrderNo() == null) board.setOrderNo(0);
         if (board.getDepth() == null) board.setDepth(0);
         board.setBoardType(getBoardContext().getBoardType());
         boardService.saveBoard(board, files);
-        return "redirect:" + getBoardContext().getBasePath();
+        Map<String, String> payload = new HashMap<>();
+        payload.put("basePath", getBoardContext().getBasePath());
+        return ApiResponse.ok(payload, "게시글이 등록되었습니다.");
     }
 
     @PostMapping("/update")
-    public String update(BoardDto board, @RequestParam(name = "files", required = false) List<MultipartFile> files) {
+    @ResponseBody
+    public ApiResponse<Map<String, String>> update(BoardDto board,
+            @RequestParam(name = "files", required = false) List<MultipartFile> files) {
         board.setBoardType(getBoardContext().getBoardType());
         boardService.updateBoard(board, files);
-        return "redirect:" + getBoardContext().getBasePath() + "/view?rqstNo=" + board.getRqstNo();
+        Map<String, String> payload = new HashMap<>();
+        payload.put("rqstNo", board.getRqstNo());
+        return ApiResponse.ok(payload, "게시글이 수정되었습니다.");
     }
 
     @PostMapping("/delete")
-    public String delete(@RequestParam(name = "rqstNo") String rqstNo) {
+    @ResponseBody
+    public ApiResponse<Map<String, String>> delete(@RequestParam(name = "rqstNo") String rqstNo) {
         boardService.deleteBoard(rqstNo);
-        return "redirect:" + getBoardContext().getBasePath();
+        Map<String, String> payload = new HashMap<>();
+        payload.put("rqstNo", rqstNo);
+        return ApiResponse.ok(payload, "게시글이 삭제되었습니다.");
     }
 
     @GetMapping("/view")
-    public String view(Model model, @RequestParam(name = "rqstNo") String rqstNo, HttpSession session) {
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> view(@RequestParam(name = "rqstNo") String rqstNo, HttpSession session) {
         BoardDto board = boardService.getBoardDetail(rqstNo, getBoardContext().getBoardType());
         List<CommentDto> comments = boardService.getCommentList(rqstNo);
 
@@ -158,28 +119,30 @@ public abstract class AbstractBoardController {
         Map<Long, String> voteHistory = (Map<Long, String>) session.getAttribute("voteHistory");
         if (voteHistory == null) voteHistory = new HashMap<>();
 
-        model.addAttribute("board", board);
-        model.addAttribute("comments", comments);
-        model.addAttribute("commentCount", comments.size());
-        model.addAttribute("userVotes", voteHistory);
-        return getBoardContext().getViewView();
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("board", board);
+        payload.put("comments", comments);
+        payload.put("commentCount", comments.size());
+        payload.put("userVotes", voteHistory);
+        return ApiResponse.ok(payload);
     }
 
     @PostMapping("/view")
-    public String checkPasswordAndView(Model model,
-                                       @RequestParam(name = "rqstNo") String rqstNo,
-                                       @RequestParam(name = "password") String password,
-                                       RedirectAttributes redirectAttributes) {
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Map<String, Object>>> checkPasswordAndView(
+            @RequestParam(name = "rqstNo") String rqstNo,
+            @RequestParam(name = "password") String password) {
         BoardDto board = boardService.getBoardDetail(rqstNo, getBoardContext().getBoardType());
         if (board == null || !password.equals(board.getPassword())) {
-            redirectAttributes.addFlashAttribute("message", "비밀번호가 일치하지 않습니다.");
-            return "redirect:" + getBoardContext().getBasePath();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다."));
         }
         List<CommentDto> comments = boardService.getCommentList(rqstNo);
-        model.addAttribute("board", board);
-        model.addAttribute("comments", comments);
-        model.addAttribute("commentCount", comments.size());
-        return getBoardContext().getViewView();
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("board", board);
+        payload.put("comments", comments);
+        payload.put("commentCount", comments.size());
+        return ResponseEntity.ok(ApiResponse.ok(payload));
     }
 
     @GetMapping("/download")
@@ -195,14 +158,17 @@ public abstract class AbstractBoardController {
     }
 
     @PostMapping("/comment/write")
-    public String writeComment(CommentDto comment) {
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> writeComment(CommentDto comment) {
         boardService.saveComment(comment);
-        return "redirect:" + getBoardContext().getBasePath() + "/view?rqstNo=" + comment.getBoardNo();
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("boardNo", comment.getBoardNo());
+        return ApiResponse.ok(payload, "댓글이 등록되었습니다.");
     }
 
     @PostMapping("/comment/vote")
     @ResponseBody
-    public Map<String, Object> likeComment(@RequestBody Map<String, String> payload, HttpSession session) {
+    public ApiResponse<Map<String, Object>> likeComment(@RequestBody Map<String, String> payload, HttpSession session) {
         Long commentId = Long.parseLong(payload.get("commentId"));
         String action = payload.get("action");
 
@@ -228,27 +194,6 @@ public abstract class AbstractBoardController {
         response.put("dislikes", updatedComment.getDislikes());
         response.put("userVote", voteHistory.get(commentId));
 
-        return response;
-    }
-
-    /**
-     * URI에서 systemType을 추출합니다.
-     * @param uri 현재 요청 URI
-     * @return systemType (official, erp, community) 또는 official (기본값)
-     */
-    private String extractSystemType(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return "official";
-        }
-        
-        if (uri.startsWith("/official")) {
-            return "official";
-        } else if (uri.startsWith("/erp")) {
-            return "erp";
-        } else if (uri.startsWith("/community")) {
-            return "community";
-        }
-        
-        return "official";
+        return ApiResponse.ok(response);
     }
 }

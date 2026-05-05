@@ -1,0 +1,261 @@
+export type ErpPageDefinition = {
+  title: string;
+  summary: string;
+  checklist: string[];
+  path: string;
+};
+
+export const ERP_PAGE_DEFINITIONS: Record<string, ErpPageDefinition> = {
+  'humen/manager': {
+    title: '성도관리',
+    summary: '성도 기본 정보와 상태를 관리합니다.',
+    checklist: ['성도 검색/조회', '상태 변경', '연락처 관리'],
+    path: '/erp/humen/manager',
+  },
+  'humen/district': {
+    title: '교구관리',
+    summary: '교구 편성과 담당자를 관리합니다.',
+    checklist: ['교구 배정', '담당자 지정', '변경 이력'],
+    path: '/erp/humen/district',
+  },
+  'humen/newcomer': {
+    title: '새가족관리',
+    summary: '새가족 등록과 정착 과정을 추적합니다.',
+    checklist: ['초기 등록', '정착 단계 관리', '후속 케어'],
+    path: '/erp/humen/newcomer',
+  },
+  'humen/change': {
+    title: '변동관리',
+    summary: '전출입, 휴면 등 변동 사항을 기록합니다.',
+    checklist: ['변동 유형 선택', '사유 기록', '통계 반영'],
+    path: '/erp/humen/change',
+  },
+  'sermon/manager': {
+    title: '설교관리',
+    summary: '설교 등록과 분류를 관리합니다.',
+    checklist: ['설교 목록', '본문/주제 태깅', '검색'],
+    path: '/erp/sermon/manager',
+  },
+  'sermon/archive': {
+    title: '설교아카이브',
+    summary: '과거 설교를 기간/주제별로 조회합니다.',
+    checklist: ['기간 필터', '시리즈 정렬', '미디어 링크'],
+    path: '/erp/sermon/archive',
+  },
+  'sermon/attendance': {
+    title: '출석관리',
+    summary: '예배 출석 데이터 집계를 관리합니다.',
+    checklist: ['주차별 출석', '교구별 통계', '내보내기'],
+    path: '/erp/sermon/attendance',
+  },
+  'sermon/write': {
+    title: '설교작성',
+    summary: '설교 원고 및 메타정보를 작성합니다.',
+    checklist: ['본문 작성', '첨부 등록', '임시저장'],
+    path: '/erp/sermon/write',
+  },
+  'sermon/order': {
+    title: '예배순서',
+    summary: '예배 진행 순서를 구성합니다.',
+    checklist: ['순서 편집', '담당자 배정', '인쇄용 출력'],
+    path: '/erp/sermon/order',
+  },
+  'account/manager': {
+    title: '회계관리',
+    summary: '회계 항목을 통합 관리합니다.',
+    checklist: ['계정과목 관리', '분개 내역', '월별 마감'],
+    path: '/erp/account/manager',
+  },
+  'account/input': {
+    title: '수입입력',
+    summary: '헌금 및 기타 수입을 등록합니다.',
+    checklist: ['수입 구분', '금액 입력', '전표 생성'],
+    path: '/erp/account/input',
+  },
+  'account/budget': {
+    title: '예산관리',
+    summary: '연간/부서별 예산을 편성합니다.',
+    checklist: ['예산안 작성', '승인 프로세스', '실적 대비'],
+    path: '/erp/account/budget',
+  },
+  'account/expense': {
+    title: '지출관리',
+    summary: '지출 요청과 집행 내역을 관리합니다.',
+    checklist: ['지출 요청', '증빙 첨부', '결재 상태'],
+    path: '/erp/account/expense',
+  },
+  'account/report': {
+    title: '재정보고',
+    summary: '월간/분기 재무 보고서를 조회합니다.',
+    checklist: ['수입지출 요약', '그래프 대시보드', '보고서 내보내기'],
+    path: '/erp/account/report',
+  },
+  'training/course': {
+    title: '과정관리',
+    summary: '교육 과정을 개설하고 운영합니다.',
+    checklist: ['과정 개설', '강사 배정', '정원 관리'],
+    path: '/erp/training/course',
+  },
+  'training/student': {
+    title: '수강생관리',
+    summary: '수강생 등록과 상태를 관리합니다.',
+    checklist: ['수강생 등록', '반 배정', '수료 상태'],
+    path: '/erp/training/student',
+  },
+  'training/attendance': {
+    title: '교육출결',
+    summary: '교육 출결 현황을 관리합니다.',
+    checklist: ['회차별 출결', '지각/결석 기록', '통계'],
+    path: '/erp/training/attendance',
+  },
+  'training/complete': {
+    title: '수료관리',
+    summary: '수료 여부와 이수 정보를 관리합니다.',
+    checklist: ['수료 판정', '증명서 발급', '이력 보관'],
+    path: '/erp/training/complete',
+  },
+  'ministry/department': {
+    title: '부서관리',
+    summary: '사역 부서 조직을 관리합니다.',
+    checklist: ['부서 구조', '담당자 지정', '연락망'],
+    path: '/erp/ministry/department',
+  },
+  'ministry/schedule': {
+    title: '사역일정',
+    summary: '부서별 사역 일정을 관리합니다.',
+    checklist: ['일정 등록', '중복 체크', '알림'],
+    path: '/erp/ministry/schedule',
+  },
+  'ministry/volunteer': {
+    title: '봉사자관리',
+    summary: '봉사자 참여 및 배치를 관리합니다.',
+    checklist: ['참여 신청', '시간 배치', '참여 이력'],
+    path: '/erp/ministry/volunteer',
+  },
+  'ministry/report': {
+    title: '사역보고',
+    summary: '사역 결과를 보고하고 공유합니다.',
+    checklist: ['활동 기록', '사진 첨부', '성과 요약'],
+    path: '/erp/ministry/report',
+  },
+  'event/calendar': {
+    title: '행사캘린더',
+    summary: '교회 행사 일정을 통합 조회합니다.',
+    checklist: ['월간 캘린더', '행사 분류', '연동 일정'],
+    path: '/erp/event/calendar',
+  },
+  'event/apply': {
+    title: '행사신청',
+    summary: '행사 참가 신청을 접수합니다.',
+    checklist: ['신청 폼', '정원 체크', '확정 알림'],
+    path: '/erp/event/apply',
+  },
+  'event/participant': {
+    title: '참가자관리',
+    summary: '참가자 정보를 관리합니다.',
+    checklist: ['명단 조회', '출석 체크', '연락'],
+    path: '/erp/event/participant',
+  },
+  'event/result': {
+    title: '행사결과',
+    summary: '행사 결과와 평가를 기록합니다.',
+    checklist: ['결과 요약', '피드백', '다음 계획'],
+    path: '/erp/event/result',
+  },
+  'facility/reservation': {
+    title: '시설예약',
+    summary: '시설 예약 신청과 승인 흐름을 관리합니다.',
+    checklist: ['예약 신청', '승인/반려', '예약 현황'],
+    path: '/erp/facility/reservation',
+  },
+  'facility/vehicle': {
+    title: '차량관리',
+    summary: '교회 차량 운행과 점검 이력을 관리합니다.',
+    checklist: ['차량 배차', '운행 기록', '점검 일정'],
+    path: '/erp/facility/vehicle',
+  },
+  'facility/inventory': {
+    title: '비품관리',
+    summary: '비품 보유/사용 현황을 관리합니다.',
+    checklist: ['입출고 기록', '재고 경고', '분류 관리'],
+    path: '/erp/facility/inventory',
+  },
+  'facility/maintenance': {
+    title: '시설점검',
+    summary: '시설 유지보수 요청을 처리합니다.',
+    checklist: ['점검 요청', '작업 배정', '완료 보고'],
+    path: '/erp/facility/maintenance',
+  },
+  'comm/notice': {
+    title: '공지관리',
+    summary: '내부 공지사항을 배포합니다.',
+    checklist: ['공지 작성', '대상 지정', '게시 기간'],
+    path: '/erp/comm/notice',
+  },
+  'comm/message': {
+    title: '메시지관리',
+    summary: '단체 메시지 발송을 관리합니다.',
+    checklist: ['수신 그룹', '발송 예약', '결과 확인'],
+    path: '/erp/comm/message',
+  },
+  'comm/prayer': {
+    title: '기도요청',
+    summary: '내부 기도 요청을 접수/공유합니다.',
+    checklist: ['요청 등록', '중보팀 공유', '처리 상태'],
+    path: '/erp/comm/prayer',
+  },
+  'comm/newsletter': {
+    title: '뉴스레터',
+    summary: '주간 소식지를 작성하고 발송합니다.',
+    checklist: ['콘텐츠 편집', '발송 대상', '열람 통계'],
+    path: '/erp/comm/newsletter',
+  },
+  'admin/certificate': {
+    title: '증명서발급',
+    summary: '증명서 발급 요청과 처리 상태를 관리합니다.',
+    checklist: ['신청 접수', '승인 처리', '발급 이력'],
+    path: '/erp/admin/certificate',
+  },
+  'admin/approval': {
+    title: '결재문서관리',
+    summary: '결재 문서를 등록하고 승인 흐름을 추적합니다.',
+    checklist: ['결재선 지정', '상태 추적', '반려 사유'],
+    path: '/erp/admin/approval',
+  },
+  'admin/minutes': {
+    title: '회의록관리',
+    summary: '회의록을 작성하고 공유합니다.',
+    checklist: ['회의록 작성', '참석자 기록', '버전 관리'],
+    path: '/erp/admin/minutes',
+  },
+  'admin/archive': {
+    title: '첨부문서함',
+    summary: '행정 문서를 보관하고 검색합니다.',
+    checklist: ['문서 업로드', '분류 태깅', '권한 조회'],
+    path: '/erp/admin/archive',
+  },
+  'stats/dashboard': {
+    title: '대시보드',
+    summary: '운영 핵심 지표를 한눈에 확인합니다.',
+    checklist: ['핵심 KPI', '추이 그래프', '알림 위젯'],
+    path: '/erp/stats/dashboard',
+  },
+  'stats/attendance': {
+    title: '출석통계',
+    summary: '예배/교육 출석 통계를 분석합니다.',
+    checklist: ['주별/월별 통계', '연령대 분석', '내보내기'],
+    path: '/erp/stats/attendance',
+  },
+  'stats/offering': {
+    title: '헌금통계',
+    summary: '헌금 항목별 통계를 확인합니다.',
+    checklist: ['항목별 집계', '기간 비교', '리포트 생성'],
+    path: '/erp/stats/offering',
+  },
+  'stats/ministry': {
+    title: '사역통계',
+    summary: '사역 참여 및 성과 지표를 분석합니다.',
+    checklist: ['부서별 참여율', '이벤트 성과', '비교 분석'],
+    path: '/erp/stats/ministry',
+  },
+};

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="720" viewBox="0 0 560 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d7e3ff" />
+      <stop offset="100%" stop-color="#b8c8ef" />
+    </linearGradient>
+  </defs>
+  <rect width="560" height="720" fill="url(#bg)" />
+  <circle cx="280" cy="250" r="120" fill="#ffffff" opacity="0.85" />
+  <rect x="180" y="390" width="200" height="220" rx="24" fill="#ffffff" opacity="0.85" />
+  <text x="50%" y="665" dominant-baseline="middle" text-anchor="middle" fill="#4a5d86" font-size="32" font-family="Noto Sans KR, sans-serif">담임목사</text>
+</svg>

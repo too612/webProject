@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.main.app.common.controller.AbstractBoardController;
 import com.main.app.common.helper.BoardContext;
 
-@Controller
+@Controller("communityBoardQnaController")
 @RequestMapping("/community/board")
 public class QnaController extends AbstractBoardController {
 

@@ -99,9 +99,21 @@ public class GlobalControllerAdvice {
             }
         }
 
+        // 마이페이지 경로 호환 처리: DB에는 /user/... 형태인데 실제 요청은 /mypage/user/... 인 경우 대응
+        if (currentMenu == null && isPathMatch(currentUri, "/mypage")) {
+            String legacyUri = currentUri.substring("/mypage".length());
+            if (legacyUri.isEmpty()) {
+                legacyUri = "/";
+            }
+            currentMenu = findBestMatchMenu(hierarchicalMenus, legacyUri);
+            if (currentMenu != null) {
+                log.info(">>> [DEBUG] mypage legacy 경로로 메뉴 매칭 성공: {}", legacyUri);
+            }
+        }
+
         // URI prefix 기준 systemType이 맞지 않는 경우를 대비해 다른 시스템 메뉴에서 재탐색
         if (currentMenu == null) {
-            String[] candidates = { "community", "erp", "system", "official" };
+            String[] candidates = { "community", "erp", "system", "mypage", "official" };
             for (String candidate : candidates) {
                 if (candidate.equals(systemType)) {
                     continue;
@@ -202,7 +214,7 @@ public class GlobalControllerAdvice {
      * URI에서 systemType을 추출합니다.
      * 
      * @param uri 현재 요청 URI
-     * @return systemType (official, erp, community) 또는 null
+     * @return systemType (official, erp, community, mypage) 또는 null
      */
     private String extractSystemType(String uri) {
         if (uri == null || uri.isEmpty()) {
@@ -214,6 +226,8 @@ public class GlobalControllerAdvice {
             return "official";
         } else if (isPathMatch(uri, "/system")) {
             return "system";
+        } else if (isPathMatch(uri, "/mypage")) {
+            return "mypage";
         } else if (isPathMatch(uri, "/erp")
                 || isPathMatch(uri, "/humen")
                 || isPathMatch(uri, "/account")
