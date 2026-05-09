@@ -189,7 +189,10 @@ function Start-Servers {
     }
 
     $encInit = "chcp 65001 | Out-Null; [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::InputEncoding = [System.Text.Encoding]::UTF8; `$OutputEncoding = [System.Text.Encoding]::UTF8; "
-    $backendCommand = $encInit + "Set-Location -LiteralPath '$backendDir'; .\\gradlew.bat bootRun"
+    $backendCommand = $encInit + `
+        "Set-Location -LiteralPath '$backendDir'; " + `
+        "`$env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; " + `
+        ".\\gradlew.bat bootRun"
     $frontendCommand = $encInit + "Set-Location -LiteralPath '$frontendDir'; npm run dev"
 
     Write-Info '백엔드 서버 창을 시작합니다.'
