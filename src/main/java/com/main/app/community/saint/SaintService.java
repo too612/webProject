@@ -1,4 +1,7 @@
 package com.main.app.community.saint;
 
-public interface SaintService {
+import org.springframework.stereotype.Service;
+
+@Service("communitySaintService")
+public class SaintService {
 }

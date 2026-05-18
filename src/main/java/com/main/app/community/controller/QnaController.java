@@ -15,3 +15,4 @@ public class QnaController extends AbstractBoardController {
         return BoardContext.COMMUNITY_QNA;
     }
 }
+

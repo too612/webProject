@@ -21,7 +21,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiResponse<Void>> handleMaxUploadSize(MaxUploadSizeExceededException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "파일 업로드 용량이 초과되었습니다. (최대 200MB)"));
+                .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "파일 업로드 용량을 초과했습니다. (최대 200MB)"));
     }
 
     @ExceptionHandler(ResponseStatusException.class)

@@ -27,3 +27,4 @@ public class SystemLegacyRedirectController {
         return "redirect:/system/backup/" + page;
     }
 }
+

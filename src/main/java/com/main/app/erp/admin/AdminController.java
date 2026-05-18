@@ -2,8 +2,11 @@ package com.main.app.erp.admin;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import com.main.app.common.dto.ApiResponse;
+import java.util.Map;
+import java.util.List;
+
 
 @Controller("erpAdminController")
 @RequestMapping("/erp/admin")
@@ -32,5 +35,17 @@ public class AdminController {
     public String archivePage(Model model) {
         addPageAttributes(model);
         return "erp/admin/archive";
+    }
+
+    @PostMapping("/api/admin/save")
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> saveAdminController(@RequestBody Map<String, Object> params) {
+        return ApiResponse.ok(params);
+    }
+
+    @GetMapping("/api/admin/list")
+    @ResponseBody
+    public ApiResponse<List<Map<String, Object>>> getAdminControllerList() {
+        return ApiResponse.ok(null);
     }
 }

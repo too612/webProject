@@ -1,6 +1,9 @@
 package com.main.app.community.world;
 
-public interface WorldService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 일반뉴스 기능 서비스 메서드를 정의하세요.
+@Service("communityWorldService")
+public class WorldService {
+
+    // TODO: 월드(community world) 관련 업무 로직 구현 필요 (예: 월드 등록, 조회 등)
 }

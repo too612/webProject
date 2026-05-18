@@ -1,6 +1,9 @@
 package com.main.app.system.user;
 
-public interface UserService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 사용자/권한관리 기능 서비스 메서드를 정의하세요.
+@Service("systemUserService")
+public class UserService {
+
+    // TODO: 사용자 관련 업무 로직 구현 필요 (예: 사용자 목록, 등록, 수정 등)
 }

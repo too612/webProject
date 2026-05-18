@@ -1,6 +1,9 @@
 package com.main.app.system.log;
 
-public interface LogService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 로그/감사관리 기능 서비스 메서드를 정의하세요.
+@Service("systemLogService")
+public class LogService {
+
+    // TODO: 로그/감사 관련 업무 로직 구현 필요 (예: 로그 기록, 조회 등)
 }

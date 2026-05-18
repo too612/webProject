@@ -1,6 +1,9 @@
 package com.main.app.official.support;
 
-public interface SupportService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 문의사항 기능 서비스 메서드를 정의하세요.
+@Service("officialSupportService")
+public class SupportService {
+
+    // TODO: 문의/FAQ 관련 업무 로직 구현 필요 (예: 문의 등록, FAQ 관리 등)
 }

@@ -2,8 +2,11 @@ package com.main.app.erp.account;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import com.main.app.common.dto.ApiResponse;
+import java.util.Map;
+import java.util.List;
+
 
 @Controller("erpAccountController")
 @RequestMapping("/erp/account")
@@ -37,5 +40,17 @@ public class AccountController {
     public String reportPage(Model model) {
         addPageAttributes(model);
         return "erp/account/report";
+    }
+
+    @PostMapping("/api/account/save")
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> saveAccountController(@RequestBody Map<String, Object> params) {
+        return ApiResponse.ok(params);
+    }
+
+    @GetMapping("/api/account/list")
+    @ResponseBody
+    public ApiResponse<List<Map<String, Object>>> getAccountControllerList() {
+        return ApiResponse.ok(null);
     }
 }

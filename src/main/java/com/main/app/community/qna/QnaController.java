@@ -7,3 +7,4 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/community/qna")
 public class QnaController {
 }
+

@@ -1,13 +1,14 @@
 package com.main.app.system.controller;
 
+import com.main.app.common.dto.ApiResponse;
+import com.main.app.common.dto.PageMetaDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -17,33 +18,39 @@ public class SystemIndexController {
         private static final Map<String, Map<String, SystemPageMeta>> SYSTEM_PAGE_META = Map.of(
                         "user", Map.of(
                                         "manager",
-                                        new SystemPageMeta("M_ADM_01_01", "M_ADM_01", "사용자계정관리", "/system/user/manager",
-                                                        "시스템 사용자 계정을 생성·수정·잠금해제하는 기본 관리 화면입니다."),
+                                        new SystemPageMeta("M_ADM_01_01", "M_ADM_01", "User Manager",
+                                                        "/system/user/manager",
+                                                        "Manage system user accounts."),
                                         "role",
-                                        new SystemPageMeta("M_ADM_01_02", "M_ADM_01", "권한역할관리", "/system/user/role",
-                                                        "역할(Role)별 메뉴 접근 권한을 정의하는 기본 관리 화면입니다.")),
+                                        new SystemPageMeta("M_ADM_01_02", "M_ADM_01", "Role Manager",
+                                                        "/system/user/role",
+                                                        "Manage role-based menu permissions.")),
                         "config", Map.of(
                                         "code",
-                                        new SystemPageMeta("M_ADM_02_01", "M_ADM_02", "공통코드관리", "/system/config/code",
-                                                        "시스템 전역에서 사용하는 공통코드 항목을 관리하는 기본 화면입니다."),
+                                        new SystemPageMeta("M_ADM_02_01", "M_ADM_02", "Code Manager",
+                                                        "/system/config/code",
+                                                        "Manage common system codes."),
                                         "menu",
-                                        new SystemPageMeta("M_ADM_02_02", "M_ADM_02", "메뉴권한관리", "/system/config/menu",
-                                                        "메뉴별 접근 권한을 역할에 매핑하는 기본 화면입니다.")),
+                                        new SystemPageMeta("M_ADM_02_02", "M_ADM_02", "Menu Manager",
+                                                        "/system/config/menu",
+                                                        "Manage menu access permissions.")),
                         "log", Map.of(
                                         "system",
-                                        new SystemPageMeta("M_ADM_03_01", "M_ADM_03", "시스템로그조회", "/system/log/system",
-                                                        "시스템 이벤트 및 오류 로그를 조회하는 기본 화면입니다."),
+                                        new SystemPageMeta("M_ADM_03_01", "M_ADM_03", "System Log",
+                                                        "/system/log/system",
+                                                        "View system event and error logs."),
                                         "audit",
-                                        new SystemPageMeta("M_ADM_03_02", "M_ADM_03", "감사추적관리", "/system/log/audit",
-                                                        "사용자 행위 및 권한 변경 이력을 추적하는 기본 화면입니다.")),
+                                        new SystemPageMeta("M_ADM_03_02", "M_ADM_03", "Audit Log", "/system/log/audit",
+                                                        "Track user actions and permission changes.")),
                         "backup", Map.of(
                                         "policy",
-                                        new SystemPageMeta("M_ADM_04_01", "M_ADM_04", "백업정책관리", "/system/backup/policy",
-                                                        "백업 주기 및 보관 정책을 설정하는 기본 화면입니다."),
+                                        new SystemPageMeta("M_ADM_04_01", "M_ADM_04", "Backup Policy",
+                                                        "/system/backup/policy",
+                                                        "Configure backup schedule and retention policy."),
                                         "history",
-                                        new SystemPageMeta("M_ADM_04_02", "M_ADM_04", "복구이력관리",
+                                        new SystemPageMeta("M_ADM_04_02", "M_ADM_04", "Backup History",
                                                         "/system/backup/history",
-                                                        "복구 실행 이력과 결과를 확인하는 기본 화면입니다.")));
+                                                        "Review restore history and outcomes.")));
 
         private void addSystemPageAttributes(Model model) {
                 model.addAttribute("submenu", "Y");
@@ -51,7 +58,7 @@ public class SystemIndexController {
 
         @GetMapping
         public String index(Model model) {
-                model.addAttribute("pageTitle", "시스템관리");
+                model.addAttribute("pageTitle", "System Management");
                 return "system/index";
         }
 
@@ -62,12 +69,12 @@ public class SystemIndexController {
 
                 Map<String, SystemPageMeta> categoryPages = SYSTEM_PAGE_META.get(category);
                 if (categoryPages == null) {
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 시스템 카테고리입니다.");
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid system category.");
                 }
 
                 SystemPageMeta meta = categoryPages.get(page);
                 if (meta == null) {
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 시스템 페이지입니다.");
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid system page.");
                 }
 
                 model.addAttribute("pageTitle", meta.pageName());
@@ -78,6 +85,37 @@ public class SystemIndexController {
                 model.addAttribute("topMenuId", "M_ADM");
 
                 return "system/" + category + "/" + page;
+        }
+
+        // ===== REST API methods =====
+
+        /**
+         * API system page metadata
+         */
+        @GetMapping("/api/pages")
+        @ResponseBody
+        public ApiResponse<Map<String, List<PageMetaDto>>> getPages() {
+                return ApiResponse.ok(Map.of(
+                                "user", List.of(
+                                                new PageMetaDto("User Manager", "/system/user/manager", "system",
+                                                                "system/user/manager"),
+                                                new PageMetaDto("Role Manager", "/system/user/role", "system",
+                                                                "system/user/role")),
+                                "config", List.of(
+                                                new PageMetaDto("Menu Manager", "/system/config/menu", "system",
+                                                                "system/config/menu"),
+                                                new PageMetaDto("Code Manager", "/system/config/code", "system",
+                                                                "system/config/code")),
+                                "log", List.of(
+                                                new PageMetaDto("System Log", "/system/log/system", "system",
+                                                                "system/log/system"),
+                                                new PageMetaDto("Audit Log", "/system/log/audit", "system",
+                                                                "system/log/audit")),
+                                "backup", List.of(
+                                                new PageMetaDto("Backup Policy", "/system/backup/policy", "system",
+                                                                "system/backup/policy"),
+                                                new PageMetaDto("Backup History", "/system/backup/history", "system",
+                                                                "system/backup/history"))));
         }
 
         private record SystemPageMeta(String menuId, String parentMenuId, String pageName, String path,

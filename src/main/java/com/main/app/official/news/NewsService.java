@@ -1,6 +1,9 @@
 package com.main.app.official.news;
 
-public interface NewsService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 소식 기능 서비스 메서드를 정의하세요.
+@Service("officialNewsService")
+public class NewsService {
+
+    // TODO: 소식(news) 관련 업무 로직 구현 필요 (예: 뉴스 등록, 조회 등)
 }

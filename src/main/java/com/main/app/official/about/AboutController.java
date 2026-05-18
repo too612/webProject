@@ -18,16 +18,19 @@ public class AboutController {
         addPageAttributes(model);
         return "official/about/pastor";
     }
+
     @GetMapping("/vision")
     public String visionPage(Model model) {
         addPageAttributes(model);
         return "official/about/vision";
     }
+
     @GetMapping("/history")
     public String historyPage(Model model) {
         addPageAttributes(model);
         return "official/about/history";
     }
+
     @GetMapping("/beliefs")
     public String beliefsPage(Model model) {
         addPageAttributes(model);

@@ -2,13 +2,17 @@ package com.main.app.auth.controller;
 
 import com.main.app.auth.dto.UserDto;
 import com.main.app.auth.service.UserService;
+import com.main.app.common.dto.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +56,7 @@ public class UserController {
         // 계정 상태 확인
         if ("I".equals(user.getStatus())) {
             redirectAttributes.addFlashAttribute("error", true);
-            redirectAttributes.addFlashAttribute("errorMessage", "계정이 잠겨있습니다. 잠시 후 다시 시도해주세요.");
+            redirectAttributes.addFlashAttribute("errorMessage", "계정이 잠겨 있습니다. 잠시 후 다시 시도해 주세요.");
             return "redirect:/user/login?error=true";
         }
 
@@ -94,35 +98,35 @@ public class UserController {
             RedirectAttributes redirectAttributes) {
 
         System.out.println("\n========== 회원가입 컨트롤러 호출 ==========");
-        System.out.println("┌─ 전송된 데이터:");
-        System.out.println("├─ userId: " + user.getUserId());
-        System.out.println("├─ userName: " + user.getUserName());
-        System.out.println("├─ email: " + user.getEmail());
-        System.out.println("├─ phone: " + user.getPhone());
-        System.out.println("├─ birthDate: " + user.getBirthDate());
-        System.out.println("├─ gender: " + user.getGender());
+        System.out.println("[요청 데이터]");
+        System.out.println("- userId: " + user.getUserId());
+        System.out.println("- userName: " + user.getUserName());
+        System.out.println("- email: " + user.getEmail());
+        System.out.println("- phone: " + user.getPhone());
+        System.out.println("- birthDate: " + user.getBirthDate());
+        System.out.println("- gender: " + user.getGender());
         System.out.println(
-                "├─ password: " + (user.getPassword() != null && !user.getPassword().isEmpty() ? "✓ 입력됨" : "✗ null"));
-        System.out.println("├─ agreeTerms: " + user.getAgreeTerms());
-        System.out.println("├─ agreePrivacy: " + user.getAgreePrivacy());
-        System.out.println("└─ agreeMarketing: " + user.getAgreeMarketing());
+                "password provided: " + (user.getPassword() != null && !user.getPassword().isEmpty() ? "yes" : "no"));
+        System.out.println("- agreeTerms: " + user.getAgreeTerms());
+        System.out.println("- agreePrivacy: " + user.getAgreePrivacy());
+        System.out.println("- agreeMarketing: " + user.getAgreeMarketing());
 
         // 중복 체크
         if (!userService.isUserIdAvailable(user.getUserId())) {
-            System.out.println("[회원가입 실패] 이미 사용중인 아이디: " + user.getUserId());
+            System.out.println("[회원가입 실패] 이미 사용 중인 아이디: " + user.getUserId());
             redirectAttributes.addFlashAttribute("error", true);
-            redirectAttributes.addFlashAttribute("errorMessage", "이미 사용중인 아이디입니다.");
+            redirectAttributes.addFlashAttribute("errorMessage", "이미 사용 중인 아이디입니다.");
             return "redirect:/user/register";
         }
 
         if (!userService.isEmailAvailable(user.getEmail())) {
-            System.out.println("[회원가입 실패] 이미 사용중인 이메일: " + user.getEmail());
+            System.out.println("[회원가입 실패] 이미 사용 중인 이메일: " + user.getEmail());
             redirectAttributes.addFlashAttribute("error", true);
-            redirectAttributes.addFlashAttribute("errorMessage", "이미 사용중인 이메일입니다.");
+            redirectAttributes.addFlashAttribute("errorMessage", "이미 사용 중인 이메일입니다.");
             return "redirect:/user/register";
         }
 
-        System.out.println("[회원가입] 중복확인 통과, 서비스 호출...");
+        System.out.println("[회원가입] 중복 확인 통과, 서비스 호출...");
 
         // 회원 가입 처리
         boolean result = userService.registerUser(user);
@@ -130,12 +134,12 @@ public class UserController {
         if (result) {
             System.out.println("[회원가입 성공] User ID: " + user.getUserId());
             redirectAttributes.addFlashAttribute("success", true);
-            redirectAttributes.addFlashAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해주세요.");
+            redirectAttributes.addFlashAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해 주세요.");
             return "redirect:/user/login";
         } else {
             System.out.println("[회원가입 실패] 데이터베이스 저장 오류");
             redirectAttributes.addFlashAttribute("error", true);
-            redirectAttributes.addFlashAttribute("errorMessage", "회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+            redirectAttributes.addFlashAttribute("errorMessage", "회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.");
             return "redirect:/user/register";
         }
     }
@@ -248,7 +252,7 @@ public class UserController {
 
         if (result) {
             redirectAttributes.addFlashAttribute("success", true);
-            redirectAttributes.addFlashAttribute("successMessage", "비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+            redirectAttributes.addFlashAttribute("successMessage", "비밀번호가 변경되었습니다. 다시 로그인해 주세요.");
             session.invalidate();
             return "redirect:/user/login";
         } else {
@@ -272,5 +276,301 @@ public class UserController {
     @GetMapping("/find-password")
     public String findPasswordPage() {
         return "user/find-password";
+    }
+
+    // ===== REST API 메서드 (AuthController에서 통합) =====
+
+    /**
+     * API 로그인(JSON)
+     */
+    @PostMapping("/api/auth/login")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Map<String, Object>>> apiLogin(@RequestBody LoginRequest request,
+            HttpSession session) {
+        UserDto user = userService.login(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.fail(HttpStatus.UNAUTHORIZED.value(), "아이디 또는 비밀번호가 올바르지 않습니다."));
+        }
+
+        if ("I".equals(user.getStatus())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.fail(HttpStatus.FORBIDDEN.value(), "잠긴 계정입니다."));
+        }
+
+        session.setAttribute("loginUser", user);
+        session.setAttribute("userId", user.getUserId());
+        session.setAttribute("userName", user.getUserName());
+
+        if (Boolean.TRUE.equals(request.getRememberMe())) {
+            session.setMaxInactiveInterval(60 * 60 * 24 * 7);
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("userId", user.getUserId());
+        payload.put("username", user.getUserName() == null ? user.getUserId() : user.getUserName());
+        payload.put("token", null);
+
+        return ResponseEntity.ok(ApiResponse.ok(payload, "로그인되었습니다."));
+    }
+
+    /**
+     * API 회원가입(JSON)
+     */
+    @PostMapping("/api/auth/register")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Map<String, Object>>> apiRegister(@RequestBody RegisterRequest request) {
+        if (request.getUsername() == null || request.getUsername().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "아이디는 필수입니다."));
+        }
+        if (request.getUserName() == null || request.getUserName().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "이름은 필수입니다."));
+        }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "비밀번호는 필수입니다."));
+        }
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "이메일은 필수입니다."));
+        }
+        if (request.getPhone() == null || request.getPhone().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "전화번호는 필수입니다."));
+        }
+        if (!Boolean.TRUE.equals(request.getAgreeTerms()) || !Boolean.TRUE.equals(request.getAgreePrivacy())) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "필수 약관 동의가 필요합니다."));
+        }
+
+        if (!userService.isUserIdAvailable(request.getUsername())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.fail(HttpStatus.CONFLICT.value(), "이미 사용 중인 아이디입니다."));
+        }
+
+        if (!userService.isEmailAvailable(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.fail(HttpStatus.CONFLICT.value(), "이미 사용 중인 이메일입니다."));
+        }
+
+        UserDto user = new UserDto();
+        user.setUserId(request.getUsername());
+        user.setUserName(request.getUserName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setPassword(request.getPassword());
+        user.setBirthDate(request.getBirthDate());
+        user.setGender(request.getGender());
+        user.setAgreeTerms(Boolean.TRUE.equals(request.getAgreeTerms()));
+        user.setAgreePrivacy(Boolean.TRUE.equals(request.getAgreePrivacy()));
+        user.setAgreeMarketing(Boolean.TRUE.equals(request.getAgreeMarketing()));
+
+        boolean registered = userService.registerUser(user);
+        if (!registered) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "회원가입 처리에 실패했습니다."));
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("userId", user.getUserId());
+        payload.put("username", user.getUserName());
+        payload.put("token", null);
+        return ResponseEntity.ok(ApiResponse.ok(payload, "회원가입이 완료되었습니다."));
+    }
+
+    /**
+     * API 아이디 중복 체크
+     */
+    @GetMapping("/api/auth/check-userid")
+    @ResponseBody
+    public ApiResponse<Map<String, Boolean>> apiCheckUserId(@RequestParam String userId) {
+        Map<String, Boolean> payload = new HashMap<>();
+        payload.put("available", userService.isUserIdAvailable(userId));
+        return ApiResponse.ok(payload);
+    }
+
+    /**
+     * API 이메일 중복 체크
+     */
+    @GetMapping("/api/auth/check-email")
+    @ResponseBody
+    public ApiResponse<Map<String, Boolean>> apiCheckEmail(@RequestParam String email) {
+        Map<String, Boolean> payload = new HashMap<>();
+        payload.put("available", userService.isEmailAvailable(email));
+        return ApiResponse.ok(payload);
+    }
+
+    /**
+     * API 현재 사용자 정보 조회
+     */
+    @GetMapping("/api/auth/me")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Map<String, Object>>> me(HttpSession session) {
+        Object sessionUserId = session.getAttribute("userId");
+        if (sessionUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.fail(HttpStatus.UNAUTHORIZED.value(), "로그인이 필요합니다."));
+        }
+
+        UserDto user = userService.getUserByUserId(String.valueOf(sessionUserId));
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.fail(HttpStatus.NOT_FOUND.value(), "사용자 정보를 찾을 수 없습니다."));
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("userId", user.getUserId());
+        payload.put("username", user.getUserName());
+        payload.put("email", user.getEmail());
+        payload.put("status", user.getStatus());
+        return ResponseEntity.ok(ApiResponse.ok(payload));
+    }
+
+    /**
+     * API 인증 상태 확인
+     */
+    @GetMapping("/api/auth/check")
+    @ResponseBody
+    public ApiResponse<Map<String, Boolean>> check(HttpSession session) {
+        Map<String, Boolean> payload = new HashMap<>();
+        payload.put("authenticated", session.getAttribute("userId") != null);
+        return ApiResponse.ok(payload);
+    }
+
+    /**
+     * API 로그아웃
+     */
+    @PostMapping("/api/auth/logout")
+    @ResponseBody
+    public ApiResponse<Void> apiLogout(HttpSession session) {
+        session.invalidate();
+        return ApiResponse.ok(null, "로그아웃되었습니다.");
+    }
+
+    // ===== Inner Classes (Request DTOs) =====
+
+    public static class LoginRequest {
+        private String username;
+        private String password;
+        private Boolean rememberMe;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public Boolean getRememberMe() {
+            return rememberMe;
+        }
+
+        public void setRememberMe(Boolean rememberMe) {
+            this.rememberMe = rememberMe;
+        }
+    }
+
+    public static class RegisterRequest {
+        private String username;
+        private String userName;
+        private String email;
+        private String phone;
+        private String password;
+        private LocalDate birthDate;
+        private String gender;
+        private Boolean agreeTerms;
+        private Boolean agreePrivacy;
+        private Boolean agreeMarketing;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public LocalDate getBirthDate() {
+            return birthDate;
+        }
+
+        public void setBirthDate(LocalDate birthDate) {
+            this.birthDate = birthDate;
+        }
+
+        public String getGender() {
+            return gender;
+        }
+
+        public void setGender(String gender) {
+            this.gender = gender;
+        }
+
+        public Boolean getAgreeTerms() {
+            return agreeTerms;
+        }
+
+        public void setAgreeTerms(Boolean agreeTerms) {
+            this.agreeTerms = agreeTerms;
+        }
+
+        public Boolean getAgreePrivacy() {
+            return agreePrivacy;
+        }
+
+        public void setAgreePrivacy(Boolean agreePrivacy) {
+            this.agreePrivacy = agreePrivacy;
+        }
+
+        public Boolean getAgreeMarketing() {
+            return agreeMarketing;
+        }
+
+        public void setAgreeMarketing(Boolean agreeMarketing) {
+            this.agreeMarketing = agreeMarketing;
+        }
     }
 }

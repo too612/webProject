@@ -1,6 +1,9 @@
 package com.main.app.official.worship;
 
-public interface WorshipService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 예배보기 기능 서비스 메서드를 정의하세요.
+@Service("officialWorshipService")
+public class WorshipService {
+
+    // TODO: 예배 관련 업무 로직 구현 필요 (예: 예배 시간, 설교 등)
 }

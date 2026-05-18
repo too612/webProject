@@ -42,14 +42,14 @@ public class MenuServiceImpl implements MenuService {
 
         log.debug("최상위 메뉴 개수: {}", rootMenus.size());
 
-        // 하위 메뉴를 부모 메뉴에 연결
+        // 하위 메뉴를 부모 메뉴와 연결
         for (MenuDto menu : allMenus) {
             if (menu.getLevel() > 1 && menu.getParentId() != null) {
                 MenuDto parent = menuMap.get(menu.getParentId());
                 if (parent != null) {
                     parent.getSubMenus().add(menu);
                 } else {
-                    log.warn("부모 메뉴를 찾을 수 없습니다. menuId: {}, parentId: {}", 
+                    log.warn("부모 메뉴를 찾을 수 없습니다. menuId: {}, parentId: {}",
                             menu.getMenuId(), menu.getParentId());
                 }
             }
@@ -104,14 +104,14 @@ public class MenuServiceImpl implements MenuService {
         // 부모 메뉴를 찾아 올라가기
         List<MenuDto> allMenus = menuMapper.getMenuList(systemType);
         MenuDto topMenu = currentMenu;
-        
+
         while (topMenu.getLevel() > 1 && topMenu.getParentId() != null) {
             final String parentId = topMenu.getParentId();
             topMenu = allMenus.stream()
                     .filter(menu -> parentId.equals(menu.getMenuId()))
                     .findFirst()
                     .orElse(null);
-            
+
             if (topMenu == null) {
                 log.warn("부모 메뉴를 찾을 수 없습니다. parentId: {}", parentId);
                 break;

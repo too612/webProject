@@ -32,7 +32,7 @@ public interface BoardMapper {
 
     void deleteBoard(String id);
 
-    // QnA 게시판 및 파일/댓글용 메서드 추가
+    // QnA 게시판/파일/댓글 관련 메서드 추가
     List<BoardDto> selectBoardList(Map<String, Object> params);
 
     long countBoardList(Map<String, Object> params);

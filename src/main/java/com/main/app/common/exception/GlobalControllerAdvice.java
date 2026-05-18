@@ -22,10 +22,10 @@ public class GlobalControllerAdvice {
     private com.main.app.common.service.MenuService menuService;
 
     /**
-     * 모든 페이지에서 사용할 공통 모델 속성을 추가합니다.
-     * - 메뉴 관련 속성 (계층 메뉴, 최상위 메뉴 등)
-     * - 현재 요청 URI 기반의 사이드바 속성
-     * getHierarchicalMenus() 호출을 한 번으로 최적화합니다.
+     * 모든 페이지에서 사용하는 공통 모델 속성을 추가합니다.
+     * - 메뉴 관련 속성(계층형 메뉴, 최상위 메뉴)
+     * - 현재 요청 URI 기반 사이드바 속성
+     * getHierarchicalMenus() 호출을 한 번으로 최적화했습니다.
      */
     @ModelAttribute
     public void addCommonAttributes(Model model, HttpServletRequest request, HttpSession session) {
@@ -57,7 +57,7 @@ public class GlobalControllerAdvice {
         List<MenuDto> hierarchicalMenus = menuService.getHierarchicalMenus(systemType);
 
         // 모든 페이지에서 공통으로 사용하는 메뉴 속성 추가
-        // 'topMenuList'와 'allTopMenus'는 템플릿 호환성을 위해 둘 다 추가합니다.
+        // 'topMenuList'와 'allTopMenus'는 템플릿 호환성을 위해 함께 추가
         model.addAttribute("menuList", hierarchicalMenus);
         model.addAttribute("topMenuList", hierarchicalMenus);
         model.addAttribute("allTopMenus", hierarchicalMenus);
@@ -65,17 +65,17 @@ public class GlobalControllerAdvice {
         List<String> topMenuNames = hierarchicalMenus.stream()
                 .map(MenuDto::getMenuName)
                 .collect(Collectors.toList());
-        // 'topMenuNames'와 'allTopMenuNames'는 템플릿 호환성을 위해 둘 다 추가합니다.
+        // 'topMenuNames'와 'allTopMenuNames'는 템플릿 호환성을 위해 함께 추가
         model.addAttribute("topMenuNames", topMenuNames);
         model.addAttribute("allTopMenuNames", topMenuNames);
 
-        // 현재 요청 URI를 기반으로 사이드바 관련 속성들을 동적으로 설정
+        // 현재 요청 URI를 기반으로 사이드바 관련 속성을 동적으로 설정
         log.info(">>> [DEBUG] 현재 요청 URI: {}", currentUri);
 
-        // 현재 경로로 메뉴 찾기 (정확히 일치하거나, 현재 경로를 포함하는 가장 하위 메뉴 찾기)
+        // 현재 경로로 메뉴 찾기 (정확히 일치하거나 현재 경로를 포함하는 가장 하위 메뉴)
         MenuDto currentMenu = findBestMatchMenu(hierarchicalMenus, currentUri);
 
-        // 커뮤니티 경로 통일 전 기존 경로와의 호환 처리
+        // 커뮤니티 경로 호환 처리
         if (currentMenu == null && isPathMatch(currentUri, "/community")) {
             String legacyUri = currentUri.substring("/community".length());
             if (legacyUri.isEmpty()) {
@@ -87,7 +87,7 @@ public class GlobalControllerAdvice {
             }
         }
 
-        // 시스템 경로 호환 처리: DB에는 /user/... 형태인데 실제 요청은 /system/user/... 인 경우 대응
+        // 시스템 경로 호환 처리: DB는 /user/... 형태인데 실제 요청이 /system/user/...인 경우 대응
         if (currentMenu == null && isPathMatch(currentUri, "/system")) {
             String legacyUri = currentUri.substring("/system".length());
             if (legacyUri.isEmpty()) {
@@ -99,7 +99,7 @@ public class GlobalControllerAdvice {
             }
         }
 
-        // 마이페이지 경로 호환 처리: DB에는 /user/... 형태인데 실제 요청은 /mypage/user/... 인 경우 대응
+        // 마이페이지 경로 호환 처리: DB는 /user/... 형태인데 실제 요청이 /mypage/user/...인 경우 대응
         if (currentMenu == null && isPathMatch(currentUri, "/mypage")) {
             String legacyUri = currentUri.substring("/mypage".length());
             if (legacyUri.isEmpty()) {
@@ -111,7 +111,7 @@ public class GlobalControllerAdvice {
             }
         }
 
-        // URI prefix 기준 systemType이 맞지 않는 경우를 대비해 다른 시스템 메뉴에서 재탐색
+        // URI prefix 기준 systemType이 맞지 않는 경우를 대비해 다른 시스템 메뉴에서도 탐색
         if (currentMenu == null) {
             String[] candidates = { "community", "erp", "system", "mypage", "official" };
             for (String candidate : candidates) {
@@ -144,8 +144,8 @@ public class GlobalControllerAdvice {
             return;
         }
 
-        // 계층구조 메뉴에서 하위 메뉴들을 포함한 전체 정보 가져오기 (이미 조회한 hierarchicalMenus 재사용)
-        // ID 비교 시 타입 불일치 방지를 위해 String으로 변환하여 비교
+        // 계층형 메뉴에서 하위 메뉴를 포함한 전체 정보 가져오기 (이미 조회된 hierarchicalMenus 사용)
+        // ID 타입 불일치 방지를 위해 String으로 변환해 비교
         MenuDto fullTopMenu = hierarchicalMenus.stream()
                 .filter(menu -> String.valueOf(menu.getMenuId()).equals(String.valueOf(topMenu.getMenuId())))
                 .findFirst()
@@ -153,7 +153,7 @@ public class GlobalControllerAdvice {
 
         log.info(">>> [DEBUG] 최상위 메뉴 선택: {}", fullTopMenu.getMenuName());
 
-        // 하위 메뉴들의 active 상태 설정
+        // 하위 메뉴 active 상태 설정
         if (fullTopMenu.getSubMenus() != null) {
             log.info(">>> [DEBUG] 서브메뉴 개수: {}", fullTopMenu.getSubMenus().size());
             String matchedPath = currentMenu.getPath();
@@ -163,13 +163,13 @@ public class GlobalControllerAdvice {
                 subMenu.setActive(isActive);
             });
 
-            // 서브메뉴가 존재하면 레이아웃에 표시되도록 submenu 값을 Y로 설정
+            // 서브메뉴가 존재하면 레이아웃에서 표시되도록 submenu 값을 Y로 설정
             model.addAttribute("submenu", "Y");
         } else {
             log.warn(">>> [DEBUG] 서브메뉴가 존재하지 않습니다 (null).");
         }
 
-        // 모델에 속성 추가
+        // 모델 속성 추가
         model.addAttribute("currentSystemType", systemType);
         model.addAttribute("currentMainMenuName", fullTopMenu.getMenuName());
         model.addAttribute("currentSubMenus", fullTopMenu.getSubMenus());
@@ -182,7 +182,7 @@ public class GlobalControllerAdvice {
 
     /**
      * 메뉴 트리에서 현재 URI와 가장 잘 매칭되는(가장 긴 경로가 일치하는) 메뉴를 찾습니다.
-     * 예: URI가 "/support/qna/write"일 때 "/support/qna" 메뉴를 반환
+     * 예: URI가 "/support/qna/write"이면 "/support/qna" 메뉴를 반환
      */
     private MenuDto findBestMatchMenu(List<MenuDto> menus, String currentUri) {
         MenuDto bestMatch = null;
@@ -190,7 +190,7 @@ public class GlobalControllerAdvice {
 
         for (MenuDto menu : menus) {
             // 현재 URI가 메뉴 경로로 시작하는지 확인 (Prefix Match)
-            // menu.getPath()가 비어있지 않은지 체크 추가
+            // menu.getPath() null/빈 값 방지 체크
             if (menu.getPath() != null && !menu.getPath().isEmpty() && currentUri.startsWith(menu.getPath())) {
                 if (menu.getPath().length() > maxLen) {
                     bestMatch = menu;

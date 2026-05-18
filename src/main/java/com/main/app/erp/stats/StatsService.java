@@ -1,6 +1,9 @@
 package com.main.app.erp.stats;
 
-public interface StatsService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 통게관리 기능 서비스 메서드를 정의하세요.
+@Service("erpStatsService")
+public class StatsService {
+
+    // TODO: 통계관리 기능 서비스 메서드를 정의하세요.
 }

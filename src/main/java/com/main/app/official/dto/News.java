@@ -27,3 +27,4 @@ public class News {
         this.date = date;
     }
 }
+

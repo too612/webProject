@@ -2,8 +2,11 @@ package com.main.app.erp.facility;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import com.main.app.common.dto.ApiResponse;
+import java.util.Map;
+import java.util.List;
+
 
 @Controller("erpFacilityController")
 @RequestMapping("/erp/facility")
@@ -32,5 +35,17 @@ public class FacilityController {
     public String maintenancePage(Model model) {
         addPageAttributes(model);
         return "erp/facility/maintenance";
+    }
+
+    @PostMapping("/api/facility/save")
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> saveFacilityController(@RequestBody Map<String, Object> params) {
+        return ApiResponse.ok(params);
+    }
+
+    @GetMapping("/api/facility/list")
+    @ResponseBody
+    public ApiResponse<List<Map<String, Object>>> getFacilityControllerList() {
+        return ApiResponse.ok(null);
     }
 }

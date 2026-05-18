@@ -18,16 +18,19 @@ public class NewsController {
         addPageAttributes(model);
         return "official/news/announcement";
     }
+
     @GetMapping("/event")
     public String eventPage(Model model) {
         addPageAttributes(model);
         return "official/news/event";
     }
+
     @GetMapping("/bulletin")
     public String bulletinPage(Model model) {
         addPageAttributes(model);
         return "official/news/bulletin";
     }
+
     @GetMapping("/registration")
     public String registrationPage(Model model) {
         addPageAttributes(model);

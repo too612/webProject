@@ -1,6 +1,9 @@
 package com.main.app.erp.admin;
 
-public interface AdminService {
+import org.springframework.stereotype.Service;
 
-    // TODO: 행정관리 기능 서비스 메서드를 정의하세요.
+@Service("erpAdminService")
+public class AdminService {
+
+    // TODO: 관리자 관리 기능 서비스 메서드를 정의하세요.
 }

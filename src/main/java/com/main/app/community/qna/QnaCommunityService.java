@@ -1,4 +1,8 @@
 package com.main.app.community.qna;
 
-public interface QnaCommunityService {
+import org.springframework.stereotype.Service;
+
+@Service("communityQnaCommunityService")
+public class QnaCommunityService {
 }
+

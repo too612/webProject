@@ -5,9 +5,6 @@ import BeliefsPage from '../pages/official/about/BeliefsPage';
 import HistoryPage from '../pages/official/about/HistoryPage';
 import PastorPage from '../pages/official/about/PastorPage';
 import VisionPage from '../pages/official/about/VisionPage';
-import AdminDashboardPage from '../pages/official/admin/AdminDashboardPage';
-import AdminLoginPage from '../pages/official/admin/AdminLoginPage';
-import AdminRegisterPage from '../pages/official/admin/AdminRegisterPage';
 import OfficialIndexPage from '../pages/official/index/OfficialIndexPage';
 import ChildrenPage from '../pages/official/ministries/ChildrenPage';
 import ChildrenViewPage from '../pages/official/ministries/ChildrenViewPage';
@@ -131,10 +128,6 @@ export const officialRoutes: RouteObject[] = [
           { path: 'qnaWrite', element: <QnaWritePage /> },
         ],
       },
-
-      { path: 'admin/admin', element: <AdminDashboardPage /> },
-      { path: 'admin/login', element: <AdminLoginPage /> },
-      { path: 'admin/register', element: <AdminRegisterPage /> },
     ],
   },
 ];

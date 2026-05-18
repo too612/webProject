@@ -48,7 +48,8 @@ public abstract class AbstractBoardController {
             @RequestParam(name = "searchType", required = false) String searchType,
             @RequestParam(name = "keyword", required = false) String keyword) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<BoardDto> paging = boardService.getBoardList(pageable, searchType, keyword, getBoardContext().getBoardType());
+        Page<BoardDto> paging = boardService.getBoardList(pageable, searchType, keyword,
+                getBoardContext().getBoardType());
         return ApiResponse.ok(paging);
     }
 
@@ -80,8 +81,10 @@ public abstract class AbstractBoardController {
     @ResponseBody
     public ApiResponse<Map<String, String>> save(BoardDto board,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
-        if (board.getOrderNo() == null) board.setOrderNo(0);
-        if (board.getDepth() == null) board.setDepth(0);
+        if (board.getOrderNo() == null)
+            board.setOrderNo(0);
+        if (board.getDepth() == null)
+            board.setDepth(0);
         board.setBoardType(getBoardContext().getBoardType());
         boardService.saveBoard(board, files);
         Map<String, String> payload = new HashMap<>();
@@ -117,7 +120,8 @@ public abstract class AbstractBoardController {
 
         @SuppressWarnings("unchecked")
         Map<Long, String> voteHistory = (Map<Long, String>) session.getAttribute("voteHistory");
-        if (voteHistory == null) voteHistory = new HashMap<>();
+        if (voteHistory == null)
+            voteHistory = new HashMap<>();
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("board", board);

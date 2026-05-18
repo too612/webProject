@@ -1,4 +1,7 @@
 package com.main.app.community.facilities;
 
-public interface FacilitiesService {
+import org.springframework.stereotype.Service;
+
+@Service("communityFacilitiesService")
+public class FacilitiesService {
 }

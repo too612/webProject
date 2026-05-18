@@ -2,8 +2,11 @@ package com.main.app.erp.stats;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import com.main.app.common.dto.ApiResponse;
+import java.util.Map;
+import java.util.List;
+
 
 @Controller("erpStatsController")
 @RequestMapping("/erp/stats")
@@ -32,5 +35,17 @@ public class StatsController {
     public String ministryPage(Model model) {
         addPageAttributes(model);
         return "erp/stats/ministry";
+    }
+
+    @PostMapping("/api/stats/save")
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> saveStatsController(@RequestBody Map<String, Object> params) {
+        return ApiResponse.ok(params);
+    }
+
+    @GetMapping("/api/stats/list")
+    @ResponseBody
+    public ApiResponse<List<Map<String, Object>>> getStatsControllerList() {
+        return ApiResponse.ok(null);
     }
 }

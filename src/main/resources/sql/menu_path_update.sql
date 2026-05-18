@@ -30,11 +30,15 @@ UPDATE sys_menu_mgt SET path = '/community/world/christian'  WHERE menu_id = 'M_
 UPDATE sys_menu_mgt SET path = '/community/world/economic'   WHERE menu_id = 'M_GEN_04_02';
 UPDATE sys_menu_mgt SET path = '/community/world/health'     WHERE menu_id = 'M_GEN_04_03';
 
--- ============================================================
--- 2. ERP (M_SYS) 경로 수정
--- ============================================================
 UPDATE sys_menu_mgt SET path = '/erp/humen/manager'         WHERE menu_id = 'M_SYS_01';
 UPDATE sys_menu_mgt SET path = '/erp/humen/manager'         WHERE menu_id = 'M_SYS_01_01';
+UPDATE sys_menu_mgt SET path = '/mypage/user/profile'      WHERE menu_id = 'M_MYPAGE_01';
+UPDATE sys_menu_mgt SET path = '/mypage/user/profile'      WHERE menu_id = 'M_MYPAGE_01_01';
+UPDATE sys_menu_mgt SET path = '/mypage/user/password'     WHERE menu_id = 'M_MYPAGE_01_02';
+UPDATE sys_menu_mgt SET path = '/mypage/user/activity'     WHERE menu_id = 'M_MYPAGE_01_03';
+UPDATE sys_menu_mgt SET path = '/mypage/user/inquiry'      WHERE menu_id = 'M_MYPAGE_01_04';
+UPDATE sys_menu_mgt SET path = '/mypage/user/notifications' WHERE menu_id = 'M_MYPAGE_01_05';
+UPDATE sys_menu_mgt SET path = '/mypage/user/withdraw'     WHERE menu_id = 'M_MYPAGE_01_06';
 UPDATE sys_menu_mgt SET path = '/erp/humen/newcomer'        WHERE menu_id = 'M_SYS_01_02';
 UPDATE sys_menu_mgt SET path = '/erp/humen/change'          WHERE menu_id = 'M_SYS_01_03';
 UPDATE sys_menu_mgt SET path = '/erp/humen/district'        WHERE menu_id = 'M_SYS_01_04';
@@ -74,7 +78,7 @@ UPDATE sys_menu_mgt SET path = '/erp/comm/notice'           WHERE menu_id = 'M_S
 UPDATE sys_menu_mgt SET path = '/erp/comm/message'          WHERE menu_id = 'M_SYS_08_02';
 UPDATE sys_menu_mgt SET path = '/erp/comm/prayer'           WHERE menu_id = 'M_SYS_08_03';
 UPDATE sys_menu_mgt SET path = '/erp/comm/newsletter'       WHERE menu_id = 'M_SYS_08_04';
-UPDATE sys_menu_mgt SET path = '/erp/admin/document'        WHERE menu_id = 'M_SYS_09';
+UPDATE sys_menu_mgt SET path = '/erp/admin/certificate'    WHERE menu_id = 'M_SYS_09';
 UPDATE sys_menu_mgt SET path = '/erp/admin/certificate'     WHERE menu_id = 'M_SYS_09_01';
 UPDATE sys_menu_mgt SET path = '/erp/admin/approval'        WHERE menu_id = 'M_SYS_09_02';
 UPDATE sys_menu_mgt SET path = '/erp/admin/minutes'         WHERE menu_id = 'M_SYS_09_03';

@@ -4,5 +4,5 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface SupportMapper {
-    // TODO: 고객지원(support) 기능 DB 접근 메서드를 정의하세요.
+    // TODO: 문의(support) 관련 DB 매핑 메서드 정의 필요
 }

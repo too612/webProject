@@ -2,8 +2,11 @@ package com.main.app.erp.training;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import com.main.app.common.dto.ApiResponse;
+import java.util.Map;
+import java.util.List;
+
 
 @Controller("erpTrainingController")
 @RequestMapping("/erp/training")
@@ -32,5 +35,17 @@ public class TrainingController {
     public String completePage(Model model) {
         addPageAttributes(model);
         return "erp/training/complete";
+    }
+
+    @PostMapping("/api/training/save")
+    @ResponseBody
+    public ApiResponse<Map<String, Object>> saveTrainingController(@RequestBody Map<String, Object> params) {
+        return ApiResponse.ok(params);
+    }
+
+    @GetMapping("/api/training/list")
+    @ResponseBody
+    public ApiResponse<List<Map<String, Object>>> getTrainingControllerList() {
+        return ApiResponse.ok(null);
     }
 }

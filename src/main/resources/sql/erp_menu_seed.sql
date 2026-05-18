@@ -57,13 +57,13 @@ M_MAIN_05_01	오시는길	M_MAIN_05	/support/location	1	2
 M_MAIN_05_02	Q&A	M_MAIN_05	/support/qna	2	2
 M_MAIN_05_03	FAQ	M_MAIN_05	/support/faq	3	2
 M_MYPAGE	MYPAGE		/mypage	1	0
-M_MYPAGE_01	마이페이지	M_MYPAGE	/user/profile	1	1
-M_MYPAGE_01_01	내 정보 관리	M_MYPAGE_01	/user/profile	1	2
-M_MYPAGE_01_02	비밀번호 변경	M_MYPAGE_01	/user/password	2	2
-M_MYPAGE_01_03	내 활동 내역	M_MYPAGE_01	/user/activity	3	2
-M_MYPAGE_01_04	내 문의 내역	M_MYPAGE_01	/user/inquiry	4	2
-M_MYPAGE_01_05	알림 설정	M_MYPAGE_01	/user/notifications	5	2
-M_MYPAGE_01_06	회원 탈퇴	M_MYPAGE_01	/user/withdraw	6	2
+M_MYPAGE_01	마이페이지	M_MYPAGE	/mypage/user/profile	1	1
+M_MYPAGE_01_01	내 정보 관리	M_MYPAGE_01	/mypage/user/profile	1	2
+M_MYPAGE_01_02	비밀번호 변경	M_MYPAGE_01	/mypage/user/password	2	2
+M_MYPAGE_01_03	내 활동 내역	M_MYPAGE_01	/mypage/user/activity	3	2
+M_MYPAGE_01_04	내 문의 내역	M_MYPAGE_01	/mypage/user/inquiry	4	2
+M_MYPAGE_01_05	알림 설정	M_MYPAGE_01	/mypage/user/notifications	5	2
+M_MYPAGE_01_06	회원 탈퇴	M_MYPAGE_01	/mypage/user/withdraw	6	2
 M_SYS	ERP		/erp	1	0
 M_SYS_01	성도관리	M_SYS	/erp/humen/manager	1	1
 M_SYS_01_01	성도정보조회및관리	M_SYS_01	/erp/humen/manager	1	2
@@ -106,12 +106,12 @@ M_SYS_08_01	공지관리	M_SYS_08	/erp/comm/notice	1	2
 M_SYS_08_02	문자/알림톡발송	M_SYS_08	/erp/comm/message	2	2
 M_SYS_08_03	기도제목관리	M_SYS_08	/erp/comm/prayer	3	2
 M_SYS_08_04	소식지관리	M_SYS_08	/erp/comm/newsletter	4	2
-M_SYS_09	행정관리	M_SYS	/erp/admin/document	9	1
+M_SYS_09	행정관리	M_SYS	/erp/admin/certificate	9	1
 M_SYS_09_01	증명서발급	M_SYS_09	/erp/admin/certificate	1	2
 M_SYS_09_02	결재문서관리	M_SYS_09	/erp/admin/approval	2	2
 M_SYS_09_03	회의록관리	M_SYS_09	/erp/admin/minutes	3	2
 M_SYS_09_04	첨부문서함	M_SYS_09	/erp/admin/archive	4	2
-M_SYS_10	통게관리	M_SYS	/erp/stats/dashboard	10	1
+M_SYS_10	통계관리	M_SYS	/erp/stats/dashboard	10	1
 M_SYS_10_01	주간현황대시보드	M_SYS_10	/erp/stats/dashboard	1	2
 M_SYS_10_02	출석통계	M_SYS_10	/erp/stats/attendance	2	2
 M_SYS_10_03	헌금통계	M_SYS_10	/erp/stats/offering	3	2
