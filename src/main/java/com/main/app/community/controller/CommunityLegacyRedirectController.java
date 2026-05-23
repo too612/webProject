@@ -1,6 +1,7 @@
 package com.main.app.community.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class CommunityLegacyRedirectController {
     })
     public RedirectView redirectLegacyGet(HttpServletRequest request) {
         String target = buildTargetUrl(request);
-        RedirectView view = new RedirectView(target, true);
+        RedirectView view = new RedirectView(Objects.requireNonNull(target), true);
         view.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
         return view;
     }

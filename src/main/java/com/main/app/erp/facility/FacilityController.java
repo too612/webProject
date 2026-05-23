@@ -1,21 +1,42 @@
 package com.main.app.erp.facility;
 
-import org.springframework.web.bind.annotation.*;
 import com.main.app.common.dto.ApiResponse;
-import java.util.Map;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("erpFacilityController")
 @RequestMapping("/api/erp/facility")
+@RequiredArgsConstructor
 public class FacilityController {
 
-    @PostMapping("/save")
-    public ApiResponse<Map<String, Object>> save(@RequestBody Map<String, Object> params) {
-        return ApiResponse.ok(params);
+    private final FacilityService facilityService;
+
+    @GetMapping("/reservation")
+    public ApiResponse<Page<FacilityDto.Reservation>> reservation(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(facilityService.getReservationList(page, keyword));
     }
 
-    @GetMapping("/list")
-    public ApiResponse<List<Map<String, Object>>> list() {
-        return ApiResponse.ok(null);
+    @GetMapping("/vehicle")
+    public ApiResponse<Page<FacilityDto.Vehicle>> vehicle(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(facilityService.getVehicleList(page, keyword));
+    }
+
+    @GetMapping("/inventory")
+    public ApiResponse<Page<FacilityDto.Inventory>> inventory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(facilityService.getInventoryList(page, keyword));
+    }
+
+    @GetMapping("/maintenance")
+    public ApiResponse<Page<FacilityDto.Maintenance>> maintenance(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(facilityService.getMaintenanceList(page, keyword));
     }
 }

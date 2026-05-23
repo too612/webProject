@@ -5,12 +5,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.PageMetaDto;
+import org.springframework.data.domain.Page;
 import java.util.Map;
 import java.util.List;
 
 @Controller("communityWorldController")
 @RequestMapping("/community/world")
 public class WorldController {
+
+    private final WorldService worldService;
+
+    public WorldController(WorldService worldService) {
+        this.worldService = worldService;
+    }
 
     private void addPageAttributes(Model model) {
         model.addAttribute("submenu", "Y");
@@ -21,11 +28,13 @@ public class WorldController {
         addPageAttributes(model);
         return "community/world/christian";
     }
+
     @GetMapping("/economic")
     public String economicPage(Model model) {
         addPageAttributes(model);
         return "community/world/economic";
     }
+
     @GetMapping("/health")
     public String healthPage(Model model) {
         addPageAttributes(model);
@@ -38,7 +47,8 @@ public class WorldController {
     @ResponseBody
     public ApiResponse<List<PageMetaDto>> getPages() {
         return ApiResponse.ok(List.of(
-                new PageMetaDto("Christian News", "/community/world/christian", "community", "community/world/christian"),
+                new PageMetaDto("Christian News", "/community/world/christian", "community",
+                        "community/world/christian"),
                 new PageMetaDto("Economic News", "/community/world/economic", "community", "community/world/economic"),
                 new PageMetaDto("Health News", "/community/world/health", "community", "community/world/health")));
     }
@@ -49,38 +59,42 @@ public class WorldController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword) {
+        Page<WorldDto> data = worldService.getChristianNews(page, size, keyword);
         return ApiResponse.ok(Map.of(
-                "content", List.of(),
-                "totalElements", 0,
-                "totalPages", 0,
-                "number", page,
-                "size", size));
+                "content", data.getContent(),
+                "totalElements", data.getTotalElements(),
+                "totalPages", data.getTotalPages(),
+                "number", data.getNumber(),
+                "size", data.getSize()));
     }
 
     @GetMapping("/api/community/world/economic")
     @ResponseBody
     public ApiResponse<Map<String, Object>> getEconomicNews(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+        Page<WorldDto> data = worldService.getEconomicNews(page, size, keyword);
         return ApiResponse.ok(Map.of(
-                "content", List.of(),
-                "totalElements", 0,
-                "totalPages", 0,
-                "number", page,
-                "size", size));
+                "content", data.getContent(),
+                "totalElements", data.getTotalElements(),
+                "totalPages", data.getTotalPages(),
+                "number", data.getNumber(),
+                "size", data.getSize()));
     }
 
     @GetMapping("/api/community/world/health")
     @ResponseBody
     public ApiResponse<Map<String, Object>> getHealthNews(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+        Page<WorldDto> data = worldService.getHealthNews(page, size, keyword);
         return ApiResponse.ok(Map.of(
-                "content", List.of(),
-                "totalElements", 0,
-                "totalPages", 0,
-                "number", page,
-                "size", size));
+                "content", data.getContent(),
+                "totalElements", data.getTotalElements(),
+                "totalPages", data.getTotalPages(),
+                "number", data.getNumber(),
+                "size", data.getSize()));
     }
 }
-

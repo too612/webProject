@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.menu.MenuMapper">
+    <select id="getMenuList" resultType="com.main.app.common.menu.dto.MenuDto" parameterType="map">
+        SELECT menu_id
+              ,menu_nm AS menuName
+              ,up_menu_id AS parentId
+              ,CAST(level AS INTEGER) AS level
+              ,path
+              ,CAST(order_no AS INTEGER) AS order_no
+          FROM sys_menu_mgt
+         WHERE 1=1
+           <if test="systemType != null and systemType != ''">
+           <choose>
+               <when test="systemType == 'official'">
+               AND menu_id LIKE 'M_MAIN%'
+               </when>
+               <when test="systemType == 'erp'">
+               AND menu_id LIKE 'M_SYS%'
+               </when>
+               <when test="systemType == 'system'">
+               AND menu_id LIKE 'M_ADM%'
+               </when>
+               <when test="systemType == 'community'">
+               AND menu_id LIKE 'M_GEN%'
+               </when>
+               <when test="systemType == 'mypage'">
+               AND menu_id LIKE 'M_MYPAGE%'
+               </when>
+           </choose>
+           </if>
+            ORDER BY CAST(level AS INTEGER), CAST(order_no AS INTEGER), menu_id
+    </select>
+
+    <select id="getMenuListByLevel" resultType="com.main.app.common.menu.dto.MenuDto" parameterType="map">
+        SELECT menu_id
+              ,menu_nm AS menuName
+              ,up_menu_id AS parentId
+              ,CAST(level AS INTEGER) AS level
+              ,path
+              ,CAST(order_no AS INTEGER) AS order_no
+          FROM sys_menu_mgt
+         WHERE CAST(level AS INTEGER) = #{level}
+           <if test="systemType != null and systemType != ''">
+           <choose>
+               <when test="systemType == 'official'">
+               AND menu_id LIKE 'M_MAIN%'
+               </when>
+               <when test="systemType == 'erp'">
+               AND menu_id LIKE 'M_SYS%'
+               </when>
+               <when test="systemType == 'system'">
+               AND menu_id LIKE 'M_ADM%'
+               </when>
+               <when test="systemType == 'community'">
+               AND menu_id LIKE 'M_GEN%'
+               </when>
+               <when test="systemType == 'mypage'">
+               AND menu_id LIKE 'M_MYPAGE%'
+               </when>
+           </choose>
+           </if>
+            ORDER BY CAST(order_no AS INTEGER), menu_id
+    </select>
+
+    <select id="getSubMenusByParentId" resultType="com.main.app.common.menu.dto.MenuDto" parameterType="map">
+        SELECT menu_id
+              ,menu_nm AS menuName
+              ,up_menu_id AS parentId
+              ,CAST(level AS INTEGER) AS level
+              ,path
+              ,CAST(order_no AS INTEGER) AS order_no
+          FROM sys_menu_mgt
+         WHERE up_menu_id = #{parentId}
+           <if test="systemType != null and systemType != ''">
+           <choose>
+               <when test="systemType == 'official'">
+               AND menu_id LIKE 'M_MAIN%'
+               </when>
+               <when test="systemType == 'erp'">
+               AND menu_id LIKE 'M_SYS%'
+               </when>
+               <when test="systemType == 'system'">
+               AND menu_id LIKE 'M_ADM%'
+               </when>
+               <when test="systemType == 'community'">
+               AND menu_id LIKE 'M_GEN%'
+               </when>
+               <when test="systemType == 'mypage'">
+               AND menu_id LIKE 'M_MYPAGE%'
+               </when>
+           </choose>
+           </if>
+            ORDER BY CAST(order_no AS INTEGER), menu_id
+    </select>
+
+    <select id="getList1" resultType="map">
+        SELECT TITLE AS "title",
+               DATE  AS "date"
+          FROM NEWS
+    </select>
+
+    <select id="getList2" resultType="map">
+        SELECT TITLE AS "title",
+               DATE  AS "date"
+          FROM INQUIRYLIST
+    </select>
+</mapper>

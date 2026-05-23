@@ -5,8 +5,9 @@ export default function SupportBoardPage() {
     <OfficialBoardListPage
       title="커뮤니티 게시판"
       breadcrumb="커뮤니티 게시판"
-      viewPath="/community/support/boardView"
-      writePath="/community/support/boardWrite"
+      listPath="/community/board"
+      viewPath="/community/support/board/view"
+      writePath="/community/support/board/write"
     />
   );
 }

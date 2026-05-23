@@ -2,7 +2,6 @@ package com.main.app.system.config;
 
 import com.main.app.common.dto.ApiResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,22 +10,6 @@ import java.util.Map;
 @Controller("systemConfigController")
 @RequestMapping("/system/config")
 public class ConfigController {
-
-    private void addPageAttributes(Model model) {
-        model.addAttribute("submenu", "Y");
-    }
-
-    @GetMapping("/code")
-    public String codePage(Model model) {
-        addPageAttributes(model);
-        return "system/config/code";
-    }
-
-    @GetMapping("/menu")
-    public String menuPage(Model model) {
-        addPageAttributes(model);
-        return "system/config/menu";
-    }
 
     // ===== REST API 메서드 =====
 

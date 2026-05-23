@@ -1,48 +1,258 @@
-﻿export default function PastorPage() {
+﻿import { useEffect, useMemo, useState } from 'react';
+import { usePastorProfile } from '../../../hooks/usePastorProfile';
+import type { PastorRequest } from '../../../api/aboutApi';
+
+const INITIAL_FORM: PastorRequest = {
+  corpName: '기관정보',
+  businessRegistrationNumber: '',
+  chiefName: '',
+  chiefImagePath: '/img/pastor-profile.svg',
+  introduction: '',
+  updatedBy: 'system',
+  updatedIp: '127.0.0.1',
+};
+
+export default function PastorPage() {
+  // initial
+  const { profile, loading, error, loadProfile, saveProfile, removeProfile } = usePastorProfile();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [form, setForm] = useState<PastorRequest>(INITIAL_FORM);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+  // callback
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  useEffect(() => {
+    if (!profile) {
+      setForm(INITIAL_FORM);
+      return;
+    }
+
+    setForm({
+      corpName: profile.corpName ?? '기관정보',
+      businessRegistrationNumber: profile.businessRegistrationNumber ?? '',
+      chiefName: profile.chiefName ?? '',
+      chiefImagePath: profile.chiefImagePath ?? '/img/pastor-profile.svg',
+      phoneNumber: profile.phoneNumber ?? '',
+      postalCode: profile.postalCode ?? '',
+      addressLine1: profile.addressLine1 ?? '',
+      addressLine2: profile.addressLine2 ?? '',
+      introduction: profile.introduction ?? '',
+      updatedBy: 'system',
+      updatedIp: '127.0.0.1',
+    });
+  }, [profile]);
+
+  // logic
+  const introLines = useMemo(() => {
+    if (!profile?.introduction) {
+      return [];
+    }
+    return profile.introduction.split('\n').filter(Boolean);
+  }, [profile?.introduction]);
+
+  const validateForm = (payload: PastorRequest): string | null => {
+    if (!payload.chiefName.trim()) {
+      return '담임목사 이름을 입력해 주세요.';
+    }
+    if (!payload.businessRegistrationNumber.trim()) {
+      return '사업자등록번호를 입력해 주세요.';
+    }
+    return null;
+  };
+
+  // event
+  const handleInputChange = (key: keyof PastorRequest, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleEditStart = () => {
+    setActionMessage(null);
+    setIsEditMode(true);
+  };
+
+  const handleEditCancel = () => {
+    setActionMessage(null);
+    setIsEditMode(false);
+    if (profile) {
+      setForm({
+        corpName: profile.corpName ?? '기관정보',
+        businessRegistrationNumber: profile.businessRegistrationNumber ?? '',
+        chiefName: profile.chiefName ?? '',
+        chiefImagePath: profile.chiefImagePath ?? '/img/pastor-profile.svg',
+        phoneNumber: profile.phoneNumber ?? '',
+        postalCode: profile.postalCode ?? '',
+        addressLine1: profile.addressLine1 ?? '',
+        addressLine2: profile.addressLine2 ?? '',
+        introduction: profile.introduction ?? '',
+        updatedBy: 'system',
+        updatedIp: '127.0.0.1',
+      });
+    } else {
+      setForm(INITIAL_FORM);
+    }
+  };
+
+  const handleSave = async () => {
+    const validationMessage = validateForm(form);
+    if (validationMessage) {
+      setActionMessage(validationMessage);
+      return;
+    }
+
+    try {
+      await saveProfile(form);
+      setIsEditMode(false);
+      setActionMessage('담임목사 정보를 저장했습니다.');
+    } catch {
+      // usePastorProfile.error에서 메시지를 보여준다.
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!profile?.corpId) {
+      return;
+    }
+    if (!window.confirm('담임목사 정보를 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await removeProfile();
+      setIsEditMode(false);
+      setForm(INITIAL_FORM);
+      setActionMessage('담임목사 정보를 삭제했습니다.');
+    } catch {
+      // usePastorProfile.error에서 메시지를 보여준다.
+    }
+  };
+
   return (
-    <section className="space-y-6">
-      <div className="bg-white rounded-panel shadow-panel border border-gray-100 p-6 flex flex-col md:flex-row gap-8">
-        <div className="flex-1 space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold text-brand-dark">담임목사</h2>
-            <p className="text-base font-semibold text-brand-primary mt-1">홍길동</p>
-          </div>
-
-          <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
-            <p>안녕하십니까. 저희 홈페이지를 방문해 주신 여러분께 감사드립니다.</p>
-
-            <p>
-              2001년 설립 이후 저희는 성도들의 필요를 정확히 이해하고 실제적인 신앙 여정을 돕는 사역에 집중해 왔습니다.
-              그 결과 지금까지 수많은 가정과 다음 세대가 함께 성장하는 공동체를 이루어 왔습니다.
-            </p>
-
-            <p>
-              최근 몇 년간 교회와 사회의 환경은 빠르게 변화하고 있습니다. 저희는 변화에 수동적으로 반응하는 것을 넘어,
-              말씀 중심의 본질을 지키면서도 시대와 소통하는 사역을 준비하고 있습니다.
-            </p>
-
-            <div className="bg-brand-primary/5 border-l-4 border-brand-primary rounded-r-lg px-4 py-3 text-sm text-brand-dark">
-              특히 다음 세대 양육과 지역 섬김 사역에서 축적된 경험을 바탕으로,
-              건강하고 지속 가능한 공동체 전환을 지원하고 있습니다.
-            </div>
-
-            <p>
-              작은 걸음처럼 보일지라도 매주, 매 사역마다 최선을 다하고 있으며,
-              예배 이후에도 지속적인 돌봄과 동행으로 성도들의 삶을 섬기기 위해 노력하고 있습니다.
-            </p>
-
-            <p>앞으로도 변함없이 하나님과 성도 앞에 신실한 교회가 되겠습니다. 감사합니다.</p>
-
-            <div className="text-right text-sm text-gray-500 space-y-0.5 pt-2">
-              <p>2026년 2월</p>
-              <p className="font-semibold text-brand-dark">담임목사 홍길동</p>
-            </div>
+    <section className="space-y-4">
+      <div className="bg-white rounded-panel shadow-panel border border-gray-100 p-6 space-y-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="text-2xl font-bold text-brand-dark">담임목사</h2>
+          <div className="flex items-center gap-2">
+            {!isEditMode && (
+              <button
+                type="button"
+                className="px-3 py-2 text-sm rounded-md bg-brand-primary text-white"
+                onClick={handleEditStart}
+              >
+                편집
+              </button>
+            )}
+            {isEditMode && (
+              <>
+                <button
+                  type="button"
+                  className="px-3 py-2 text-sm rounded-md bg-brand-primary text-white"
+                  onClick={handleSave}
+                  disabled={loading}
+                >
+                  저장
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-2 text-sm rounded-md border border-gray-300 text-gray-700"
+                  onClick={handleEditCancel}
+                  disabled={loading}
+                >
+                  취소
+                </button>
+                {profile?.corpId && (
+                  <button
+                    type="button"
+                    className="px-3 py-2 text-sm rounded-md bg-red-600 text-white"
+                    onClick={handleDelete}
+                    disabled={loading}
+                  >
+                    삭제
+                  </button>
+                )}
+              </>
+            )}
           </div>
         </div>
 
-        <div className="shrink-0 flex justify-center md:justify-end">
-          <img src="/img/pastor-profile.svg" alt="담임목사 홍길동" className="w-48 h-auto rounded-lg object-cover" />
-        </div>
+        {(error || actionMessage) && (
+          <div className={`rounded-md px-3 py-2 text-sm ${error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+            {error ?? actionMessage}
+          </div>
+        )}
+
+        {!isEditMode && (
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-6 items-start">
+            <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+              <p className="text-base font-semibold text-brand-primary">
+                {profile?.chiefName || '담임목사 이름을 등록해 주세요.'}
+              </p>
+              {introLines.length > 0 ? (
+                introLines.map((line, index) => <p key={`${line}-${index}`}>{line}</p>)
+              ) : (
+                <p>담임목사 소개문이 아직 등록되지 않았습니다.</p>
+              )}
+            </div>
+            <div className="shrink-0 flex justify-center md:justify-end">
+              <img
+                src={profile?.chiefImagePath || '/img/pastor-profile.svg'}
+                alt={profile?.chiefName ? `담임목사 ${profile.chiefName}` : '담임목사 이미지'}
+                className="w-52 h-auto rounded-lg object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {isEditMode && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className="space-y-1 text-sm">
+              <span className="text-gray-600">기관명</span>
+              <input
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                value={form.corpName}
+                onChange={(e) => handleInputChange('corpName', e.target.value)}
+              />
+            </label>
+
+            <label className="space-y-1 text-sm">
+              <span className="text-gray-600">사업자등록번호</span>
+              <input
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                value={form.businessRegistrationNumber}
+                onChange={(e) => handleInputChange('businessRegistrationNumber', e.target.value)}
+              />
+            </label>
+
+            <label className="space-y-1 text-sm">
+              <span className="text-gray-600">담임목사 이름</span>
+              <input
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                value={form.chiefName}
+                onChange={(e) => handleInputChange('chiefName', e.target.value)}
+              />
+            </label>
+
+            <label className="space-y-1 text-sm">
+              <span className="text-gray-600">프로필 이미지 경로</span>
+              <input
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                value={form.chiefImagePath ?? ''}
+                onChange={(e) => handleInputChange('chiefImagePath', e.target.value)}
+              />
+            </label>
+
+            <label className="space-y-1 text-sm md:col-span-2">
+              <span className="text-gray-600">소개</span>
+              <textarea
+                className="w-full border border-gray-300 rounded-md px-3 py-2 min-h-40"
+                value={form.introduction ?? ''}
+                onChange={(e) => handleInputChange('introduction', e.target.value)}
+              />
+            </label>
+          </div>
+        )}
       </div>
     </section>
   );

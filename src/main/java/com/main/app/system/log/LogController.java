@@ -2,7 +2,6 @@ package com.main.app.system.log;
 
 import com.main.app.common.dto.ApiResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,22 +10,6 @@ import java.util.Map;
 @Controller("systemLogController")
 @RequestMapping("/system/log")
 public class LogController {
-
-    private void addPageAttributes(Model model) {
-        model.addAttribute("submenu", "Y");
-    }
-
-    @GetMapping("/system")
-    public String systemPage(Model model) {
-        addPageAttributes(model);
-        return "system/log/system";
-    }
-
-    @GetMapping("/audit")
-    public String auditPage(Model model) {
-        addPageAttributes(model);
-        return "system/log/audit";
-    }
 
     // ===== REST API 메서드 =====
 

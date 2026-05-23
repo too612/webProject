@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.about.pastor.PastorMapper">
+
+    <select id="selectPastorProfile" resultType="com.main.app.official.about.pastor.dto.PastorDto">
+        SELECT
+            corp_id AS corpId,
+            corp_name AS corpName,
+            business_registration_number AS businessRegistrationNumber,
+            chief_name AS chiefName,
+            chief_image_path AS chiefImagePath,
+            phone_number AS phoneNumber,
+            postal_code AS postalCode,
+            address_line1 AS addressLine1,
+            address_line2 AS addressLine2,
+            introduction,
+            updated_at AS updatedAt
+        FROM com_corp
+        WHERE is_deleted = FALSE
+        ORDER BY updated_at DESC, corp_id DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insertPastorProfile" parameterType="com.main.app.official.about.pastor.dto.PastorRequest">
+        INSERT INTO com_corp (
+            corp_name,
+            business_registration_number,
+            chief_name,
+            chief_image_path,
+            phone_number,
+            postal_code,
+            address_line1,
+            address_line2,
+            introduction,
+            created_by,
+            created_ip,
+            updated_by,
+            updated_ip,
+            updated_at,
+            is_active,
+            is_deleted
+        ) VALUES (
+            #{corpName},
+            #{businessRegistrationNumber},
+            #{chiefName},
+            #{chiefImagePath},
+            #{phoneNumber},
+            #{postalCode},
+            #{addressLine1},
+            #{addressLine2},
+            #{introduction},
+            #{createdBy},
+            CAST(#{createdIp} AS inet),
+            #{updatedBy},
+            CAST(#{updatedIp} AS inet),
+            NOW(),
+            TRUE,
+            FALSE
+        )
+    </insert>
+
+    <update id="updatePastorProfile">
+        UPDATE com_corp
+        SET
+            corp_name = COALESCE(#{request.corpName}, corp_name),
+            business_registration_number = COALESCE(#{request.businessRegistrationNumber}, business_registration_number),
+            chief_name = COALESCE(#{request.chiefName}, chief_name),
+            chief_image_path = #{request.chiefImagePath},
+            phone_number = #{request.phoneNumber},
+            postal_code = #{request.postalCode},
+            address_line1 = #{request.addressLine1},
+            address_line2 = #{request.addressLine2},
+            introduction = #{request.introduction},
+            updated_by = #{request.updatedBy},
+            updated_ip = CAST(#{request.updatedIp} AS inet),
+            updated_at = NOW()
+        WHERE corp_id = #{corpId}
+          AND is_deleted = FALSE
+    </update>
+
+    <update id="softDeletePastorProfile">
+        UPDATE com_corp
+        SET
+            is_deleted = TRUE,
+            is_active = FALSE,
+            updated_by = #{updatedBy},
+            updated_ip = CAST(#{updatedIp} AS inet),
+            updated_at = NOW()
+        WHERE corp_id = #{corpId}
+          AND is_deleted = FALSE
+    </update>
+
+</mapper>

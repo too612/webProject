@@ -2,4 +2,91 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.main.app.erp.ministry.MinistryMapper"></mapper>
+<mapper namespace="com.main.app.erp.ministry.MinistryMapper">
+
+    <!-- 사역부서 목록 -->
+    <select id="selectDepartmentList" resultType="com.main.app.erp.ministry.MinistryDto$Department">
+        SELECT d.dept_id, d.dept_name, d.leader_name, d.parent_id, d.description, d.status, d.reg_date,
+               COUNT(v.volunteer_id) AS volunteer_count
+        FROM erp_ministry_dept d
+        LEFT JOIN erp_ministry_volunteer v ON d.dept_id = v.dept_id AND v.status = 'ACTIVE'
+        <where>
+            <if test="keyword != null and keyword != ''">AND d.dept_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+        GROUP BY d.dept_id, d.dept_name, d.leader_name, d.parent_id, d.description, d.status, d.reg_date
+        ORDER BY d.dept_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countDepartmentList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_dept
+        <where>
+            <if test="keyword != null and keyword != ''">AND dept_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+    </select>
+
+    <!-- 사역일정 -->
+    <select id="selectScheduleList" resultType="com.main.app.erp.ministry.MinistryDto$Schedule">
+        SELECT s.schedule_id, s.dept_id, COALESCE(s.dept_name, d.dept_name) AS dept_name,
+               s.title, s.schedule_date, s.description, s.status, s.reg_date
+        FROM erp_ministry_schedule s
+        LEFT JOIN erp_ministry_dept d ON s.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (s.title LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY s.schedule_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countScheduleList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_schedule s
+        LEFT JOIN erp_ministry_dept d ON s.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (s.title LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+    <!-- 봉사자 -->
+    <select id="selectVolunteerList" resultType="com.main.app.erp.ministry.MinistryDto$Volunteer">
+        SELECT v.volunteer_id, v.member_id, v.member_name, v.dept_id,
+               COALESCE(v.dept_name, d.dept_name) AS dept_name,
+               v.role, v.start_date, v.end_date, v.status
+        FROM erp_ministry_volunteer v
+        LEFT JOIN erp_ministry_dept d ON v.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (v.member_name LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY v.member_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countVolunteerList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_volunteer v
+        LEFT JOIN erp_ministry_dept d ON v.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (v.member_name LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+    <!-- 사역보고 -->
+    <select id="selectReportList" resultType="com.main.app.erp.ministry.MinistryDto$Report">
+        SELECT r.report_id, r.dept_id, COALESCE(r.dept_name, d.dept_name) AS dept_name,
+               r.title, r.report_date, r.content, r.author_name, r.reg_date
+        FROM erp_ministry_report r
+        LEFT JOIN erp_ministry_dept d ON r.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (r.title LIKE '%' || #{keyword} || '%' OR r.author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY r.report_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countReportList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_report r
+        LEFT JOIN erp_ministry_dept d ON r.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (r.title LIKE '%' || #{keyword} || '%' OR r.author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>

@@ -23,6 +23,10 @@ $frontendDir = $frontendRoot
 $backendPort = 8080
 $frontendPort = 5173
 
+$backendWindowTitle = 'webProject-backend-bootRun'
+$backendWatchWindowTitle = 'webProject-backend-continuous'
+$frontendWindowTitle = 'webProject-frontend-dev'
+
 if (-not (Test-Path $stateDir)) {
     New-Item -Path $stateDir -ItemType Directory -Force | Out-Null
 }
@@ -99,14 +103,17 @@ function Show-Status {
     $state = Get-State
 
     $backendPid = $null
+    $backendWatchPid = $null
     $frontendPid = $null
 
     if ($state) {
         $backendPid = if ($state.backendPid) { [int]$state.backendPid } else { $null }
+        $backendWatchPid = if ($state.backendWatchPid) { [int]$state.backendWatchPid } else { $null }
         $frontendPid = if ($state.frontendPid) { [int]$state.frontendPid } else { $null }
     }
 
     $backendProcess = Get-ProcessSafe -ProcessId $backendPid
+    $backendWatchProcess = Get-ProcessSafe -ProcessId $backendWatchPid
     $frontendProcess = Get-ProcessSafe -ProcessId $frontendPid
 
     $backendPortPid = Get-OwnerPidByPort -Port $backendPort
@@ -114,6 +121,7 @@ function Show-Status {
 
     Write-Host '=== Dev Server Status ===' -ForegroundColor Magenta
     Write-Host "Backend PID (state):  $backendPid"
+    Write-Host "Backend Watch PID (state):  $backendWatchPid"
     Write-Host "Backend PID (port $backendPort):  $backendPortPid"
     Write-Host "Frontend PID (state): $frontendPid"
     Write-Host "Frontend PID (port $frontendPort): $frontendPortPid"
@@ -123,6 +131,13 @@ function Show-Status {
     }
     else {
         Write-Warn '백엔드 콘솔 프로세스는 실행 중이 아닙니다.'
+    }
+
+    if ($backendWatchProcess) {
+        Write-Ok "백엔드 연속 컴파일 프로세스 실행 중 (PID: $($backendWatchProcess.Id))"
+    }
+    else {
+        Write-Warn '백엔드 연속 컴파일 프로세스는 실행 중이 아닙니다.'
     }
 
     if ($frontendProcess) {
@@ -154,9 +169,94 @@ function Close-ProcessWindow([Nullable[int]]$ProcessId, [string]$Name) {
     if ($process) {
         Write-Warn "$Name 프로세스가 남아 있습니다. 강제 종료합니다. (PID: $ProcessId)"
         Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 400
+
+        $process = Get-ProcessSafe -ProcessId $ProcessId
+        if ($process) {
+            # 콘솔 창이 남는 경우를 대비해 프로세스 트리까지 강제 종료한다.
+            try {
+                & taskkill.exe /PID $ProcessId /T /F | Out-Null
+            }
+            catch {
+            }
+            Start-Sleep -Milliseconds 400
+            $process = Get-ProcessSafe -ProcessId $ProcessId
+        }
+
+        if ($process) {
+            Write-Warn "$Name 프로세스 종료가 완전히 확인되지 않았습니다. PID=$ProcessId"
+        }
+        else {
+            Write-Ok "$Name 프로세스 강제 종료 완료 (PID: $ProcessId)"
+        }
     }
     else {
         Write-Ok "$Name 프로세스가 정상 종료되었습니다."
+    }
+}
+
+function Stop-ResidualDevWindows {
+    $projectRootPattern = [Regex]::Escape($projectRoot)
+    $markers = @(
+        'gradlew\.bat\s+bootRun',
+        'gradlew\.bat\s+classes\s+--continuous',
+        'npm\s+run\s+dev'
+    )
+
+    try {
+        $candidates = Get-CimInstance Win32_Process -ErrorAction Stop |
+        Where-Object {
+            $cmd = $_.CommandLine
+            if ([string]::IsNullOrWhiteSpace($cmd)) {
+                return $false
+            }
+
+            ($cmd -match $projectRootPattern) -and ($markers | Where-Object { $cmd -match $_ })
+        }
+
+        foreach ($proc in $candidates) {
+            if (-not $proc.ProcessId) {
+                continue
+            }
+
+            $pid = [int]$proc.ProcessId
+            Write-Warn "잔여 개발 프로세스를 정리합니다. (PID: $pid)"
+            try {
+                & taskkill.exe /PID $pid /T /F | Out-Null
+                Write-Ok "잔여 개발 프로세스 종료 완료 (PID: $pid)"
+            }
+            catch {
+                Write-Warn "잔여 개발 프로세스 종료 실패 (PID: $pid): $($_.Exception.Message)"
+            }
+        }
+    }
+    catch {
+        Write-Warn "잔여 개발 프로세스 점검 중 오류가 발생했습니다: $($_.Exception.Message)"
+    }
+}
+
+function Stop-ProcessByWindowTitle([string]$WindowTitle, [string]$Name) {
+    if ([string]::IsNullOrWhiteSpace($WindowTitle)) {
+        return
+    }
+
+    try {
+        $targets = Get-Process -ErrorAction SilentlyContinue |
+        Where-Object { $_.MainWindowTitle -eq $WindowTitle }
+
+        foreach ($target in $targets) {
+            Write-Warn "$Name 창 프로세스를 제목으로 정리합니다. (PID: $($target.Id), Title: $WindowTitle)"
+            try {
+                & taskkill.exe /PID $($target.Id) /T /F | Out-Null
+                Write-Ok "$Name 창 종료 완료 (PID: $($target.Id))"
+            }
+            catch {
+                Write-Warn "$Name 창 종료 실패 (PID: $($target.Id)): $($_.Exception.Message)"
+            }
+        }
+    }
+    catch {
+        Write-Warn "$Name 창 점검 중 오류가 발생했습니다: $($_.Exception.Message)"
     }
 }
 
@@ -164,15 +264,22 @@ function Stop-Servers {
     $state = Get-State
 
     $backendPid = $null
+    $backendWatchPid = $null
     $frontendPid = $null
 
     if ($state) {
         $backendPid = if ($state.backendPid) { [int]$state.backendPid } else { $null }
+        $backendWatchPid = if ($state.backendWatchPid) { [int]$state.backendWatchPid } else { $null }
         $frontendPid = if ($state.frontendPid) { [int]$state.frontendPid } else { $null }
     }
 
+    Close-ProcessWindow -ProcessId $backendWatchPid -Name '백엔드 연속 컴파일'
     Close-ProcessWindow -ProcessId $backendPid -Name '백엔드'
     Close-ProcessWindow -ProcessId $frontendPid -Name '프론트'
+    Stop-ProcessByWindowTitle -WindowTitle $backendWatchWindowTitle -Name '백엔드 연속 컴파일'
+    Stop-ProcessByWindowTitle -WindowTitle $backendWindowTitle -Name '백엔드'
+    Stop-ProcessByWindowTitle -WindowTitle $frontendWindowTitle -Name '프론트'
+    Stop-ResidualDevWindows
 
     Remove-State
     Write-Ok '서버 상태를 정리했습니다.'
@@ -189,30 +296,41 @@ function Start-Servers {
     }
 
     $encInit = "chcp 65001 | Out-Null; [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::InputEncoding = [System.Text.Encoding]::UTF8; `$OutputEncoding = [System.Text.Encoding]::UTF8; "
+    $backendWatchCommand = $encInit + `
+        "`$host.UI.RawUI.WindowTitle='$backendWatchWindowTitle'; " + `
+        "Set-Location -LiteralPath '$backendDir'; " + `
+        "`$env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; " + `
+        ".\\gradlew.bat classes --continuous"
     $backendCommand = $encInit + `
+        "`$host.UI.RawUI.WindowTitle='$backendWindowTitle'; " + `
         "Set-Location -LiteralPath '$backendDir'; " + `
         "`$env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; " + `
         ".\\gradlew.bat bootRun"
-    $frontendCommand = $encInit + "Set-Location -LiteralPath '$frontendDir'; npm run dev"
+    $frontendCommand = $encInit + "`$host.UI.RawUI.WindowTitle='$frontendWindowTitle'; Set-Location -LiteralPath '$frontendDir'; npm run dev"
+
+    Write-Info '백엔드 연속 컴파일 창을 시작합니다.'
+    $backendWatchProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-Command', $backendWatchCommand) -PassThru
 
     Write-Info '백엔드 서버 창을 시작합니다.'
-    $backendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoExit', '-NoLogo', '-Command', $backendCommand) -PassThru
+    $backendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-Command', $backendCommand) -PassThru
 
     Write-Info '프론트 서버 창을 시작합니다.'
-    $frontendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoExit', '-NoLogo', '-Command', $frontendCommand) -PassThru
+    $frontendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-Command', $frontendCommand) -PassThru
 
     $newState = @{
-        backendPid   = $backendProc.Id
-        frontendPid  = $frontendProc.Id
-        backendPort  = $backendPort
-        frontendPort = $frontendPort
-        startedAt    = (Get-Date).ToString('s')
-        projectRoot  = $projectRoot
+        backendPid      = $backendProc.Id
+        backendWatchPid = $backendWatchProc.Id
+        frontendPid     = $frontendProc.Id
+        backendPort     = $backendPort
+        frontendPort    = $frontendPort
+        startedAt       = (Get-Date).ToString('s')
+        projectRoot     = $projectRoot
     }
 
     Save-State -State $newState
 
     Write-Ok "백엔드 시작됨 (콘솔 PID: $($backendProc.Id))"
+    Write-Ok "백엔드 연속 컴파일 시작됨 (콘솔 PID: $($backendWatchProc.Id))"
     Write-Ok "프론트 시작됨 (콘솔 PID: $($frontendProc.Id))"
     Write-Info '초기 기동에는 시간이 필요합니다. status로 포트 리스닝 상태를 확인하세요.'
 }
@@ -221,7 +339,7 @@ function Force-Kill {
     $state = Get-State
 
     if ($state) {
-        foreach ($pidValue in @($state.backendPid, $state.frontendPid)) {
+        foreach ($pidValue in @($state.backendWatchPid, $state.backendPid, $state.frontendPid)) {
             if ($pidValue) {
                 try {
                     Stop-Process -Id ([int]$pidValue) -Force -ErrorAction SilentlyContinue
@@ -248,6 +366,12 @@ function Force-Kill {
             Write-Info "포트 $port 는 점유 중이 아닙니다."
         }
     }
+
+    Stop-ProcessByWindowTitle -WindowTitle $backendWatchWindowTitle -Name '백엔드 연속 컴파일'
+    Stop-ProcessByWindowTitle -WindowTitle $backendWindowTitle -Name '백엔드'
+    Stop-ProcessByWindowTitle -WindowTitle $frontendWindowTitle -Name '프론트'
+
+    Stop-ResidualDevWindows
 
     Remove-State
     Write-Ok '강제 종료 및 상태 정리를 완료했습니다.'

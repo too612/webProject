@@ -26,6 +26,8 @@ import WorldHealthPage from '../pages/community/world/WorldHealthPage';
 
 // support
 import SupportBoardPage from '../pages/community/support/SupportBoardPage';
+import SupportBoardViewPage from '../pages/community/support/SupportBoardViewPage';
+import SupportBoardWritePage from '../pages/community/support/SupportBoardWritePage';
 
 export const communityRoutes: RouteObject[] = [
   {
@@ -78,6 +80,8 @@ export const communityRoutes: RouteObject[] = [
         element: <SubmenuLayout />,
         children: [
           { path: 'board', element: <SupportBoardPage /> },
+          { path: 'board/view', element: <SupportBoardViewPage /> },
+          { path: 'board/write', element: <SupportBoardWritePage /> },
         ],
       },
     ],

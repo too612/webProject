@@ -2,7 +2,7 @@
 
 const categoryCards = [
     { icon: 'forum', title: '자유게시판', desc: '자유롭게 이야기를 나눠보세요', count: '128개의 글', to: '/community/support/board' },
-    { icon: 'question_answer', title: '질문 & 답변', desc: '궁금한 내용을 질문해보세요', count: '95개의 글', to: '/community/support/qna' },
+    { icon: 'question_answer', title: '질문 & 답변', desc: '궁금한 내용을 질문해보세요', count: '95개의 글', to: '/community/support/board' },
     { icon: 'favorite', title: '기도 요청', desc: '함께 기도해요', count: '67개의 글', to: '/community/saint/pray' },
     { icon: 'auto_stories', title: '신앙 나눔', desc: '믿음의 이야기를 나눠요', count: '84개의 글', to: '/community/world/christian' },
     { icon: 'celebration', title: '간증 게시판', desc: '감사의 간증을 전해요', count: '52개의 글', to: '/community/group/groupa1' },
@@ -11,7 +11,7 @@ const categoryCards = [
 
 const recentPosts = [
     { category: '시설', date: '2025.02.20', title: '신앙생활 중 어려움을 겪고 계신 분들을 위한 기도', excerpt: '요즘 신앙생활을 하며 어려움을 겪는 분들을 위해 함께 기도하며 마음을 나눕니다.', author: '홍길동', views: 125, comments: 6, to: '/community/support/board' },
-    { category: '질문&답변', date: '2025.02.19', title: '이번 주일 예배는 저희 함께 드려요!', excerpt: '이번 주일 예배에 새로 오신 분들과 함께 드리려고 합니다. 많은 참여 부탁드립니다.', author: '김철수', views: 89, comments: 5, to: '/community/support/qna' },
+    { category: '질문&답변', date: '2025.02.19', title: '이번 주일 예배는 저희 함께 드려요!', excerpt: '이번 주일 예배에 새로 오신 분들과 함께 드리려고 합니다. 많은 참여 부탁드립니다.', author: '김철수', views: 89, comments: 5, to: '/community/support/board' },
     { category: '신앙나눔', date: '2025.02.18', title: '사랑의 선교 활동에 함께하실 분들을 찾습니다', excerpt: '다음 주 토요일 지역 사회 봉사활동에 함께할 분들을 모집합니다.', author: '이영희', views: 156, comments: 12, to: '/community/world/christian' },
     { category: '간증게시판', date: '2025.02.17', title: '신앙의 깊이를 높이는 영적 서적 추천', excerpt: '최근 읽은 책 중 신앙생활에 도움이 된 도서를 소개합니다.', author: '박민수', views: 203, comments: 15, to: '/community/group/groupb2' },
 ];

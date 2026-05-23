@@ -2,7 +2,6 @@ package com.main.app.system.user;
 
 import com.main.app.common.dto.ApiResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,22 +10,6 @@ import java.util.Map;
 @Controller("systemUserController")
 @RequestMapping("/system/user")
 public class UserController {
-
-    private void addPageAttributes(Model model) {
-        model.addAttribute("submenu", "Y");
-    }
-
-    @GetMapping("/manager")
-    public String managerPage(Model model) {
-        addPageAttributes(model);
-        return "system/user/manager";
-    }
-
-    @GetMapping("/role")
-    public String rolePage(Model model) {
-        addPageAttributes(model);
-        return "system/user/role";
-    }
 
     // ===== REST API 메서드 =====
 

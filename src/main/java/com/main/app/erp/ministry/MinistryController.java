@@ -1,21 +1,42 @@
 package com.main.app.erp.ministry;
 
-import org.springframework.web.bind.annotation.*;
 import com.main.app.common.dto.ApiResponse;
-import java.util.Map;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("erpMinistryController")
 @RequestMapping("/api/erp/ministry")
+@RequiredArgsConstructor
 public class MinistryController {
 
-    @PostMapping("/save")
-    public ApiResponse<Map<String, Object>> save(@RequestBody Map<String, Object> params) {
-        return ApiResponse.ok(params);
+    private final MinistryService ministryService;
+
+    @GetMapping("/department")
+    public ApiResponse<Page<MinistryDto.Department>> department(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(ministryService.getDepartmentList(page, keyword));
     }
 
-    @GetMapping("/list")
-    public ApiResponse<List<Map<String, Object>>> list() {
-        return ApiResponse.ok(null);
+    @GetMapping("/schedule")
+    public ApiResponse<Page<MinistryDto.Schedule>> schedule(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(ministryService.getScheduleList(page, keyword));
+    }
+
+    @GetMapping("/volunteer")
+    public ApiResponse<Page<MinistryDto.Volunteer>> volunteer(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(ministryService.getVolunteerList(page, keyword));
+    }
+
+    @GetMapping("/report")
+    public ApiResponse<Page<MinistryDto.Report>> report(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(ministryService.getReportList(page, keyword));
     }
 }

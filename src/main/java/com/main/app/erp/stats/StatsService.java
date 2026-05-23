@@ -1,9 +1,29 @@
 package com.main.app.erp.stats;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
 
 @Service("erpStatsService")
+@RequiredArgsConstructor
 public class StatsService {
 
-    // TODO: 통계관리 기능 서비스 메서드를 정의하세요.
+    private final StatsMapper statsMapper;
+
+    public Map<String, Object> getDashboard() {
+        return statsMapper.selectDashboard();
+    }
+
+    public List<StatsDto.AttendanceStat> getAttendanceStats(String year, String month) {
+        return statsMapper.selectAttendanceStats(year, month);
+    }
+
+    public List<StatsDto.OfferingStat> getOfferingStats(String year, String month) {
+        return statsMapper.selectOfferingStats(year, month);
+    }
+
+    public List<StatsDto.MinistryStat> getMinistryStats(String year) {
+        return statsMapper.selectMinistryStats(year);
+    }
 }

@@ -2,4 +2,71 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.main.app.erp.stats.StatsMapper"></mapper>
+<mapper namespace="com.main.app.erp.stats.StatsMapper">
+
+        <!-- 대시보드 통계 -->
+        <select id="selectDashboard" resultType="java.util.HashMap">
+                SELECT
+                        (SELECT COUNT(*) FROM erp_member WHERE status = 'ACTIVE') AS total_members,
+                        (SELECT COUNT(*) FROM erp_member WHERE member_type = 'NEWCOMER'
+                         AND join_date >= date_trunc('month', CURRENT_DATE)) AS newcomers,
+                        (SELECT COUNT(*) FROM erp_ministry_volunteer WHERE status = 'ACTIVE') AS active_volunteers,
+                        (SELECT COUNT(*) FROM erp_event WHERE event_date >= CURRENT_DATE AND status = 'ACTIVE') AS upcoming_events,
+                        COALESCE((SELECT SUM(amount) FROM erp_offering
+                                          WHERE offering_date >= date_trunc('month', CURRENT_DATE)), 0) AS monthly_income,
+                        COALESCE((SELECT SUM(amount) FROM erp_expense
+                                          WHERE expense_date >= date_trunc('month', CURRENT_DATE)), 0) AS monthly_expense,
+                        (SELECT COUNT(*) FROM erp_worship
+                         WHERE worship_date >= date_trunc('month', CURRENT_DATE)) AS worship_count,
+                        (SELECT COUNT(*) FROM erp_course WHERE status = 'ACTIVE') AS course_count
+        </select>
+
+        <!-- 출석 통계 -->
+        <select id="selectAttendanceStats" resultType="com.main.app.erp.stats.StatsDto$AttendanceStat">
+                SELECT
+                        a.attend_date,
+                        COALESCE(w.worship_type, 'UNKNOWN') AS worship_type,
+                        COUNT(CASE WHEN a.status = 'PRESENT' THEN 1 END) AS present_count,
+                        COUNT(CASE WHEN a.status = 'ABSENT' THEN 1 END) AS absent_count,
+                        COUNT(CASE WHEN a.status = 'LATE' THEN 1 END) AS late_count,
+                        COUNT(*) AS total_count
+                FROM erp_attendance a
+                LEFT JOIN erp_worship w ON a.worship_id = w.worship_id
+                WHERE TO_CHAR(a.attend_date, 'YYYY') = #{year}
+                <if test="month != null and month != ''">AND TO_CHAR(a.attend_date, 'MM') = #{month}</if>
+                GROUP BY a.attend_date, w.worship_type
+                ORDER BY a.attend_date
+        </select>
+
+        <!-- 헌금 통계 -->
+        <select id="selectOfferingStats" resultType="com.main.app.erp.stats.StatsDto$OfferingStat">
+                SELECT
+                        offering_date,
+                        offering_type,
+                        SUM(amount) AS total_amount,
+                        COUNT(*) AS count
+                FROM erp_offering
+                WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+                <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+                GROUP BY offering_date, offering_type
+                ORDER BY offering_date
+        </select>
+
+        <!-- 사역 통계 -->
+        <select id="selectMinistryStats" resultType="com.main.app.erp.stats.StatsDto$MinistryStat">
+                SELECT
+                        d.dept_name,
+                        COUNT(DISTINCT v.volunteer_id) AS volunteer_count,
+                        COUNT(DISTINCT s.schedule_id) AS schedule_count,
+                        COUNT(DISTINCT r.report_id) AS report_count
+                FROM erp_ministry_dept d
+                LEFT JOIN erp_ministry_volunteer v ON d.dept_id = v.dept_id AND v.status = 'ACTIVE'
+                LEFT JOIN erp_ministry_schedule s ON d.dept_id = s.dept_id
+                        AND (#{year} IS NULL OR TO_CHAR(s.schedule_date, 'YYYY') = #{year})
+                LEFT JOIN erp_ministry_report r ON d.dept_id = r.dept_id
+                        AND (#{year} IS NULL OR TO_CHAR(r.report_date, 'YYYY') = #{year})
+                GROUP BY d.dept_id, d.dept_name
+                ORDER BY d.dept_name
+        </select>
+
+</mapper>

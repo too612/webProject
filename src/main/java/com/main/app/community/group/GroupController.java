@@ -5,12 +5,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.PageMetaDto;
+import org.springframework.data.domain.Page;
 import java.util.Map;
 import java.util.List;
 
 @Controller("communityGroupController")
 @RequestMapping("/community/group")
 public class GroupController {
+
+    private final GroupService groupService;
+
+    public GroupController(GroupService groupService) {
+        this.groupService = groupService;
+    }
 
     private void addPageAttributes(Model model) {
         model.addAttribute("submenu", "Y");
@@ -21,11 +28,13 @@ public class GroupController {
         addPageAttributes(model);
         return "community/group/manager";
     }
+
     @GetMapping("/groupa1")
     public String groupa1Page(Model model) {
         addPageAttributes(model);
         return "community/group/groupa1";
     }
+
     @GetMapping("/groupb2")
     public String groupb2Page(Model model) {
         addPageAttributes(model);
@@ -49,38 +58,42 @@ public class GroupController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword) {
+        Page<GroupDto> data = groupService.getGroupList(page, size, keyword);
         return ApiResponse.ok(Map.of(
-                "content", List.of(),
-                "totalElements", 0,
-                "totalPages", 0,
-                "number", page,
-                "size", size));
+                "content", data.getContent(),
+                "totalElements", data.getTotalElements(),
+                "totalPages", data.getTotalPages(),
+                "number", data.getNumber(),
+                "size", data.getSize()));
     }
 
     @GetMapping("/api/community/group/a1")
     @ResponseBody
     public ApiResponse<Map<String, Object>> getGroupA1(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+        Page<GroupDto> data = groupService.getGroupA1List(page, size, keyword);
         return ApiResponse.ok(Map.of(
-                "content", List.of(),
-                "totalElements", 0,
-                "totalPages", 0,
-                "number", page,
-                "size", size));
+                "content", data.getContent(),
+                "totalElements", data.getTotalElements(),
+                "totalPages", data.getTotalPages(),
+                "number", data.getNumber(),
+                "size", data.getSize()));
     }
 
     @GetMapping("/api/community/group/b2")
     @ResponseBody
     public ApiResponse<Map<String, Object>> getGroupB2(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+        Page<GroupDto> data = groupService.getGroupB2List(page, size, keyword);
         return ApiResponse.ok(Map.of(
-                "content", List.of(),
-                "totalElements", 0,
-                "totalPages", 0,
-                "number", page,
-                "size", size));
+                "content", data.getContent(),
+                "totalElements", data.getTotalElements(),
+                "totalPages", data.getTotalPages(),
+                "number", data.getNumber(),
+                "size", data.getSize()));
     }
 }
-

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.news.bulletin.mapper.BulletinBoardMapper">
+
+    <select id="selectBoardList" parameterType="map" resultType="com.main.app.official.news.bulletin.dto.BulletinDto">
+        SELECT
+            b.id,
+            b.board_type,
+            b.title,
+            b.content,
+            b.author_id,
+            b.read_count,
+            b.group_no,
+            b.order_no,
+            b.depth_no,
+            b.del_yn,
+            b.created_at,
+            b.updated_at,
+            u.name AS author_name
+        FROM board b
+        LEFT JOIN users u ON b.author_id = u.id
+        WHERE b.board_type = #{boardType}
+          AND b.del_yn = 'N'
+        <if test="searchType != null and searchType != '' and keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND b.title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND b.content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'author'">
+                    AND u.name LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (b.title LIKE CONCAT('%', #{keyword}, '%')
+                        OR b.content LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY b.group_no DESC, b.order_no ASC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countBoardList" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM board b
+        LEFT JOIN users u ON b.author_id = u.id
+        WHERE b.board_type = #{boardType}
+          AND b.del_yn = 'N'
+        <if test="searchType != null and searchType != '' and keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND b.title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND b.content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'author'">
+                    AND u.name LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (b.title LIKE CONCAT('%', #{keyword}, '%')
+                        OR b.content LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectBoardDetail" parameterType="map" resultType="com.main.app.official.news.bulletin.dto.BulletinDto">
+        SELECT
+            b.id,
+            b.board_type,
+            b.title,
+            b.content,
+            b.author_id,
+            b.read_count,
+            b.group_no,
+            b.order_no,
+            b.depth_no,
+            b.del_yn,
+            b.created_at,
+            b.updated_at,
+            u.name AS author_name
+        FROM board b
+        LEFT JOIN users u ON b.author_id = u.id
+        WHERE b.id = #{rqstNo}
+          AND b.board_type = #{boardType}
+          AND b.del_yn = 'N'
+    </select>
+
+    <update id="updateReadCount" parameterType="map">
+        UPDATE board
+        SET read_count = read_count + 1
+        WHERE id = #{rqstNo}
+          AND board_type = #{boardType}
+    </update>
+
+    <insert id="insertBoard" parameterType="com.main.app.official.news.bulletin.dto.BulletinRequest" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO board (board_type, title, content, author_id, group_no, order_no, depth_no, del_yn, created_at)
+        VALUES (#{boardType}, #{title}, #{content}, #{authorId}, #{groupNo}, #{orderNo}, #{depthNo}, 'N', NOW())
+    </insert>
+
+    <update id="updateBoard" parameterType="com.main.app.official.news.bulletin.dto.BulletinRequest">
+        UPDATE board
+        SET title      = #{title},
+            content    = #{content},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateReplyOrder" parameterType="map">
+        UPDATE board
+        SET order_no = order_no + 1
+        WHERE group_no = #{groupNo}
+          AND order_no >= #{orderNo}
+    </update>
+
+    <update id="deleteComments" parameterType="string">
+        UPDATE board_comment
+        SET del_yn = 'Y'
+        WHERE board_id = #{boardNo}
+    </update>
+
+    <update id="deleteFiles" parameterType="string">
+        UPDATE board_file
+        SET del_yn = 'Y'
+        WHERE board_id = #{boardNo}
+    </update>
+
+    <update id="deleteBoard" parameterType="string">
+        UPDATE board
+        SET del_yn = 'Y'
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertFile" parameterType="com.main.app.common.dto.FileDto">
+        INSERT INTO board_file (board_id, original_name, stored_name, file_path, file_size, del_yn, created_at)
+        VALUES (#{boardId}, #{originalName}, #{storedName}, #{filePath}, #{fileSize}, 'N', NOW())
+    </insert>
+
+    <select id="selectFile" parameterType="long" resultType="com.main.app.common.dto.FileDto">
+        SELECT id, board_id, original_name, stored_name, file_path, file_size, del_yn, created_at
+        FROM board_file
+        WHERE id = #{fileId}
+          AND del_yn = 'N'
+    </select>
+
+    <select id="selectFileList" parameterType="string" resultType="com.main.app.common.dto.FileDto">
+        SELECT id, board_id, original_name, stored_name, file_path, file_size, del_yn, created_at
+        FROM board_file
+        WHERE board_id = #{boardNo}
+          AND del_yn = 'N'
+    </select>
+
+    <select id="selectCommentList" parameterType="string" resultType="com.main.app.common.dto.CommentDto">
+        SELECT
+            c.id,
+            c.board_id,
+            c.author_id,
+            c.content,
+            c.like_count,
+            c.dislike_count,
+            c.del_yn,
+            c.created_at,
+            c.updated_at,
+            u.name AS author_name
+        FROM board_comment c
+        LEFT JOIN users u ON c.author_id = u.id
+        WHERE c.board_id = #{boardNo}
+          AND c.del_yn = 'N'
+        ORDER BY c.created_at ASC
+    </select>
+
+    <insert id="insertComment" parameterType="com.main.app.common.dto.CommentDto">
+        INSERT INTO board_comment (board_id, author_id, content, del_yn, created_at)
+        VALUES (#{boardId}, #{authorId}, #{content}, 'N', NOW())
+    </insert>
+
+    <select id="selectCommentById" parameterType="int" resultType="com.main.app.common.dto.CommentDto">
+        SELECT id, board_id, author_id, content, like_count, dislike_count, del_yn, created_at, updated_at
+        FROM board_comment
+        WHERE id = #{commentId}
+          AND del_yn = 'N'
+    </select>
+
+    <update id="increaseLike" parameterType="int">
+        UPDATE board_comment
+        SET like_count = like_count + 1
+        WHERE id = #{commentId}
+    </update>
+
+    <update id="decreaseLike" parameterType="int">
+        UPDATE board_comment
+        SET like_count = GREATEST(like_count - 1, 0)
+        WHERE id = #{commentId}
+    </update>
+
+    <update id="increaseDislike" parameterType="int">
+        UPDATE board_comment
+        SET dislike_count = dislike_count + 1
+        WHERE id = #{commentId}
+    </update>
+
+    <update id="decreaseDislike" parameterType="int">
+        UPDATE board_comment
+        SET dislike_count = GREATEST(dislike_count - 1, 0)
+        WHERE id = #{commentId}
+    </update>
+
+</mapper>

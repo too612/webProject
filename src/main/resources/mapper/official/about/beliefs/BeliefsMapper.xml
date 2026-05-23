@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.about.beliefs.BeliefsMapper">
+
+    <!-- TODO: Beliefs 전용 테이블 확정 후 SQL 교체 -->
+    <select id="selectBeliefs" resultType="com.main.app.official.about.beliefs.dto.BeliefsDto">
+        SELECT
+            1::BIGINT AS id,
+            'Beliefs' AS title,
+            'Beliefs content template' AS content
+    </select>
+
+    <insert id="insertBeliefs" parameterType="com.main.app.official.about.beliefs.dto.BeliefsRequest">
+        SELECT 1
+    </insert>
+
+    <update id="updateBeliefs">
+        SELECT 1
+    </update>
+
+    <update id="deleteBeliefs">
+        SELECT 1
+    </update>
+
+</mapper>

@@ -2,4 +2,82 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.main.app.erp.sermon.SermonMapper"></mapper>
+<mapper namespace="com.main.app.erp.sermon.SermonMapper">
+
+    <!-- 예배/설교 목록 (manager) -->
+    <select id="selectWorshipList" resultType="com.main.app.erp.sermon.SermonErpDto$Worship">
+        SELECT worship_id, title, preacher, scripture, worship_date, worship_type,
+               video_url, description, status, reg_date
+        FROM erp_worship
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR preacher LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY worship_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countWorshipList" resultType="long">
+        SELECT COUNT(*) FROM erp_worship
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR preacher LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+    <!-- 설교 아카이브 -->
+    <select id="selectArchiveList" resultType="com.main.app.erp.sermon.SermonErpDto$Worship">
+        SELECT worship_id, title, preacher, scripture, worship_date, worship_type,
+               video_url, description, status, reg_date
+        FROM erp_worship
+        WHERE video_url IS NOT NULL AND status = 'ACTIVE'
+        <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR preacher LIKE '%' || #{keyword} || '%')</if>
+        ORDER BY worship_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countArchiveList" resultType="long">
+        SELECT COUNT(*) FROM erp_worship
+        WHERE video_url IS NOT NULL AND status = 'ACTIVE'
+        <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR preacher LIKE '%' || #{keyword} || '%')</if>
+    </select>
+
+    <!-- 예배 출석 -->
+    <select id="selectAttendanceList" resultType="com.main.app.erp.sermon.SermonErpDto$Attendance">
+        SELECT a.attendance_id, a.worship_id, w.title AS worship_title,
+               a.member_id, a.member_name, a.attend_date, a.status
+        FROM erp_attendance a
+        LEFT JOIN erp_worship w ON a.worship_id = w.worship_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND a.member_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+        ORDER BY a.attend_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countAttendanceList" resultType="long">
+        SELECT COUNT(*) FROM erp_attendance
+        <where>
+            <if test="keyword != null and keyword != ''">AND member_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+    </select>
+
+    <!-- 예배 순서 -->
+    <select id="selectOrderList" resultType="com.main.app.erp.sermon.SermonErpDto$Order">
+        SELECT o.order_id, o.worship_id, w.title AS worship_title, w.worship_date,
+               o.order_seq, o.role_name, o.participant
+        FROM erp_worship_order o
+        LEFT JOIN erp_worship w ON o.worship_id = w.worship_id
+        <where>
+            <if test="worshipId != null and worshipId != ''">AND o.worship_id = #{worshipId}</if>
+        </where>
+        ORDER BY o.worship_id, o.order_seq
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countOrderList" resultType="long">
+        SELECT COUNT(*) FROM erp_worship_order
+        <where>
+            <if test="worshipId != null and worshipId != ''">AND worship_id = #{worshipId}</if>
+        </where>
+    </select>
+
+</mapper>

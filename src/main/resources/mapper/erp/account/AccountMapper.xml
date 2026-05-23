@@ -2,4 +2,110 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.main.app.erp.account.AccountMapper"></mapper>
+<mapper namespace="com.main.app.erp.account.AccountMapper">
+
+    <!-- 헌금 목록 (manager) -->
+    <select id="selectOfferingList" resultType="com.main.app.erp.account.AccountDto$Offering">
+        SELECT offering_id, member_id, member_name, amount, offering_type,
+               offering_date, description, input_by, reg_date
+        FROM erp_offering
+        <where>
+            <if test="keyword != null and keyword != ''">AND (member_name LIKE '%' || #{keyword} || '%' OR offering_type LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY offering_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countOfferingList" resultType="long">
+        SELECT COUNT(*) FROM erp_offering
+        <where>
+            <if test="keyword != null and keyword != ''">AND (member_name LIKE '%' || #{keyword} || '%' OR offering_type LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+    <!-- 헌금 입력 목록 (input) - offering과 동일 구조 -->
+    <select id="selectInputList" resultType="com.main.app.erp.account.AccountDto$Offering">
+        SELECT offering_id, member_id, member_name, amount, offering_type,
+               offering_date, description, input_by, reg_date
+        FROM erp_offering
+        <where>
+            <if test="keyword != null and keyword != ''">AND member_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+        ORDER BY reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countInputList" resultType="long">
+        SELECT COUNT(*) FROM erp_offering
+        <where>
+            <if test="keyword != null and keyword != ''">AND member_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+    </select>
+
+    <!-- 예산 목록 -->
+    <select id="selectBudgetList" resultType="com.main.app.erp.account.AccountDto$Budget">
+        SELECT budget_id, budget_year, category, planned_amount, description, status
+        FROM erp_budget
+        <where>
+            <if test="year != null">AND budget_year = #{year}</if>
+        </where>
+        ORDER BY budget_year DESC, category
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countBudgetList" resultType="long">
+        SELECT COUNT(*) FROM erp_budget
+        <where>
+            <if test="year != null">AND budget_year = #{year}</if>
+        </where>
+    </select>
+
+    <!-- 지출 목록 -->
+    <select id="selectExpenseList" resultType="com.main.app.erp.account.AccountDto$Expense">
+        SELECT expense_id, expense_date, category, amount, description, approved_by, reg_date
+        FROM erp_expense
+        <where>
+            <if test="keyword != null and keyword != ''">AND (category LIKE '%' || #{keyword} || '%' OR description LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY expense_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countExpenseList" resultType="long">
+        SELECT COUNT(*) FROM erp_expense
+        <where>
+            <if test="keyword != null and keyword != ''">AND (category LIKE '%' || #{keyword} || '%' OR description LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+    <!-- 재정 보고서 집계 -->
+    <select id="selectReport" resultType="com.main.app.erp.account.AccountDto$Report">
+        SELECT
+            COALESCE((SELECT SUM(amount) FROM erp_offering
+                      WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+                      <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+                     ), 0) AS income,
+            COALESCE((SELECT SUM(amount) FROM erp_expense
+                      WHERE TO_CHAR(expense_date, 'YYYY') = #{year}
+                      <if test="month != null and month != ''">AND TO_CHAR(expense_date, 'MM') = #{month}</if>
+                     ), 0) AS expense,
+            COALESCE((SELECT SUM(amount) FROM erp_offering
+                      WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+                      <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+                     ), 0)
+            - COALESCE((SELECT SUM(amount) FROM erp_expense
+                        WHERE TO_CHAR(expense_date, 'YYYY') = #{year}
+                        <if test="month != null and month != ''">AND TO_CHAR(expense_date, 'MM') = #{month}</if>
+                       ), 0) AS balance
+    </select>
+
+    <select id="selectReportItems" resultType="com.main.app.erp.account.AccountDto$Offering">
+        SELECT offering_id, member_id, member_name, amount, offering_type,
+               offering_date, description, input_by, reg_date
+        FROM erp_offering
+        WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+        <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+        ORDER BY offering_date DESC
+    </select>
+
+</mapper>
