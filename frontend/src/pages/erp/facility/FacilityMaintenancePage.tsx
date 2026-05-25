@@ -7,11 +7,12 @@ type Row = Record<string, unknown>;
 
 const COLUMNS = [
   { key: 'facilityName', label: '시설명' },
+  { key: 'title', label: '제목' },
   { key: 'maintenanceDate', label: '점검일' },
   { key: 'description', label: '점검내용' },
-  { key: 'engineer', label: '담당자' },
   { key: 'cost', label: '비용' },
   { key: 'status', label: '상태' },
+  { key: 'regDate', label: '등록일' },
 ];
 
 export default function FacilityMaintenancePage() {

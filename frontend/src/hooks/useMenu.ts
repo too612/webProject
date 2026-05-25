@@ -98,7 +98,7 @@ const fallbackMenuBySystem: Record<string, MenuItem[]> = {
             level: 1,
             orderNo: 5,
             subMenus: [
-                { menuId: 'official-support-location', menuName: '오시는길', path: '/support/location', parentId: 'official-support', level: 2, orderNo: 1, subMenus: [] },
+                { menuId: 'official-support-location', menuName: '오시는 길', path: '/support/location', parentId: 'official-support', level: 2, orderNo: 1, subMenus: [] },
                 { menuId: 'official-support-faq', menuName: 'FAQ', path: '/support/faq', parentId: 'official-support', level: 2, orderNo: 2, subMenus: [] },
                 { menuId: 'official-support-qna', menuName: 'Q&A', path: '/support/qna', parentId: 'official-support', level: 2, orderNo: 3, subMenus: [] },
             ],
@@ -152,16 +152,6 @@ const fallbackMenuBySystem: Record<string, MenuItem[]> = {
                 { menuId: 'community-world-christian', menuName: '기독교', path: '/community/world/christian', parentId: 'community-world', level: 2, orderNo: 1, subMenus: [] },
                 { menuId: 'community-world-economic', menuName: '경제', path: '/community/world/economic', parentId: 'community-world', level: 2, orderNo: 2, subMenus: [] },
                 { menuId: 'community-world-health', menuName: '건강', path: '/community/world/health', parentId: 'community-world', level: 2, orderNo: 3, subMenus: [] },
-            ],
-        },
-        {
-            menuId: 'community-support',
-            menuName: '고객지원',
-            path: '/community/support/board',
-            level: 1,
-            orderNo: 5,
-            subMenus: [
-                { menuId: 'community-support-board', menuName: '게시판', path: '/community/support/board', parentId: 'community-support', level: 2, orderNo: 1, subMenus: [] },
             ],
         },
     ],

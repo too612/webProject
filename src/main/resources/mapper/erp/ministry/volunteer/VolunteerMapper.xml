@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.ministry.volunteer.VolunteerMapper">
+
+    <select id="selectVolunteerList" resultType="com.main.app.erp.ministry.volunteer.dto.VolunteerDto$Volunteer">
+        SELECT v.volunteer_id, v.member_id, v.member_name, v.dept_id,
+               COALESCE(v.dept_name, d.dept_name) AS dept_name,
+               v.role, v.start_date, v.end_date, v.status
+        FROM erp_ministry_volunteer v
+        LEFT JOIN erp_ministry_dept d ON v.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (v.member_name LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY v.member_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countVolunteerList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_volunteer v
+        LEFT JOIN erp_ministry_dept d ON v.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (v.member_name LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>

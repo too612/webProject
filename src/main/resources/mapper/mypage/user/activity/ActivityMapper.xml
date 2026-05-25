@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.mypage.user.activity.ActivityMapper">
+
+    <select id="selectActivityList" resultType="com.main.app.mypage.user.activity.dto.ActivityPostDto">
+        SELECT rqst_no AS rqstNo,
+               title,
+               board_type AS boardType,
+               ins_dt AS insDt,
+               views
+          FROM board
+         WHERE rqst_id = #{userId}
+         ORDER BY ins_dt DESC
+         LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countActivityList" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE rqst_id = #{userId}
+    </select>
+
+</mapper>

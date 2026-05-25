@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.event.calendar.CalendarMapper">
+
+    <select id="selectCalendarEvents" resultType="com.main.app.erp.event.calendar.dto.CalendarDto$Event">
+        SELECT event_id, title, event_date, end_date, location, description,
+               capacity, organizer, status, reg_date
+        FROM erp_event
+        <where>
+            <if test="year != null and year != ''">AND TO_CHAR(event_date, 'YYYY') = #{year}</if>
+            <if test="month != null and month != ''">AND TO_CHAR(event_date, 'MM') = #{month}</if>
+        </where>
+        ORDER BY event_date
+    </select>
+
+</mapper>

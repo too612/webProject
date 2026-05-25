@@ -8,9 +8,9 @@ type Row = Record<string, unknown>;
 const COLUMNS = [
   { key: 'vehicleName', label: '차량명' },
   { key: 'plateNumber', label: '차량번호' },
-  { key: 'driverName', label: '담당운전자' },
+  { key: 'driver', label: '담당운전자' },
+  { key: 'capacity', label: '정원' },
   { key: 'status', label: '상태' },
-  { key: 'lastInspectionDate', label: '최근점검일' },
 ];
 
 export default function FacilityVehiclePage() {

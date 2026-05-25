@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.training.course.CourseMapper">
+
+    <select id="selectCourseList" resultType="com.main.app.erp.training.course.dto.CourseDto$Course">
+        SELECT c.course_id, c.course_name, c.instructor, c.start_date, c.end_date,
+               c.description, c.status, c.reg_date,
+               COUNT(s.student_id) AS student_count
+        FROM erp_course c
+        LEFT JOIN erp_training_student s ON c.course_id = s.course_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (c.course_name LIKE '%' || #{keyword} || '%' OR c.instructor LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        GROUP BY c.course_id, c.course_name, c.instructor, c.start_date, c.end_date, c.description, c.status, c.reg_date
+        ORDER BY c.reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countCourseList" resultType="long">
+        SELECT COUNT(*) FROM erp_course
+        <where>
+            <if test="keyword != null and keyword != ''">AND (course_name LIKE '%' || #{keyword} || '%' OR instructor LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>

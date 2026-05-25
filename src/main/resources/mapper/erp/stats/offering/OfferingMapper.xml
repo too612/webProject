@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.stats.offering.OfferingMapper">
+
+    <select id="selectOfferingStats" resultType="com.main.app.erp.stats.offering.dto.OfferingDto$OfferingStat">
+        SELECT
+            TO_CHAR(o.offering_date, 'YYYY-MM') AS month,
+            COALESCE(SUM(CASE WHEN o.offering_type = 'TITHE' THEN o.amount ELSE 0 END), 0) AS tithe,
+            COALESCE(SUM(CASE WHEN o.offering_type = 'MISSION' THEN o.amount ELSE 0 END), 0) AS mission,
+            COALESCE(SUM(CASE WHEN o.offering_type = 'SPECIAL' THEN o.amount ELSE 0 END), 0) AS special,
+            COALESCE(SUM(CASE WHEN o.offering_type NOT IN ('TITHE', 'MISSION', 'SPECIAL') THEN o.amount ELSE 0 END), 0) AS other,
+            COALESCE(SUM(o.amount), 0) AS total
+        FROM erp_offering o
+        <where>
+            <if test="year != null and year != ''">
+                TO_CHAR(o.offering_date, 'YYYY') = #{year}
+            </if>
+            <if test="month != null and month != ''">
+                AND TO_CHAR(o.offering_date, 'MM') = #{month}
+            </if>
+        </where>
+        GROUP BY TO_CHAR(o.offering_date, 'YYYY-MM')
+        ORDER BY TO_CHAR(o.offering_date, 'YYYY-MM') DESC
+    </select>
+
+</mapper>

@@ -1,13 +1,6 @@
 import client from './client';
 import type { ApiResponse } from '../types';
 
-type PageMeta = {
-  title: string;
-  path: string;
-  section: string;
-  template: string;
-};
-
 type SpringPage<T> = {
   content: T[];
   number: number;
@@ -31,6 +24,13 @@ export type SystemListQuery = {
   [key: string]: string | number | undefined;
 };
 
+export type SystemIndexData = {
+  activeAccounts: number;
+  todayWarnings: number;
+  backupSuccessRate: string;
+  pendingRoleRequests: number;
+};
+
 function toListResult<T>(page: SpringPage<T> | null | undefined): SystemListResult<T> {
   return {
     items: page?.content ?? [],
@@ -52,9 +52,14 @@ async function fetchList<T>(path: string, query: SystemListQuery = {}): Promise<
 }
 
 export const systemApi = {
-  async getPages() {
-    const response = await client.get<ApiResponse<Record<string, PageMeta[]>>>('/system/pages');
-    return response.data.data ?? {};
+  async getIndexData(): Promise<SystemIndexData> {
+    const response = await client.get<ApiResponse<SystemIndexData>>('/system/index');
+    return response.data.data ?? {
+      activeAccounts: 0,
+      todayWarnings: 0,
+      backupSuccessRate: '0.0%',
+      pendingRoleRequests: 0,
+    };
   },
 
   // ── 사용자 관리 ──────────────────────────────────────────────

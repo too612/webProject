@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import client from '../../../api/client';
+import { erpApi } from '../../../api/erpApi';
 
 export default function SermonWritePage() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function SermonWritePage() {
     setSubmitting(true);
     setError('');
     try {
-      await client.post('/erp/sermon/write', form);
+      await erpApi.sermon.create(form);
       navigate('/erp/sermon/manager');
     } catch {
       setError('저장에 실패했습니다. 다시 시도해주세요.');

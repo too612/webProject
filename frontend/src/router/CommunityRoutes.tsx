@@ -24,11 +24,6 @@ import WorldChristianPage from '../pages/community/world/WorldChristianPage';
 import WorldEconomicPage from '../pages/community/world/WorldEconomicPage';
 import WorldHealthPage from '../pages/community/world/WorldHealthPage';
 
-// support
-import SupportBoardPage from '../pages/community/support/SupportBoardPage';
-import SupportBoardViewPage from '../pages/community/support/SupportBoardViewPage';
-import SupportBoardWritePage from '../pages/community/support/SupportBoardWritePage';
-
 export const communityRoutes: RouteObject[] = [
   {
     path: '/community',
@@ -73,15 +68,6 @@ export const communityRoutes: RouteObject[] = [
           { path: 'christian', element: <WorldChristianPage /> },
           { path: 'economic', element: <WorldEconomicPage /> },
           { path: 'health', element: <WorldHealthPage /> },
-        ],
-      },
-      {
-        path: 'support',
-        element: <SubmenuLayout />,
-        children: [
-          { path: 'board', element: <SupportBoardPage /> },
-          { path: 'board/view', element: <SupportBoardViewPage /> },
-          { path: 'board/write', element: <SupportBoardWritePage /> },
         ],
       },
     ],

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.facility.inventory.InventoryMapper">
+
+    <select id="selectInventoryList" resultType="com.main.app.erp.facility.inventory.dto.InventoryDto$Inventory">
+        SELECT inventory_id,
+               item_name,
+               category,
+               quantity,
+               unit,
+               location,
+               status,
+               reg_date
+        FROM erp_inventory
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (item_name LIKE '%' || #{keyword} || '%' OR category LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+        ORDER BY category, item_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countInventoryList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_inventory
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (item_name LIKE '%' || #{keyword} || '%' OR category LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

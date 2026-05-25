@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.sermon.archive.ArchiveMapper">
+
+    <select id="selectArchiveList" resultType="com.main.app.erp.sermon.archive.dto.ArchiveDto$Archive">
+        SELECT worship_id, title, preacher, scripture, worship_date, worship_type,
+               video_url, description, status, reg_date
+        FROM erp_worship
+        WHERE video_url IS NOT NULL AND status = 'ACTIVE'
+        <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR preacher LIKE '%' || #{keyword} || '%')</if>
+        ORDER BY worship_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countArchiveList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_worship
+        WHERE video_url IS NOT NULL AND status = 'ACTIVE'
+        <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR preacher LIKE '%' || #{keyword} || '%')</if>
+    </select>
+
+</mapper>

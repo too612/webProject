@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.ministry.department.DepartmentMapper">
+
+    <select id="selectDepartmentList" resultType="com.main.app.erp.ministry.department.dto.DepartmentDto$Department">
+        SELECT d.dept_id, d.dept_name, d.leader_name, d.parent_id, d.description, d.status, d.reg_date,
+               COUNT(v.volunteer_id) AS volunteer_count
+        FROM erp_ministry_dept d
+        LEFT JOIN erp_ministry_volunteer v ON d.dept_id = v.dept_id AND v.status = 'ACTIVE'
+        <where>
+            <if test="keyword != null and keyword != ''">AND d.dept_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+        GROUP BY d.dept_id, d.dept_name, d.leader_name, d.parent_id, d.description, d.status, d.reg_date
+        ORDER BY d.dept_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countDepartmentList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_dept
+        <where>
+            <if test="keyword != null and keyword != ''">AND dept_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+    </select>
+
+</mapper>

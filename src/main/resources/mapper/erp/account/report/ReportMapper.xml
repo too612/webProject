@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.account.report.ReportMapper">
+
+    <select id="selectReport" resultType="com.main.app.erp.account.report.dto.ReportDto$Report">
+        SELECT
+            COALESCE((SELECT SUM(amount) FROM erp_offering
+                      WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+                      <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+                     ), 0) AS income,
+            COALESCE((SELECT SUM(amount) FROM erp_expense
+                      WHERE TO_CHAR(expense_date, 'YYYY') = #{year}
+                      <if test="month != null and month != ''">AND TO_CHAR(expense_date, 'MM') = #{month}</if>
+                     ), 0) AS expense,
+            COALESCE((SELECT SUM(amount) FROM erp_offering
+                      WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+                      <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+                     ), 0)
+            - COALESCE((SELECT SUM(amount) FROM erp_expense
+                        WHERE TO_CHAR(expense_date, 'YYYY') = #{year}
+                        <if test="month != null and month != ''">AND TO_CHAR(expense_date, 'MM') = #{month}</if>
+                       ), 0) AS balance
+    </select>
+
+    <select id="selectReportItems" resultType="com.main.app.erp.account.report.dto.ReportDto$Offering">
+        SELECT offering_id, member_id, member_name, amount, offering_type,
+               offering_date, description, input_by, reg_date
+        FROM erp_offering
+        WHERE TO_CHAR(offering_date, 'YYYY') = #{year}
+        <if test="month != null and month != ''">AND TO_CHAR(offering_date, 'MM') = #{month}</if>
+        ORDER BY offering_date DESC
+    </select>
+
+</mapper>

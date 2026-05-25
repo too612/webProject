@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.stats.attendance.AttendanceMapper">
+
+    <select id="selectAttendanceStats" resultType="com.main.app.erp.stats.attendance.dto.AttendanceDto$AttendanceStat">
+        SELECT
+            TO_CHAR(a.attend_date, 'YYYY-MM-DD') AS date,
+            COUNT(*) AS total,
+            COUNT(CASE WHEN a.status = 'PRESENT' THEN 1 END) AS present,
+            COUNT(CASE WHEN a.status = 'ABSENT' THEN 1 END) AS absent,
+            CASE
+                WHEN COUNT(*) = 0 THEN 0
+                ELSE ROUND(COUNT(CASE WHEN a.status = 'PRESENT' THEN 1 END) * 100.0 / COUNT(*), 2)
+            END AS rate
+        FROM erp_attendance a
+        <where>
+            <if test="year != null and year != ''">
+                TO_CHAR(a.attend_date, 'YYYY') = #{year}
+            </if>
+            <if test="month != null and month != ''">
+                AND TO_CHAR(a.attend_date, 'MM') = #{month}
+            </if>
+        </where>
+        GROUP BY a.attend_date
+        ORDER BY a.attend_date DESC
+    </select>
+
+</mapper>

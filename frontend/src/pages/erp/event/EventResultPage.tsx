@@ -6,11 +6,11 @@ import type { ErpListResult, ErpListQuery } from '../../../api/erpApi';
 type Row = Record<string, unknown>;
 
 const COLUMNS = [
-  { key: 'eventName', label: '행사명' },
+  { key: 'title', label: '행사명' },
   { key: 'eventDate', label: '행사일' },
-  { key: 'totalParticipants', label: '참가인원' },
-  { key: 'result', label: '결과' },
-  { key: 'author', label: '작성자' },
+  { key: 'applicantCount', label: '참가인원' },
+  { key: 'organizer', label: '담당자' },
+  { key: 'status', label: '상태' },
 ];
 
 export default function EventResultPage() {

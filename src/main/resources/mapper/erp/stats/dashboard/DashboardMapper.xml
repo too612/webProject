@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.stats.dashboard.DashboardMapper">
+
+    <select id="selectDashboard" resultType="com.main.app.erp.stats.dashboard.dto.DashboardDto$Summary">
+        SELECT
+            COALESCE((SELECT COUNT(*) FROM erp_member WHERE status = 'ACTIVE'), 0) AS totalMembers,
+            COALESCE((SELECT COUNT(*) FROM erp_member WHERE member_type = 'NEWCOMER'
+                      AND join_date >= date_trunc('month', CURRENT_DATE)), 0) AS newMembers,
+            COALESCE((SELECT ROUND(AVG(att.rate), 2)
+                      FROM (
+                          SELECT
+                              a.attend_date,
+                              CASE WHEN COUNT(*) = 0 THEN 0
+                                   ELSE (COUNT(CASE WHEN a.status = 'PRESENT' THEN 1 END) * 100.0 / COUNT(*))
+                              END AS rate
+                          FROM erp_attendance a
+                          WHERE a.attend_date >= date_trunc('month', CURRENT_DATE)
+                          GROUP BY a.attend_date
+                      ) att), 0) AS avgAttendance,
+            COALESCE((SELECT SUM(amount)
+                      FROM erp_offering
+                      WHERE offering_date >= date_trunc('month', CURRENT_DATE)), 0) AS totalOffering
+    </select>
+
+</mapper>

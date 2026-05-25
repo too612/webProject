@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.ministry.schedule.ScheduleMapper">
+
+    <select id="selectScheduleList" resultType="com.main.app.erp.ministry.schedule.dto.ScheduleDto$Schedule">
+        SELECT s.schedule_id, s.dept_id, COALESCE(s.dept_name, d.dept_name) AS dept_name,
+               s.title, s.schedule_date, s.description, s.status, s.reg_date
+        FROM erp_ministry_schedule s
+        LEFT JOIN erp_ministry_dept d ON s.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (s.title LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY s.schedule_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countScheduleList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_schedule s
+        LEFT JOIN erp_ministry_dept d ON s.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (s.title LIKE '%' || #{keyword} || '%' OR d.dept_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>

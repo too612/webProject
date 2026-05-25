@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.system.index.SystemIndexMapper">
+
+    <select id="selectActiveAccounts" resultType="long">
+        SELECT COUNT(DISTINCT rqst_id)
+          FROM board
+         WHERE rqst_id IS NOT NULL
+           AND rqst_id != ''
+    </select>
+
+    <select id="selectTodayWarnings" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE board_type LIKE 'SYSTEM_%'
+           AND ins_dt >= CURRENT_DATE
+    </select>
+
+    <select id="selectPendingRoleRequests" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE board_type = 'SYSTEM_USER_ROLE_REQUEST'
+    </select>
+
+    <select id="selectBackupHistoryCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE board_type = 'SYSTEM_BACKUP_HISTORY'
+    </select>
+
+    <select id="selectBackupSuccessCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE board_type = 'SYSTEM_BACKUP_HISTORY'
+           AND UPPER(COALESCE(cont, '')) LIKE '%SUCCESS%'
+    </select>
+
+</mapper>

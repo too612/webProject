@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.admin.archive.ArchiveMapper">
+
+    <select id="selectArchiveList" resultType="com.main.app.erp.admin.archive.dto.ArchiveDto$Archive">
+        SELECT archive_id, title, doc_type, file_path, reg_by, status, reg_date
+        FROM erp_archive
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR doc_type LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countArchiveList" resultType="long">
+        SELECT COUNT(*) FROM erp_archive
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR doc_type LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>
+

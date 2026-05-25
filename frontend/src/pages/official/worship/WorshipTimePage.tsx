@@ -1,27 +1,71 @@
-﻿const schedules = [
-  { time: '매주 오전 5시', title: '새벽예배', note: '하루를 말씀으로 시작합니다.' },
-  { time: '매주 수요일 오후 8시', title: '저녁예배', note: '주중 말씀과 기도의 시간입니다.' },
-  { time: '매주 금요일 오후 10시', title: '찬양예배', note: '찬양과 기도 중심의 예배입니다.' },
-  { time: '매주 토요일 오후 2시', title: '전도모임', note: '지역과 이웃을 섬기는 모임입니다.' },
-  { time: '매주 일요일 오전 9시', title: '주일학교예배', note: '다음 세대를 위한 예배입니다.' },
-  { time: '매주 일요일 오전 11시', title: '대예배', note: '온 성도가 함께 드리는 예배입니다.' },
-  { time: '매주 일요일 오후 7시', title: '저녁예배', note: '주일을 마무리하는 예배입니다.' },
-];
+﻿import { useEffect, useMemo, useState } from 'react';
+import client from '../../../api/client';
+import type { ApiResponse } from '../../../types';
+
+type TimeItem = {
+  category?: string;
+  title?: string;
+  time?: string;
+  note?: string;
+  location?: string;
+  orderNo?: number;
+};
 
 export default function WorshipTimePage() {
+  const [items, setItems] = useState<TimeItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await client.get<ApiResponse<TimeItem[]>>('/official/worship/time');
+        if (!mounted) return;
+        setItems(response.data.data ?? []);
+      } catch {
+        if (!mounted) return;
+        setError('예배 시간 정보를 불러오지 못했습니다.');
+        setItems([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    load();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const schedules = useMemo(
+    () => [...items].sort((left, right) => (left.orderNo ?? 999) - (right.orderNo ?? 999)),
+    [items]
+  );
+
   return (
     <section className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-brand-dark">예배 시간 안내</h2>
         <p className="text-sm text-gray-500">정기 예배 및 모임 일정을 안내드립니다.</p>
+        {error && <div className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</div>}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {!loading && schedules.length === 0 && (
+          <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 text-sm text-gray-500">
+            등록된 예배 시간이 없습니다.
+          </article>
+        )}
         {schedules.map((item) => (
-          <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2" key={`${item.time}-${item.title}`}>
-            <span className="text-xs text-brand-primary font-medium">{item.time}</span>
-            <h3 className="font-semibold text-brand-dark">{item.title}</h3>
-            <p className="text-sm text-gray-500">{item.note}</p>
+          <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2" key={`${item.orderNo ?? 0}-${item.time ?? ''}-${item.title ?? ''}`}>
+            <span className="text-xs text-brand-primary font-medium">{item.time ?? '-'}</span>
+            <h3 className="font-semibold text-brand-dark">{item.title ?? item.category ?? '예배'}</h3>
+            <p className="text-sm text-gray-500">{item.note ?? ''}</p>
           </article>
         ))}
       </div>
@@ -36,13 +80,13 @@ export default function WorshipTimePage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            <tr><td className="px-4 py-3 text-gray-700">새벽예배</td><td className="px-4 py-3 text-gray-700">매주 오전 5시</td><td className="px-4 py-3 text-gray-500">본당</td></tr>
-            <tr><td className="px-4 py-3 text-gray-700">수요 저녁예배</td><td className="px-4 py-3 text-gray-700">매주 수요일 오후 8시</td><td className="px-4 py-3 text-gray-500">본당</td></tr>
-            <tr><td className="px-4 py-3 text-gray-700">찬양예배</td><td className="px-4 py-3 text-gray-700">매주 금요일 오후 10시</td><td className="px-4 py-3 text-gray-500">본당</td></tr>
-            <tr><td className="px-4 py-3 text-gray-700">전도모임</td><td className="px-4 py-3 text-gray-700">매주 토요일 오후 2시</td><td className="px-4 py-3 text-gray-500">교육관</td></tr>
-            <tr><td className="px-4 py-3 text-gray-700">주일학교예배</td><td className="px-4 py-3 text-gray-700">매주 일요일 오전 9시</td><td className="px-4 py-3 text-gray-500">교육관</td></tr>
-            <tr><td className="px-4 py-3 text-gray-700">대예배</td><td className="px-4 py-3 text-gray-700">매주 일요일 오전 11시</td><td className="px-4 py-3 text-gray-500">본당</td></tr>
-            <tr><td className="px-4 py-3 text-gray-700">주일 저녁예배</td><td className="px-4 py-3 text-gray-700">매주 일요일 오후 7시</td><td className="px-4 py-3 text-gray-500">본당</td></tr>
+            {schedules.map((item) => (
+              <tr key={`table-${item.orderNo ?? 0}-${item.title ?? ''}`}>
+                <td className="px-4 py-3 text-gray-700">{item.category ?? item.title ?? '-'}</td>
+                <td className="px-4 py-3 text-gray-700">{item.time ?? '-'}</td>
+                <td className="px-4 py-3 text-gray-500">{item.location ?? '-'}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

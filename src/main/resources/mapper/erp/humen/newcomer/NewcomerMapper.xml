@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.humen.newcomer.NewcomerMapper">
+
+    <select id="selectNewcomerList" resultType="com.main.app.erp.humen.newcomer.dto.NewcomerDto$Newcomer">
+        SELECT
+            m.name,
+            m.phone,
+            m.join_date AS visit_date,
+            '' AS invited_by,
+            m.status
+        FROM erp_member m
+        WHERE m.member_type = 'NEWCOMER'
+        <if test="keyword != null and keyword != ''">
+            AND (m.name LIKE '%' || #{keyword} || '%' OR m.phone LIKE '%' || #{keyword} || '%')
+        </if>
+        ORDER BY m.reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countNewcomerList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_member
+        WHERE member_type = 'NEWCOMER'
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE '%' || #{keyword} || '%' OR phone LIKE '%' || #{keyword} || '%')
+        </if>
+    </select>
+
+</mapper>

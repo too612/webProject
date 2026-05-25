@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.community.facilities.prayer.PrayerMapper">
+
+    <select id="selectBoards" resultType="com.main.app.community.facilities.prayer.dto.PrayerDto">
+        SELECT rqst_no AS rqstNo,
+               title,
+               cont,
+               rqst_id AS rqstId,
+               ins_dt AS insDt,
+               upt_dt AS uptDt,
+               views,
+               group_no AS groupNo,
+               parent_no AS parentNo,
+               depth,
+               order_no AS orderNo,
+               secret,
+               password,
+               board_type AS boardType
+          FROM board
+         WHERE board_type = 'COMMUNITY_FACILITIES_PRAYER'
+         ORDER BY ins_dt DESC
+         LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

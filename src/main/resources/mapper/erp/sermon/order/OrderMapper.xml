@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.sermon.order.OrderMapper">
+
+    <select id="selectOrderList" resultType="com.main.app.erp.sermon.order.dto.OrderDto$Order">
+        SELECT o.order_id, o.worship_id, w.title AS worship_title, w.worship_date,
+               o.order_seq, o.role_name, o.participant
+        FROM erp_worship_order o
+        LEFT JOIN erp_worship w ON o.worship_id = w.worship_id
+        <where>
+            <if test="worshipId != null and worshipId != ''">AND o.worship_id = #{worshipId}</if>
+        </where>
+        ORDER BY o.worship_id, o.order_seq
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countOrderList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_worship_order
+        <where>
+            <if test="worshipId != null and worshipId != ''">AND worship_id = #{worshipId}</if>
+        </where>
+    </select>
+
+</mapper>

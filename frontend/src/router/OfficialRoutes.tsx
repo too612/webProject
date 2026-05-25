@@ -1,10 +1,10 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
+import PastorPage from '../official/about/pastor/PastorPage';
+import BeliefsPage from '../official/about/beliefs/BeliefsPage';
+import HistoryPage from '../official/about/history/HistoryPage';
+import VisionPage from '../official/about/vision/VisionPage';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import BeliefsPage from '../pages/official/about/BeliefsPage';
-import HistoryPage from '../pages/official/about/HistoryPage';
-import PastorPage from '../pages/official/about/PastorPage';
-import VisionPage from '../pages/official/about/VisionPage';
 import OfficialIndexPage from '../pages/official/index/OfficialIndexPage';
 import ChildrenPage from '../pages/official/ministries/ChildrenPage';
 import ChildrenViewPage from '../pages/official/ministries/ChildrenViewPage';

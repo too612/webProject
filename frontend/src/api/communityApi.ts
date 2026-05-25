@@ -31,6 +31,38 @@ export type CommunityListQuery = {
   [key: string]: string | number | undefined;
 };
 
+export type CommunityIndexPostItem = {
+  id: string;
+  category: string;
+  title: string;
+  author: string;
+  date: string;
+  views: number;
+};
+
+export type CommunityIndexNoticeItem = {
+  id: string;
+  title: string;
+  date: string;
+};
+
+export type CommunityIndexActivityItem = {
+  id: string;
+  category: string;
+  title: string;
+  date: string;
+};
+
+export type CommunityIndexData = {
+  recentPosts: CommunityIndexPostItem[];
+  notices: CommunityIndexNoticeItem[];
+  activities: CommunityIndexActivityItem[];
+  stats: {
+    totalMembers: number;
+    totalPosts: number;
+  };
+};
+
 function toListResult<T>(page: SpringPage<T> | null | undefined): CommunityListResult<T> {
   return {
     items: page?.content ?? [],
@@ -52,6 +84,19 @@ async function fetchList<T>(path: string, query: CommunityListQuery = {}): Promi
 }
 
 export const communityApi = {
+  async getIndexData(): Promise<CommunityIndexData> {
+    const response = await client.get<ApiResponse<CommunityIndexData>>('/community/index');
+    return response.data.data ?? {
+      recentPosts: [],
+      notices: [],
+      activities: [],
+      stats: {
+        totalMembers: 0,
+        totalPosts: 0,
+      },
+    };
+  },
+
   // ── 페이지 메타 ─────────────────────────────────────────────
   async getFacilitiesPages() {
     const response = await client.get<ApiResponse<PageMeta[]>>('/community/facilities/pages');

@@ -4,66 +4,66 @@ import ErpLayout from '../layouts/ErpLayout';
 import ErpIndexPage from '../pages/erp/ErpIndexPage';
 
 // humen
-import HumenManagerPage from '../pages/erp/humen/HumenManagerPage';
-import HumenDistrictPage from '../pages/erp/humen/HumenDistrictPage';
-import HumenNewcomerPage from '../pages/erp/humen/HumenNewcomerPage';
-import HumenChangePage from '../pages/erp/humen/HumenChangePage';
+import HumenManagerPage from '../pages/erp/humen/manager';
+import HumenDistrictPage from '../pages/erp/humen/district';
+import HumenNewcomerPage from '../pages/erp/humen/newcomer';
+import HumenChangePage from '../pages/erp/humen/change';
 
 // sermon
-import SermonManagerPage from '../pages/erp/sermon/SermonManagerPage';
-import SermonArchivePage from '../pages/erp/sermon/SermonArchivePage';
-import SermonAttendancePage from '../pages/erp/sermon/SermonAttendancePage';
-import SermonWritePage from '../pages/erp/sermon/SermonWritePage';
-import SermonOrderPage from '../pages/erp/sermon/SermonOrderPage';
+import SermonManagerPage from '../pages/erp/sermon/manager';
+import SermonArchivePage from '../pages/erp/sermon/archive';
+import SermonAttendancePage from '../pages/erp/sermon/attendance';
+import SermonWritePage from '../pages/erp/sermon/write';
+import SermonOrderPage from '../pages/erp/sermon/order';
 
 // account
-import AccountManagerPage from '../pages/erp/account/AccountManagerPage';
-import AccountInputPage from '../pages/erp/account/AccountInputPage';
-import AccountBudgetPage from '../pages/erp/account/AccountBudgetPage';
-import AccountExpensePage from '../pages/erp/account/AccountExpensePage';
-import AccountReportPage from '../pages/erp/account/AccountReportPage';
+import AccountManagerPage from '../pages/erp/account/manager';
+import AccountInputPage from '../pages/erp/account/input';
+import AccountBudgetPage from '../pages/erp/account/budget';
+import AccountExpensePage from '../pages/erp/account/expense';
+import AccountReportPage from '../pages/erp/account/report';
 
 // training
-import TrainingCoursePage from '../pages/erp/training/TrainingCoursePage';
-import TrainingStudentPage from '../pages/erp/training/TrainingStudentPage';
-import TrainingAttendancePage from '../pages/erp/training/TrainingAttendancePage';
-import TrainingCompletePage from '../pages/erp/training/TrainingCompletePage';
+import TrainingCoursePage from '../pages/erp/training/course';
+import TrainingStudentPage from '../pages/erp/training/student';
+import TrainingAttendancePage from '../pages/erp/training/attendance';
+import TrainingCompletePage from '../pages/erp/training/complete';
 
 // ministry
-import MinistryDepartmentPage from '../pages/erp/ministry/MinistryDepartmentPage';
-import MinistrySchedulePage from '../pages/erp/ministry/MinistrySchedulePage';
-import MinistryVolunteerPage from '../pages/erp/ministry/MinistryVolunteerPage';
-import MinistryReportPage from '../pages/erp/ministry/MinistryReportPage';
+import MinistryDepartmentPage from '../pages/erp/ministry/department';
+import MinistrySchedulePage from '../pages/erp/ministry/schedule';
+import MinistryVolunteerPage from '../pages/erp/ministry/volunteer';
+import MinistryReportPage from '../pages/erp/ministry/report';
 
 // event
-import EventCalendarPage from '../pages/erp/event/EventCalendarPage';
-import EventApplyPage from '../pages/erp/event/EventApplyPage';
-import EventParticipantPage from '../pages/erp/event/EventParticipantPage';
-import EventResultPage from '../pages/erp/event/EventResultPage';
+import EventCalendarPage from '../pages/erp/event/calendar';
+import EventApplyPage from '../pages/erp/event/apply';
+import EventParticipantPage from '../pages/erp/event/participant';
+import EventResultPage from '../pages/erp/event/result';
 
 // facility
-import FacilityReservationPage from '../pages/erp/facility/FacilityReservationPage';
-import FacilityVehiclePage from '../pages/erp/facility/FacilityVehiclePage';
-import FacilityInventoryPage from '../pages/erp/facility/FacilityInventoryPage';
-import FacilityMaintenancePage from '../pages/erp/facility/FacilityMaintenancePage';
+import FacilityReservationPage from '../pages/erp/facility/reservation';
+import FacilityVehiclePage from '../pages/erp/facility/vehicle';
+import FacilityInventoryPage from '../pages/erp/facility/inventory';
+import FacilityMaintenancePage from '../pages/erp/facility/maintenance';
 
 // comm
-import CommNoticePage from '../pages/erp/comm/CommNoticePage';
-import CommMessagePage from '../pages/erp/comm/CommMessagePage';
-import CommPrayerPage from '../pages/erp/comm/CommPrayerPage';
-import CommNewsletterPage from '../pages/erp/comm/CommNewsletterPage';
+import CommNoticePage from '../pages/erp/comm/notice';
+import CommMessagePage from '../pages/erp/comm/message';
+import CommPrayerPage from '../pages/erp/comm/prayer';
+import CommNewsletterPage from '../pages/erp/comm/newsletter';
 
 // stats
-import StatsDashboardPage from '../pages/erp/stats/StatsDashboardPage';
-import StatsAttendancePage from '../pages/erp/stats/StatsAttendancePage';
-import StatsOfferingPage from '../pages/erp/stats/StatsOfferingPage';
-import StatsMinistryPage from '../pages/erp/stats/StatsMinistryPage';
+import StatsDashboardPage from '../pages/erp/stats/dashboard';
+import StatsAttendancePage from '../pages/erp/stats/attendance';
+import StatsOfferingPage from '../pages/erp/stats/offering';
+import StatsMinistryPage from '../pages/erp/stats/ministry';
 
 // admin
-import AdminCertificatePage from '../pages/erp/admin/AdminCertificatePage';
-import AdminApprovalPage from '../pages/erp/admin/AdminApprovalPage';
-import AdminMinutesPage from '../pages/erp/admin/AdminMinutesPage';
-import AdminArchivePage from '../pages/erp/admin/AdminArchivePage';
+import AdminCertificatePage from '../pages/erp/admin/certificate';
+import AdminApprovalPage from '../pages/erp/admin/approval';
+import AdminMinutesPage from '../pages/erp/admin/minutes';
+import AdminArchivePage from '../pages/erp/admin/archive';
 
 export const erpRoutes: RouteObject[] = [
   {

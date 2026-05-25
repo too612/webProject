@@ -1,5 +1,5 @@
 ﻿import OfficialBoardWritePage from '../shared/OfficialBoardWritePage';
 
 export default function QnaWritePage() {
-  return <OfficialBoardWritePage title="문의 등록" listPath="/support/qna" />;
+  return <OfficialBoardWritePage title="Q&A 등록" listPath="/support/qna" />;
 }

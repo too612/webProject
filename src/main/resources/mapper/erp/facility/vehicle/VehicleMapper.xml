@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.facility.vehicle.VehicleMapper">
+
+    <select id="selectVehicleList" resultType="com.main.app.erp.facility.vehicle.dto.VehicleDto$Vehicle">
+        SELECT vehicle_id,
+               vehicle_name,
+               plate_number,
+               driver,
+               capacity,
+               status
+        FROM erp_vehicle
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (vehicle_name LIKE '%' || #{keyword} || '%' OR driver LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+        ORDER BY vehicle_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countVehicleList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_vehicle
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (vehicle_name LIKE '%' || #{keyword} || '%' OR driver LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

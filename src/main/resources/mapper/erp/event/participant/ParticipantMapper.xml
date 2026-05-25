@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.event.participant.ParticipantMapper">
+
+    <select id="selectParticipantList" resultType="com.main.app.erp.event.participant.dto.ParticipantDto$Participant">
+        SELECT a.apply_id,
+               a.event_id,
+               COALESCE(a.event_title, e.title) AS event_title,
+               e.event_date,
+               a.member_id,
+               a.member_name,
+               a.apply_date,
+               a.status
+        FROM erp_event_apply a
+        LEFT JOIN erp_event e ON a.event_id = e.event_id
+        WHERE a.status = 'CONFIRM'
+        <if test="keyword != null and keyword != ''">
+            AND (a.member_name LIKE '%' || #{keyword} || '%' OR e.title LIKE '%' || #{keyword} || '%')
+        </if>
+        ORDER BY a.apply_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countParticipantList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_event_apply a
+        LEFT JOIN erp_event e ON a.event_id = e.event_id
+        WHERE a.status = 'CONFIRM'
+        <if test="keyword != null and keyword != ''">
+            AND (a.member_name LIKE '%' || #{keyword} || '%' OR e.title LIKE '%' || #{keyword} || '%')
+        </if>
+    </select>
+
+</mapper>

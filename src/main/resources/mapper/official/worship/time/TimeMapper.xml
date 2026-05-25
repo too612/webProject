@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.worship.time.TimeMapper">
+
+    <select id="selectTimeItems" resultType="com.main.app.official.worship.time.dto.TimeDto">
+        SELECT '새벽예배' AS category,
+               '새벽예배' AS title,
+               '매주 오전 5시' AS time,
+               '하루를 말씀으로 시작합니다.' AS note,
+               '본당' AS location,
+               1 AS orderNo
+        UNION ALL
+        SELECT '저녁예배' AS category,
+               '저녁예배' AS title,
+               '매주 수요일 오후 8시' AS time,
+               '주중 말씀과 기도의 시간입니다.' AS note,
+               '본당' AS location,
+               2 AS orderNo
+        UNION ALL
+        SELECT '찬양예배' AS category,
+               '찬양예배' AS title,
+               '매주 금요일 오후 10시' AS time,
+               '찬양과 기도 중심의 예배입니다.' AS note,
+               '본당' AS location,
+               3 AS orderNo
+        UNION ALL
+        SELECT '전도모임' AS category,
+               '전도모임' AS title,
+               '매주 토요일 오후 2시' AS time,
+               '지역과 이웃을 섬기는 모임입니다.' AS note,
+               '교육관' AS location,
+               4 AS orderNo
+        UNION ALL
+        SELECT '주일학교예배' AS category,
+               '주일학교예배' AS title,
+               '매주 일요일 오전 9시' AS time,
+               '다음 세대를 위한 예배입니다.' AS note,
+               '교육관' AS location,
+               5 AS orderNo
+        UNION ALL
+        SELECT '대예배' AS category,
+               '대예배' AS title,
+               '매주 일요일 오전 11시' AS time,
+               '온 성도가 함께 드리는 예배입니다.' AS note,
+               '본당' AS location,
+               6 AS orderNo
+        UNION ALL
+        SELECT '저녁예배' AS category,
+               '주일 저녁예배' AS title,
+               '매주 일요일 오후 7시' AS time,
+               '주일을 마무리하는 예배입니다.' AS note,
+               '본당' AS location,
+               7 AS orderNo
+        ORDER BY orderNo
+    </select>
+
+</mapper>

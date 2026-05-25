@@ -10,6 +10,28 @@ export type ErpPageMeta = {
 
 export type ErpPageMetaMap = Record<string, ErpPageMeta[]>;
 
+export type ErpIndexTaskItem = {
+  id: string;
+  title: string;
+  status: string;
+  date: string;
+};
+
+export type ErpIndexData = {
+  totalMembers: number;
+  sermonPendingCount: number;
+  accountRecordCount: number;
+  recentSermonTasks: ErpIndexTaskItem[];
+};
+
+export type SermonWritePayload = {
+  title: string;
+  preacher: string;
+  scripture: string;
+  content: string;
+  sermonDate: string;
+};
+
 type SpringPage<T> = {
   content: T[];
   number: number;
@@ -54,6 +76,16 @@ async function fetchList<T>(path: string, query: ErpListQuery = {}): Promise<Erp
 }
 
 export const erpApi = {
+  async getIndexData(): Promise<ErpIndexData> {
+    const response = await client.get<ApiResponse<ErpIndexData>>('/erp/index');
+    return response.data.data ?? {
+      totalMembers: 0,
+      sermonPendingCount: 0,
+      accountRecordCount: 0,
+      recentSermonTasks: [],
+    };
+  },
+
   // ── 메타데이터 ──────────────────────────────────────────────
   async getPages() {
     const response = await client.get<ApiResponse<ErpPageMetaMap>>('/erp/pages');
@@ -78,6 +110,9 @@ export const erpApi = {
     getArchive:    (q?: ErpListQuery) => fetchList('/erp/sermon/archive', q),
     getAttendance: (q?: ErpListQuery) => fetchList('/erp/sermon/attendance', q),
     getOrder:      (q?: ErpListQuery) => fetchList('/erp/sermon/order', q),
+    create: async (payload: SermonWritePayload) => {
+      await client.post('/erp/sermon/write', payload);
+    },
   },
 
   // ── 회계관리 (account) ──────────────────────────────────────

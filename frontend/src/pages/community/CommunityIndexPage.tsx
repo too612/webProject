@@ -1,45 +1,40 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { communityApi, type CommunityIndexData } from '../../api/communityApi';
 
 const categoryCards = [
-    { icon: 'forum', title: '자유게시판', desc: '자유롭게 이야기를 나눠보세요', count: '128개의 글', to: '/community/support/board' },
-    { icon: 'question_answer', title: '질문 & 답변', desc: '궁금한 내용을 질문해보세요', count: '95개의 글', to: '/community/support/board' },
     { icon: 'favorite', title: '기도 요청', desc: '함께 기도해요', count: '67개의 글', to: '/community/saint/pray' },
     { icon: 'auto_stories', title: '신앙 나눔', desc: '믿음의 이야기를 나눠요', count: '84개의 글', to: '/community/world/christian' },
     { icon: 'celebration', title: '간증 게시판', desc: '감사의 간증을 전해요', count: '52개의 글', to: '/community/group/groupa1' },
     { icon: 'photo_library', title: '사진 갤러리', desc: '소중한 순간을 공유해요', count: '145개의 글', to: '/community/facilities/calendar' },
 ];
 
-const recentPosts = [
-    { category: '시설', date: '2025.02.20', title: '신앙생활 중 어려움을 겪고 계신 분들을 위한 기도', excerpt: '요즘 신앙생활을 하며 어려움을 겪는 분들을 위해 함께 기도하며 마음을 나눕니다.', author: '홍길동', views: 125, comments: 6, to: '/community/support/board' },
-    { category: '질문&답변', date: '2025.02.19', title: '이번 주일 예배는 저희 함께 드려요!', excerpt: '이번 주일 예배에 새로 오신 분들과 함께 드리려고 합니다. 많은 참여 부탁드립니다.', author: '김철수', views: 89, comments: 5, to: '/community/support/board' },
-    { category: '신앙나눔', date: '2025.02.18', title: '사랑의 선교 활동에 함께하실 분들을 찾습니다', excerpt: '다음 주 토요일 지역 사회 봉사활동에 함께할 분들을 모집합니다.', author: '이영희', views: 156, comments: 12, to: '/community/world/christian' },
-    { category: '간증게시판', date: '2025.02.17', title: '신앙의 깊이를 높이는 영적 서적 추천', excerpt: '최근 읽은 책 중 신앙생활에 도움이 된 도서를 소개합니다.', author: '박민수', views: 203, comments: 15, to: '/community/group/groupb2' },
-];
-
-const notices = [
-    { title: '2025년 상반기 커뮤니티 활동 계획 안내', date: '02.20', to: '/community/support/board', isNew: true },
-    { title: '커뮤니티 이용 규칙 및 예절 안내', date: '02.15', to: '/community/support/board' },
-    { title: '새로운 모임 개설 신청 접수 중', date: '02.10', to: '/community/group/manager' },
-    { title: '신입 회원 환영 이벤트 안내', date: '02.05', to: '/community/group/groupa1' },
-    { title: '커뮤니티 서버 관리 점검 공지', date: '01.30', to: '/community/support/board' },
-];
-
-const activities = [
-    { title: '새로운 찬양곡 연습 일정', date: '02.19', to: '/community/group/groupa1', category: '[찬양팀]' },
-    { title: '다음 주 야외 활동 계획', date: '02.18', to: '/community/group/groupb2', category: '[청년회]' },
-    { title: '정기 모임 참석 안내', date: '02.17', to: '/community/saint/family', category: '[여성회]' },
-    { title: '월례 기도회 개최', date: '02.16', to: '/community/facilities/prayer', category: '[선교팀]' },
-    { title: '봄 학기 개강 예정', date: '02.15', to: '/community/saint/pray', category: '[어린이회]' },
-];
-
-const communityStats = [
-    { icon: 'forum', value: '1,245', label: '전체 회원' },
-    { icon: 'article', value: '571', label: '전체 게시글' },
-    { icon: 'chat', value: '2,834', label: '전체 댓글' },
-    { icon: 'schedule', value: '24/7', label: '운영시간' },
-];
+const emptyIndexData: CommunityIndexData = {
+    recentPosts: [],
+    notices: [],
+    activities: [],
+    stats: {
+        totalMembers: 0,
+        totalPosts: 0,
+    },
+};
 
 export default function CommunityIndexPage() {
+    const [indexData, setIndexData] = useState<CommunityIndexData>(emptyIndexData);
+
+    useEffect(() => {
+        communityApi.getIndexData()
+            .then((data) => setIndexData(data))
+            .catch(() => {
+                setIndexData(emptyIndexData);
+            });
+    }, []);
+
+    const communityStats = [
+        { icon: 'forum', value: String(indexData.stats.totalMembers), label: '전체 회원' },
+        { icon: 'article', value: String(indexData.stats.totalPosts), label: '전체 게시글' },
+    ];
+
     return (
         <div className="space-y-0">
             {/* Hero */}
@@ -85,26 +80,27 @@ export default function CommunityIndexPage() {
                 <div className="container mx-auto px-4 space-y-6">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-brand-dark">최근 게시글</h2>
-                        <Link to="/community/support/board" className="text-sm text-brand-primary flex items-center gap-1 hover:underline">
+                        <Link to="/community/world/christian" className="text-sm text-brand-primary flex items-center gap-1 hover:underline">
                             전체보기 <i className="material-icons text-sm">arrow_forward</i>
                         </Link>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
-                        {recentPosts.map((post) => (
+                        {(indexData.recentPosts.length > 0
+                            ? indexData.recentPosts
+                            : [{ id: '', category: '안내', title: '등록된 게시글이 없습니다.', author: '-', date: '-', views: 0 }]
+                        ).map((post) => (
                             <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2" key={post.title}>
                                 <div className="flex items-center justify-between">
                                     <span className="bg-brand-primary/10 text-brand-primary text-xs font-medium px-2.5 py-0.5 rounded-full">{post.category}</span>
                                     <span className="text-xs text-gray-400">{post.date}</span>
                                 </div>
                                 <h3 className="font-semibold text-brand-dark text-sm">
-                                    <Link to={post.to} className="hover:text-brand-primary">{post.title}</Link>
+                                    <Link to="/community/world/christian" className="hover:text-brand-primary">{post.title}</Link>
                                 </h3>
-                                <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{post.excerpt}</p>
                                 <div className="flex items-center justify-between text-xs text-gray-400 pt-1">
                                     <span className="flex items-center gap-1"><i className="material-icons text-sm">person</i>{post.author}</span>
                                     <span className="flex items-center gap-3">
                                         <span className="flex items-center gap-0.5"><i className="material-icons text-sm">visibility</i>{post.views}</span>
-                                        <span className="flex items-center gap-0.5"><i className="material-icons text-sm">comment</i>{post.comments}</span>
                                     </span>
                                 </div>
                             </article>
@@ -121,13 +117,15 @@ export default function CommunityIndexPage() {
                         <div className="bg-white rounded-panel shadow-panel border border-gray-100 overflow-hidden">
                             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                                 <h3 className="font-semibold text-brand-dark flex items-center gap-1"><i className="material-icons text-base">campaign</i>공지사항</h3>
-                                <Link to="/community/support/board" className="text-xs text-brand-primary hover:underline">더보기</Link>
+                                <Link to="/community/group/manager" className="text-xs text-brand-primary hover:underline">더보기</Link>
                             </div>
                             <ul className="divide-y divide-gray-100">
-                                {notices.map((item) => (
+                                {(indexData.notices.length > 0
+                                    ? indexData.notices
+                                    : [{ id: '', title: '등록된 공지사항이 없습니다.', date: '-' }]
+                                ).map((item) => (
                                     <li key={item.title} className="flex items-center justify-between px-5 py-3">
-                                        <Link to={item.to} className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-brand-primary min-w-0 truncate">
-                                            {item.isNew && <span className="shrink-0 bg-brand-primary text-white text-[10px] px-1.5 py-0.5 rounded">New</span>}
+                                        <Link to="/community/group/manager" className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-brand-primary min-w-0 truncate">
                                             <span className="truncate">{item.title}</span>
                                         </Link>
                                         <span className="shrink-0 text-xs text-gray-400 ml-2">{item.date}</span>
@@ -143,10 +141,13 @@ export default function CommunityIndexPage() {
                                 <Link to="/community/group/groupa1" className="text-xs text-brand-primary hover:underline">더보기</Link>
                             </div>
                             <ul className="divide-y divide-gray-100">
-                                {activities.map((item) => (
+                                {(indexData.activities.length > 0
+                                    ? indexData.activities
+                                    : [{ id: '', category: '안내', title: '등록된 활동 소식이 없습니다.', date: '-' }]
+                                ).map((item) => (
                                     <li key={item.title} className="flex items-center justify-between px-5 py-3">
-                                        <Link to={item.to} className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-brand-primary min-w-0 truncate">
-                                            <span className="shrink-0 text-xs text-brand-primary font-medium">{item.category}</span>
+                                        <Link to="/community/group/groupa1" className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-brand-primary min-w-0 truncate">
+                                            <span className="shrink-0 text-xs text-brand-primary font-medium">[{item.category}]</span>
                                             <span className="truncate">{item.title}</span>
                                         </Link>
                                         <span className="shrink-0 text-xs text-gray-400 ml-2">{item.date}</span>
@@ -168,6 +169,11 @@ export default function CommunityIndexPage() {
                                         <span className="text-xs text-gray-500">{s.label}</span>
                                     </div>
                                 ))}
+                                <div className="bg-white flex flex-col items-center justify-center gap-1 p-5">
+                                    <i className="material-icons text-brand-primary">schedule</i>
+                                    <strong className="font-bold text-brand-dark">24/7</strong>
+                                    <span className="text-xs text-gray-500">운영시간</span>
+                                </div>
                             </div>
                         </div>
                     </div>

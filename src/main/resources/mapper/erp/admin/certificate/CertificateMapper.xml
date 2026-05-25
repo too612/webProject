@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.admin.certificate.CertificateMapper">
+
+    <select id="selectCertificateList" resultType="com.main.app.erp.admin.certificate.dto.CertificateDto$Certificate">
+        SELECT certificate_id, member_name, cert_type, issue_date, status, req_date
+        FROM erp_certificate
+        <where>
+            <if test="keyword != null and keyword != ''">AND (member_name LIKE '%' || #{keyword} || '%' OR cert_type LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY req_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countCertificateList" resultType="long">
+        SELECT COUNT(*) FROM erp_certificate
+        <where>
+            <if test="keyword != null and keyword != ''">AND (member_name LIKE '%' || #{keyword} || '%' OR cert_type LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>
+

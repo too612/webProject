@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.mypage.index.MypageIndexMapper">
+
+    <select id="selectActivityCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE rqst_id = #{userId}
+    </select>
+
+    <select id="selectInquiryCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE rqst_id = #{userId}
+           AND board_type LIKE 'MYPAGE_%INQUIRY%'
+    </select>
+
+    <select id="selectNotificationCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE rqst_id = #{userId}
+              AND board_type LIKE 'MYPAGE_%NOTIFICATION%'
+    </select>
+
+    <select id="selectRecentActivities" resultType="com.main.app.mypage.index.dto.MypageIndexDto$ActivityItem">
+        SELECT CAST(rqst_no AS VARCHAR) AS id,
+               title,
+               board_type AS type,
+               TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
+          FROM board
+         WHERE rqst_id = #{userId}
+         ORDER BY ins_dt DESC
+         LIMIT 5
+    </select>
+
+</mapper>

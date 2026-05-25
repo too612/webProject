@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.ministry.report.ReportMapper">
+
+    <select id="selectReportList" resultType="com.main.app.erp.ministry.report.dto.ReportDto$Report">
+        SELECT r.report_id, r.dept_id, COALESCE(r.dept_name, d.dept_name) AS dept_name,
+               r.title, r.report_date, r.content, r.author_name, r.reg_date
+        FROM erp_ministry_report r
+        LEFT JOIN erp_ministry_dept d ON r.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (r.title LIKE '%' || #{keyword} || '%' OR r.author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY r.report_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countReportList" resultType="long">
+        SELECT COUNT(*) FROM erp_ministry_report r
+        LEFT JOIN erp_ministry_dept d ON r.dept_id = d.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">AND (r.title LIKE '%' || #{keyword} || '%' OR r.author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>

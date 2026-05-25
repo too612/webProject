@@ -53,7 +53,7 @@ M_MAIN_04_02	행사	M_MAIN_04	/news/event	2	2
 M_MAIN_04_03	주보	M_MAIN_04	/news/bulletin	3	2
 M_MAIN_04_04	새가족 등록	M_MAIN_04	/news/registration	4	2
 M_MAIN_05	문의사항	M_MAIN	/support/location	5	1
-M_MAIN_05_01	오시는길	M_MAIN_05	/support/location	1	2
+M_MAIN_05_01	오시는 길	M_MAIN_05	/support/location	1	2
 M_MAIN_05_02	Q&A	M_MAIN_05	/support/qna	2	2
 M_MAIN_05_03	FAQ	M_MAIN_05	/support/faq	3	2
 M_MYPAGE	MYPAGE		/mypage	1	0

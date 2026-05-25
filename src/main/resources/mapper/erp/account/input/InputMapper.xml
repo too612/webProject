@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.account.input.InputMapper">
+
+    <select id="selectInputList" resultType="com.main.app.erp.account.input.dto.InputDto$Offering">
+        SELECT offering_id, member_id, member_name, amount, offering_type,
+               offering_date, description, input_by, reg_date
+        FROM erp_offering
+        <where>
+            <if test="keyword != null and keyword != ''">AND member_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+        ORDER BY reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countInputList" resultType="long">
+        SELECT COUNT(*) FROM erp_offering
+        <where>
+            <if test="keyword != null and keyword != ''">AND member_name LIKE '%' || #{keyword} || '%'</if>
+        </where>
+    </select>
+
+</mapper>
+

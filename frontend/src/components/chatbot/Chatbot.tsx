@@ -19,7 +19,7 @@ function getBotReply(message: string): string {
     if (normalized.includes('예약')) {
         return '예약은 홈페이지의 예약하기 메뉴에서 가능합니다.';
     }
-    if (normalized.includes('위치') || normalized.includes('오시는길')) {
+    if (normalized.includes('위치') || normalized.includes('오시는길') || normalized.includes('오시는 길')) {
         return '대전광역시 유성구 대전로 506, 대전청소년위캔센터입니다.';
     }
     if (normalized.includes('상담')) {

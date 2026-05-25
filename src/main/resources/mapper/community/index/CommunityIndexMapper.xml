@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.community.index.CommunityIndexMapper">
+
+    <select id="selectRecentPosts" resultType="com.main.app.community.index.dto.CommunityIndexDto$PostItem">
+        SELECT CAST(rqst_no AS VARCHAR) AS id,
+               REPLACE(board_type, 'COMMUNITY_', '') AS category,
+               title,
+               rqst_id AS author,
+               TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date,
+               COALESCE(views, 0) AS views
+          FROM board
+         WHERE board_type LIKE 'COMMUNITY_%'
+         ORDER BY ins_dt DESC
+         LIMIT 5
+    </select>
+
+    <select id="selectNotices" resultType="com.main.app.community.index.dto.CommunityIndexDto$NoticeItem">
+        SELECT CAST(rqst_no AS VARCHAR) AS id,
+               title,
+               TO_CHAR(ins_dt, 'MM.DD') AS date
+          FROM board
+         WHERE board_type IN ('COMMUNITY_GROUP_MANAGER', 'COMMUNITY_FACILITIES_CALENDAR')
+         ORDER BY ins_dt DESC
+         LIMIT 3
+    </select>
+
+    <select id="selectActivities" resultType="com.main.app.community.index.dto.CommunityIndexDto$ActivityItem">
+        SELECT CAST(rqst_no AS VARCHAR) AS id,
+               REPLACE(board_type, 'COMMUNITY_', '') AS category,
+               title,
+               TO_CHAR(ins_dt, 'MM.DD') AS date
+          FROM board
+         WHERE board_type LIKE 'COMMUNITY_%'
+         ORDER BY ins_dt DESC
+         LIMIT 5
+    </select>
+
+    <select id="selectTotalMembers" resultType="long">
+        SELECT COUNT(DISTINCT rqst_id)
+          FROM board
+                 WHERE board_type LIKE 'COMMUNITY_%'
+           AND rqst_id IS NOT NULL
+                     AND rqst_id != ''
+    </select>
+
+    <select id="selectTotalPosts" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+            WHERE board_type LIKE 'COMMUNITY_%'
+    </select>
+
+</mapper>

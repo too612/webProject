@@ -1,11 +1,18 @@
 # 백엔드 리팩토링 로드맵 (2026-05, DB 기준)
 
+## 0) 2026-05-24 현행화 메모
+
+- 완료 판단: `mypage/user`, `system`, `official/about`, `official/worship`
+- 진행중 판단: `official/news` (완료), `community` (완료)
+- 대기: `erp`
+- 다음 착수 순서: `erp`
+
 ## 목표
 
 - common은 정비 완료 상태를 유지한다.
-- 업무 도메인 구조는 `sys_menu_mgt` 시드 기준(현재 `src/main/resources/sql/erp_menu_seed.sql`)으로 맞춘다.
-- Java/XML 모두 `official/about` 패턴(기능 폴더 + Controller/Service/Mapper + dto)을 기준으로 전 메뉴에 확장한다.
-- CRUD 규칙은 현재 구현 완료된 `official/about/pastor` 버전을 기준으로 사용한다.
+- 업무 도메인 구조는 `erp_menu_seed.sql` 시드 기준으로 맞춘다.
+- Java/XML 폴더 기준은 `official/about/pastor`에서 검증된 패턴을 시작점으로 사용한다.
+- 대규모 일괄 적용은 하지 않고, `official > news`, `official > worship` 단위로 순차 확장한다.
 
 ---
 
@@ -13,201 +20,104 @@
 
 - common: 정비 완료
 - 실제 CRUD 구현 완료: `official/about/pastor`
-- 도메인별 소스는 일부 평면형/일부 하위 패키지 혼재 상태
-- 문서 기준은 "현재 소스 모양"이 아니라 "DB 메뉴 경로"를 우선한다
+- 공식 적용 완료: `official/about` 1차 안정화
+- 추가 정리 완료: `official/support` 평면화
+- 추가 정리 완료: `official/worship` 평면화 (time / live / sermons)
+- 추가 적용 완료: `official/news` (announcement / bulletin / registration / event 완료)
+- 적용 완료: `mypage/user` (profile / password / activity / inquiry / notifications / withdraw)
+- 적용 완료: `system` (user manager/role, config code/menu, log system/audit, backup policy/history)
+- 적용 완료: `community` (group/facilities/saint/world 메뉴 폴더 구조 정리 완료, support 제거 완료)
+- community/group 현재 기준: 연결포인트(라우트/API/메뉴 경로) 일치 우선 완료, 응답 스키마/컬럼 정합은 개별 개발 단계에서 진행
+- community 진행 현황: `group`, `facilities`, `saint`, `world` 시드 기준 메뉴 폴더 구조 및 연결포인트 정리 완료, `support` 제거 완료
+- 다음 핵심 대상: `erp`
+- 문서 기준은 “현재 소스 모양”이 아니라 “DB 메뉴 경로”를 우선한다
 
 ---
 
-## 2) 최종 목표 구조 (DB 메뉴 기준)
+## 2) 적용 전략
 
 원칙
 
-- 기능 단위 폴더로 구성한다.
-- 기능 폴더 기본 세트:
+- 한 번에 전 그룹을 바꾸지 않는다.
+- 중분류 단위로 하나씩 진행한다.
+- 각 단계는 `Controller + Service + Mapper + dto` 세트를 기준으로 맞춘다.
+- XML namespace와 Java Mapper 경로를 1:1로 맞춘다.
+
+### 2-1. 그룹별 적용 순서
+
+| 단계 | 대상               | 상태      | 비고                                                                                       |
+| ---- | ------------------ | --------- | ------------------------------------------------------------------------------------------ |
+| 1    | `official/about`   | 완료      | pastor 기준 패턴 확정                                                                      |
+| 2    | `official/worship` | 완료      | time / live / sermons - 패턴 확정                                                          |
+| 3    | `official/news`    | 완료      | announcement / bulletin / registration / event 완료                                        |
+| 4    | `mypage`           | 완료      | user 6개 메뉴 분리 + XML 6개 반영                                                          |
+| 5    | `system`           | 완료      | user/config/log/backup 기능 분리 + legacy controller 제거                                  |
+| 6    | `community`        | 완료      | `group/facilities/saint/world` 메뉴 폴더 구조 및 연결포인트 정리 완료, `support` 제거 완료 |
+| 7    | `erp`              | 후속 작업 | humen / sermon / account / training / ministry / event / facility / comm / admin / stats   |
+
+### 2-2. 파일 구조 적용 규칙
+
+- 기능 폴더는 대분류/중분류 단위로 둔다.
+- 기본 세트는 다음과 같다.
   - `XxxController.java`
   - `XxxService.java`
   - `XxxMapper.java`
-  - `dto/XxxDto.java`, `dto/XxxRequest.java`
-- XML은 Java 패키지와 1:1 대응한다.
+  - `dto/XxxDto.java`
+  - `dto/XxxRequest.java`
+- 기능이 작으면 하위 폴더를 억지로 만들지 않는다.
+- 기능이 커지면 `about/pastor`처럼 중분류 하위에만 분리한다.
 
-### 2-1. Java 목표 트리 (실제 파일명 기준)
+### 2-3. 요청 해석 규칙
 
-```text
-src/main/java/com/main/app/
-├─ common/                                            (완료)
-│  ├─ auth/{AuthController,UserService,UserMapper}.java
-│  │  └─ dto/UserDto.java
-│  ├─ menu/{MenuController,MenuService,MenuMapper}.java
-│  │  └─ dto/MenuDto.java
-│  ├─ config/{SecurityConfig,CorsConfig,SpaFallbackController}.java
-│  ├─ advice/GlobalControllerAdvice.java
-│  ├─ exception/ApiExceptionHandler.java
-│  ├─ dto/{ApiResponse,CommentDto,FileDto,PageMetaDto}.java
-│  └─ util/{FileUploadUtil,PaginationUtil}.java
-│
-├─ official/                                          (M_MAIN)
-│  ├─ about/                                          (/about/*)
-│  │  ├─ pastor/{PastorController,PastorService,PastorMapper}.java
-│  │  │  └─ dto/{PastorDto,PastorRequest}.java
-│  │  ├─ vision/{VisionController,VisionService,VisionMapper}.java
-│  │  │  └─ dto/{VisionDto,VisionRequest}.java
-│  │  ├─ history/{HistoryController,HistoryService,HistoryMapper}.java
-│  │  │  └─ dto/{HistoryDto,HistoryRequest}.java
-│  │  └─ beliefs/{BeliefsController,BeliefsService,BeliefsMapper}.java
-│  │     └─ dto/{BeliefsDto,BeliefsRequest}.java
-│  ├─ worship/                                        (/worship/time,/worship/live,/worship/sermons)
-│  │  ├─ WorshipController.java
-│  │  ├─ WorshipService.java
-│  │  ├─ WorshipMapper.java
-│  │  └─ sermon/{SermonController,SermonService,SermonMapper}.java
-│  │     └─ dto/{SermonDto,SermonRequest}.java
-│  ├─ news/                                           (/news/announcement,/news/event,/news/bulletin,/news/registration)
-│  │  ├─ NewsController.java
-│  │  ├─ NewsService.java
-│  │  ├─ NewsMapper.java
-│  │  ├─ announcement/{AnnouncementController,AnnouncementService,AnnouncementMapper}.java
-│  │  │  └─ dto/{AnnouncementDto,AnnouncementRequest}.java
-│  │  ├─ bulletin/{BulletinController,BulletinService,BulletinMapper}.java
-│  │  │  └─ dto/{BulletinDto,BulletinRequest}.java
-│  │  ├─ registration/{RegistrationController,RegistrationService,RegistrationMapper}.java
-│  │  │  └─ dto/{RegistrationDto,RegistrationRequest}.java
-│  │  └─ event/                                       (신규)
-│  │     ├─ EventController.java
-│  │     ├─ EventService.java
-│  │     ├─ EventMapper.java
-│  │     └─ dto/{EventDto,EventRequest}.java
-│  ├─ ministries/                                     (/ministries/children,/ministries/youth,/ministries/mission)
-│  │  ├─ MinistriesController.java
-│  │  ├─ MinistriesService.java
-│  │  ├─ MinistriesMapper.java
-│  │  ├─ children/{ChildrenController,ChildrenService,ChildrenMapper}.java
-│  │  │  └─ dto/{ChildrenDto,ChildrenRequest}.java
-│  │  ├─ youth/{YouthController,YouthService,YouthMapper}.java
-│  │  │  └─ dto/{YouthDto,YouthRequest}.java
-│  │  └─ mission/{MissionController,MissionService,MissionMapper}.java
-│  │     └─ dto/{MissionDto,MissionRequest}.java
-│  └─ support/                                        (/support/location,/support/qna,/support/faq)
-│     ├─ SupportController.java
-│     ├─ SupportService.java
-│     ├─ SupportMapper.java
-│     ├─ qna/{QnaController,QnaService,QnaMapper}.java
-│     │  └─ dto/{QnaDto,QnaRequest}.java
-│     ├─ faq/                                         (신규)
-│     │  ├─ FaqController.java
-│     │  ├─ FaqService.java
-│     │  ├─ FaqMapper.java
-│     │  └─ dto/{FaqDto,FaqRequest}.java
-│     └─ location/                                    (신규)
-│        ├─ LocationController.java
-│        ├─ LocationService.java
-│        ├─ LocationMapper.java
-│        └─ dto/{LocationDto,LocationRequest}.java
-│
-├─ erp/                                               (M_SYS)
-│  ├─ controller/ErpIndexController.java
-│  ├─ humen/{HumenController,HumenService,HumenMapper,HumenDto}.java
-│  ├─ sermon/{SermonController,SermonService,SermonMapper,SermonErpDto}.java
-│  ├─ account/{AccountController,AccountService,AccountMapper,AccountDto}.java
-│  ├─ training/{TrainingController,TrainingService,TrainingMapper,TrainingDto}.java
-│  ├─ ministry/{MinistryController,MinistryService,MinistryMapper,MinistryDto}.java
-│  ├─ event/{EventController,EventService,EventMapper,EventDto}.java
-│  ├─ facility/{FacilityController,FacilityService,FacilityMapper,FacilityDto}.java
-│  ├─ comm/{CommController,CommService,CommMapper,CommDto}.java
-│  ├─ admin/{AdminController,AdminService,AdminMapper,AdminDto}.java
-│  └─ stats/{StatsController,StatsService,StatsMapper,StatsDto}.java
-│
-├─ mypage/                                            (M_MYPAGE)
-│  └─ user/
-│     ├─ MypageUserController.java
-│     ├─ MypageUserService.java
-│     ├─ MypageUserMapper.java
-│     └─ dto/{MypageUserProfileDto,MypageUserPostDto,MypageUserCommentDto}.java
-│
-├─ community/                                         (M_GEN)
-│  ├─ controller/{CommunityIndexController,CommunityLegacyRedirectController}.java
-│  ├─ group/{GroupController,GroupService,GroupMapper,GroupDto}.java
-│  ├─ facilities/{FacilitiesController,FacilitiesService,FacilitiesMapper,FacilitiesDto}.java
-│  ├─ saint/{SaintController,SaintService,SaintMapper,SaintDto}.java
-│  ├─ world/{WorldController,WorldService,WorldMapper,WorldDto}.java
-│  └─ support/board/                                  (DB 메뉴 확장 시 신규)
-│     ├─ BoardController.java
-│     ├─ BoardService.java
-│     ├─ BoardMapper.java
-│     └─ dto/{BoardDto,BoardRequest}.java
-│
-└─ system/                                            (M_ADM)
-   ├─ controller/{SystemIndexController,SystemLegacyRedirectController}.java
-   ├─ user/{UserController,UserService,UserMapper}.java
-   ├─ config/{ConfigController,ConfigService,ConfigMapper}.java
-   ├─ log/{LogController,LogService,LogMapper}.java
-   └─ backup/{BackupController,BackupService,BackupMapper}.java
-```
+- 사용자가 `official/about` 기준으로 `official/ministries`를 수정해 달라고 하면, 작업 범위는 Java와 XML만 본다.
+- 이 경우 프론트, 문서, 기타 공통 파일은 기본적으로 건드리지 않는다.
+- 즉, 기준 패턴은 `official/about`이지만 실제 수정 대상은 요청받은 중분류의 Java/XML이다.
+- 같은 규칙을 `official/news`, `official/worship`, `community`, `erp`, `mypage`, `system`에도 동일하게 적용한다.
 
-### 2-2. XML 목표 트리 (실제 파일명 기준)
+### 2-4. 레거시 삭제 규칙
 
-```text
-src/main/resources/mapper/
-├─ common/
-│  ├─ auth/UserMapper.xml
-│  └─ menu/MenuMapper.xml
-├─ official/
-│  ├─ about/
-│  │  ├─ pastor/PastorMapper.xml
-│  │  ├─ vision/VisionMapper.xml
-│  │  ├─ history/HistoryMapper.xml
-│  │  └─ beliefs/BeliefsMapper.xml
-│  ├─ worship/
-│  │  ├─ WorshipMapper.xml
-│  │  └─ sermon/SermonMapper.xml
-│  ├─ news/
-│  │  ├─ NewsMapper.xml
-│  │  ├─ announcement/AnnouncementMapper.xml
-│  │  ├─ bulletin/BulletinMapper.xml
-│  │  ├─ registration/RegistrationMapper.xml
-│  │  └─ event/EventMapper.xml                     (신규)
-│  ├─ ministries/
-│  │  ├─ MinistriesMapper.xml
-│  │  ├─ children/ChildrenMapper.xml
-│  │  ├─ youth/YouthMapper.xml
-│  │  └─ mission/MissionMapper.xml
-│  └─ support/
-│     ├─ SupportMapper.xml
-│     ├─ qna/QnaMapper.xml
-│     ├─ faq/FaqMapper.xml                         (신규)
-│     └─ location/LocationMapper.xml               (신규)
-├─ erp/
-│  ├─ humen/HumenMapper.xml
-│  ├─ sermon/SermonMapper.xml
-│  ├─ account/AccountMapper.xml
-│  ├─ training/TrainingMapper.xml
-│  ├─ ministry/MinistryMapper.xml
-│  ├─ event/EventMapper.xml
-│  ├─ facility/FacilityMapper.xml
-│  ├─ comm/CommMapper.xml
-│  ├─ admin/AdminMapper.xml
-│  └─ stats/StatsMapper.xml
-├─ mypage/user/MypageUserMapper.xml
-├─ community/
-│  ├─ group/GroupMapper.xml
-│  ├─ facilities/FacilitiesMapper.xml
-│  ├─ saint/SaintMapper.xml
-│  ├─ world/WorldMapper.xml
-│  └─ support/board/BoardMapper.xml               (DB 메뉴 확장 시 신규)
-└─ system/
-   ├─ user/UserMapper.xml
-   ├─ config/ConfigMapper.xml
-   ├─ log/LogMapper.xml
-   └─ backup/BackupMapper.xml
-```
+- 새 경로의 Java/XML가 빌드에서 통과하고, 옛 경로가 더 이상 어떤 import/namespace에서도 참조되지 않으면 기존 하위 패키지 파일은 삭제한다.
+- 삭제 대상은 중복 브리지 파일과 이전 패키지의 controller/service/mapper 구현이다.
+- MyBatis XML은 새 mapper 인터페이스 namespace로 옮긴 뒤 옛 namespace 파일을 제거한다.
+- 실제 소스가 아닌 `frontend/dist` 같은 생성 산출물은 별도 정리 대상으로 보고, 기능 마이그레이션 판단 기준에 포함하지 않는다.
+- 도메인별로 새 경로가 확정되면, 그 도메인에 남아 있는 상위 셸 파일(도메인명과 같은 Controller/Service/Mapper, 페이지 메타 브리지 등)과 옛 하위 패키지 구현은 삭제 대상이 된다.
+- 도메인별로 루트 feature 패키지의 Java/XML만 남기고, 옛 구조에서만 쓰이던 빈 `controller/mapper/service` 하위 폴더는 제거한다.
+- 폴더 안에 파일이 없어도, 과거 구조를 드러내는 빈 폴더가 남아 있으면 정리 대상이다.
+
+삭제 대상 형태 예시
+
+- 상위 셸 파일 예시: `src/main/java/com/main/app/official/<domain>/<Domain>Controller.java`, `.../<Domain>Service.java`, `.../<Domain>Mapper.java`
+- 상위 XML 예시: `src/main/resources/mapper/official/<domain>/<Domain>Mapper.xml`
+- 브리지/중계 파일 예시: `src/main/java/com/main/app/official/<domain>/controller/<Domain>PageMetaController.java`
+- 옛 구조 폴더 예시: `src/main/java/com/main/app/official/<domain>/<feature>/controller`, `.../mapper`, `.../service`
+- 생성 산출물 예시: `frontend/dist/**`
 
 ---
 
-## 3) 전 메뉴 적용 시 수정 대상 규칙
+## 3) 공식 적용 기준
 
-- 기능 폴더 단위로 `Controller + Service + Mapper + dto` 세트 정렬
-- XML namespace와 Java Mapper 경로를 1:1 정렬
-- 구형 `*BoardMapper`는 도메인 본 매퍼로 통합 검토
-- 신규 DB 메뉴 경로(`news/event`, `support/faq`, `support/location`)는 신규 파일 생성
+### 3-1. 현재 기준점
+
+- CRUD 규칙은 `official/about/pastor` 구현을 기준으로 한다.
+- `official/about`는 이미 1차 안정화가 끝났다.
+
+### 3-2. 다음에 적용할 중분류
+
+- `official/news`
+  - `event` (announcement / bulletin / registration과 함께 완료)
+- `community` (backend)
+  - `group`
+  - `facilities`
+  - `saint`
+  - `world`
+- `erp`
+  - `humen / sermon / account / training / ministry / event / facility / comm / admin / stats`
+
+### 3-3. 적용 시 제외할 내용
+
+- 전 그룹 일괄 세부 트리 작성은 하지 않는다.
+- 아직 확정되지 않은 보조 폴더는 문서에서 과도하게 펼치지 않는다.
+- 실제 작업 전에 백엔드 메뉴/화면 단위가 확인된 것만 추가한다.
 
 ---
 
@@ -239,4 +149,22 @@ src/main/resources/mapper/
 - common은 완료 상태 유지
 - 업무단 구조 기준은 DB 메뉴 경로
 - CRUD 기준 구현은 `official/about/pastor`
+- 현재 우선순위는 `erp` 순차 적용
+- 요청 해석은 `official/about`를 템플릿으로 삼되, 실제 변경은 요청된 중분류의 Java/XML만 수행한다.
 - 본 문서는 전 메뉴 Java/XML 파일 구조 제안의 기준 문서로 사용
+- 레거시 삭제는 "새 경로 빌드 통과 + 옛 경로 참조 0건"을 만족할 때만 수행한다.
+- 도메인별 레거시 삭제는 위 조건에 더해, 옛 구조를 대표하는 상위 셸 파일과 브리지 파일이 0건이어야 완료로 본다.
+
+---
+
+## 6) 남은 작업 체크리스트 (현재 기준)
+
+- `community` backend 세부 정리 완료
+- `community/support` 제거 완료
+- `src/main/java/com/main/app/community/controller/CommunityIndexController.java` 제거 완료
+- `src/main/java/com/main/app/community/controller/CommunityLegacyRedirectController.java` 제거 완료
+- `src/main/java/com/main/app/community/controller` 빈 폴더 제거 완료
+- `group/facilities/saint/world` 메뉴별 폴더 구조 및 API 연결포인트(`/api/community/*`) 정리 완료
+- `community/group` 응답 스키마/컬럼 정합은 개별 개발 단계에서 진행
+- `erp`를 DB 메뉴 기준 하위 기능 단위로 재분해
+- 각 도메인 완료 시점마다 "빌드 통과 + 옛 경로 참조 0건" 검증 후 레거시 파일/빈 폴더 삭제

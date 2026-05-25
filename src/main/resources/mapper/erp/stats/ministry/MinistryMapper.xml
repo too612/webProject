@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.stats.ministry.MinistryMapper">
+
+    <select id="selectMinistryStats" resultType="com.main.app.erp.stats.ministry.dto.MinistryDto$MinistryStat">
+        SELECT
+            d.dept_name AS ministryName,
+            COUNT(DISTINCT m.member_id) AS memberCount,
+            COUNT(DISTINCT s.schedule_id) AS activityCount,
+            COUNT(DISTINCT v.volunteer_id) AS volunteerCount
+        FROM erp_ministry_dept d
+        LEFT JOIN erp_ministry_member m ON d.dept_id = m.dept_id
+        LEFT JOIN erp_ministry_schedule s ON d.dept_id = s.dept_id
+            AND (#{year} IS NULL OR #{year} = '' OR TO_CHAR(s.schedule_date, 'YYYY') = #{year})
+        LEFT JOIN erp_ministry_volunteer v ON d.dept_id = v.dept_id
+            AND (#{year} IS NULL OR #{year} = '' OR TO_CHAR(v.assigned_at, 'YYYY') = #{year})
+        GROUP BY d.dept_id, d.dept_name
+        ORDER BY d.dept_name
+    </select>
+
+</mapper>

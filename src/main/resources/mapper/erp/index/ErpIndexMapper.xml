@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.index.ErpIndexMapper">
+
+    <select id="selectTotalMembers" resultType="long">
+        SELECT COUNT(DISTINCT rqst_id)
+          FROM board
+         WHERE rqst_id IS NOT NULL
+           AND rqst_id != ''
+    </select>
+
+    <select id="selectSermonPendingCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE board_type LIKE 'ERP_SERMON%'
+    </select>
+
+    <select id="selectAccountRecordCount" resultType="long">
+        SELECT COUNT(*)
+          FROM board
+         WHERE board_type LIKE 'ERP_ACCOUNT%'
+           AND ins_dt >= DATE_TRUNC('month', CURRENT_DATE)
+    </select>
+
+    <select id="selectRecentSermonTasks" resultType="com.main.app.erp.index.dto.ErpIndexDto$TaskItem">
+        SELECT CAST(rqst_no AS VARCHAR) AS id,
+               title,
+               'PENDING' AS status,
+               TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
+          FROM board
+         WHERE board_type LIKE 'ERP_SERMON%'
+         ORDER BY ins_dt DESC
+         LIMIT 4
+    </select>
+
+</mapper>

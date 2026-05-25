@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.facility.reservation.ReservationMapper">
+
+    <select id="selectReservationList" resultType="com.main.app.erp.facility.reservation.dto.ReservationDto$Reservation">
+        SELECT reservation_id,
+               facility_name,
+               reserver_name,
+               reservation_date,
+               start_time,
+               end_time,
+               purpose,
+               status,
+               reg_date
+        FROM erp_reservation
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (facility_name LIKE '%' || #{keyword} || '%' OR reserver_name LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+        ORDER BY reservation_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countReservationList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_reservation
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (facility_name LIKE '%' || #{keyword} || '%' OR reserver_name LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

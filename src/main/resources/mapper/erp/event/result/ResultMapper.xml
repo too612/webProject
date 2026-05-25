@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.event.result.ResultMapper">
+
+    <select id="selectResultList" resultType="com.main.app.erp.event.result.dto.ResultDto$Event">
+        SELECT e.event_id,
+               e.title,
+               e.event_date,
+               e.end_date,
+               e.location,
+               e.description,
+               e.capacity,
+               e.organizer,
+               e.status,
+               COUNT(a.apply_id) AS applicant_count,
+               e.reg_date
+        FROM erp_event e
+        LEFT JOIN erp_event_apply a ON e.event_id = a.event_id AND a.status = 'CONFIRM'
+        WHERE e.status = 'COMPLETE'
+        <if test="keyword != null and keyword != ''">
+            AND e.title LIKE '%' || #{keyword} || '%'
+        </if>
+        GROUP BY e.event_id, e.title, e.event_date, e.end_date, e.location, e.description, e.capacity, e.organizer, e.status, e.reg_date
+        ORDER BY e.event_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countResultList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_event
+        WHERE status = 'COMPLETE'
+        <if test="keyword != null and keyword != ''">
+            AND title LIKE '%' || #{keyword} || '%'
+        </if>
+    </select>
+
+</mapper>

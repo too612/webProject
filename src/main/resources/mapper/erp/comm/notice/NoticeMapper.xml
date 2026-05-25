@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.comm.notice.NoticeMapper">
+
+    <select id="selectNoticeList" resultType="com.main.app.erp.comm.notice.dto.NoticeDto$Notice">
+        SELECT notice_id, title, content, author_name, publish_date, category, status, reg_date
+        FROM erp_notice
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countNoticeList" resultType="long">
+        SELECT COUNT(*) FROM erp_notice
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>
+

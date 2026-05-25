@@ -1,6 +1,19 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { officialApi, type OfficialIndexData } from '../../../api/officialApi';
 
 export default function OfficialIndexPage() {
+    const [indexData, setIndexData] = useState<OfficialIndexData>({
+        recentSermons: [],
+        recentAnnouncements: [],
+    });
+
+    useEffect(() => {
+        officialApi.getIndexData()
+            .then((data) => setIndexData(data))
+            .catch(() => {/* 오류 시 빈 목록 유지 */});
+    }, []);
+
     return (
         <>
             {/* Main Visual Section */}
@@ -30,7 +43,7 @@ export default function OfficialIndexPage() {
                             { to: '/news/bulletin', icon: 'menu_book', label: '주보' },
                             { to: '#', icon: 'volunteer_activism', label: '온라인헌금' },
                             { to: '/worship/time', icon: 'calendar_today', label: '예배시간' },
-                            { to: '/support/location', icon: 'place', label: '오시는길' },
+                            { to: '/support/location', icon: 'place', label: '오시는 길' },
                         ].map((item) => (
                             <Link to={item.to} key={item.label} className="flex flex-col items-center gap-2 p-3 rounded-panel hover:bg-brand-primary/5 transition-colors group">
                                 <div className="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-colors">
@@ -80,39 +93,27 @@ export default function OfficialIndexPage() {
             <section className="py-10 bg-white">
                 <div className="container mx-auto px-6 space-y-5">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-brand-dark">
-                        <i className="material-icons text-brand-primary">photo_library</i>
-                        다사랑 갤러리
+                        <i className="material-icons text-brand-primary">live_tv</i>
+                        최근 설교
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {[
-                            { img: '/img/gallery1.svg', alt: '두날개 필리핀선교센터', title: '두날개 필리핀선교센터 선교 보고', date: '2024.11.03', fallback: '선교 보고' },
-                            { img: '/img/gallery2.svg', alt: '두날개프로세스', title: '2024 제10기 두날개프로세스 5단계 집중훈련', date: '2024.11.03', fallback: '훈련 스케치' },
-                            { img: '/img/gallery3.svg', alt: '국제컨퍼런스', title: '2024 두날개 국제컨퍼런스의 은혜', date: '2024.11.03', fallback: '컨퍼런스' },
-                            { img: '/img/gallery4.svg', alt: '세계비전', title: '세계비전 두날개프로세스 제10기 1단계 집중훈련', date: '2024.11.03', fallback: '세계비전' },
-                        ].map((item) => (
-                            <div className="bg-white rounded-panel shadow-card border border-gray-100 overflow-hidden" key={item.title}>
-                                <div className="relative bg-gray-100 aspect-video">
-                                    <img
-                                        src={item.img}
-                                        alt={item.alt}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            const el = e.currentTarget;
-                                            el.style.display = 'none';
-                                            const placeholder = el.nextElementSibling as HTMLElement;
-                                            if (placeholder) placeholder.style.display = 'flex';
-                                        }}
-                                    />
-                                    <div className="hidden absolute inset-0 flex-col items-center justify-center gap-1 text-gray-400 text-xs bg-gray-100">
-                                        <i className="material-icons text-2xl">image</i>
-                                        <span>{item.fallback}</span>
-                                    </div>
+                        {(indexData.recentSermons.length > 0
+                            ? indexData.recentSermons
+                            : [{ id: '', title: '설교 준비 중', date: '' }]
+                        ).map((item, idx) => (
+                            <Link
+                                to={item.id ? `/worship/sermons?id=${item.id}` : '/worship/sermons'}
+                                className="bg-white rounded-panel shadow-card border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+                                key={item.id || idx}
+                            >
+                                <div className="relative bg-gray-100 aspect-video flex items-center justify-center">
+                                    <i className="material-icons text-4xl text-gray-300">video_library</i>
                                 </div>
                                 <div className="p-3 space-y-1">
                                     <h4 className="text-xs font-semibold text-brand-dark line-clamp-2">{item.title}</h4>
                                     <p className="text-xs text-gray-400">{item.date}</p>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
@@ -154,15 +155,12 @@ export default function OfficialIndexPage() {
                                 공지사항
                             </h3>
                             <ul className="divide-y divide-gray-100">
-                                {[
-                                    { title: '두날개 국제컨퍼런스 안내', date: '2026-02-20' },
-                                    { title: '2026년 양육 프로세스 일정 안내', date: '2026-02-15' },
-                                    { title: '새가족반 개강 안내', date: '2026-02-10' },
-                                    { title: '주차장 이용 안내', date: '2026-02-05' },
-                                    { title: '교회 방역 안내', date: '2026-02-01' },
-                                ].map((n) => (
-                                    <li className="py-2.5 flex items-center justify-between gap-4" key={n.title}>
-                                        <Link to="/news/announcement" className="text-sm text-gray-700 hover:text-brand-primary truncate">{n.title}</Link>
+                                {(indexData.recentAnnouncements.length > 0
+                                    ? indexData.recentAnnouncements
+                                    : [{ id: '', title: '등록된 공지사항이 없습니다.', date: '' }]
+                                ).map((n, idx) => (
+                                    <li className="py-2.5 flex items-center justify-between gap-4" key={n.id || idx}>
+                                        <Link to={`/news/announcement`} className="text-sm text-gray-700 hover:text-brand-primary truncate">{n.title}</Link>
                                         <span className="text-xs text-gray-400 shrink-0">{n.date}</span>
                                     </li>
                                 ))}

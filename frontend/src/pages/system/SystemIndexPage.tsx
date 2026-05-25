@@ -1,4 +1,6 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { systemApi, type SystemIndexData } from '../../api/systemApi';
 
 const quickLinks = [
   { label: '사용자계정관리', to: '/system/user/manager' },
@@ -19,6 +21,26 @@ const groups = [
 ];
 
 export default function SystemIndexPage() {
+  const [indexData, setIndexData] = useState<SystemIndexData>({
+    activeAccounts: 0,
+    todayWarnings: 0,
+    backupSuccessRate: '0.0%',
+    pendingRoleRequests: 0,
+  });
+
+  useEffect(() => {
+    systemApi.getIndexData()
+      .then((data) => setIndexData(data))
+      .catch(() => {
+        setIndexData({
+          activeAccounts: 0,
+          todayWarnings: 0,
+          backupSuccessRate: '0.0%',
+          pendingRoleRequests: 0,
+        });
+      });
+  }, []);
+
   return (
     <section className="space-y-6">
       <header className="bg-brand-dark text-white rounded-panel shadow-panel px-6 py-5 flex items-start justify-between">
@@ -38,10 +60,10 @@ export default function SystemIndexPage() {
         <h2 className="font-bold text-gray-800 mb-4">핵심 운영 지표</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: '활성 계정', value: '142' },
-            { label: '오늘 경고 로그', value: '3' },
-            { label: '백업 성공률', value: '99.2%' },
-            { label: '미반영 권한요청', value: '5' },
+            { label: '활성 계정', value: String(indexData.activeAccounts) },
+            { label: '오늘 경고 로그', value: String(indexData.todayWarnings) },
+            { label: '백업 성공률', value: indexData.backupSuccessRate },
+            { label: '미반영 권한요청', value: String(indexData.pendingRoleRequests) },
           ].map(({ label, value }) => (
             <article key={label} className="border rounded-card p-4 text-center">
               <p className="text-sm text-gray-500 mb-1">{label}</p>

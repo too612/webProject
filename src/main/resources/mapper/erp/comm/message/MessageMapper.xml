@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.comm.message.MessageMapper">
+
+    <select id="selectMessageList" resultType="com.main.app.erp.comm.message.dto.MessageDto$Message">
+        SELECT message_id, sender_name, receiver_name, title, content, send_date, read_date, status
+        FROM erp_message
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR sender_name LIKE '%' || #{keyword} || '%' OR receiver_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY send_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countMessageList" resultType="long">
+        SELECT COUNT(*) FROM erp_message
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR sender_name LIKE '%' || #{keyword} || '%' OR receiver_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>
+

@@ -1,11 +1,6 @@
-﻿import { Link } from 'react-router-dom';
-
-const tasks = [
-  { title: '주일대예배 설교 미작성', status: '긴급', color: 'bg-red-100 text-red-700' },
-  { title: '저녁찬양예배 설교 작성 필요', status: '진행중', color: 'bg-amber-100 text-amber-700' },
-  { title: '수요예배 본문 검토', status: '검토완료', color: 'bg-emerald-100 text-emerald-700' },
-  { title: '새벽기도회 설교 개요 등록', status: '대기', color: 'bg-gray-100 text-gray-600' },
-];
+﻿import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { erpApi, type ErpIndexData } from '../../api/erpApi';
 
 const shortcuts = [
   { label: '유튜브', to: '/erp/stats/dashboard' },
@@ -16,7 +11,32 @@ const shortcuts = [
   { label: 'Canva', to: '/erp/ministry/report' },
 ];
 
+const emptyIndexData: ErpIndexData = {
+  totalMembers: 0,
+  sermonPendingCount: 0,
+  accountRecordCount: 0,
+  recentSermonTasks: [],
+};
+
+function getStatusStyle(status: string): string {
+  const normalized = status.toUpperCase();
+  if (normalized.includes('URGENT')) return 'bg-red-100 text-red-700';
+  if (normalized.includes('PENDING') || normalized.includes('DRAFT')) return 'bg-amber-100 text-amber-700';
+  if (normalized.includes('DONE') || normalized.includes('COMPLETE') || normalized.includes('ACTIVE')) return 'bg-emerald-100 text-emerald-700';
+  return 'bg-gray-100 text-gray-600';
+}
+
 export default function ErpIndexPage() {
+  const [indexData, setIndexData] = useState<ErpIndexData>(emptyIndexData);
+
+  useEffect(() => {
+    erpApi.getIndexData()
+      .then((data) => setIndexData(data))
+      .catch(() => {
+        setIndexData(emptyIndexData);
+      });
+  }, []);
+
   return (
     <section className="space-y-6">
       <header className="bg-brand-dark text-white rounded-panel shadow-panel px-6 py-5">
@@ -28,9 +48,9 @@ export default function ErpIndexPage() {
         <h2 className="font-bold text-gray-800 mb-4">핵심 지표</h2>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: '총성도', value: '1,284명' },
-            { label: '이번주 설교 미작성', value: '2건' },
-            { label: '이번달 헌금 집계', value: '₩48,320,000' },
+            { label: '총성도', value: `${indexData.totalMembers}명` },
+            { label: '설교 미작성', value: `${indexData.sermonPendingCount}건` },
+            { label: '이번달 헌금 기록', value: `${indexData.accountRecordCount}건` },
           ].map(({ label, value }) => (
             <article key={label} className="border rounded-card p-4 text-center">
               <p className="text-sm text-gray-500 mb-1">{label}</p>
@@ -66,10 +86,13 @@ export default function ErpIndexPage() {
             <Link className="w-8 h-8 flex items-center justify-center rounded-full bg-brand-primary text-white font-bold hover:opacity-90" to="/erp/sermon/manager" aria-label="설교관리로 이동">+</Link>
           </div>
           <ul className="space-y-2">
-            {tasks.map((task) => (
-              <li key={task.title} className="flex items-center justify-between gap-2">
+            {(indexData.recentSermonTasks.length > 0
+              ? indexData.recentSermonTasks
+              : [{ id: 'empty', title: '표시할 설교 작업이 없습니다.', status: '-', date: '-' }]
+            ).map((task) => (
+              <li key={task.id} className="flex items-center justify-between gap-2">
                 <span className="text-sm text-gray-700 truncate">{task.title}</span>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${task.color}`}>{task.status}</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${getStatusStyle(task.status)}`}>{task.status}</span>
               </li>
             ))}
           </ul>
@@ -99,9 +122,9 @@ export default function ErpIndexPage() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             {shortcuts.map((item) => (
-              <Link key={item.to} to={item.to}
-                className="block border rounded px-3 py-2 text-sm text-gray-700 hover:bg-brand-primary hover:text-white transition-colors text-center">
-                {item.label}
+              { label: '총성도', value: `${indexData.totalMembers}명` },
+              { label: '설교 미작성', value: `${indexData.sermonPendingCount}건` },
+              { label: '이번달 기록', value: `${indexData.accountRecordCount}건` },
               </Link>
             ))}
           </div>

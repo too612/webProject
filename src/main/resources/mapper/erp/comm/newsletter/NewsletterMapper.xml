@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.comm.newsletter.NewsletterMapper">
+
+    <select id="selectNewsletterList" resultType="com.main.app.erp.comm.newsletter.dto.NewsletterDto$Newsletter">
+        SELECT newsletter_id, title, content, author_name, publish_date, status, reg_date
+        FROM erp_newsletter
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+        ORDER BY publish_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countNewsletterList" resultType="long">
+        SELECT COUNT(*) FROM erp_newsletter
+        <where>
+            <if test="keyword != null and keyword != ''">AND (title LIKE '%' || #{keyword} || '%' OR author_name LIKE '%' || #{keyword} || '%')</if>
+        </where>
+    </select>
+
+</mapper>

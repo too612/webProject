@@ -1,17 +1,6 @@
 import client from './client';
 import type { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, UserDto } from '../types';
-
-type ApiFailure = {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-};
-
-function getApiErrorMessage(error: unknown, fallbackMessage: string) {
-  return (error as ApiFailure)?.response?.data?.message ?? fallbackMessage;
-}
+import { getApiErrorMessage } from '../common/lib/apiError';
 
 export const authApi = {
   /**

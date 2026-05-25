@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.humen.change.ChangeMapper">
+
+    <select id="selectChangeList" resultType="com.main.app.erp.humen.change.dto.ChangeDto$Change">
+        SELECT
+            c.change_id,
+            m.name,
+            c.change_type,
+            c.change_date,
+            c.prev_status,
+            c.new_status,
+            c.reason,
+            c.reg_date AS registered_at
+        FROM erp_member_change c
+        LEFT JOIN erp_member m ON c.member_id = m.member_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND m.name LIKE '%' || #{keyword} || '%'
+            </if>
+        </where>
+        ORDER BY c.reg_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countChangeList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_member_change c
+        LEFT JOIN erp_member m ON c.member_id = m.member_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND m.name LIKE '%' || #{keyword} || '%'
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -9,8 +9,10 @@ const COLUMNS = [
   { key: 'itemName', label: '비품명' },
   { key: 'category', label: '종류' },
   { key: 'quantity', label: '수량' },
+  { key: 'unit', label: '단위' },
   { key: 'location', label: '보관위치' },
-  { key: 'purchaseDate', label: '구입일' },
+  { key: 'status', label: '상태' },
+  { key: 'regDate', label: '등록일' },
 ];
 
 export default function FacilityInventoryPage() {

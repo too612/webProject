@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.support.location.LocationMapper">
+
+    <select id="selectLocationInfo" resultType="com.main.app.official.support.location.dto.LocationDto">
+        SELECT
+            '다사랑교회 오시는 길' AS title,
+            '교회 위치와 교통 안내를 확인하세요.' AS subtitle,
+            '세종특별자치시 집현북로 52' AS address,
+            '044-000-0000' AS phone,
+            '평일 09:00~18:00' AS hours,
+            '대중교통 및 주차 안내는 예배 전 공지사항을 참고해 주세요.' AS notice,
+            'https://map.naver.com/v5/search/%EC%84%B8%EC%A2%85%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EC%8B%9C%20%EC%A7%91%ED%98%84%EB%B6%81%EB%A1%9C%2052' AS naverMapUrl,
+            'https://map.kakao.com/link/search/%EC%84%B8%EC%A2%85%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EC%8B%9C%20%EC%A7%91%ED%98%84%EB%B6%81%EB%A1%9C%2052' AS kakaoMapUrl
+    </select>
+
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.humen.district.DistrictMapper">
+
+    <select id="selectDistrictList" resultType="com.main.app.erp.humen.district.dto.DistrictDto$District">
+        SELECT
+            d.district_id,
+            d.district_name,
+            d.leader_name,
+            d.description,
+            d.status,
+            COUNT(m.member_id) AS member_count
+        FROM erp_district d
+        LEFT JOIN erp_member m ON d.district_id = m.district_id AND m.status = 'ACTIVE'
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND d.district_name LIKE '%' || #{keyword} || '%'
+            </if>
+        </where>
+        GROUP BY d.district_id, d.district_name, d.leader_name, d.description, d.status
+        ORDER BY d.district_name
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countDistrictList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_district
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND district_name LIKE '%' || #{keyword} || '%'
+            </if>
+        </where>
+    </select>
+
+</mapper>

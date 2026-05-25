@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.facility.maintenance.MaintenanceMapper">
+
+    <select id="selectMaintenanceList" resultType="com.main.app.erp.facility.maintenance.dto.MaintenanceDto$Maintenance">
+        SELECT maintenance_id,
+               facility_name,
+               title,
+               maintenance_date,
+               description,
+               cost,
+               status,
+               reg_date
+        FROM erp_maintenance
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (facility_name LIKE '%' || #{keyword} || '%' OR title LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+        ORDER BY maintenance_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countMaintenanceList" resultType="long">
+        SELECT COUNT(*)
+        FROM erp_maintenance
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (facility_name LIKE '%' || #{keyword} || '%' OR title LIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

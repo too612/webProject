@@ -7,8 +7,8 @@ type Row = Record<string, unknown>;
 
 const COLUMNS = [
   { key: 'facilityName', label: '시설명' },
-  { key: 'reservantName', label: '신청자' },
-  { key: 'reserveDate', label: '예약일' },
+  { key: 'reserverName', label: '신청자' },
+  { key: 'reservationDate', label: '예약일' },
   { key: 'startTime', label: '시작시간' },
   { key: 'endTime', label: '종료시간' },
   { key: 'status', label: '상태' },
