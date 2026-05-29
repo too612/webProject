@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import Breadcrumb from '../components/common/Breadcrumb';
-import { useMenu } from '../hooks/useMenu';
+import Breadcrumb from './Breadcrumb';
+import { useMenu } from '../common/menu/menuHook';
 import Sidebar from './Sidebar';
 
 export default function SubmenuLayout() {

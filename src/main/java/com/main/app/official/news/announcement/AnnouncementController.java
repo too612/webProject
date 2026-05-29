@@ -33,7 +33,7 @@ import com.main.app.official.news.announcement.dto.AnnouncementRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/news/announcement")
+@RequestMapping("/api/official/news/announcement")
 public class AnnouncementController {
 
     private static final String BASE_PATH = "/news/announcement";

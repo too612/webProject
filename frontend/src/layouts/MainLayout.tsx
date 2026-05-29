@@ -1,10 +1,14 @@
 import { Outlet } from 'react-router-dom';
-import Chatbot from '../components/chatbot/Chatbot';
-import { useMenu } from '../hooks/useMenu';
+import Chatbot from '../common/chatbot/chatbot';
+import { useMenu } from '../common/menu/menuHook';
 import Footer from './Footer';
 import Header from './Header';
 
-export default function MainLayout() {
+type MainLayoutProps = {
+  showChatbot?: boolean;
+};
+
+export default function MainLayout({ showChatbot = true }: MainLayoutProps) {
   useMenu();
 
   return (
@@ -12,7 +16,7 @@ export default function MainLayout() {
       <Header />
       <Outlet />
       <Footer />
-      <Chatbot />
+      {showChatbot && <Chatbot />}
     </div>
   );
 }

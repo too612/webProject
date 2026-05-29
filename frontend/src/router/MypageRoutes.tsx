@@ -1,34 +1,41 @@
 import type { RouteObject } from 'react-router-dom';
-import ProtectedRoute from '../components/ProtectedRoute';
-import MypageLayout from '../layouts/MypageLayout';
-import MypageIndexPage from '../pages/mypage/MypageIndexPage';
+import ProtectedRoute from './ProtectedRoute';
+import MainLayout from '../layouts/MainLayout';
+import SubmenuLayout from '../layouts/SubmenuLayout';
+import MypageIndexPage from '../mypage/index/mypageIndexPage';
 
 // user
-import ProfilePage from '../pages/mypage/user/ProfilePage';
-import PasswordPage from '../pages/mypage/user/PasswordPage';
-import ActivityPage from '../pages/mypage/user/ActivityPage';
-import InquiryPage from '../pages/mypage/user/InquiryPage';
-import NotificationsPage from '../pages/mypage/user/NotificationsPage';
-import WithdrawPage from '../pages/mypage/user/WithdrawPage';
+import ProfilePage from '../mypage/user/profile/profilePage';
+import PasswordPage from '../mypage/user/password/passwordPage';
+import ActivityPage from '../mypage/user/activity/activityPage';
+import InquiryPage from '../mypage/user/inquiry/inquiryPage';
+import NotificationsPage from '../mypage/user/notifications/notificationsPage';
+import WithdrawPage from '../mypage/user/withdraw/withdrawPage';
 
 export const mypageRoutes: RouteObject[] = [
   {
     path: '/mypage',
     element: (
       <ProtectedRoute>
-        <MypageLayout />
+        <MainLayout showChatbot={false} />
       </ProtectedRoute>
     ),
     children: [
       { index: true, element: <MypageIndexPage /> },
 
       // user
-      { path: 'user/profile', element: <ProfilePage /> },
-      { path: 'user/password', element: <PasswordPage /> },
-      { path: 'user/activity', element: <ActivityPage /> },
-      { path: 'user/inquiry', element: <InquiryPage /> },
-      { path: 'user/notifications', element: <NotificationsPage /> },
-      { path: 'user/withdraw', element: <WithdrawPage /> },
-    ]
-  }
+      {
+        path: 'user',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'profile', element: <ProfilePage /> },
+          { path: 'password', element: <PasswordPage /> },
+          { path: 'activity', element: <ActivityPage /> },
+          { path: 'inquiry', element: <InquiryPage /> },
+          { path: 'notifications', element: <NotificationsPage /> },
+          { path: 'withdraw', element: <WithdrawPage /> },
+        ],
+      },
+    ],
+  },
 ];

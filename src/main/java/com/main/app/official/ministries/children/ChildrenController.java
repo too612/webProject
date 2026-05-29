@@ -33,7 +33,7 @@ import com.main.app.official.ministries.children.dto.ChildrenRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/ministries/children")
+@RequestMapping("/api/official/ministries/children")
 public class ChildrenController {
 
     private static final String BASE_PATH = "/ministries/children";

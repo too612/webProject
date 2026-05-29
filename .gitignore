@@ -35,3 +35,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Frontend Build Artifacts ###
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+
+### Runtime Logs ###
+logs/*.log
+logs/*.gz

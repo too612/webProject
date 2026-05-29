@@ -33,7 +33,7 @@ import com.main.app.official.news.registration.dto.RegistrationRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/news/registration")
+@RequestMapping("/api/official/news/registration")
 public class RegistrationController {
 
     private static final String BASE_PATH = "/news/registration";

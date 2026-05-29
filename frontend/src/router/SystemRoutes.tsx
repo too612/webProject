@@ -1,24 +1,24 @@
 import type { RouteObject } from 'react-router-dom';
-import ProtectedRoute from '../components/ProtectedRoute';
+import ProtectedRoute from './ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import SystemIndexPage from '../pages/system/SystemIndexPage';
+import SystemIndexPage from '../system/index/systemIndexPage';
 
 // user
-import UserManagerPage from '../pages/system/user/UserManagerPage';
-import UserRolePage from '../pages/system/user/UserRolePage';
+import UserManagerPage from '../system/user/manager/managerPage';
+import UserRolePage from '../system/user/role/rolePage';
 
 // config
-import ConfigCodePage from '../pages/system/config/ConfigCodePage';
-import ConfigMenuPage from '../pages/system/config/ConfigMenuPage';
+import ConfigCodePage from '../system/config/code/codePage';
+import ConfigMenuPage from '../system/config/menu/menuPage';
 
 // log
-import LogSystemPage from '../pages/system/log/LogSystemPage';
-import LogAuditPage from '../pages/system/log/LogAuditPage';
+import LogSystemPage from '../system/log/system/systemPage';
+import LogAuditPage from '../system/log/audit/auditPage';
 
 // backup
-import BackupPolicyPage from '../pages/system/backup/BackupPolicyPage';
-import BackupHistoryPage from '../pages/system/backup/BackupHistoryPage';
+import BackupPolicyPage from '../system/backup/policy/policyPage';
+import BackupHistoryPage from '../system/backup/history/historyPage';
 
 export const systemRoutes: RouteObject[] = [
   {

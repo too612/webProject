@@ -1,142 +1,203 @@
 import type { RouteObject } from 'react-router-dom';
-import ProtectedRoute from '../components/ProtectedRoute';
-import ErpLayout from '../layouts/ErpLayout';
-import ErpIndexPage from '../pages/erp/ErpIndexPage';
+import ProtectedRoute from './ProtectedRoute';
+import MainLayout from '../layouts/MainLayout';
+import SubmenuLayout from '../layouts/SubmenuLayout';
+import ErpIndexPage from '../erp/index/erpIndexPage';
 
 // humen
-import HumenManagerPage from '../pages/erp/humen/manager';
-import HumenDistrictPage from '../pages/erp/humen/district';
-import HumenNewcomerPage from '../pages/erp/humen/newcomer';
-import HumenChangePage from '../pages/erp/humen/change';
+import HumenManagerPage from '../erp/humen/manager/managerPage';
+import HumenDistrictPage from '../erp/humen/district/districtPage';
+import HumenNewcomerPage from '../erp/humen/newcomer/newcomerPage';
+import HumenChangePage from '../erp/humen/change/changePage';
 
 // sermon
-import SermonManagerPage from '../pages/erp/sermon/manager';
-import SermonArchivePage from '../pages/erp/sermon/archive';
-import SermonAttendancePage from '../pages/erp/sermon/attendance';
-import SermonWritePage from '../pages/erp/sermon/write';
-import SermonOrderPage from '../pages/erp/sermon/order';
+import SermonManagerPage from '../erp/sermon/manager/managerPage';
+import SermonArchivePage from '../erp/sermon/archive/archivePage';
+import SermonAttendancePage from '../erp/sermon/attendance/attendancePage';
+import SermonWritePage from '../erp/sermon/write/writePage';
+import SermonOrderPage from '../erp/sermon/order/orderPage';
 
 // account
-import AccountManagerPage from '../pages/erp/account/manager';
-import AccountInputPage from '../pages/erp/account/input';
-import AccountBudgetPage from '../pages/erp/account/budget';
-import AccountExpensePage from '../pages/erp/account/expense';
-import AccountReportPage from '../pages/erp/account/report';
+import AccountManagerPage from '../erp/account/manager/managerPage';
+import AccountInputPage from '../erp/account/input/inputPage';
+import AccountBudgetPage from '../erp/account/budget/budgetPage';
+import AccountExpensePage from '../erp/account/expense/expensePage';
+import AccountReportPage from '../erp/account/report/reportPage';
 
 // training
-import TrainingCoursePage from '../pages/erp/training/course';
-import TrainingStudentPage from '../pages/erp/training/student';
-import TrainingAttendancePage from '../pages/erp/training/attendance';
-import TrainingCompletePage from '../pages/erp/training/complete';
+import TrainingCoursePage from '../erp/training/course/coursePage';
+import TrainingStudentPage from '../erp/training/student/studentPage';
+import TrainingAttendancePage from '../erp/training/attendance/attendancePage';
+import TrainingCompletePage from '../erp/training/complete/completePage';
 
 // ministry
-import MinistryDepartmentPage from '../pages/erp/ministry/department';
-import MinistrySchedulePage from '../pages/erp/ministry/schedule';
-import MinistryVolunteerPage from '../pages/erp/ministry/volunteer';
-import MinistryReportPage from '../pages/erp/ministry/report';
+import MinistryDepartmentPage from '../erp/ministry/department/departmentPage';
+import MinistrySchedulePage from '../erp/ministry/schedule/schedulePage';
+import MinistryVolunteerPage from '../erp/ministry/volunteer/volunteerPage';
+import MinistryReportPage from '../erp/ministry/report/reportPage';
 
 // event
-import EventCalendarPage from '../pages/erp/event/calendar';
-import EventApplyPage from '../pages/erp/event/apply';
-import EventParticipantPage from '../pages/erp/event/participant';
-import EventResultPage from '../pages/erp/event/result';
+import EventCalendarPage from '../erp/event/calendar/calendarPage';
+import EventApplyPage from '../erp/event/apply/applyPage';
+import EventParticipantPage from '../erp/event/participant/participantPage';
+import EventResultPage from '../erp/event/result/resultPage';
 
 // facility
-import FacilityReservationPage from '../pages/erp/facility/reservation';
-import FacilityVehiclePage from '../pages/erp/facility/vehicle';
-import FacilityInventoryPage from '../pages/erp/facility/inventory';
-import FacilityMaintenancePage from '../pages/erp/facility/maintenance';
+import FacilityReservationPage from '../erp/facility/reservation/reservationPage';
+import FacilityVehiclePage from '../erp/facility/vehicle/vehiclePage';
+import FacilityInventoryPage from '../erp/facility/inventory/inventoryPage';
+import FacilityMaintenancePage from '../erp/facility/maintenance/maintenancePage';
 
 // comm
-import CommNoticePage from '../pages/erp/comm/notice';
-import CommMessagePage from '../pages/erp/comm/message';
-import CommPrayerPage from '../pages/erp/comm/prayer';
-import CommNewsletterPage from '../pages/erp/comm/newsletter';
+import CommNoticePage from '../erp/comm/notice/noticePage';
+import CommMessagePage from '../erp/comm/message/messagePage';
+import CommPrayerPage from '../erp/comm/prayer/prayerPage';
+import CommNewsletterPage from '../erp/comm/newsletter/newsletterPage';
 
 // stats
-import StatsDashboardPage from '../pages/erp/stats/dashboard';
-import StatsAttendancePage from '../pages/erp/stats/attendance';
-import StatsOfferingPage from '../pages/erp/stats/offering';
-import StatsMinistryPage from '../pages/erp/stats/ministry';
+import StatsDashboardPage from '../erp/stats/dashboard/dashboardPage';
+import StatsAttendancePage from '../erp/stats/attendance/attendancePage';
+import StatsOfferingPage from '../erp/stats/offering/offeringPage';
+import StatsMinistryPage from '../erp/stats/ministry/ministryPage';
 
 // admin
-import AdminCertificatePage from '../pages/erp/admin/certificate';
-import AdminApprovalPage from '../pages/erp/admin/approval';
-import AdminMinutesPage from '../pages/erp/admin/minutes';
-import AdminArchivePage from '../pages/erp/admin/archive';
+import AdminCertificatePage from '../erp/admin/certificate/certificatePage';
+import AdminApprovalPage from '../erp/admin/approval/approvalPage';
+import AdminMinutesPage from '../erp/admin/minutes/minutesPage';
+import AdminArchivePage from '../erp/admin/archive/archivePage';
 
 export const erpRoutes: RouteObject[] = [
   {
     path: '/erp',
     element: (
       <ProtectedRoute>
-        <ErpLayout />
+        <MainLayout showChatbot={false} />
       </ProtectedRoute>
     ),
     children: [
       { index: true, element: <ErpIndexPage /> },
 
       // humen
-      { path: 'humen/manager', element: <HumenManagerPage /> },
-      { path: 'humen/district', element: <HumenDistrictPage /> },
-      { path: 'humen/newcomer', element: <HumenNewcomerPage /> },
-      { path: 'humen/change', element: <HumenChangePage /> },
+      {
+        path: 'humen',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'manager', element: <HumenManagerPage /> },
+          { path: 'district', element: <HumenDistrictPage /> },
+          { path: 'newcomer', element: <HumenNewcomerPage /> },
+          { path: 'change', element: <HumenChangePage /> },
+        ],
+      },
 
       // sermon
-      { path: 'sermon/manager', element: <SermonManagerPage /> },
-      { path: 'sermon/archive', element: <SermonArchivePage /> },
-      { path: 'sermon/attendance', element: <SermonAttendancePage /> },
-      { path: 'sermon/write', element: <SermonWritePage /> },
-      { path: 'sermon/order', element: <SermonOrderPage /> },
+      {
+        path: 'sermon',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'manager', element: <SermonManagerPage /> },
+          { path: 'archive', element: <SermonArchivePage /> },
+          { path: 'attendance', element: <SermonAttendancePage /> },
+          { path: 'write', element: <SermonWritePage /> },
+          { path: 'order', element: <SermonOrderPage /> },
+        ],
+      },
 
       // account
-      { path: 'account/manager', element: <AccountManagerPage /> },
-      { path: 'account/input', element: <AccountInputPage /> },
-      { path: 'account/budget', element: <AccountBudgetPage /> },
-      { path: 'account/expense', element: <AccountExpensePage /> },
-      { path: 'account/report', element: <AccountReportPage /> },
+      {
+        path: 'account',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'manager', element: <AccountManagerPage /> },
+          { path: 'input', element: <AccountInputPage /> },
+          { path: 'budget', element: <AccountBudgetPage /> },
+          { path: 'expense', element: <AccountExpensePage /> },
+          { path: 'report', element: <AccountReportPage /> },
+        ],
+      },
 
       // training
-      { path: 'training/course', element: <TrainingCoursePage /> },
-      { path: 'training/student', element: <TrainingStudentPage /> },
-      { path: 'training/attendance', element: <TrainingAttendancePage /> },
-      { path: 'training/complete', element: <TrainingCompletePage /> },
+      {
+        path: 'training',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'course', element: <TrainingCoursePage /> },
+          { path: 'student', element: <TrainingStudentPage /> },
+          { path: 'attendance', element: <TrainingAttendancePage /> },
+          { path: 'complete', element: <TrainingCompletePage /> },
+        ],
+      },
 
       // ministry
-      { path: 'ministry/department', element: <MinistryDepartmentPage /> },
-      { path: 'ministry/schedule', element: <MinistrySchedulePage /> },
-      { path: 'ministry/volunteer', element: <MinistryVolunteerPage /> },
-      { path: 'ministry/report', element: <MinistryReportPage /> },
+      {
+        path: 'ministry',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'department', element: <MinistryDepartmentPage /> },
+          { path: 'schedule', element: <MinistrySchedulePage /> },
+          { path: 'volunteer', element: <MinistryVolunteerPage /> },
+          { path: 'report', element: <MinistryReportPage /> },
+        ],
+      },
 
       // event
-      { path: 'event/calendar', element: <EventCalendarPage /> },
-      { path: 'event/apply', element: <EventApplyPage /> },
-      { path: 'event/participant', element: <EventParticipantPage /> },
-      { path: 'event/result', element: <EventResultPage /> },
+      {
+        path: 'event',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'calendar', element: <EventCalendarPage /> },
+          { path: 'apply', element: <EventApplyPage /> },
+          { path: 'participant', element: <EventParticipantPage /> },
+          { path: 'result', element: <EventResultPage /> },
+        ],
+      },
 
       // facility
-      { path: 'facility/reservation', element: <FacilityReservationPage /> },
-      { path: 'facility/vehicle', element: <FacilityVehiclePage /> },
-      { path: 'facility/inventory', element: <FacilityInventoryPage /> },
-      { path: 'facility/maintenance', element: <FacilityMaintenancePage /> },
+      {
+        path: 'facility',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'reservation', element: <FacilityReservationPage /> },
+          { path: 'vehicle', element: <FacilityVehiclePage /> },
+          { path: 'inventory', element: <FacilityInventoryPage /> },
+          { path: 'maintenance', element: <FacilityMaintenancePage /> },
+        ],
+      },
 
       // comm
-      { path: 'comm/notice', element: <CommNoticePage /> },
-      { path: 'comm/message', element: <CommMessagePage /> },
-      { path: 'comm/prayer', element: <CommPrayerPage /> },
-      { path: 'comm/newsletter', element: <CommNewsletterPage /> },
+      {
+        path: 'comm',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'notice', element: <CommNoticePage /> },
+          { path: 'message', element: <CommMessagePage /> },
+          { path: 'prayer', element: <CommPrayerPage /> },
+          { path: 'newsletter', element: <CommNewsletterPage /> },
+        ],
+      },
 
       // stats
-      { path: 'stats/dashboard', element: <StatsDashboardPage /> },
-      { path: 'stats/attendance', element: <StatsAttendancePage /> },
-      { path: 'stats/offering', element: <StatsOfferingPage /> },
-      { path: 'stats/ministry', element: <StatsMinistryPage /> },
+      {
+        path: 'stats',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'dashboard', element: <StatsDashboardPage /> },
+          { path: 'attendance', element: <StatsAttendancePage /> },
+          { path: 'offering', element: <StatsOfferingPage /> },
+          { path: 'ministry', element: <StatsMinistryPage /> },
+        ],
+      },
 
       // admin
-      { path: 'admin/certificate', element: <AdminCertificatePage /> },
-      { path: 'admin/approval', element: <AdminApprovalPage /> },
-      { path: 'admin/minutes', element: <AdminMinutesPage /> },
-      { path: 'admin/archive', element: <AdminArchivePage /> },
+      {
+        path: 'admin',
+        element: <SubmenuLayout />,
+        children: [
+          { path: 'certificate', element: <AdminCertificatePage /> },
+          { path: 'approval', element: <AdminApprovalPage /> },
+          { path: 'minutes', element: <AdminMinutesPage /> },
+          { path: 'archive', element: <AdminArchivePage /> },
+        ],
+      },
     ],
   },
 ];

@@ -33,7 +33,7 @@ import com.main.app.official.worship.sermons.dto.SermonRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/worship/sermons")
+@RequestMapping("/api/official/worship/sermons")
 public class SermonController {
 
     private static final String BASE_PATH = "/worship/sermons";

@@ -33,7 +33,7 @@ import com.main.app.official.news.bulletin.dto.BulletinRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/news/bulletin")
+@RequestMapping("/api/official/news/bulletin")
 public class BulletinController {
 
     private static final String BASE_PATH = "/news/bulletin";

@@ -1,28 +1,28 @@
 import type { RouteObject } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import CommunityIndexPage from '../pages/community/CommunityIndexPage';
+import CommunityIndexPage from '../community/index/communityIndexPage';
 
 // group
-import GroupManagerPage from '../pages/community/group/GroupManagerPage';
-import GroupA1Page from '../pages/community/group/GroupA1Page';
-import GroupB2Page from '../pages/community/group/GroupB2Page';
+import GroupManagerPage from '../community/group/manager/managerPage';
+import GroupA1Page from '../community/group/a1/a1Page';
+import GroupB2Page from '../community/group/b2/b2Page';
 
 // facilities
-import FacilitiesCalendarPage from '../pages/community/facilities/FacilitiesCalendarPage';
-import FacilitiesDiningPage from '../pages/community/facilities/FacilitiesDiningPage';
-import FacilitiesPrayerPage from '../pages/community/facilities/FacilitiesPrayerPage';
+import FacilitiesCalendarPage from '../community/facilities/calendar/calendarPage';
+import FacilitiesDiningPage from '../community/facilities/dining/diningPage';
+import FacilitiesPrayerPage from '../community/facilities/prayer/prayerPage';
 
 // saint
-import SaintFamilyPage from '../pages/community/saint/SaintFamilyPage';
-import SaintPrayPage from '../pages/community/saint/SaintPrayPage';
-import SaintSalesPage from '../pages/community/saint/SaintSalesPage';
-import SaintJobPage from '../pages/community/saint/SaintJobPage';
+import SaintFamilyPage from '../community/saint/family/familyPage';
+import SaintPrayPage from '../community/saint/pray/prayPage';
+import SaintSalesPage from '../community/saint/sales/salesPage';
+import SaintJobPage from '../community/saint/job/jobPage';
 
 // world
-import WorldChristianPage from '../pages/community/world/WorldChristianPage';
-import WorldEconomicPage from '../pages/community/world/WorldEconomicPage';
-import WorldHealthPage from '../pages/community/world/WorldHealthPage';
+import WorldChristianPage from '../community/world/christian/christianPage';
+import WorldEconomicPage from '../community/world/economic/economicPage';
+import WorldHealthPage from '../community/world/health/healthPage';
 
 export const communityRoutes: RouteObject[] = [
   {

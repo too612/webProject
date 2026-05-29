@@ -1,0 +1,15 @@
+import client from '../../common/api/api.client';
+import { getApiErrorMessage } from '../../common/lib/apiError';
+import type { ApiResponse } from '../../common/api/api.types';
+import { EMPTY_COMMUNITY_INDEX, type CommunityIndexData } from './communityIndexModel';
+
+export const communityIndexApi = {
+    async getIndexData(): Promise<CommunityIndexData> {
+        try {
+            const response = await client.get<ApiResponse<CommunityIndexData>>('/community/index');
+            return response.data.data ?? EMPTY_COMMUNITY_INDEX;
+        } catch (error) {
+            throw new Error(getApiErrorMessage(error, 'Ïª§Î??àÌã∞ Î©îÏù∏ ?∞Ïù¥?∞Î? Î∂àÎü¨?§Ï? Î™ªÌñà?µÎãà??'));
+        }
+    },
+};

@@ -33,7 +33,7 @@ import com.main.app.official.support.qna.dto.QnaRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/support/qna")
+@RequestMapping("/api/official/support/qna")
 public class QnaController {
 
     private static final String BASE_PATH = "/support/qna";

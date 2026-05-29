@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class SpaFallbackController {
 
     @GetMapping({
+            "/",
             "/official", "/official/{path:[^\\.]*}", "/official/{path:[^\\.]*}/**",
             "/about", "/about/{path:[^\\.]*}", "/about/{path:[^\\.]*}/**",
             "/worship", "/worship/{path:[^\\.]*}", "/worship/{path:[^\\.]*}/**",
@@ -20,6 +21,6 @@ public class SpaFallbackController {
             "/system", "/system/{path:[^\\.]*}", "/system/{path:[^\\.]*}/**"
     })
     public String spaPath() {
-        return "forward:/";
+        return "forward:/index.html";
     }
 }

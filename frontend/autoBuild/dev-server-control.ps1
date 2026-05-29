@@ -219,14 +219,14 @@ function Stop-ResidualDevWindows {
                 continue
             }
 
-            $pid = [int]$proc.ProcessId
-            Write-Warn "잔여 개발 프로세스를 정리합니다. (PID: $pid)"
+            $procPid = [int]$proc.ProcessId
+            Write-Warn "잔여 개발 프로세스를 정리합니다. (PID: $procPid)"
             try {
-                & taskkill.exe /PID $pid /T /F | Out-Null
-                Write-Ok "잔여 개발 프로세스 종료 완료 (PID: $pid)"
+                & taskkill.exe /PID $procPid /T /F | Out-Null
+                Write-Ok "잔여 개발 프로세스 종료 완료 (PID: $procPid)"
             }
             catch {
-                Write-Warn "잔여 개발 프로세스 종료 실패 (PID: $pid): $($_.Exception.Message)"
+                Write-Warn "잔여 개발 프로세스 종료 실패 (PID: $procPid): $($_.Exception.Message)"
             }
         }
     }
@@ -335,7 +335,7 @@ function Start-Servers {
     Write-Info '초기 기동에는 시간이 필요합니다. status로 포트 리스닝 상태를 확인하세요.'
 }
 
-function Force-Kill {
+function Stop-ForceKill {
     $state = Get-State
 
     if ($state) {
@@ -393,6 +393,6 @@ switch ($Action) {
         Start-Servers
     }
     'force-kill' {
-        Force-Kill
+        Stop-ForceKill
     }
 }

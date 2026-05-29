@@ -1,0 +1,15 @@
+import client from '../../../common/api/api.client';
+import type { ApiResponse } from '../../../common/api/api.types';
+import { getApiErrorMessage } from '../../../common/lib/apiError';
+import type { LiveItem } from './liveModel';
+
+export const liveApi = {
+  async getLiveItems(): Promise<LiveItem[]> {
+    try {
+      const response = await client.get<ApiResponse<LiveItem[]>>('/official/worship/live');
+      return response.data.data ?? [];
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, '?ˆë°° ?¤í™© ?•ë³´ë¥?ë¶ˆëŸ¬?¤ì? ëª»í–ˆ?µë‹ˆ??'));
+    }
+  },
+};

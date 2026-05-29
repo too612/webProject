@@ -1,12 +1,16 @@
-import type { RouteObject } from 'react-router-dom';
-import AuthLayout from '../layouts/AuthLayout';
-import LoginPage from '../pages/auth/LoginPage';
-import RegisterPage from '../pages/auth/RegisterPage';
+import { Outlet, type RouteObject } from 'react-router-dom';
+import AuthLayout from '../common/auth/authLayout';
+import LoginPage from '../common/auth/login/loginPage';
+import RegisterPage from '../common/auth/register/registerPage';
 
 export const authRoutes: RouteObject[] = [
   {
     path: '/auth',
-    element: <AuthLayout />,
+    element: (
+      <AuthLayout>
+        <Outlet />
+      </AuthLayout>
+    ),
     children: [
       {
         path: 'login',

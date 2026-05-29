@@ -33,7 +33,7 @@ import com.main.app.official.ministries.mission.dto.MissionRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/ministries/mission")
+@RequestMapping("/api/official/ministries/mission")
 public class MissionController {
 
     private static final String BASE_PATH = "/ministries/mission";

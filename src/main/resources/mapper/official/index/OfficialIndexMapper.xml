@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.index.OfficialIndexMapper">
 
-    <!-- 최근 설교 4건: board 테이블(legacy schema) board_type='SERMONS', 루트글(depth=1) -->
+    <!-- 최근 설교 4건 -->
     <select id="selectRecentSermons" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
         SELECT
             CAST(rqst_no AS VARCHAR) AS id,
@@ -17,16 +17,15 @@
         LIMIT 4
     </select>
 
-    <!-- 최근 공지 4건: board 테이블(new schema) del_yn='N', board_type='ANNOUNCEMENT' -->
+    <!-- 최근 공지 4건 -->
     <select id="selectRecentAnnouncements" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
         SELECT
-            CAST(id AS VARCHAR) AS id,
+            CAST(rqst_no AS VARCHAR) AS id,
             title,
-            TO_CHAR(created_at, 'YYYY.MM.DD') AS date
+            TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
         FROM board
-        WHERE del_yn = 'N'
-          AND board_type = 'ANNOUNCEMENT'
-        ORDER BY created_at DESC
+        WHERE board_type = 'ANNOUNCEMENT'
+        ORDER BY ins_dt DESC
         LIMIT 4
     </select>
 

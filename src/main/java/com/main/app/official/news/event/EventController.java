@@ -33,7 +33,7 @@ import com.main.app.official.news.event.dto.EventRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/news/event")
+@RequestMapping("/api/official/news/event")
 public class EventController {
 
     private static final String BASE_PATH = "/news/event";

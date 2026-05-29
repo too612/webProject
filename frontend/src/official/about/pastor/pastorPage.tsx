@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { usePastorProfile } from './usePastorProfile';
-import type { PastorRequest } from './PastorModel';
+import { usePastorProfile } from './pastorHook';
+import type { PastorRequest } from './pastorModel';
 
 const INITIAL_FORM: PastorRequest = {
   corpName: '기관정보',

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.main.app.common.dto.ApiResponse;
@@ -30,6 +31,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(status)
                 .body(ApiResponse.fail(status.value(),
                         exception.getReason() == null ? status.getReasonPhrase() : exception.getReason()));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(NoResourceFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail(HttpStatus.NOT_FOUND.value(), "요청한 리소스를 찾을 수 없습니다."));
     }
 
     @ExceptionHandler(Exception.class)

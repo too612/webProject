@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import type { MenuItem } from '../types/menu.types';
+import type { MenuItem } from '../common/menu/menu.types';
 
 type SidebarProps = {
   items: MenuItem[];

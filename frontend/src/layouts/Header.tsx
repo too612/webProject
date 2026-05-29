@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useMenu } from '../hooks/useMenu';
-import { useAuthStore } from '../store/authStore';
-import type { MenuItem } from '../types/menu.types';
+import { useMenu } from '../common/menu/menuHook';
+import { useAuthStore } from '../common/auth/authStore';
+import type { MenuItem } from '../common/menu/menu.types';
 
 export default function Header() {
   const { isAuthenticated, user, clearAuth } = useAuthStore();

@@ -1,6 +1,6 @@
-import client from '../../../common/api/client';
+import client from '../../../common/api/api.client';
 import { getApiErrorMessage } from '../../../common/lib/apiError';
-import type { ApiResponse } from '../../../types';
+import type { ApiResponse } from '../../../common/api/api.types';
 import type { LocationInfo } from './LocationModel';
 
 export const locationApi = {
@@ -9,7 +9,7 @@ export const locationApi = {
       const response = await client.get<ApiResponse<LocationInfo>>('/official/support/location');
       return response.data.data ?? null;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '오시는 길 정보를 불러오지 못했습니다.'));
+      throw new Error(getApiErrorMessage(error, '?�시??�??�보�?불러?��? 못했?�니??'));
     }
   },
 };

@@ -1,0 +1,15 @@
+import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/lib/apiError';
+import type { ApiResponse } from '../../../common/api/api.types';
+import type { CommunityFacilitiesPrayerRow } from './prayerModel';
+
+export const communityFacilitiesPrayerApi = {
+    async getPrayerList(): Promise<CommunityFacilitiesPrayerRow[]> {
+        try {
+            const response = await client.get<ApiResponse<{ rooms: CommunityFacilitiesPrayerRow[] }>>('/community/facilities/prayer');
+            return response.data.data?.rooms ?? [];
+        } catch (error) {
+            throw new Error(getApiErrorMessage(error, 'ê¸°ë„???ˆì•½ ?°ì´?°ë? ë¶ˆëŸ¬?¤ì? ëª»í–ˆ?µë‹ˆ??'));
+        }
+    },
+};
