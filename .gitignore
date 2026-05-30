@@ -44,3 +44,10 @@ frontend/*.tsbuildinfo
 ### Runtime Logs ###
 logs/*.log
 logs/*.gz
+
+### Temp / Debug Output (root-level) ###
+/*.log
+/*.out
+/*.txt
+!HELP.md
+
