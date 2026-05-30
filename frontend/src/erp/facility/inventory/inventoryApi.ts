@@ -50,8 +50,9 @@ export const facilityInventoryApi = {
       const response = await client.get<ApiResponse<SpringPage<FacilityInventoryRow>>>('/erp/facility/inventory', { params });
       return toListResult(response.data.data);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '鍮꾪뭹 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

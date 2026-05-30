@@ -36,8 +36,9 @@ export const visionApi = {
       const payload = response.data.data;
       return isVisionContent(payload) ? payload : null;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '鍮꾩쟾 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

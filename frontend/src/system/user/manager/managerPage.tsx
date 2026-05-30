@@ -51,7 +51,7 @@ export default function UserManagerPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-left text-gray-500 font-medium">
-              <th className="px-4 py-3 w-12 text-center">No.</th>
+              <th className="px-4 py-3 w-12 text-center">번호</th>
               {SYSTEM_USER_MANAGER_COLUMNS.map((col) => (
                 <th key={String(col.key)} className="px-4 py-3">{col.label}</th>
               ))}

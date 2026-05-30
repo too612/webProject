@@ -28,8 +28,8 @@ export default function FacilityInventoryPage() {
     <section className="space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-xl font-bold text-brand-dark">Inventory List</h2>
-          <p className="mt-0.5 text-sm text-gray-500">Manage inventory data.</p>
+          <h2 className="text-xl font-bold text-brand-dark">비품 목록</h2>
+          <p className="mt-0.5 text-sm text-gray-500">비품 데이터를 조회하고 관리합니다.</p>
         </div>
       </div>
 
@@ -38,14 +38,14 @@ export default function FacilityInventoryPage() {
           type="text"
           value={inputKeyword}
           onChange={(e) => handleInputKeywordChange(e.target.value)}
-          placeholder="Search keyword"
+          placeholder="검색어를 입력하세요"
           className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
         <button
           type="submit"
           className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
         >
-          Search
+          검색
         </button>
       </form>
 
@@ -55,7 +55,7 @@ export default function FacilityInventoryPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-left font-medium text-gray-500">
-              <th className="w-12 px-4 py-3 text-center">No.</th>
+              <th className="w-12 px-4 py-3 text-center">번호</th>
               {FACILITY_INVENTORY_COLUMNS.map((col) => (
                 <th key={String(col.key)} className="px-4 py-3">
                   {col.label}
@@ -67,13 +67,13 @@ export default function FacilityInventoryPage() {
             {loading ? (
               <tr>
                 <td colSpan={FACILITY_INVENTORY_COLUMNS.length + 1} className="px-4 py-8 text-center text-gray-400">
-                  Loading...
+                  불러오는 중...
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={FACILITY_INVENTORY_COLUMNS.length + 1} className="px-4 py-8 text-center text-gray-400">
-                  No records found.
+                  조회된 내역이 없습니다.
                 </td>
               </tr>
             ) : (
@@ -93,7 +93,7 @@ export default function FacilityInventoryPage() {
       </div>
 
       <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-500">Total {totalElements}</span>
+        <span className="text-gray-500">총 {totalElements}건</span>
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -101,7 +101,7 @@ export default function FacilityInventoryPage() {
             disabled={page === 0}
             onClick={handlePrevPage}
           >
-            Prev
+            이전
           </button>
           <span className="px-3 text-gray-600">
             {page + 1} / {Math.max(totalPages, 1)}
@@ -112,7 +112,7 @@ export default function FacilityInventoryPage() {
             disabled={page >= totalPages - 1}
             onClick={handleNextPage}
           >
-            Next
+            다음
           </button>
         </div>
       </div>

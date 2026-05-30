@@ -34,8 +34,9 @@ export const beliefsApi = {
       const payload = response.data.data;
       return isBeliefsContent(payload) ? payload : null;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?좎븰怨좊갚 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

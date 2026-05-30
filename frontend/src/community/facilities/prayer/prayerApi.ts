@@ -9,7 +9,8 @@ export const communityFacilitiesPrayerApi = {
             const response = await client.get<ApiResponse<{ rooms: CommunityFacilitiesPrayerRow[] }>>('/community/facilities/prayer');
             return response.data.data?.rooms ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '湲곕룄???덉빟 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+

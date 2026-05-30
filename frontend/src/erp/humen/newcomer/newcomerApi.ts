@@ -50,8 +50,9 @@ export const newcomerApi = {
       const response = await client.get<ApiResponse<SpringPage<NewcomerRow>>>('/erp/humen/newcomer', { params });
       return toListResult(response.data.data);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?덇?議?紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

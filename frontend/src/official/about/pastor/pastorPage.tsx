@@ -126,15 +126,18 @@ export default function PastorPage() {
   };
 
   return (
-    <section className="space-y-4">
-      <div className="bg-white rounded-panel shadow-panel border border-gray-100 p-6 space-y-4">
+    <section className="space-y-5">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="text-2xl font-bold text-brand-dark">담임목사</h2>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold tracking-[0.14em] uppercase text-brand-primary/80">교회 소개</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-dark">담임목사</h2>
+          </div>
           <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 type="button"
-                className="px-3 py-2 text-sm rounded-md bg-brand-primary text-white"
+                className="px-4 py-2.5 text-sm rounded-full bg-brand-primary text-white font-semibold hover:bg-brand-primary/90 transition-colors"
                 onClick={handleEditStart}
               >
                 편집
@@ -144,7 +147,7 @@ export default function PastorPage() {
               <>
                 <button
                   type="button"
-                  className="px-3 py-2 text-sm rounded-md bg-brand-primary text-white"
+                  className="px-4 py-2.5 text-sm rounded-full bg-brand-primary text-white font-semibold hover:bg-brand-primary/90 transition-colors"
                   onClick={handleSave}
                   disabled={loading}
                 >
@@ -152,7 +155,7 @@ export default function PastorPage() {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-2 text-sm rounded-md border border-gray-300 text-gray-700"
+                  className="px-4 py-2.5 text-sm rounded-full border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
                   onClick={handleEditCancel}
                   disabled={loading}
                 >
@@ -161,7 +164,7 @@ export default function PastorPage() {
                 {profile?.corpId && (
                   <button
                     type="button"
-                    className="px-3 py-2 text-sm rounded-md bg-red-600 text-white"
+                    className="px-4 py-2.5 text-sm rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors"
                     onClick={handleDelete}
                     disabled={loading}
                   >
@@ -174,15 +177,18 @@ export default function PastorPage() {
         </div>
 
         {(error || actionMessage) && (
-          <div className={`rounded-md px-3 py-2 text-sm ${error ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+          <div className={`rounded-xl px-4 py-3 text-sm ${error ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
             {error ?? actionMessage}
           </div>
         )}
 
         {!isEditMode && (
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 items-start rounded-2xl border border-slate-100 bg-slate-50/70 p-5 md:p-6">
             <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
-              <p className="text-base font-semibold text-brand-primary">
+              <p className="inline-flex items-center rounded-full bg-brand-primary/10 px-3 py-1 text-xs font-semibold text-brand-primary">
+                담임목사 프로필
+              </p>
+              <p className="text-lg font-bold text-brand-dark">
                 {profile?.chiefName || '담임목사 이름을 등록해 주세요.'}
               </p>
               {introLines.length > 0 ? (
@@ -195,54 +201,54 @@ export default function PastorPage() {
               <img
                 src={profile?.chiefImagePath || '/img/pastor-profile.svg'}
                 alt={profile?.chiefName ? `담임목사 ${profile.chiefName}` : '담임목사 이미지'}
-                className="w-52 h-auto rounded-lg object-cover"
+                className="w-56 h-auto rounded-2xl border border-slate-200 bg-white object-cover shadow-sm"
               />
             </div>
           </div>
         )}
 
         {isEditMode && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 p-5 md:p-6">
             <label className="space-y-1 text-sm">
-              <span className="text-gray-600">기관명</span>
+              <span className="text-slate-600 font-medium">기관명</span>
               <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 value={form.corpName}
                 onChange={(e) => handleInputChange('corpName', e.target.value)}
               />
             </label>
 
             <label className="space-y-1 text-sm">
-              <span className="text-gray-600">사업자등록번호</span>
+              <span className="text-slate-600 font-medium">사업자등록번호</span>
               <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 value={form.businessRegistrationNumber}
                 onChange={(e) => handleInputChange('businessRegistrationNumber', e.target.value)}
               />
             </label>
 
             <label className="space-y-1 text-sm">
-              <span className="text-gray-600">담임목사 이름</span>
+              <span className="text-slate-600 font-medium">담임목사 이름</span>
               <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 value={form.chiefName}
                 onChange={(e) => handleInputChange('chiefName', e.target.value)}
               />
             </label>
 
             <label className="space-y-1 text-sm">
-              <span className="text-gray-600">프로필 이미지 경로</span>
+              <span className="text-slate-600 font-medium">프로필 이미지 경로</span>
               <input
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 value={form.chiefImagePath ?? ''}
                 onChange={(e) => handleInputChange('chiefImagePath', e.target.value)}
               />
             </label>
 
             <label className="space-y-1 text-sm md:col-span-2">
-              <span className="text-gray-600">소개</span>
+              <span className="text-slate-600 font-medium">소개</span>
               <textarea
-                className="w-full border border-gray-300 rounded-md px-3 py-2 min-h-40"
+                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 min-h-40 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 value={form.introduction ?? ''}
                 onChange={(e) => handleInputChange('introduction', e.target.value)}
               />

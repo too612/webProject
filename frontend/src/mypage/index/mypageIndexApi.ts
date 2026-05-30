@@ -9,8 +9,9 @@ export const mypageIndexApi = {
       const response = await client.get<ApiResponse<MypageIndexData>>('/mypage/index');
       return response.data.data ?? EMPTY_MYPAGE_INDEX;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '留덉씠?섏씠吏 硫붿씤 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

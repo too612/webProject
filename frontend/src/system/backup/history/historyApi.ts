@@ -45,8 +45,9 @@ export const systemBackupHistoryApi = {
       const response = await client.get<ApiResponse<SpringPage<SystemBackupHistoryRow>>>('/system/backup/history', { params });
       return toListResult(response.data.data);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '諛깆뾽 ?대젰 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

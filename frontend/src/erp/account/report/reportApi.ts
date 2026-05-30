@@ -13,8 +13,9 @@ export const accountReportApi = {
       const response = await client.get<ApiResponse<AccountReportData>>('/erp/account/report', { params });
       return response.data.data ?? { income: 0, expense: 0, balance: 0, items: [] };
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?ъ젙 蹂닿퀬 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

@@ -66,7 +66,7 @@ export default function CommunityIndexPage() {
                     <div className="grid sm:grid-cols-2 gap-4">
                         {loading ? (
                             <div className="sm:col-span-2 bg-white rounded-panel shadow-panel border border-gray-100 px-5 py-10 text-center text-sm text-gray-400">
-                                Loading...
+                                불러오는 중...
                             </div>
                         ) : (indexData.recentPosts.length > 0
                             ? indexData.recentPosts

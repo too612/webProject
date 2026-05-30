@@ -8,8 +8,9 @@ export const sermonWriteApi = {
     try {
       await client.post<ApiResponse<void>>('/erp/sermon/write', payload);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?ㅺ탳 ??μ뿉 ?ㅽ뙣?덉뒿?덈떎.'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

@@ -18,7 +18,8 @@ export const eventCalendarApi = {
             const response = await client.get<ApiResponse<{ events: EventCalendarItem[] }>>('/erp/event/calendar', { params });
             return response.data.data?.events ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?됱궗 ?щ젰 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+

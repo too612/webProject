@@ -16,7 +16,7 @@ export const registerApi = {
       }
       return data;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?뚯썝媛??泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 
@@ -27,7 +27,7 @@ export const registerApi = {
       });
       return response.data.data?.available ?? false;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?꾩씠??以묐났 ?뺤씤 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 
@@ -38,8 +38,9 @@ export const registerApi = {
       });
       return response.data.data?.available ?? false;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?대찓??以묐났 ?뺤씤 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

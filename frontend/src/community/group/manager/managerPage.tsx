@@ -46,7 +46,7 @@ export default function GroupManagerPage() {
                 <table className="w-full text-sm">
                     <thead className="bg-brand-primary text-white">
                         <tr>
-                            <th className="px-4 py-3 text-left font-medium">No.</th>
+                            <th className="px-4 py-3 text-left font-medium">번호</th>
                             {COMMUNITY_GROUP_MANAGER_COLUMNS.map((column) => (
                                 <th key={String(column.key)} className="px-4 py-3 text-left font-medium">{column.label}</th>
                             ))}

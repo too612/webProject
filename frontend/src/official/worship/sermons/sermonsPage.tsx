@@ -121,20 +121,20 @@ export default function SermonsPage() {
 
   return (
     <>
-      <section className="space-y-4">
-        <div className="flex items-start justify-between">
+      <section className="space-y-5">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h2 className="text-xl font-bold text-brand-dark">주일설교</h2>
-            <div className="text-sm text-gray-400 mt-0.5">게시물 수: {totalElements || rows.length} | 페이지: {page + 1}/{Math.max(totalPages, 1)}</div>
+            <h2 className="text-2xl font-bold text-brand-dark">주일설교</h2>
+            <div className="text-sm text-gray-500 mt-1">게시물 수: {totalElements || rows.length} | 페이지: {page + 1}/{Math.max(totalPages, 1)}</div>
           </div>
-          <div className="text-sm text-gray-500">홈 &gt; 예배 &gt; 주일설교</div>
+          <div className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">홈 &gt; 예배 &gt; 주일설교</div>
         </div>
 
-        {error && <div className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-3">{error}</div>}
+        {error && <div className="text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3">{error}</div>}
 
-        <div className="overflow-x-auto rounded-panel shadow-panel border border-gray-100">
+        <div className="overflow-x-auto rounded-2xl shadow-panel border border-slate-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
               <tr>
                 <th className="px-4 py-3 font-medium" style={{ width: '6%' }}>번호</th>
                 <th className="px-2 py-3" style={{ width: '4%' }}></th>
@@ -152,7 +152,7 @@ export default function SermonsPage() {
                 </tr>
               )}
               {rows.map((post) => (
-                <tr key={post.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={post.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-500">{post.rowNum}</td>
                   <td className="px-2 py-3 text-center">
                     {post.hasFile && <span className="material-icons" style={{ fontSize: '16px', color: '#777', verticalAlign: 'middle' }} title="첨부파일 있음">attach_file</span>}
@@ -182,7 +182,7 @@ export default function SermonsPage() {
                   <td className="px-4 py-3 text-center text-gray-400 text-xs">{post.date}</td>
                   <td className="px-4 py-3 text-center text-gray-400 text-xs">{post.views}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${post.answered === false ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${post.answered === false ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
                       {post.answered === false ? '미답변' : '완료'}
                     </span>
                   </td>
@@ -192,12 +192,12 @@ export default function SermonsPage() {
           </table>
         </div>
 
-        <div className="flex gap-1 justify-center">
+        <div className="flex gap-1.5 justify-center">
           {pageButtons.map((buttonPage) => (
             <button
               key={buttonPage}
               type="button"
-              className={`w-8 h-8 rounded text-sm ${buttonPage === page ? 'bg-brand-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`w-9 h-9 rounded-full text-sm font-medium transition-colors ${buttonPage === page ? 'bg-brand-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
               onClick={() => setPage(buttonPage)}
             >
               {buttonPage + 1}
@@ -205,35 +205,35 @@ export default function SermonsPage() {
           ))}
         </div>
 
-        <form className="flex flex-col sm:flex-row gap-2" onSubmit={onSearch}>
+        <form className="flex flex-col sm:flex-row gap-2 rounded-2xl border border-slate-200 bg-white p-3" onSubmit={onSearch}>
           <div className="flex gap-2 flex-1">
-            <select className="border border-gray-200 rounded-lg px-3 py-2 text-sm" value={searchType} onChange={(event) => setSearchType(event.target.value)}>
+            <select className="border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700" value={searchType} onChange={(event) => setSearchType(event.target.value)}>
               <option value="title">제목</option>
               <option value="rqstId">작성자</option>
               <option value="cont">내용</option>
             </select>
             <input
               type="text"
-              className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
+              className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm"
               placeholder="검색어를 입력하세요."
               value={inputKeyword}
               onChange={(event) => setInputKeyword(event.target.value)}
             />
           </div>
           <div className="flex gap-2">
-            <button className="bg-gray-100 text-gray-700 rounded-lg px-4 py-2 text-sm hover:bg-gray-200 transition-colors" type="submit">검색</button>
-            <Link className="inline-flex items-center bg-brand-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#4e5caf] transition-colors" to={WRITE_PATH}>글쓰기</Link>
+            <button className="bg-slate-100 text-slate-700 rounded-xl px-4 py-2 text-sm hover:bg-slate-200 transition-colors" type="submit">검색</button>
+            <Link className="inline-flex items-center bg-brand-primary text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-[#4e5caf] transition-colors" to={WRITE_PATH}>글쓰기</Link>
           </div>
         </form>
       </section>
 
       {secretModal.show && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 w-full max-w-sm">
             <h4 className="text-base font-bold text-brand-dark mb-4">비밀글 확인</h4>
             <p style={{ fontSize: '13px', color: '#666', marginBottom: '12px' }}>비밀번호를 입력하세요.</p>
             <input
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-4"
+              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm mb-4"
               type="password"
               value={secretModal.password}
               onChange={(event) => setSecretModal((prev) => ({ ...prev, password: event.target.value }))}
@@ -241,8 +241,8 @@ export default function SermonsPage() {
               onKeyDown={(event) => { if (event.key === 'Enter') onSecretConfirm(); }}
             />
             <div className="flex gap-2 justify-end">
-              <button type="button" className="bg-brand-primary text-white rounded-lg px-4 py-2 text-sm font-medium" onClick={onSecretConfirm}>확인</button>
-              <button type="button" className="bg-gray-100 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium" onClick={() => setSecretModal({ show: false, rqstNo: '', password: '' })}>취소</button>
+              <button type="button" className="bg-brand-primary text-white rounded-xl px-4 py-2 text-sm font-semibold" onClick={onSecretConfirm}>확인</button>
+              <button type="button" className="bg-slate-100 text-slate-700 rounded-xl px-4 py-2 text-sm font-medium" onClick={() => setSecretModal({ show: false, rqstNo: '', password: '' })}>취소</button>
             </div>
           </div>
         </div>

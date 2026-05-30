@@ -9,8 +9,9 @@ export const statsOfferingApi = {
       const response = await client.get<ApiResponse<{ content: StatsOfferingRow[] }>>('/erp/stats/offering');
       return response.data.data?.content ?? [];
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?뚭툑 ?듦퀎 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

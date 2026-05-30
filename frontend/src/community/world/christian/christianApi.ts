@@ -32,8 +32,9 @@ export const communityWorldChristianApi = {
             const response = await client.get<ApiResponse<SpringPage<CommunityWorldChristianNewsRow>>>('/community/world/christian', { params });
             return response.data.data?.content ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '湲곕룆援??뚯떇 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+
 

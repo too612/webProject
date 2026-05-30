@@ -9,8 +9,9 @@ export const systemIndexApi = {
       const response = await client.get<ApiResponse<SystemIndexData>>('/system/index');
       return response.data.data ?? EMPTY_SYSTEM_INDEX;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?쒖뒪??硫붿씤 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

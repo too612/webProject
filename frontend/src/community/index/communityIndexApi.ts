@@ -9,8 +9,9 @@ export const communityIndexApi = {
             const response = await client.get<ApiResponse<CommunityIndexData>>('/community/index');
             return response.data.data ?? EMPTY_COMMUNITY_INDEX;
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '而ㅻ??덊떚 硫붿씤 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+
 

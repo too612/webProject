@@ -30,89 +30,83 @@ export default function Breadcrumb() {
           </Link>
 
           {currentTopMenu && (
-            <>
-              <span className="breadcrumb-separator">&gt;</span>
-              <div
-                className="breadcrumb-item dropdown"
-                onBlur={(event) => handleDropdownBlur(event, closeTopMenu)}
+            <div
+              className="breadcrumb-item dropdown"
+              onBlur={(event) => handleDropdownBlur(event, closeTopMenu)}
+            >
+              <button
+                type="button"
+                className="inline-flex items-center gap-1"
+                aria-haspopup="menu"
+                aria-expanded={isTopMenuOpen}
+                aria-controls="breadcrumb-top-menu"
+                onClick={() => {
+                  setIsTopMenuOpen((prev) => !prev);
+                  setIsSubMenuOpen(false);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    closeTopMenu();
+                  }
+                }}
               >
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1"
-                  aria-haspopup="menu"
-                  aria-expanded={isTopMenuOpen}
-                  aria-controls="breadcrumb-top-menu"
-                  onClick={() => {
-                    setIsTopMenuOpen((prev) => !prev);
-                    setIsSubMenuOpen(false);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Escape') {
-                      closeTopMenu();
-                    }
-                  }}
-                >
-                  <span>{currentTopMenu.menuName}</span>
-                  <span className="material-icons text-base">expand_more</span>
-                </button>
-                <div id="breadcrumb-top-menu" className="dropdown-menu" role="menu" hidden={!isTopMenuOpen}>
-                  {allTopMenus.map((topMenu) => (
-                    <Link
-                      key={topMenu.menuId}
-                      to={topMenu.path || topMenu.subMenus?.[0]?.path || '/'}
-                      role="menuitem"
-                      className="whitespace-nowrap"
-                      onClick={closeTopMenu}
-                    >
-                      {topMenu.menuName}
-                    </Link>
-                  ))}
-                </div>
+                <span>{currentTopMenu.menuName}</span>
+                <span className="material-icons text-base">expand_more</span>
+              </button>
+              <div id="breadcrumb-top-menu" className="dropdown-menu" role="menu" hidden={!isTopMenuOpen}>
+                {allTopMenus.map((topMenu) => (
+                  <Link
+                    key={topMenu.menuId}
+                    to={topMenu.path || topMenu.subMenus?.[0]?.path || '/'}
+                    role="menuitem"
+                    className="whitespace-nowrap"
+                    onClick={closeTopMenu}
+                  >
+                    {topMenu.menuName}
+                  </Link>
+                ))}
               </div>
-            </>
+            </div>
           )}
 
           {activeSubMenu && (
-            <>
-              <span className="breadcrumb-separator">&gt;</span>
-              <div
-                className="breadcrumb-item dropdown"
-                onBlur={(event) => handleDropdownBlur(event, closeSubMenu)}
+            <div
+              className="breadcrumb-item dropdown"
+              onBlur={(event) => handleDropdownBlur(event, closeSubMenu)}
+            >
+              <button
+                type="button"
+                className="inline-flex items-center gap-1"
+                aria-haspopup="menu"
+                aria-expanded={isSubMenuOpen}
+                aria-controls="breadcrumb-sub-menu"
+                onClick={() => {
+                  setIsSubMenuOpen((prev) => !prev);
+                  setIsTopMenuOpen(false);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    closeSubMenu();
+                  }
+                }}
               >
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1"
-                  aria-haspopup="menu"
-                  aria-expanded={isSubMenuOpen}
-                  aria-controls="breadcrumb-sub-menu"
-                  onClick={() => {
-                    setIsSubMenuOpen((prev) => !prev);
-                    setIsTopMenuOpen(false);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Escape') {
-                      closeSubMenu();
-                    }
-                  }}
-                >
-                  <span>{activeSubMenu.menuName}</span>
-                  <span className="material-icons text-base">expand_more</span>
-                </button>
-                <div id="breadcrumb-sub-menu" className="dropdown-menu" role="menu" hidden={!isSubMenuOpen}>
-                  {currentSubMenus.map((sub) => (
-                    <Link
-                      key={sub.menuId}
-                      to={sub.path || '/'}
-                      role="menuitem"
-                      className={`whitespace-nowrap${sub.active ? ' active' : ''}`}
-                      onClick={closeSubMenu}
-                    >
-                      {sub.menuName}
-                    </Link>
-                  ))}
-                </div>
+                <span>{activeSubMenu.menuName}</span>
+                <span className="material-icons text-base">expand_more</span>
+              </button>
+              <div id="breadcrumb-sub-menu" className="dropdown-menu" role="menu" hidden={!isSubMenuOpen}>
+                {currentSubMenus.map((sub) => (
+                  <Link
+                    key={sub.menuId}
+                    to={sub.path || '/'}
+                    role="menuitem"
+                    className={`whitespace-nowrap${sub.active ? ' active' : ''}`}
+                    onClick={closeSubMenu}
+                  >
+                    {sub.menuName}
+                  </Link>
+                ))}
               </div>
-            </>
+            </div>
           )}
         </nav>
       </div>

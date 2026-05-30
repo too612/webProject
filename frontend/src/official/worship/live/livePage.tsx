@@ -31,7 +31,7 @@ export default function LivePage() {
 
       <div className="flex gap-2 border-b border-gray-200" role="tablist">
         <button className={`px-4 py-2 text-sm font-medium transition-colors ${tab === 'videos' ? 'border-b-2 border-brand-primary text-brand-primary' : 'text-gray-500 hover:text-brand-dark'}`} type="button" onClick={() => setTab('videos')}>동영상</button>
-        <button className={`px-4 py-2 text-sm font-medium transition-colors ${tab === 'shorts' ? 'border-b-2 border-brand-primary text-brand-primary' : 'text-gray-500 hover:text-brand-dark'}`} type="button" onClick={() => setTab('shorts')}>Shorts</button>
+        <button className={`px-4 py-2 text-sm font-medium transition-colors ${tab === 'shorts' ? 'border-b-2 border-brand-primary text-brand-primary' : 'text-gray-500 hover:text-brand-dark'}`} type="button" onClick={() => setTab('shorts')}>쇼츠</button>
         <button className={`px-4 py-2 text-sm font-medium transition-colors ${tab === 'live' ? 'border-b-2 border-brand-primary text-brand-primary' : 'text-gray-500 hover:text-brand-dark'}`} type="button" onClick={() => setTab('live')}>실시간</button>
       </div>
 

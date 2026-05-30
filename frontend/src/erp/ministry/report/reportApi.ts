@@ -50,8 +50,9 @@ export const ministryReportApi = {
             const response = await client.get<ApiResponse<SpringPage<MinistryReportRow>>>('/erp/ministry/report', { params });
             return toListResult(response.data.data);
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?ъ뿭 蹂닿퀬 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+
 

@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+﻿import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { youthApi } from './youthApi';
 import { YOUTH_PATHS } from './youthModel';
@@ -88,7 +88,7 @@ function YouthBoardListPage({
         setTotalElements(data.totalElements);
       } catch {
         if (!mounted) return;
-        setError('Failed to load board list.');
+        setError('게시글 목록을 불러오지 못했습니다.');
         setItems([]);
         setTotalPages(0);
         setTotalElements(0);
@@ -152,7 +152,7 @@ function YouthBoardListPage({
           <div>
             <h2 className="text-xl font-bold text-brand-dark">{title}</h2>
             <div className="mt-0.5 text-sm text-gray-400">
-              Posts: {totalElements || rows.length} | Page: {page + 1}/{Math.max(totalPages, 1)}
+              게시물: {totalElements || rows.length} | 페이지: {page + 1}/{Math.max(totalPages, 1)}
             </div>
           </div>
           <div className="text-sm text-gray-500">{breadcrumb}</div>
@@ -165,23 +165,23 @@ function YouthBoardListPage({
             <thead className="bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
                 <th className="px-4 py-3 font-medium" style={{ width: '6%' }}>
-                  No
+                  번호
                 </th>
                 <th className="px-2 py-3" style={{ width: '4%' }}></th>
                 <th className="px-4 py-3 text-left font-medium" style={{ width: '44%' }}>
-                  Title
+                  제목
                 </th>
                 <th className="px-4 py-3 font-medium" style={{ width: '13%' }}>
-                  Writer
+                  작성자
                 </th>
                 <th className="px-4 py-3 font-medium" style={{ width: '13%' }}>
-                  Date
+                  작성일
                 </th>
                 <th className="px-4 py-3 font-medium" style={{ width: '8%' }}>
-                  Views
+                  조회수
                 </th>
                 <th className="px-4 py-3 font-medium" style={{ width: '12%' }}>
-                  Status
+                  상태
                 </th>
               </tr>
             </thead>
@@ -189,7 +189,7 @@ function YouthBoardListPage({
               {!loading && rows.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                    No posts found.
+                    게시물이 없습니다.
                   </td>
                 </tr>
               )}
@@ -198,7 +198,7 @@ function YouthBoardListPage({
                   <td className="px-4 py-3 text-center text-gray-500">{post.rowNum}</td>
                   <td className="px-2 py-3 text-center">
                     {post.hasFile && (
-                      <span className="material-icons" style={{ fontSize: '16px', color: '#777' }} title="Has attachment">
+                      <span className="material-icons" style={{ fontSize: '16px', color: '#777' }} title="첨부파일 있음">
                         attach_file
                       </span>
                     )}
@@ -239,7 +239,7 @@ function YouthBoardListPage({
                   <td className="px-4 py-3 text-center text-xs text-gray-400">{post.views}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${post.answered ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {post.answered ? 'Answered' : 'Waiting'}
+                      {post.answered ? '완료' : '대기'}
                     </span>
                   </td>
                 </tr>
@@ -264,24 +264,24 @@ function YouthBoardListPage({
         <form className="flex flex-col gap-2 sm:flex-row" onSubmit={onSearch}>
           <div className="flex flex-1 gap-2">
             <select className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={searchType} onChange={(event) => setSearchType(event.target.value)}>
-              <option value="title">Title</option>
-              <option value="rqstId">Writer</option>
-              <option value="cont">Content</option>
+              <option value="title">제목</option>
+              <option value="rqstId">작성자</option>
+              <option value="cont">내용</option>
             </select>
             <input
               type="text"
               className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
-              placeholder="Search keyword"
+              placeholder="검색어를 입력하세요."
               value={inputKeyword}
               onChange={(event) => setInputKeyword(event.target.value)}
             />
           </div>
           <div className="flex gap-2">
             <button className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200" type="submit">
-              Search
+              검색
             </button>
             <Link className="inline-flex items-center rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#4e5caf]" to={writePath}>
-              Write
+              글쓰기
             </Link>
           </div>
         </form>
@@ -290,28 +290,28 @@ function YouthBoardListPage({
       {secretModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-            <h4 className="mb-4 text-base font-bold text-brand-dark">Secret Post Check</h4>
-            <p className="mb-3 text-xs text-gray-500">Enter the password for this post.</p>
+            <h4 className="mb-4 text-base font-bold text-brand-dark">비밀글 확인</h4>
+            <p className="mb-3 text-xs text-gray-500">게시글 비밀번호를 입력하세요.</p>
             <input
               className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
               type="password"
               value={secretModal.password}
               onChange={(event) => setSecretModal((prev) => ({ ...prev, password: event.target.value }))}
-              placeholder="Password"
+              placeholder="비밀번호"
               onKeyDown={(event) => {
                 if (event.key === 'Enter') onSecretConfirm();
               }}
             />
             <div className="flex justify-end gap-2">
               <button type="button" className="rounded-lg bg-brand-primary px-4 py-2 text-sm text-white" onClick={onSecretConfirm}>
-                Confirm
+                확인
               </button>
               <button
                 type="button"
                 className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700"
                 onClick={() => setSecretModal({ show: false, rqstNo: '', password: '' })}
               >
-                Cancel
+                취소
               </button>
             </div>
           </div>
@@ -372,24 +372,24 @@ function YouthCommentItem({
             subdirectory_arrow_right
           </span>
         )}
-        <span className="text-sm font-semibold text-brand-dark">{comment.writer ?? 'Anonymous'}</span>
+        <span className="text-sm font-semibold text-brand-dark">{comment.writer ?? '익명'}</span>
         <span className="text-xs text-gray-400">{comment.insDt ? String(comment.insDt).replace('T', ' ').slice(0, 16) : ''}</span>
         {isSecret && (
-          <span className="material-icons" style={{ fontSize: '14px', color: '#888' }} title="Secret comment">
+          <span className="material-icons" style={{ fontSize: '14px', color: '#888' }} title="비밀 댓글">
             lock
           </span>
         )}
-        {isSpoiler && <span style={{ fontSize: '12px', color: '#f90' }}>Spoiler</span>}
+        {isSpoiler && <span style={{ fontSize: '12px', color: '#f90' }}>스포일러</span>}
       </div>
 
       {isSecret ? (
-        <div className="text-sm italic text-gray-400">This is a secret comment. Only admins can view it.</div>
+        <div className="text-sm italic text-gray-400">비밀 댓글입니다. 관리자만 볼 수 있습니다.</div>
       ) : isSpoiler && !spoilerVisible ? (
         <div
           className="cursor-pointer select-none text-sm text-gray-700"
           style={{ filter: 'blur(6px)' }}
           onClick={() => setSpoilerVisible(true)}
-          title="Click to reveal"
+          title="클릭하면 내용을 볼 수 있습니다"
         >
           {comment.content ?? ''}
         </div>
@@ -411,7 +411,7 @@ function YouthCommentItem({
           {comment.dislikes ?? 0}
         </button>
         <button type="button" onClick={() => setShowReplyForm((value) => !value)} className="text-xs text-gray-600">
-          {showReplyForm ? 'Cancel' : 'Reply'}
+          {showReplyForm ? '취소' : '답글'}
         </button>
       </div>
 
@@ -421,14 +421,14 @@ function YouthCommentItem({
             <input
               className="rounded border border-gray-200 px-2 py-1 text-sm"
               type="text"
-              placeholder="Writer"
+              placeholder="작성자"
               value={replyForm.writer}
               onChange={(event) => setReplyForm((prev) => ({ ...prev, writer: event.target.value }))}
             />
             <input
               className="rounded border border-gray-200 px-2 py-1 text-sm"
               type="password"
-              placeholder="Password"
+              placeholder="비밀번호"
               value={replyForm.password}
               onChange={(event) => setReplyForm((prev) => ({ ...prev, password: event.target.value }))}
             />
@@ -436,7 +436,7 @@ function YouthCommentItem({
           <textarea
             className="mt-2 w-full rounded border border-gray-200 px-2 py-1 text-sm"
             rows={2}
-            placeholder="Write a reply"
+            placeholder="답글을 입력하세요"
             value={replyForm.content}
             onChange={(event) => setReplyForm((prev) => ({ ...prev, content: event.target.value }))}
           />
@@ -455,14 +455,14 @@ function YouthCommentItem({
                 checked={replyForm.spoiler}
                 onChange={(event) => setReplyForm((prev) => ({ ...prev, spoiler: event.target.checked }))}
               />
-              Spoiler
+              스포일러
             </label>
             <button
               type="submit"
               disabled={commentLoading}
               className="ml-auto rounded bg-brand-primary px-3 py-1 text-xs text-white disabled:opacity-50"
             >
-              {commentLoading ? 'Saving...' : 'Save'}
+              {commentLoading ? '저장 중...' : '저장'}
             </button>
           </div>
         </form>
@@ -530,7 +530,7 @@ export function YouthViewPage() {
         setComments(data.comments);
       } catch {
         if (!mounted) return;
-        setError('Failed to load post.');
+        setError('게시글을 불러오지 못했습니다.');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -557,7 +557,7 @@ export function YouthViewPage() {
     if (board?.password) {
       const isValid = await youthApi.checkPassword(rqstNo, password);
       if (!isValid) {
-        alert('Invalid password.');
+        alert('비밀번호가 올바르지 않습니다.');
         return;
       }
     }
@@ -569,10 +569,10 @@ export function YouthViewPage() {
 
     try {
       await youthApi.deleteBoard(rqstNo);
-      alert('Post deleted.');
+      alert('게시글이 삭제되었습니다.');
       navigate(listPath);
     } catch {
-      alert('Delete failed.');
+      alert('삭제에 실패했습니다.');
     }
   };
 
@@ -596,7 +596,7 @@ export function YouthViewPage() {
   const onSubmitReply = async (parentCommentId: number | undefined, form: CommentFormState) => {
     if (!rqstNo) return;
     if (!form.writer.trim() || !form.content.trim() || !form.password.trim()) {
-      alert('Writer, content and password are required.');
+      alert('작성자, 내용, 비밀번호를 모두 입력해 주세요.');
       return;
     }
 
@@ -613,7 +613,7 @@ export function YouthViewPage() {
       });
       await loadData();
     } catch {
-      alert('Failed to save comment.');
+      alert('댓글 저장에 실패했습니다.');
     } finally {
       setCommentLoading(false);
     }
@@ -674,13 +674,13 @@ export function YouthViewPage() {
               </div>
             </div>
             <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${totalCommentCount > 0 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-              {totalCommentCount > 0 ? 'Answered' : 'Waiting'}
+              {totalCommentCount > 0 ? '완료' : '대기'}
             </span>
           </div>
         </header>
 
         {error && <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
-        {loading && <div className="py-8 text-center text-sm text-gray-400">Loading...</div>}
+        {loading && <div className="py-8 text-center text-sm text-gray-400">불러오는 중...</div>}
 
         <section className="prose max-w-none py-4 text-gray-700" dangerouslySetInnerHTML={{ __html: resolvedContent }} />
 
@@ -715,7 +715,7 @@ export function YouthViewPage() {
         <section className="mt-6 border-t border-gray-100 pt-6">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="m-0 text-base font-semibold">
-              <span className="material-icons align-middle">chat_bubble</span> Comments {totalCommentCount}
+              <span className="material-icons align-middle">chat_bubble</span> 댓글 {totalCommentCount}
             </h3>
             <div className="flex gap-1">
               <button type="button" className="rounded border px-2 py-1 text-xs" onClick={() => setSortType('latest')}>
@@ -728,7 +728,7 @@ export function YouthViewPage() {
           </div>
 
           <div className="space-y-3">
-            {topLevelComments.length === 0 && !loading && <div className="py-6 text-center text-sm text-gray-400">No comments yet.</div>}
+            {topLevelComments.length === 0 && !loading && <div className="py-6 text-center text-sm text-gray-400">댓글이 없습니다.</div>}
             {topLevelComments.map((comment, index) => (
               <YouthCommentItem
                 key={`${comment.commentId ?? 'comment'}-${index}`}
@@ -746,14 +746,14 @@ export function YouthViewPage() {
               <input
                 className="rounded border border-gray-200 px-2 py-1 text-sm"
                 type="text"
-                placeholder="Writer"
+                placeholder="작성자"
                 value={commentForm.writer}
                 onChange={(event) => setCommentForm((prev) => ({ ...prev, writer: event.target.value }))}
               />
               <input
                 className="rounded border border-gray-200 px-2 py-1 text-sm"
                 type="password"
-                placeholder="Password"
+                placeholder="비밀번호"
                 value={commentForm.password}
                 onChange={(event) => setCommentForm((prev) => ({ ...prev, password: event.target.value }))}
               />
@@ -761,7 +761,7 @@ export function YouthViewPage() {
             <textarea
               className="mt-2 w-full rounded border border-gray-200 px-2 py-1 text-sm"
               rows={3}
-              placeholder="Write a comment"
+              placeholder="댓글을 입력하세요"
               value={commentForm.content}
               onChange={(event) => setCommentForm((prev) => ({ ...prev, content: event.target.value }))}
             />
@@ -780,10 +780,10 @@ export function YouthViewPage() {
                   checked={commentForm.spoiler}
                   onChange={(event) => setCommentForm((prev) => ({ ...prev, spoiler: event.target.checked }))}
                 />
-                Spoiler
+                스포일러
               </label>
               <button type="submit" disabled={commentLoading} className="ml-auto rounded bg-brand-primary px-4 py-2 text-sm text-white disabled:opacity-50">
-                {commentLoading ? 'Saving...' : 'Save Comment'}
+                {commentLoading ? '저장 중...' : '댓글 등록'}
               </button>
             </div>
           </form>
@@ -795,7 +795,7 @@ export function YouthViewPage() {
           </Link>
           {rqstNo && (
             <button type="button" className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700" onClick={() => navigate(`${listPath}/write?parentNo=${rqstNo}`)}>
-              Reply
+              답글
             </button>
           )}
           <button type="button" className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700" onClick={() => openPasswordModal('edit')}>
@@ -809,20 +809,20 @@ export function YouthViewPage() {
 
       <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 ${showPasswordModal ? '' : 'hidden'}`}>
         <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-          <h4 className="mb-4 text-base font-bold text-brand-dark">Password Check</h4>
+          <h4 className="mb-4 text-base font-bold text-brand-dark">비밀번호 확인</h4>
           <input
             className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="Password"
+            placeholder="비밀번호"
           />
           <div className="flex justify-end gap-2">
             <button type="button" className="rounded-lg bg-brand-primary px-4 py-2 text-sm text-white" onClick={onConfirm}>
               Confirm
             </button>
             <button type="button" className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700" onClick={() => setShowPasswordModal(false)}>
-              Cancel
+              취소
             </button>
           </div>
         </div>
@@ -872,7 +872,7 @@ export function YouthWritePage() {
           confirmPassword: data.password ?? '',
         }));
       } catch {
-        alert('??륁젟??野껊슣?녷묾????븍뜄???? 筌륁궢六??щ빍??');
+        alert('수정할 데이터를 불러오지 못했습니다.');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -888,15 +888,15 @@ export function YouthWritePage() {
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!form.title || !form.author || !form.content || !form.password) {
-      alert('?袁⑸땾 ???????낆젾??雅뚯눘苑??');
+      alert('필수 항목을 모두 입력해 주세요.');
       return;
     }
     if (form.password.length < 4) {
-      alert('??쑬?甕곕뜇???筌ㅼ뮇??4????곴맒??곷선????몃빍??');
+      alert('비밀번호는 4자 이상 입력해 주세요.');
       return;
     }
     if (form.password !== form.confirmPassword) {
-      alert('??쑬?甕곕뜇?뉐첎? ??깊뒄??? ??녿뮸??덈뼄.');
+      alert('비밀번호가 일치하지 않습니다.');
       return;
     }
 
@@ -914,15 +914,15 @@ export function YouthWritePage() {
 
       if (isEdit) {
         await youthApi.updateBoard(payload, files);
-        alert(`${title} ??륁젟???袁⑥┷??뤿???щ빍??`);
+        alert(`${title} 수정이 완료되었습니다.`);
       } else {
         await youthApi.saveBoard(payload, files);
-        alert(isReply ? '??????源낆쨯??뤿???щ빍??' : `${title} ?源낆쨯???袁⑥┷??뤿???щ빍??`);
+        alert(isReply ? '답글이 등록되었습니다.' : `${title} 등록이 완료되었습니다.`);
       }
 
       navigate(listPath);
     } catch {
-      alert('????餓???살첒揶쎛 獄쏆뮇源??됰뮸??덈뼄.');
+      alert('처리 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -932,59 +932,59 @@ export function YouthWritePage() {
     <section>
       <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-6">
         <header className="pb-4 mb-4 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-brand-dark">{isReply ? '??? ?臾믨쉐' : title}</h2>
+          <h2 className="text-xl font-bold text-brand-dark">{isReply ? '답글 작성' : title}</h2>
         </header>
 
         <form onSubmit={onSubmit}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">??쑬?疫꼲</label>
+              <label className="block text-sm font-medium text-gray-700">비밀글</label>
               <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                 <input
                   type="checkbox"
                   checked={form.secret}
                   onChange={(event) => setForm((prev) => ({ ...prev, secret: event.target.checked }))}
                 />
-                ??쑬?疫꼲嚥??源낆쨯
+                비밀글로 등록
               </label>
             </div>
           </div>
 
           <div className="space-y-1 mb-4">
-            <label className="block text-sm font-medium text-gray-700">??뺛걠 <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-700">제목 <span className="text-red-500">*</span></label>
             <input
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
               value={form.title}
               onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
-              placeholder="??뺛걠????낆젾??곻폒?紐꾩뒄."
+              placeholder="제목을 입력해 주세요."
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">??已?<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700">작성자<span className="text-red-500">*</span></label>
               <input
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 value={form.author}
                 onChange={(event) => setForm((prev) => ({ ...prev, author: event.target.value }))}
-                placeholder="??已????낆젾??곻폒?紐꾩뒄."
+                placeholder="작성자를 입력해 주세요."
                 readOnly={isEdit}
               />
             </div>
           </div>
 
           <div className="space-y-1 mb-4">
-            <label className="block text-sm font-medium text-gray-700">??곸뒠 <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-700">내용 <span className="text-red-500">*</span></label>
             <textarea
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm min-h-[200px] focus:outline-none focus:ring-2 focus:ring-brand-primary"
               value={form.content}
               onChange={(event) => setForm((prev) => ({ ...prev, content: event.target.value }))}
-              placeholder="??곸뒠????낆젾??곻폒?紐꾩뒄."
+              placeholder="내용을 입력해 주세요."
             />
           </div>
 
           <div className="space-y-1 mb-4">
-            <label className="block text-sm font-medium text-gray-700">筌ｂ뫀????뵬</label>
+            <label className="block text-sm font-medium text-gray-700">첨부파일</label>
             <input
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
               type="file"
@@ -995,30 +995,30 @@ export function YouthWritePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">??쑬?甕곕뜇??<span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700">비밀번호<span className="text-red-500">*</span></label>
               <input
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 type="password"
                 value={form.password}
                 onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-                placeholder="Password"
+                placeholder="비밀번호"
               />
             </div>
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">??쑬?甕곕뜇???類ㅼ뵥 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700">비밀번호 확인 <span className="text-red-500">*</span></label>
               <input
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 type="password"
                 value={form.confirmPassword}
                 onChange={(event) => setForm((prev) => ({ ...prev, confirmPassword: event.target.value }))}
-                placeholder="??쑬?甕곕뜇???類ㅼ뵥"
+                placeholder="비밀번호를 다시 입력해 주세요."
               />
             </div>
           </div>
 
           <div className="flex gap-2 pt-2">
-            <button type="submit" className="bg-brand-primary text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] disabled:opacity-40 transition-colors" disabled={loading}>{isEdit ? '??륁젟??띾┛' : '?源낆쨯??띾┛'}</button>
-            <Link to={listPath} className="bg-gray-100 text-gray-700 rounded-lg px-6 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors">Back to list</Link>
+            <button type="submit" className="bg-brand-primary text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] disabled:opacity-40 transition-colors" disabled={loading}>{isEdit ? '수정 완료' : '등록 완료'}</button>
+            <Link to={listPath} className="bg-gray-100 text-gray-700 rounded-lg px-6 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors">목록으로</Link>
           </div>
         </form>
       </article>
@@ -1036,5 +1036,6 @@ export default function YouthPage() {
     />
   );
 }
+
 
 

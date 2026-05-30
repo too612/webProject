@@ -9,8 +9,9 @@ export const faqApi = {
       const response = await client.get<ApiResponse<FaqItem[]>>('/official/support/faq');
       return response.data.data ?? [];
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, 'FAQ瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

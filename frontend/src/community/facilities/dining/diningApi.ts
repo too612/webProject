@@ -50,7 +50,8 @@ export const communityFacilitiesDiningApi = {
             const response = await client.get<ApiResponse<SpringPage<CommunityFacilitiesDiningRow>>>('/community/facilities/dining', { params });
             return toListResult(response.data.data);
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?앸떦 ?꾪솴 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+

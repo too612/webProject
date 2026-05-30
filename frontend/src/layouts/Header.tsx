@@ -139,7 +139,7 @@ export default function Header() {
       <div className="header-main border-b border-gray-200">
         <div className={`container max-w-[1200px] mx-auto px-5 flex items-center gap-4${isErpRoute ? ' erp-wide max-w-full' : ''}`}>
           <Link to="/" className="logo flex-shrink-0" aria-label="다사랑교회 홈">
-            <img src="/img/logo.png" alt="다사랑교회 로고" className="block h-full w-auto max-w-[360px] object-contain" />
+            <img src="/img/logo.png" alt="다사랑교회 로고" className="header-logo-image block w-auto object-contain" />
           </Link>
           <nav
             className={`nav-main desktop-only hidden md:flex items-center gap-1 ml-auto${isErpRoute ? ' erp-menu' : ''}`}

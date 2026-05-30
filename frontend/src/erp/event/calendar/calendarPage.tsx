@@ -45,7 +45,7 @@ export default function EventCalendarPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-brand-primary text-white text-left">
-              <th className="px-4 py-3 font-medium w-12">No.</th>
+              <th className="px-4 py-3 font-medium w-12">번호</th>
               <th className="px-4 py-3 font-medium">행사명</th>
               <th className="px-4 py-3 font-medium">일자</th>
               <th className="px-4 py-3 font-medium">장소</th>

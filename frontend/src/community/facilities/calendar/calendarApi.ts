@@ -13,7 +13,8 @@ export const communityFacilitiesCalendarApi = {
             const response = await client.get<ApiResponse<{ events: CommunityFacilitiesCalendarEvent[] }>>('/community/facilities/calendar', { params });
             return response.data.data?.events ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?쒖꽕 ?쇱젙 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+            throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
         }
     },
 };
+

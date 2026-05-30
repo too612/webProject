@@ -40,7 +40,7 @@ export default function LogSystemPage() {
 
       <div className="overflow-x-auto rounded-panel shadow-panel border border-gray-100">
         <table className="w-full text-sm">
-          <thead><tr className="bg-gray-50 text-left text-gray-500 font-medium"><th className="px-4 py-3 w-12 text-center">No.</th>{SYSTEM_LOG_SYSTEM_COLUMNS.map((col) => (<th key={String(col.key)} className="px-4 py-3">{col.label}</th>))}</tr></thead>
+          <thead><tr className="bg-gray-50 text-left text-gray-500 font-medium"><th className="px-4 py-3 w-12 text-center">번호</th>{SYSTEM_LOG_SYSTEM_COLUMNS.map((col) => (<th key={String(col.key)} className="px-4 py-3">{col.label}</th>))}</tr></thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (<tr><td colSpan={SYSTEM_LOG_SYSTEM_COLUMNS.length + 1} className="px-4 py-8 text-center text-gray-400">불러오는 중...</td></tr>) : items.length === 0 ? (<tr><td colSpan={SYSTEM_LOG_SYSTEM_COLUMNS.length + 1} className="px-4 py-8 text-center text-gray-400">데이터가 없습니다.</td></tr>) : (items.map((row, idx) => (
               <tr key={idx} className="hover:bg-gray-50 transition-colors">

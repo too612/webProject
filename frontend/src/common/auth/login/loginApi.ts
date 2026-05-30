@@ -12,7 +12,7 @@ export const loginApi = {
       const response = await client.post<ApiResponse<LoginApiResponse>>('/auth/login', request);
       const data = response.data.data;
       if (!data) {
-        throw new Error('濡쒓렇???묐떟???щ컮瑜댁? ?딆뒿?덈떎.');
+        throw new Error('로그인 응답이 올바르지 않습니다.');
       }
       if (data.token) {
         localStorage.setItem('authToken', data.token);
@@ -20,8 +20,9 @@ export const loginApi = {
       localStorage.setItem('currentUser', JSON.stringify(data));
       return data;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '濡쒓렇??以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 

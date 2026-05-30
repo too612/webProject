@@ -33,8 +33,9 @@ export const officialIndexApi = {
       const payload = response.data.data;
       return isOfficialIndexData(payload) ? payload : EMPTY_OFFICIAL_INDEX_DATA;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '硫붿씤 ?붾㈃ ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
+      throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
     }
   },
 };
+
 
