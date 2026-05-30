@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { SystemLogAuditRow } from './auditModel';
 
@@ -50,7 +50,8 @@ export const systemLogAuditApi = {
       const response = await client.get<ApiResponse<SpringPage<SystemLogAuditRow>>>('/system/log/audit', { params });
       return toListResult(response.data.data);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '감사 로그�?불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '媛먯궗 濡쒓렇瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

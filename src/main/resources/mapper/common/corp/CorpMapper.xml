@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.corp.CorpMapper">
+
+    <select id="selectCorpInfo" resultType="com.main.app.common.corp.dto.CorpDto">
+        SELECT
+            address_line1 AS addressLine1,
+            #{sessIp} AS SESS_IP
+        FROM com_corp
+        WHERE is_deleted = FALSE
+        ORDER BY updated_at DESC, corp_id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

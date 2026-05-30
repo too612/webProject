@@ -1,5 +1,5 @@
-import client from '../../common/api/api.client';
-import { getApiErrorMessage } from '../../common/lib/apiError';
+﻿import client from '../../common/api/api.client';
+import { getApiErrorMessage } from '../../common/api/apiError';
 import type { ApiResponse } from '../../common/api/api.types';
 import { EMPTY_OFFICIAL_INDEX_DATA, type OfficialIndexData } from './officialIndexModel';
 
@@ -33,7 +33,8 @@ export const officialIndexApi = {
       const payload = response.data.data;
       return isOfficialIndexData(payload) ? payload : EMPTY_OFFICIAL_INDEX_DATA;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '메인 ?�면 ?�보�?불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '硫붿씤 ?붾㈃ ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

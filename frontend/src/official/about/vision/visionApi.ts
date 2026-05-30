@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { VisionContent } from './visionModel';
 
@@ -36,7 +36,8 @@ export const visionApi = {
       const payload = response.data.data;
       return isVisionContent(payload) ? payload : null;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '비전 ?�보�?불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '鍮꾩쟾 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

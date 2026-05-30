@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { MinistryScheduleRow } from './scheduleModel';
 
@@ -50,7 +50,8 @@ export const ministryScheduleApi = {
             const response = await client.get<ApiResponse<SpringPage<MinistryScheduleRow>>>('/erp/ministry/schedule', { params });
             return toListResult(response.data.data);
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?�역 ?�정 목록??불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '?ъ뿭 ?쇱젙 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };
+

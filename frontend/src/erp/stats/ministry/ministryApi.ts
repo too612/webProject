@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { StatsMinistryRow } from './ministryModel';
 
@@ -9,7 +9,8 @@ export const statsMinistryApi = {
             const response = await client.get<ApiResponse<{ content: StatsMinistryRow[] }>>('/erp/stats/ministry');
             return response.data.data?.content ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?�역 ?�계 ?�이?��? 불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '?ъ뿭 ?듦퀎 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };
+

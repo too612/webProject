@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CommPrayerRow } from './prayerModel';
 
@@ -50,7 +50,8 @@ export const commPrayerApi = {
       const response = await client.get<ApiResponse<SpringPage<CommPrayerRow>>>('/erp/comm/prayer', { params });
       return toListResult(response.data.data);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '기도?�청 목록??불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '湲곕룄?붿껌 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

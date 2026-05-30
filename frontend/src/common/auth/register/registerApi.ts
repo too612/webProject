@@ -1,6 +1,6 @@
-import client from '../../api/api.client';
+﻿import client from '../../api/api.client';
 import type { ApiResponse } from '../../../common/api/api.types';
-import { getApiErrorMessage } from '../../lib/apiError';
+import { getApiErrorMessage } from '../../api/apiError';
 import type { AuthResponse, RegisterRequest } from '../authTypes';
 
 type RegisterApiRequest = RegisterRequest;
@@ -12,11 +12,11 @@ export const registerApi = {
       const response = await client.post<ApiResponse<RegisterApiResponse>>('/auth/register', request);
       const data = response.data.data;
       if (!data) {
-        throw new Error('회원가입 응답이 올바르지 않습니다.');
+        throw new Error('?뚯썝媛???묐떟???щ컮瑜댁? ?딆뒿?덈떎.');
       }
       return data;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '회원가입 처리 중 오류가 발생했습니다.'));
+      throw new Error(getApiErrorMessage(error, '?뚯썝媛??泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
     }
   },
 
@@ -27,7 +27,7 @@ export const registerApi = {
       });
       return response.data.data?.available ?? false;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '아이디 중복 확인 중 오류가 발생했습니다.'));
+      throw new Error(getApiErrorMessage(error, '?꾩씠??以묐났 ?뺤씤 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
     }
   },
 
@@ -38,7 +38,8 @@ export const registerApi = {
       });
       return response.data.data?.available ?? false;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '이메일 중복 확인 중 오류가 발생했습니다.'));
+      throw new Error(getApiErrorMessage(error, '?대찓??以묐났 ?뺤씤 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.'));
     }
   },
 };
+

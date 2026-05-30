@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { BeliefsContent } from './beliefsModel';
 
@@ -34,7 +34,8 @@ export const beliefsApi = {
       const payload = response.data.data;
       return isBeliefsContent(payload) ? payload : null;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?�앙고백 ?�보�?불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '?좎븰怨좊갚 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

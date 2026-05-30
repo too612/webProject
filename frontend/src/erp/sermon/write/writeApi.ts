@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { SermonWritePayload } from './writeModel';
 
@@ -8,7 +8,8 @@ export const sermonWriteApi = {
     try {
       await client.post<ApiResponse<void>>('/erp/sermon/write', payload);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?�교 ?�?�에 ?�패?�습?�다.'));
+      throw new Error(getApiErrorMessage(error, '?ㅺ탳 ??μ뿉 ?ㅽ뙣?덉뒿?덈떎.'));
     }
   },
 };
+

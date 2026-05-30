@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { HistoryContent } from './historyModel';
 
@@ -35,7 +35,8 @@ export const historyApi = {
       const payload = response.data.data;
       return isHistoryContent(payload) ? payload : null;
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?�혁 ?�보�?불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '?고쁺 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

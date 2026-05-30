@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CommunitySaintPrayRow } from './prayModel';
 
@@ -50,7 +50,7 @@ export const communitySaintPrayApi = {
             const response = await client.get<ApiResponse<SpringPage<CommunitySaintPrayRow>>>('/community/saint/pray', { params });
             return toListResult(response.data.data);
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?�도 기도 목록??불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '?깅룄 湲곕룄 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };

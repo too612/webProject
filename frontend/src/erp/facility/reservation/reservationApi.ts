@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { FacilityReservationRow } from './reservationModel';
 
@@ -50,7 +50,8 @@ export const facilityReservationApi = {
       const response = await client.get<ApiResponse<SpringPage<FacilityReservationRow>>>('/erp/facility/reservation', { params });
       return toListResult(response.data.data);
     } catch (error) {
-      throw new Error(getApiErrorMessage(error, '?�설 ?�약 목록??불러?��? 못했?�니??'));
+      throw new Error(getApiErrorMessage(error, '?쒖꽕 ?덉빟 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
     }
   },
 };
+

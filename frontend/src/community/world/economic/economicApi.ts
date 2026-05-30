@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CommunityWorldEconomicData } from './economicModel';
 
@@ -19,7 +19,8 @@ export const communityWorldEconomicApi = {
             });
             return response.data.data?.content?.[0] ?? {};
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '경제 ?�보 ?�이?��? 불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '寃쎌젣 ?뺣낫 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };
+

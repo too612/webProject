@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CommunityWorldHealthDiseaseRow } from './healthModel';
 
@@ -19,7 +19,8 @@ export const communityWorldHealthApi = {
             });
             return response.data.data?.content ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '건강 ?�보 ?�이?��? 불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '嫄닿컯 ?뺣낫 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };
+

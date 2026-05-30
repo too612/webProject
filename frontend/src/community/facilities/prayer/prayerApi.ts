@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CommunityFacilitiesPrayerRow } from './prayerModel';
 
@@ -9,7 +9,7 @@ export const communityFacilitiesPrayerApi = {
             const response = await client.get<ApiResponse<{ rooms: CommunityFacilitiesPrayerRow[] }>>('/community/facilities/prayer');
             return response.data.data?.rooms ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '기도???�약 ?�이?��? 불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '湲곕룄???덉빟 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };

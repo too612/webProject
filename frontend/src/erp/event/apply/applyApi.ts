@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { EventApplyRow } from './applyModel';
 
@@ -50,7 +50,7 @@ export const eventApplyApi = {
             const response = await client.get<ApiResponse<SpringPage<EventApplyRow>>>('/erp/event/apply', { params });
             return toListResult(response.data.data);
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?�사 ?�청 목록??불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '?됱궗 ?좎껌 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };

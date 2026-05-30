@@ -1,5 +1,5 @@
-import client from '../../../common/api/api.client';
-import { getApiErrorMessage } from '../../../common/lib/apiError';
+﻿import client from '../../../common/api/api.client';
+import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CommunityFacilitiesCalendarEvent } from './calendarModel';
 
@@ -13,7 +13,7 @@ export const communityFacilitiesCalendarApi = {
             const response = await client.get<ApiResponse<{ events: CommunityFacilitiesCalendarEvent[] }>>('/community/facilities/calendar', { params });
             return response.data.data?.events ?? [];
         } catch (error) {
-            throw new Error(getApiErrorMessage(error, '?�설 ?�정 ?�이?��? 불러?��? 못했?�니??'));
+            throw new Error(getApiErrorMessage(error, '?쒖꽕 ?쇱젙 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?듬땲??'));
         }
     },
 };
