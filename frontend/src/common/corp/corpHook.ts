@@ -27,7 +27,6 @@ export function useCorpInfo() {
 
   return {
     corpInfo,
-    addressLine1: corpInfo?.addressLine1 ?? '-',
     loading,
     error,
     reload: loadCorpInfo,

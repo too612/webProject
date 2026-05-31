@@ -3,14 +3,17 @@ import type { CSSProperties } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMenu } from '../common/menu/menuHook';
 import { useAuthStore } from '../common/auth/authStore';
+import { useCorpInfo } from '../common/corp/corpHook';
 import type { MenuItem } from '../common/menu/menu.types';
 
 export default function Header() {
   const { isAuthenticated, user, clearAuth } = useAuthStore();
+  const { corpInfo } = useCorpInfo();
   const location = useLocation();
   const { menuList } = useMenu();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [openedSubmenus, setOpenedSubmenus] = useState<Record<string, boolean>>({});
+  const corpName = corpInfo?.corpName ?? '다사랑교회';
 
   const isErpRoute = location.pathname.startsWith('/erp');
   const topMenusFromApi = (() => {
@@ -138,8 +141,8 @@ export default function Header() {
       {/* 헤더 메인 (로고 + GNB + 햄버거) */}
       <div className="header-main border-b border-gray-200">
         <div className={`container max-w-[1200px] mx-auto px-5 flex items-center gap-4${isErpRoute ? ' erp-wide max-w-full' : ''}`}>
-          <Link to="/" className="logo flex-shrink-0" aria-label="다사랑교회 홈">
-            <img src="/img/logo.png" alt="다사랑교회 로고" className="header-logo-image block w-auto object-contain" />
+          <Link to="/" className="logo flex-shrink-0" aria-label={`${corpName} 홈`}>
+            <img src="/img/logo.png" alt={`${corpName} 로고`} className="header-logo-image block w-auto object-contain" />
           </Link>
           <nav
             className={`nav-main desktop-only hidden md:flex items-center gap-1 ml-auto${isErpRoute ? ' erp-menu' : ''}`}
@@ -199,7 +202,7 @@ export default function Header() {
       {/* 모바일 내비게이션 패널 */}
       <nav id="mobile-nav" className={`mobile-nav${mobileNavOpen ? ' is-open' : ''}`}>
         <div className="mobile-nav-header">
-          <Link to="/" className="mobile-logo">다사랑교회</Link>
+          <Link to="/" className="mobile-logo">{corpName}</Link>
         </div>
         <div className="mobile-nav-body">
           <ul className="mobile-menu-list">
