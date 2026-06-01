@@ -4,10 +4,13 @@ import { useCorpInfo } from '../common/corp/corpHook';
 export default function Footer() {
   const { corpInfo } = useCorpInfo();
 
-  const corpName = corpInfo?.corpName ?? '다사랑교회';
+  const corpName = corpInfo?.corpName ?? '-';
+  const postalCode = corpInfo?.postalCode ?? '-';
   const addressLine1 = corpInfo?.addressLine1 ?? '-';
+  const addressLine2 = corpInfo?.addressLine2 ?? '-';
   const businessRegistrationNumber = corpInfo?.businessRegistrationNumber ?? '-';
   const chiefName = corpInfo?.chiefName ?? '-';
+  const phoneNumber = corpInfo?.phoneNumber ?? '-';
 
   return (
     <footer className="footer mt-auto">
@@ -18,26 +21,28 @@ export default function Footer() {
               <img src="/img/logo.png" alt={`${corpName} 로고`} />
             </Link>
             <div className="footer-details">
-              <p>주소 : {addressLine1} | 사업자등록 : {businessRegistrationNumber} | 대표자 : {chiefName}</p>
-              <p>전화 : 042-822-0000 | 팩스 : 042-822-0000 | 홈페이지 : http://libary.or.kr</p>
-              <p>출판신고번호 : 제2021-세종반곡-00458호 | 발행인 : 홍길동 | 편집인 : {corpName}</p>
-              <p>전화 : 042-822-0004-5 | 팩스 : 042-222-0040 | E-mail : libary@naver.com</p>
+              <p>교회 : {corpName} | 사업자번호 : {businessRegistrationNumber} | 담임목사 : {chiefName} </p>
+              <p>주소 : ({postalCode}) {addressLine1} {addressLine2} </p>
+              <p>전화 : {phoneNumber} </p>
             </div>
           </div>
           <div className="footer-social">
-            <a href="#" title="Facebook" className="facebook">
-              <img src="/img/btn_lm_facebook.png" alt="Facebook" />
+            <a href="#" title="Naver" className="naver">
+              <img src="/img/sns_icon_naver_gray.png" alt="Naver" />
             </a>
             <a href="#" title="YouTube" className="youtube">
-              <img src="/img/btn_lm_youtube.png" alt="YouTube" />
+              <img src="/img/sns_icon_youtube_gray.png" alt="YouTube" />
             </a>
-            <a href="#" title="kakao" className="kakao">
-              <img src="/img/btn_lm_kakao.png" alt="Kakao" />
+            <a href="#" title="Kakao" className="kakao">
+              <img src="/img/sns_icon_kakao_gray.png" alt="Kakao" />
+            </a>
+            <a href="#" title="Instagram" className="instagram">
+              <img src="/img/sns_icon_instagram_gray.png" alt="Instagram" />
             </a>
           </div>
         </div>
         <div className="footer-bottom">
-          Copyright by Daejeon Youth WE CAN CENTER. All rights reserved.
+          Copyright 2026 DASARANG CHURCH. All Rights Reserved.
         </div>
       </div>
     </footer>

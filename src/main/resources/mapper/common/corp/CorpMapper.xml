@@ -7,9 +7,12 @@
     <select id="selectCorpInfo" resultType="com.main.app.common.corp.dto.CorpDto">
         SELECT
             corp_name AS corpName,
+            postal_code AS postalCode,
             address_line1 AS addressLine1,
-            business_registration_number AS businessRegistrationNumber,
+            address_line2 AS addressLine2,
             chief_name AS chiefName,
+            business_registration_number AS businessRegistrationNumber,
+            phone_number AS phoneNumber,
             #{sessIp} AS SESS_IP
         FROM com_corp
         WHERE is_deleted = FALSE

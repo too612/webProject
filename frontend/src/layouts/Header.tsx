@@ -101,6 +101,15 @@ export default function Header() {
     setOpenedSubmenus((prev) => ({ ...prev, [menuId]: !prev[menuId] }));
   };
 
+  const familySiteOptions = [
+    { value: '', label: 'FAMILY SITE' },
+    { value: 'http://busan.psh.or.kr', label: '부산비전센터' },
+    { value: 'http://ilsan.psh.or.kr', label: '일산드림센터' },
+    { value: 'https://twowings.or.kr', label: '두날개교회' },
+    { value: 'https://youtube.com', label: '유튜브 채널' },
+  ];
+  const familySiteSelectWidthCh = Math.max(...familySiteOptions.map((option) => option.label.length)) + 8;
+
   return (
     <header className="header sticky top-0 z-50 bg-white shadow-sm">
       {/* 헤더 상단 (로그인/회원가입 링크) */}
@@ -251,7 +260,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={clearAuth}
-                  className="bg-transparent border-0 cursor-pointer text-inherit p-0"
+                  className="mobile-footer-action bg-transparent border-0 cursor-pointer text-inherit p-0"
                 >
                   로그아웃
                 </button>
@@ -265,17 +274,22 @@ export default function Header() {
             )}
           </div>
           <div className="mobile-footer-select">
-            <select className="family-site-select" defaultValue="" onChange={(event) => {
+            <select
+              className="family-site-select"
+              defaultValue=""
+              style={{ width: `${familySiteSelectWidthCh}ch` }}
+              onChange={(event) => {
               if (event.target.value) {
                 window.open(event.target.value, '_blank', 'noopener,noreferrer');
                 event.target.value = '';
               }
-            }}>
-              <option value="">FAMILY SITE</option>
-              <option value="http://busan.psh.or.kr">부산비전센터</option>
-              <option value="http://ilsan.psh.or.kr">일산드림센터</option>
-              <option value="https://twowings.or.kr">두날개교회</option>
-              <option value="https://youtube.com">유튜브 채널</option>
+              }}
+            >
+              {familySiteOptions.map((option) => (
+                <option key={option.value || 'default'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
