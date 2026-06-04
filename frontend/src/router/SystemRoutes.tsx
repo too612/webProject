@@ -1,24 +1,18 @@
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import SystemIndexPage from '../system/index/systemIndexPage';
 
-// user
-import UserManagerPage from '../system/user/manager/managerPage';
-import UserRolePage from '../system/user/role/rolePage';
-
-// config
-import ConfigCodePage from '../system/config/code/codePage';
-import ConfigMenuPage from '../system/config/menu/menuPage';
-
-// log
-import LogSystemPage from '../system/log/system/systemPage';
-import LogAuditPage from '../system/log/audit/auditPage';
-
-// backup
-import BackupPolicyPage from '../system/backup/policy/policyPage';
-import BackupHistoryPage from '../system/backup/history/historyPage';
+const SystemIndexPage = lazy(() => import('../system/index/systemIndexPage'));
+const UserManagerPage = lazy(() => import('../system/user/manager/managerPage'));
+const UserRolePage = lazy(() => import('../system/user/role/rolePage'));
+const ConfigCodePage = lazy(() => import('../system/config/code/codePage'));
+const ConfigMenuPage = lazy(() => import('../system/config/menu/menuPage'));
+const LogSystemPage = lazy(() => import('../system/log/system/systemPage'));
+const LogAuditPage = lazy(() => import('../system/log/audit/auditPage'));
+const BackupPolicyPage = lazy(() => import('../system/backup/policy/policyPage'));
+const BackupHistoryPage = lazy(() => import('../system/backup/history/historyPage'));
 
 export const systemRoutes: RouteObject[] = [
   {

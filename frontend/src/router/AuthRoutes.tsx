@@ -1,7 +1,9 @@
+import { lazy } from 'react';
 import { Outlet, type RouteObject } from 'react-router-dom';
 import AuthLayout from '../common/auth/authLayout';
-import LoginPage from '../common/auth/login/loginPage';
-import RegisterPage from '../common/auth/register/registerPage';
+
+const LoginPage = lazy(() => import('../common/auth/login/loginPage'));
+const RegisterPage = lazy(() => import('../common/auth/register/registerPage'));
 
 export const authRoutes: RouteObject[] = [
   {

@@ -10,7 +10,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.main.app.common.dto.ApiResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestControllerAdvice
+@Slf4j
 public class ApiExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -41,6 +44,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception exception) {
+        log.error("Unhandled API exception", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                         exception.getMessage() == null ? "서버 오류가 발생했습니다." : exception.getMessage()));

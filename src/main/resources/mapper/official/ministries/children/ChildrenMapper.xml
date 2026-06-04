@@ -4,209 +4,167 @@
 <mapper namespace="com.main.app.official.ministries.children.ChildrenMapper">
 
     <select id="selectBoardList" parameterType="map" resultType="com.main.app.official.ministries.children.dto.ChildrenDto">
-        SELECT
-            b.id,
-            b.board_type,
-            b.title,
-            b.content,
-            b.author_id,
-            b.read_count,
-            b.group_no,
-            b.order_no,
-            b.depth_no,
-            b.del_yn,
-            b.created_at,
-            b.updated_at,
-            u.name AS author_name
-        FROM board b
-        LEFT JOIN users u ON b.author_id = u.id
-        WHERE b.board_type = #{boardType}
-          AND b.del_yn = 'N'
-        <if test="searchType != null and searchType != '' and keyword != null and keyword != ''">
-            <choose>
-                <when test="searchType == 'title'">
-                    AND b.title LIKE CONCAT('%', #{keyword}, '%')
-                </when>
-                <when test="searchType == 'content'">
-                    AND b.content LIKE CONCAT('%', #{keyword}, '%')
-                </when>
-                <when test="searchType == 'author'">
-                    AND u.name LIKE CONCAT('%', #{keyword}, '%')
-                </when>
-                <otherwise>
-                    AND (b.title LIKE CONCAT('%', #{keyword}, '%')
-                        OR b.content LIKE CONCAT('%', #{keyword}, '%'))
-                </otherwise>
-            </choose>
-        </if>
-        ORDER BY b.group_no DESC, b.order_no ASC
-        LIMIT #{size} OFFSET #{offset}
+        SELECT A.rqst_no AS rqstNo
+             , A.title AS title
+             , A.cont AS cont
+             , A.rqst_id AS rqstId
+             , A.ins_dt AS insDt
+             , A.upt_dt AS uptDt
+             , A.views AS views
+             , A.board_type AS boardType
+             , A.group_no AS groupNo
+             , A.parent_no AS parentNo
+             , A.depth AS depth
+             , A.order_no AS orderNo
+             , (SELECT COUNT(*) FROM file_table WHERE board_no = A.rqst_no AND is_deleted = FALSE) > 0 AS hasFile
+             , (SELECT COALESCE(SUM(file_size), 0) FROM file_table WHERE board_no = A.rqst_no AND is_deleted = FALSE) AS totalFileSize
+             , A.secret AS secret
+             , A.password AS password
+             , (SELECT COUNT(*) FROM comment WHERE board_no = A.rqst_no) AS commentCount
+          FROM board A
+         WHERE A.board_type = 'CHILDREN'
+         <if test="keyword != null and keyword != ''">
+             <choose>
+                 <when test="searchType == 'title'">
+                     AND A.title LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'content'">
+                     AND A.cont LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'author' or searchType == 'writer'">
+                     AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <otherwise>
+                     AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))
+                 </otherwise>
+             </choose>
+         </if>
+         ORDER BY A.group_no DESC, A.order_no ASC, A.ins_dt DESC
+         LIMIT #{size} OFFSET #{offset}
     </select>
 
     <select id="countBoardList" parameterType="map" resultType="long">
         SELECT COUNT(*)
-        FROM board b
-        LEFT JOIN users u ON b.author_id = u.id
-        WHERE b.board_type = #{boardType}
-          AND b.del_yn = 'N'
-        <if test="searchType != null and searchType != '' and keyword != null and keyword != ''">
-            <choose>
-                <when test="searchType == 'title'">
-                    AND b.title LIKE CONCAT('%', #{keyword}, '%')
-                </when>
-                <when test="searchType == 'content'">
-                    AND b.content LIKE CONCAT('%', #{keyword}, '%')
-                </when>
-                <when test="searchType == 'author'">
-                    AND u.name LIKE CONCAT('%', #{keyword}, '%')
-                </when>
-                <otherwise>
-                    AND (b.title LIKE CONCAT('%', #{keyword}, '%')
-                        OR b.content LIKE CONCAT('%', #{keyword}, '%'))
-                </otherwise>
-            </choose>
-        </if>
+          FROM board A
+         WHERE A.board_type = 'CHILDREN'
+         <if test="keyword != null and keyword != ''">
+             <choose>
+                 <when test="searchType == 'title'">
+                     AND A.title LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'content'">
+                     AND A.cont LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <when test="searchType == 'author' or searchType == 'writer'">
+                     AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                 </when>
+                 <otherwise>
+                     AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))
+                 </otherwise>
+             </choose>
+         </if>
     </select>
 
     <select id="selectBoardDetail" parameterType="map" resultType="com.main.app.official.ministries.children.dto.ChildrenDto">
-        SELECT
-            b.id,
-            b.board_type,
-            b.title,
-            b.content,
-            b.author_id,
-            b.read_count,
-            b.group_no,
-            b.order_no,
-            b.depth_no,
-            b.del_yn,
-            b.created_at,
-            b.updated_at,
-            u.name AS author_name
-        FROM board b
-        LEFT JOIN users u ON b.author_id = u.id
-        WHERE b.id = #{rqstNo}
-          AND b.board_type = #{boardType}
-          AND b.del_yn = 'N'
+        SELECT A.rqst_no AS rqstNo
+             , A.title AS title
+             , A.cont AS cont
+             , A.rqst_id AS rqstId
+             , A.ins_dt AS insDt
+             , A.upt_dt AS uptDt
+             , A.views AS views
+             , A.board_type AS boardType
+             , A.group_no AS groupNo
+             , A.parent_no AS parentNo
+             , A.depth AS depth
+             , A.order_no AS orderNo
+             , A.secret AS secret
+             , A.password AS password
+             , (SELECT COUNT(*) FROM file_table WHERE board_no = A.rqst_no AND is_deleted = FALSE) > 0 AS hasFile
+          FROM board A
+         WHERE A.rqst_no = #{rqstNo}
+           AND A.board_type = 'CHILDREN'
     </select>
 
     <update id="updateReadCount" parameterType="map">
         UPDATE board
-        SET read_count = read_count + 1
-        WHERE id = #{rqstNo}
-          AND board_type = #{boardType}
+           SET views = COALESCE(views, 0) + 1
+         WHERE rqst_no = #{rqstNo}
+           AND board_type = 'CHILDREN'
     </update>
 
-    <insert id="insertBoard" parameterType="com.main.app.official.ministries.children.dto.ChildrenRequest" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO board (board_type, title, content, author_id, group_no, order_no, depth_no, del_yn, created_at)
-        VALUES (#{boardType}, #{title}, #{content}, #{authorId}, #{groupNo}, #{orderNo}, #{depthNo}, 'N', NOW())
+    <insert id="insertBoard" parameterType="com.main.app.official.ministries.children.dto.ChildrenRequest">
+        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt, views, group_no, parent_no, depth, order_no, secret, password, board_type)
+        SELECT #{rqstNo}, #{title}, #{cont}, #{rqstId}, NOW(), NOW(), 0,
+               COALESCE(NULLIF(#{groupNo}, ''), P.group_no, #{rqstNo}),
+               #{parentNo}, COALESCE(#{depth}, COALESCE(P.depth, -1) + 1), #{orderNo},
+               COALESCE(#{secret}, 'N'), #{password}, 'CHILDREN'
+          FROM (SELECT 1) AS dummy
+          LEFT JOIN board P ON P.rqst_no = #{parentNo}
     </insert>
 
     <update id="updateBoard" parameterType="com.main.app.official.ministries.children.dto.ChildrenRequest">
         UPDATE board
-        SET title      = #{title},
-            content    = #{content},
-            updated_at = NOW()
-        WHERE id = #{id}
+           SET title = #{title}
+             , cont = #{cont}
+             , secret = COALESCE(#{secret}, 'N')
+             , password = #{password}
+             , upt_dt = NOW()
+         WHERE rqst_no = #{rqstNo}
+           AND board_type = 'CHILDREN'
     </update>
 
     <update id="updateReplyOrder" parameterType="map">
         UPDATE board
-        SET order_no = order_no + 1
-        WHERE group_no = #{groupNo}
-          AND order_no >= #{orderNo}
+           SET order_no = order_no + 1
+         WHERE group_no = #{groupNo}
+           AND order_no > #{orderNo}
     </update>
 
-    <update id="deleteComments" parameterType="string">
-        UPDATE board_comment
-        SET del_yn = 'Y'
-        WHERE board_id = #{boardNo}
-    </update>
+    <delete id="deleteComments" parameterType="string">
+        DELETE FROM comment WHERE board_no = #{boardNo}
+    </delete>
 
-    <update id="deleteFiles" parameterType="string">
-        UPDATE board_file
-        SET del_yn = 'Y'
-        WHERE board_id = #{boardNo}
-    </update>
-
-    <update id="deleteBoard" parameterType="string">
-        UPDATE board
-        SET del_yn = 'Y'
-        WHERE id = #{id}
-    </update>
-
-    <insert id="insertFile" parameterType="com.main.app.common.dto.FileDto">
-        INSERT INTO board_file (board_id, original_name, stored_name, file_path, file_size, del_yn, created_at)
-        VALUES (#{boardId}, #{originalName}, #{storedName}, #{filePath}, #{fileSize}, 'N', NOW())
-    </insert>
-
-    <select id="selectFile" parameterType="long" resultType="com.main.app.common.dto.FileDto">
-        SELECT id, board_id, original_name, stored_name, file_path, file_size, del_yn, created_at
-        FROM board_file
-        WHERE id = #{fileId}
-          AND del_yn = 'N'
-    </select>
-
-    <select id="selectFileList" parameterType="string" resultType="com.main.app.common.dto.FileDto">
-        SELECT id, board_id, original_name, stored_name, file_path, file_size, del_yn, created_at
-        FROM board_file
-        WHERE board_id = #{boardNo}
-          AND del_yn = 'N'
-    </select>
+    <delete id="deleteBoard" parameterType="string">
+        DELETE FROM board WHERE rqst_no = #{id}
+    </delete>
 
     <select id="selectCommentList" parameterType="string" resultType="com.main.app.common.dto.CommentDto">
-        SELECT
-            c.id,
-            c.board_id,
-            c.author_id,
-            c.content,
-            c.like_count,
-            c.dislike_count,
-            c.del_yn,
-            c.created_at,
-            c.updated_at,
-            u.name AS author_name
-        FROM board_comment c
-        LEFT JOIN users u ON c.author_id = u.id
-        WHERE c.board_id = #{boardNo}
-          AND c.del_yn = 'N'
-        ORDER BY c.created_at ASC
+        SELECT comment_id AS commentId, board_no AS boardNo, writer, content,
+               ins_dt AS insDt, likes, dislikes, parent_comment_id AS parentCommentId,
+               secret, password, spoiler
+          FROM comment
+         WHERE board_no = #{boardNo}
+         ORDER BY ins_dt ASC
     </select>
 
     <insert id="insertComment" parameterType="com.main.app.common.dto.CommentDto">
-        INSERT INTO board_comment (board_id, author_id, content, del_yn, created_at)
-        VALUES (#{boardId}, #{authorId}, #{content}, 'N', NOW())
+        INSERT INTO comment (board_no, writer, content, ins_dt, likes, dislikes, parent_comment_id, secret, password, spoiler)
+        VALUES (#{boardNo}, #{writer}, #{content}, NOW(), 0, 0, #{parentCommentId}, COALESCE(#{secret}, 'N'), #{password}, COALESCE(#{spoiler}, 'N'))
     </insert>
 
     <select id="selectCommentById" parameterType="int" resultType="com.main.app.common.dto.CommentDto">
-        SELECT id, board_id, author_id, content, like_count, dislike_count, del_yn, created_at, updated_at
-        FROM board_comment
-        WHERE id = #{commentId}
-          AND del_yn = 'N'
+        SELECT comment_id AS commentId, board_no AS boardNo, writer, content,
+               ins_dt AS insDt, likes, dislikes, parent_comment_id AS parentCommentId,
+               secret, password, spoiler
+          FROM comment
+         WHERE comment_id = #{commentId}
     </select>
 
     <update id="increaseLike" parameterType="int">
-        UPDATE board_comment
-        SET like_count = like_count + 1
-        WHERE id = #{commentId}
+        UPDATE comment SET likes = likes + 1 WHERE comment_id = #{commentId}
     </update>
 
     <update id="decreaseLike" parameterType="int">
-        UPDATE board_comment
-        SET like_count = GREATEST(like_count - 1, 0)
-        WHERE id = #{commentId}
+        UPDATE comment SET likes = likes - 1 WHERE comment_id = #{commentId}
     </update>
 
     <update id="increaseDislike" parameterType="int">
-        UPDATE board_comment
-        SET dislike_count = dislike_count + 1
-        WHERE id = #{commentId}
+        UPDATE comment SET dislikes = dislikes + 1 WHERE comment_id = #{commentId}
     </update>
 
     <update id="decreaseDislike" parameterType="int">
-        UPDATE board_comment
-        SET dislike_count = GREATEST(dislike_count - 1, 0)
-        WHERE id = #{commentId}
+        UPDATE comment SET dislikes = dislikes - 1 WHERE comment_id = #{commentId}
     </update>
 
 </mapper>

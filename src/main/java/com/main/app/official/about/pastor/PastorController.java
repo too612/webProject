@@ -4,7 +4,11 @@ import com.main.app.common.dto.ApiResponse;
 import com.main.app.official.about.pastor.dto.PastorDto;
 import com.main.app.official.about.pastor.dto.PastorRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/official/about/pastor")
@@ -13,30 +17,34 @@ public class PastorController {
 
     private final PastorService pastorService;
 
-    @GetMapping
-    public ApiResponse<PastorDto> getPastorProfile() {
-        return ApiResponse.ok(pastorService.getPastorProfile());
+    @GetMapping("/getInfo")
+    public ApiResponse<PastorDto> getInfo() {
+        return ApiResponse.ok(pastorService.getInfo());
     }
 
-    @PostMapping
-    public ApiResponse<Void> createPastorProfile(@RequestBody PastorRequest request) throws Exception {
-        pastorService.createPastorProfile(request);
+    @PostMapping(value = "/setCreate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> setCreate(
+            @RequestPart("request") PastorRequest request,
+            @RequestPart(name = "files", required = false) List<MultipartFile> files) throws Exception {
+        pastorService.setCreate(request, files);
         return ApiResponse.ok(null, "담임목사 정보를 등록했습니다.");
     }
 
-    @PutMapping("/{corpId}")
-    public ApiResponse<Void> updatePastorProfile(@PathVariable Long corpId, @RequestBody PastorRequest request)
+    @PutMapping(value = "/setUpdate/{corpId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> setUpdate(
+            @PathVariable Long corpId,
+            @RequestPart("request") PastorRequest request,
+            @RequestPart(name = "files", required = false) List<MultipartFile> files)
             throws Exception {
-        pastorService.updatePastorProfile(corpId, request);
+        pastorService.setUpdate(corpId, request, files);
         return ApiResponse.ok(null, "담임목사 정보를 수정했습니다.");
     }
 
-    @DeleteMapping("/{corpId}")
-    public ApiResponse<Void> deletePastorProfile(
+    @DeleteMapping("/delRemove/{corpId}")
+    public ApiResponse<Void> delRemove(
             @PathVariable Long corpId,
-            @RequestParam String updatedBy,
-            @RequestParam String updatedIp) throws Exception {
-        pastorService.deletePastorProfile(corpId, updatedBy, updatedIp);
+            @RequestParam(required = false) String updatedBy) throws Exception {
+        pastorService.delRemove(corpId, updatedBy);
         return ApiResponse.ok(null, "담임목사 정보를 삭제했습니다.");
     }
 }

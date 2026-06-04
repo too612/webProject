@@ -1,12 +1,11 @@
 package com.main.app.official.ministries.mission;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.ministries.mission.dto.MissionDto;
 import com.main.app.official.ministries.mission.dto.MissionRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import java.util.UUID;
 public class MissionService {
 
     private final MissionMapper missionMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public MissionService(MissionMapper missionMapper) {
+    public MissionService(MissionMapper missionMapper, FileService fileService) {
         this.missionMapper = missionMapper;
+        this.fileService = fileService;
     }
 
     @SuppressWarnings("null")
@@ -53,7 +51,7 @@ public class MissionService {
 
         MissionDto board = missionMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(missionMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -100,12 +98,12 @@ public class MissionService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         missionMapper.deleteComments(rqstNo);
-        missionMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         missionMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return missionMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -150,6 +148,7 @@ public class MissionService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, missionMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "mission", null, null);
     }
 }
+

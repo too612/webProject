@@ -691,7 +691,7 @@
 
 .vision-wrap,
 .history-wrap,
-.beliefs-wrap {
+.congregation-wrap {
     max-width: 1000px;
     margin: 0 auto;
 }
@@ -725,27 +725,27 @@
 }
 
 .vision-grid,
-.beliefs-list {
+.congregation-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
 }
 
 .vision-card,
-.beliefs-item {
+.congregation-item {
     border: 1px solid #e0e0e0;
     padding: 18px;
     background: #fff;
 }
 
 .vision-card h4,
-.beliefs-item h3 {
+.congregation-item h3 {
     margin: 0 0 8px;
     color: #222;
 }
 
 .vision-card p,
-.beliefs-item p {
+.congregation-item p {
     margin: 0;
     color: #555;
     line-height: 1.7;
@@ -759,7 +759,7 @@
 }
 
 .vision-quote,
-.beliefs-note {
+.congregation-note {
     margin-top: 26px;
     padding: 16px 18px;
     border-left: 4px solid #444;
@@ -813,20 +813,20 @@
     margin-bottom: 8px;
 }
 
-.beliefs-header {
+.congregation-header {
     margin-bottom: 24px;
     padding: 24px;
     background: #f7f7f7;
     border: 1px solid #e6e6e6;
 }
 
-.beliefs-header h2 {
+.congregation-header h2 {
     margin: 0 0 8px;
     font-size: 24px;
     color: #222;
 }
 
-.beliefs-header p {
+.congregation-header p {
     margin: 0;
     color: #666;
     line-height: 1.7;

@@ -1,12 +1,11 @@
 package com.main.app.official.ministries.youth;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.ministries.youth.dto.YouthDto;
 import com.main.app.official.ministries.youth.dto.YouthRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import java.util.UUID;
 public class YouthService {
 
     private final YouthMapper youthMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public YouthService(YouthMapper youthMapper) {
+    public YouthService(YouthMapper youthMapper, FileService fileService) {
         this.youthMapper = youthMapper;
+        this.fileService = fileService;
     }
 
     @SuppressWarnings("null")
@@ -53,7 +51,7 @@ public class YouthService {
 
         YouthDto board = youthMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(youthMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -100,12 +98,12 @@ public class YouthService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         youthMapper.deleteComments(rqstNo);
-        youthMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         youthMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return youthMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -150,6 +148,7 @@ public class YouthService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, youthMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "youth", null, null);
     }
 }
+

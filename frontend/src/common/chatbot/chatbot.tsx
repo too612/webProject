@@ -61,8 +61,13 @@ export default function Chatbot() {
     <>
       {isFabVisible && (
         <aside className="chatbot-fab" aria-label="채팅 도우미">
-          <button type="button" className="chatbot-fab__open" onClick={() => setIsOpen(true)}>
-            챗봇
+          <button
+            type="button"
+            className="chatbot-fab__open"
+            aria-label="챗봇 열기"
+            onClick={() => setIsOpen(true)}
+          >
+            <span className="material-icons" aria-hidden="true">smart_toy</span>
           </button>
           <button
             type="button"

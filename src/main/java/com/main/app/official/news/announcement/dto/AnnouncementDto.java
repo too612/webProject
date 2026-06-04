@@ -1,6 +1,6 @@
 package com.main.app.official.news.announcement.dto;
 
-import com.main.app.common.dto.FileDto;
+import com.main.app.common.file.dto.FileDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;

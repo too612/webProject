@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
+import com.main.app.common.file.dto.FileDto;
 import com.main.app.official.ministries.youth.dto.YouthDto;
 import com.main.app.official.ministries.youth.dto.YouthRequest;
 
@@ -204,3 +204,4 @@ public class YouthController {
         return ApiResponse.ok(response);
     }
 }
+

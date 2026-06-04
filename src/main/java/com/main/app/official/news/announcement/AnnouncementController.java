@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
+import com.main.app.common.file.dto.FileDto;
 import com.main.app.official.news.announcement.dto.AnnouncementDto;
 import com.main.app.official.news.announcement.dto.AnnouncementRequest;
 
@@ -204,3 +204,4 @@ public class AnnouncementController {
         return ApiResponse.ok(response);
     }
 }
+

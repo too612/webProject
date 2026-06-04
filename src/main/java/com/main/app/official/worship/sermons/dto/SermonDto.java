@@ -3,7 +3,7 @@ package com.main.app.official.worship.sermons.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.main.app.common.dto.FileDto;
+import com.main.app.common.file.dto.FileDto;
 
 import lombok.Data;
 
@@ -34,3 +34,4 @@ public class SermonDto {
 
     private Integer commentCount;
 }
+

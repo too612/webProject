@@ -1,6 +1,6 @@
 package com.main.app.official.news.bulletin.dto;
 
-import com.main.app.common.dto.FileDto;
+import com.main.app.common.file.dto.FileDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -27,3 +27,4 @@ public class BulletinDto {
     private String password;
     private Integer commentCount;
 }
+

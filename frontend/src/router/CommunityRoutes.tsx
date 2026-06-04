@@ -1,28 +1,22 @@
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import CommunityIndexPage from '../community/index/communityIndexPage';
 
-// group
-import GroupManagerPage from '../community/group/manager/managerPage';
-import GroupA1Page from '../community/group/a1/a1Page';
-import GroupB2Page from '../community/group/b2/b2Page';
-
-// facilities
-import FacilitiesCalendarPage from '../community/facilities/calendar/calendarPage';
-import FacilitiesDiningPage from '../community/facilities/dining/diningPage';
-import FacilitiesPrayerPage from '../community/facilities/prayer/prayerPage';
-
-// saint
-import SaintFamilyPage from '../community/saint/family/familyPage';
-import SaintPrayPage from '../community/saint/pray/prayPage';
-import SaintSalesPage from '../community/saint/sales/salesPage';
-import SaintJobPage from '../community/saint/job/jobPage';
-
-// world
-import WorldChristianPage from '../community/world/christian/christianPage';
-import WorldEconomicPage from '../community/world/economic/economicPage';
-import WorldHealthPage from '../community/world/health/healthPage';
+const CommunityIndexPage = lazy(() => import('../community/index/communityIndexPage'));
+const GroupManagerPage = lazy(() => import('../community/group/manager/managerPage'));
+const GroupA1Page = lazy(() => import('../community/group/a1/a1Page'));
+const GroupB2Page = lazy(() => import('../community/group/b2/b2Page'));
+const FacilitiesCalendarPage = lazy(() => import('../community/facilities/calendar/calendarPage'));
+const FacilitiesDiningPage = lazy(() => import('../community/facilities/dining/diningPage'));
+const FacilitiesPrayerPage = lazy(() => import('../community/facilities/prayer/prayerPage'));
+const SaintFamilyPage = lazy(() => import('../community/saint/family/familyPage'));
+const SaintPrayPage = lazy(() => import('../community/saint/pray/prayPage'));
+const SaintSalesPage = lazy(() => import('../community/saint/sales/salesPage'));
+const SaintJobPage = lazy(() => import('../community/saint/job/jobPage'));
+const WorldChristianPage = lazy(() => import('../community/world/christian/christianPage'));
+const WorldEconomicPage = lazy(() => import('../community/world/economic/economicPage'));
+const WorldHealthPage = lazy(() => import('../community/world/health/healthPage'));
 
 export const communityRoutes: RouteObject[] = [
   {

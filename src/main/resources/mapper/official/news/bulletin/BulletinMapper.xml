@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.news.bulletin.BulletinMapper">
@@ -133,12 +133,12 @@
         DELETE FROM board WHERE rqst_no = #{id}
     </delete>
 
-    <insert id="insertFile" parameterType="com.main.app.common.dto.FileDto">
+    <insert id="insertFile" parameterType="com.main.app.common.file.dto.FileDto">
         INSERT INTO file_table (board_no, org_file_nm, stored_file_nm, file_size, file_path, ins_dt)
         VALUES (#{boardNo}, #{orgFileNm}, #{storedFileNm}, #{fileSize}, #{filePath}, NOW())
     </insert>
 
-    <select id="selectFile" parameterType="long" resultType="com.main.app.common.dto.FileDto">
+    <select id="selectFile" parameterType="long" resultType="com.main.app.common.file.dto.FileDto">
         SELECT file_id AS fileId, board_no AS boardNo, org_file_nm AS orgFileNm,
                stored_file_nm AS storedFileNm, COALESCE(file_size, 0) AS fileSize,
                file_path AS filePath, ins_dt AS insDt
@@ -146,7 +146,7 @@
          WHERE file_id = #{fileId}
     </select>
 
-    <select id="selectFileList" parameterType="string" resultType="com.main.app.common.dto.FileDto">
+    <select id="selectFileList" parameterType="string" resultType="com.main.app.common.file.dto.FileDto">
         SELECT file_id AS fileId, board_no AS boardNo, org_file_nm AS orgFileNm,
                stored_file_nm AS storedFileNm, COALESCE(file_size, 0) AS fileSize,
                file_path AS filePath, ins_dt AS insDt

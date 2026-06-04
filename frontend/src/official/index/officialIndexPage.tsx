@@ -33,6 +33,47 @@ const HERO_SLIDES = [
     { image: '/img/gallery3.svg', alt: '다사랑교회 배너 4' },
 ];
 
+const EVENT_GALLERY_IMAGES = ['/img/gallery1.svg', '/img/gallery2.svg', '/img/gallery3.svg', '/img/church-bg.svg'];
+
+type EventGallerySlide = {
+    id: string;
+    title: string;
+    date: string;
+    image: string;
+    target: string;
+};
+
+const MOCK_EVENT_GALLERY_SLIDES: EventGallerySlide[] = [
+    {
+        id: 'mock-1',
+        title: '부활절 감사예배 및 성도 교제 시간',
+        date: '2026-04-20',
+        image: '/img/gallery1.svg',
+        target: '/news/event',
+    },
+    {
+        id: 'mock-2',
+        title: '청년부 봄 수련회 현장 스케치',
+        date: '2026-03-24',
+        image: '/img/gallery2.svg',
+        target: '/news/event',
+    },
+    {
+        id: 'mock-3',
+        title: '다음세대 연합 찬양집회',
+        date: '2026-03-10',
+        image: '/img/gallery3.svg',
+        target: '/news/event',
+    },
+    {
+        id: 'mock-4',
+        title: '전교인 체육대회 준비 모임',
+        date: '2026-02-27',
+        image: '/img/church-bg.svg',
+        target: '/news/event',
+    },
+];
+
 type SectionHeadingProps = {
     icon: string;
     title: string;
@@ -56,6 +97,17 @@ export default function OfficialIndexPage() {
     const [currentSlide, setCurrentSlide] = useState(0);
     const dragStartXRef = useRef<number | null>(null);
     const hasSwipedRef = useRef(false);
+
+    const hasRealEventData = indexData.recentAnnouncements.length > 0;
+    const eventSlides: EventGallerySlide[] = hasRealEventData
+        ? indexData.recentAnnouncements.map((item, idx) => ({
+            id: item.id,
+            title: item.title,
+            date: item.date,
+            image: EVENT_GALLERY_IMAGES[idx % EVENT_GALLERY_IMAGES.length],
+            target: `/news/announcement/view?rqstNo=${item.id}`,
+        }))
+        : MOCK_EVENT_GALLERY_SLIDES;
 
     useEffect(() => {
         loadIndexData();
@@ -235,6 +287,45 @@ export default function OfficialIndexPage() {
                                 자세히 보기 <i className="material-icons text-sm">arrow_forward</i>
                             </Link>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Church Event Gallery Section */}
+            <section className="py-14 bg-white">
+                <div className="container mx-auto px-6 space-y-6">
+                    <SectionHeading
+                        icon="photo_library"
+                        title="교회행사사진"
+                        description="최근 행사 스케치를 카드형으로 빠르게 확인해 보세요."
+                    />
+
+                    {!hasRealEventData && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                            실제 데이터가 없어 임시 샘플 이미지와 문구로 미리보기를 표시 중입니다.
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {eventSlides.map((slide, index) => (
+                            <Link
+                                key={`${slide.id}-card-${index}`}
+                                to={slide.target}
+                                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                            >
+                                <img
+                                    src={slide.image}
+                                    alt={slide.title || '교회 행사 사진'}
+                                    className="aspect-video w-full object-cover"
+                                    loading="lazy"
+                                />
+                                <div className="space-y-1.5 p-4">
+                                    <p className="text-xs font-medium text-brand-primary">최근 행사 스케치</p>
+                                    <h3 className="text-sm font-semibold text-brand-dark line-clamp-2">{slide.title}</h3>
+                                    <p className="text-xs text-gray-400">{slide.date || '게시물 상세에서 일정을 확인하세요.'}</p>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </section>

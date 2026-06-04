@@ -1,70 +1,52 @@
-import type { RouteObject } from 'react-router-dom';
+import { lazy } from 'react';
+import { type RouteObject } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import ErpIndexPage from '../erp/index/erpIndexPage';
 
-// humen
-import HumenManagerPage from '../erp/humen/manager/managerPage';
-import HumenDistrictPage from '../erp/humen/district/districtPage';
-import HumenNewcomerPage from '../erp/humen/newcomer/newcomerPage';
-import HumenChangePage from '../erp/humen/change/changePage';
-
-// sermon
-import SermonManagerPage from '../erp/sermon/manager/managerPage';
-import SermonArchivePage from '../erp/sermon/archive/archivePage';
-import SermonAttendancePage from '../erp/sermon/attendance/attendancePage';
-import SermonWritePage from '../erp/sermon/write/writePage';
-import SermonOrderPage from '../erp/sermon/order/orderPage';
-
-// account
-import AccountManagerPage from '../erp/account/manager/managerPage';
-import AccountInputPage from '../erp/account/input/inputPage';
-import AccountBudgetPage from '../erp/account/budget/budgetPage';
-import AccountExpensePage from '../erp/account/expense/expensePage';
-import AccountReportPage from '../erp/account/report/reportPage';
-
-// training
-import TrainingCoursePage from '../erp/training/course/coursePage';
-import TrainingStudentPage from '../erp/training/student/studentPage';
-import TrainingAttendancePage from '../erp/training/attendance/attendancePage';
-import TrainingCompletePage from '../erp/training/complete/completePage';
-
-// ministry
-import MinistryDepartmentPage from '../erp/ministry/department/departmentPage';
-import MinistrySchedulePage from '../erp/ministry/schedule/schedulePage';
-import MinistryVolunteerPage from '../erp/ministry/volunteer/volunteerPage';
-import MinistryReportPage from '../erp/ministry/report/reportPage';
-
-// event
-import EventCalendarPage from '../erp/event/calendar/calendarPage';
-import EventApplyPage from '../erp/event/apply/applyPage';
-import EventParticipantPage from '../erp/event/participant/participantPage';
-import EventResultPage from '../erp/event/result/resultPage';
-
-// facility
-import FacilityReservationPage from '../erp/facility/reservation/reservationPage';
-import FacilityVehiclePage from '../erp/facility/vehicle/vehiclePage';
-import FacilityInventoryPage from '../erp/facility/inventory/inventoryPage';
-import FacilityMaintenancePage from '../erp/facility/maintenance/maintenancePage';
-
-// comm
-import CommNoticePage from '../erp/comm/notice/noticePage';
-import CommMessagePage from '../erp/comm/message/messagePage';
-import CommPrayerPage from '../erp/comm/prayer/prayerPage';
-import CommNewsletterPage from '../erp/comm/newsletter/newsletterPage';
-
-// stats
-import StatsDashboardPage from '../erp/stats/dashboard/dashboardPage';
-import StatsAttendancePage from '../erp/stats/attendance/attendancePage';
-import StatsOfferingPage from '../erp/stats/offering/offeringPage';
-import StatsMinistryPage from '../erp/stats/ministry/ministryPage';
-
-// admin
-import AdminCertificatePage from '../erp/admin/certificate/certificatePage';
-import AdminApprovalPage from '../erp/admin/approval/approvalPage';
-import AdminMinutesPage from '../erp/admin/minutes/minutesPage';
-import AdminArchivePage from '../erp/admin/archive/archivePage';
+const ErpIndexPage = lazy(() => import('../erp/index/erpIndexPage'));
+const HumenManagerPage = lazy(() => import('../erp/humen/manager/managerPage'));
+const HumenDistrictPage = lazy(() => import('../erp/humen/district/districtPage'));
+const HumenNewcomerPage = lazy(() => import('../erp/humen/newcomer/newcomerPage'));
+const HumenChangePage = lazy(() => import('../erp/humen/change/changePage'));
+const SermonManagerPage = lazy(() => import('../erp/sermon/manager/managerPage'));
+const SermonArchivePage = lazy(() => import('../erp/sermon/archive/archivePage'));
+const SermonAttendancePage = lazy(() => import('../erp/sermon/attendance/attendancePage'));
+const SermonWritePage = lazy(() => import('../erp/sermon/write/writePage'));
+const SermonOrderPage = lazy(() => import('../erp/sermon/order/orderPage'));
+const AccountManagerPage = lazy(() => import('../erp/account/manager/managerPage'));
+const AccountInputPage = lazy(() => import('../erp/account/input/inputPage'));
+const AccountBudgetPage = lazy(() => import('../erp/account/budget/budgetPage'));
+const AccountExpensePage = lazy(() => import('../erp/account/expense/expensePage'));
+const AccountReportPage = lazy(() => import('../erp/account/report/reportPage'));
+const TrainingCoursePage = lazy(() => import('../erp/training/course/coursePage'));
+const TrainingStudentPage = lazy(() => import('../erp/training/student/studentPage'));
+const TrainingAttendancePage = lazy(() => import('../erp/training/attendance/attendancePage'));
+const TrainingCompletePage = lazy(() => import('../erp/training/complete/completePage'));
+const MinistryDepartmentPage = lazy(() => import('../erp/ministry/department/departmentPage'));
+const MinistrySchedulePage = lazy(() => import('../erp/ministry/schedule/schedulePage'));
+const MinistryVolunteerPage = lazy(() => import('../erp/ministry/volunteer/volunteerPage'));
+const MinistryReportPage = lazy(() => import('../erp/ministry/report/reportPage'));
+const EventCalendarPage = lazy(() => import('../erp/event/calendar/calendarPage'));
+const EventApplyPage = lazy(() => import('../erp/event/apply/applyPage'));
+const EventParticipantPage = lazy(() => import('../erp/event/participant/participantPage'));
+const EventResultPage = lazy(() => import('../erp/event/result/resultPage'));
+const FacilityReservationPage = lazy(() => import('../erp/facility/reservation/reservationPage'));
+const FacilityVehiclePage = lazy(() => import('../erp/facility/vehicle/vehiclePage'));
+const FacilityInventoryPage = lazy(() => import('../erp/facility/inventory/inventoryPage'));
+const FacilityMaintenancePage = lazy(() => import('../erp/facility/maintenance/maintenancePage'));
+const CommNoticePage = lazy(() => import('../erp/comm/notice/noticePage'));
+const CommMessagePage = lazy(() => import('../erp/comm/message/messagePage'));
+const CommPrayerPage = lazy(() => import('../erp/comm/prayer/prayerPage'));
+const CommNewsletterPage = lazy(() => import('../erp/comm/newsletter/newsletterPage'));
+const StatsDashboardPage = lazy(() => import('../erp/stats/dashboard/dashboardPage'));
+const StatsAttendancePage = lazy(() => import('../erp/stats/attendance/attendancePage'));
+const StatsOfferingPage = lazy(() => import('../erp/stats/offering/offeringPage'));
+const StatsMinistryPage = lazy(() => import('../erp/stats/ministry/ministryPage'));
+const AdminCertificatePage = lazy(() => import('../erp/admin/certificate/certificatePage'));
+const AdminApprovalPage = lazy(() => import('../erp/admin/approval/approvalPage'));
+const AdminMinutesPage = lazy(() => import('../erp/admin/minutes/minutesPage'));
+const AdminArchivePage = lazy(() => import('../erp/admin/archive/archivePage'));
 
 export const erpRoutes: RouteObject[] = [
   {

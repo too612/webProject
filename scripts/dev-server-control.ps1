@@ -1,10 +1,10 @@
-﻿#Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
-param(
+﻿param(
     [Parameter(Mandatory = $true)]
     [ValidateSet('start', 'stop', 'restart', 'status', 'force-kill')]
     [string]$Action
 )
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 chcp 65001 | Out-Null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8

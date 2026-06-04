@@ -142,12 +142,12 @@
         DELETE FROM board WHERE rqst_no = #{id}
     </delete>
 
-    <insert id="insertFile" parameterType="com.main.app.common.dto.FileDto">
+    <insert id="insertFile" parameterType="com.main.app.common.file.dto.FileDto">
         INSERT INTO file_table (board_no, org_file_nm, stored_file_nm, file_size, file_path, ins_dt)
         VALUES (#{boardNo}, #{orgFileNm}, #{storedFileNm}, #{fileSize}, #{filePath}, NOW())
     </insert>
 
-    <select id="selectFileList" parameterType="string" resultType="com.main.app.common.dto.FileDto">
+    <select id="selectFileList" parameterType="string" resultType="com.main.app.common.file.dto.FileDto">
         SELECT file_id AS fileId
              , board_no AS boardNo
              , org_file_nm AS orgFileNm
@@ -167,7 +167,7 @@
         DELETE FROM comment WHERE board_no = #{boardNo}
     </delete>
 
-    <select id="selectFile" parameterType="long" resultType="com.main.app.common.dto.FileDto">
+    <select id="selectFile" parameterType="long" resultType="com.main.app.common.file.dto.FileDto">
         SELECT file_id AS fileId
              , board_no AS boardNo
              , org_file_nm AS orgFileNm

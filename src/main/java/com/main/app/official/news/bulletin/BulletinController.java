@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
+import com.main.app.common.file.dto.FileDto;
 import com.main.app.official.news.bulletin.dto.BulletinDto;
 import com.main.app.official.news.bulletin.dto.BulletinRequest;
 
@@ -204,3 +204,4 @@ public class BulletinController {
         return ApiResponse.ok(response);
     }
 }
+

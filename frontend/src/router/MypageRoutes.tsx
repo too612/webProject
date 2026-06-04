@@ -1,16 +1,16 @@
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import MainLayout from '../layouts/MainLayout';
 import SubmenuLayout from '../layouts/SubmenuLayout';
-import MypageIndexPage from '../mypage/index/mypageIndexPage';
 
-// user
-import ProfilePage from '../mypage/user/profile/profilePage';
-import PasswordPage from '../mypage/user/password/passwordPage';
-import ActivityPage from '../mypage/user/activity/activityPage';
-import InquiryPage from '../mypage/user/inquiry/inquiryPage';
-import NotificationsPage from '../mypage/user/notifications/notificationsPage';
-import WithdrawPage from '../mypage/user/withdraw/withdrawPage';
+const MypageIndexPage = lazy(() => import('../mypage/index/mypageIndexPage'));
+const ProfilePage = lazy(() => import('../mypage/user/profile/profilePage'));
+const PasswordPage = lazy(() => import('../mypage/user/password/passwordPage'));
+const ActivityPage = lazy(() => import('../mypage/user/activity/activityPage'));
+const InquiryPage = lazy(() => import('../mypage/user/inquiry/inquiryPage'));
+const NotificationsPage = lazy(() => import('../mypage/user/notifications/notificationsPage'));
+const WithdrawPage = lazy(() => import('../mypage/user/withdraw/withdrawPage'));
 
 export const mypageRoutes: RouteObject[] = [
   {

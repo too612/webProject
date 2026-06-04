@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.worship.sermons.dto.SermonDto;
 import com.main.app.official.worship.sermons.dto.SermonRequest;
@@ -23,12 +22,11 @@ import com.main.app.official.worship.sermons.dto.SermonRequest;
 public class SermonService {
 
     private final SermonMapper sermonMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public SermonService(SermonMapper sermonMapper) {
+    public SermonService(SermonMapper sermonMapper, FileService fileService) {
         this.sermonMapper = sermonMapper;
+        this.fileService = fileService;
     }
 
     public Page<SermonDto> getBoardList(Pageable pageable, String searchType, String keyword) {
@@ -55,7 +53,7 @@ public class SermonService {
 
         SermonDto board = sermonMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(sermonMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -103,12 +101,12 @@ public class SermonService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         sermonMapper.deleteComments(rqstNo);
-        sermonMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         sermonMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return sermonMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -153,6 +151,7 @@ public class SermonService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, sermonMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "sermon", null, null);
     }
 }
+

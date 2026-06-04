@@ -1,12 +1,11 @@
 package com.main.app.official.news.announcement;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.announcement.dto.AnnouncementDto;
 import com.main.app.official.news.announcement.dto.AnnouncementRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import java.util.UUID;
 public class AnnouncementService {
 
     private final AnnouncementMapper announcementMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public AnnouncementService(AnnouncementMapper announcementMapper) {
+    public AnnouncementService(AnnouncementMapper announcementMapper, FileService fileService) {
         this.announcementMapper = announcementMapper;
+        this.fileService = fileService;
     }
 
     @SuppressWarnings("null")
@@ -53,7 +51,7 @@ public class AnnouncementService {
 
         AnnouncementDto board = announcementMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(announcementMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -100,12 +98,12 @@ public class AnnouncementService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         announcementMapper.deleteComments(rqstNo);
-        announcementMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         announcementMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return announcementMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -150,6 +148,7 @@ public class AnnouncementService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, announcementMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "announcement", null, null);
     }
 }
+

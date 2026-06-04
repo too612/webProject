@@ -1,12 +1,11 @@
 package com.main.app.official.news.event;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.event.dto.EventDto;
 import com.main.app.official.news.event.dto.EventRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import java.util.UUID;
 public class EventService {
 
     private final EventMapper eventMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public EventService(EventMapper eventMapper) {
+    public EventService(EventMapper eventMapper, FileService fileService) {
         this.eventMapper = eventMapper;
+        this.fileService = fileService;
     }
 
     @SuppressWarnings("null")
@@ -53,7 +51,7 @@ public class EventService {
 
         EventDto board = eventMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(eventMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -100,12 +98,12 @@ public class EventService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         eventMapper.deleteComments(rqstNo);
-        eventMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         eventMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return eventMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -150,6 +148,7 @@ public class EventService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, eventMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "event", null, null);
     }
 }
+

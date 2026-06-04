@@ -1,12 +1,11 @@
 package com.main.app.official.news.registration;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.registration.dto.RegistrationDto;
 import com.main.app.official.news.registration.dto.RegistrationRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import java.util.UUID;
 public class RegistrationService {
 
     private final RegistrationMapper registrationMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public RegistrationService(RegistrationMapper registrationMapper) {
+    public RegistrationService(RegistrationMapper registrationMapper, FileService fileService) {
         this.registrationMapper = registrationMapper;
+        this.fileService = fileService;
     }
 
     @SuppressWarnings("null")
@@ -53,7 +51,7 @@ public class RegistrationService {
 
         RegistrationDto board = registrationMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(registrationMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -100,12 +98,12 @@ public class RegistrationService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         registrationMapper.deleteComments(rqstNo);
-        registrationMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         registrationMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return registrationMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -150,6 +148,7 @@ public class RegistrationService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, registrationMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "registration", null, null);
     }
 }
+

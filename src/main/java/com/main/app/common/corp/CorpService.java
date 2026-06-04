@@ -12,7 +12,7 @@ public class CorpService {
     private final CorpMapper corpMapper;
 
     @Transactional(readOnly = true)
-    public CorpDto getCorpInfo(String sessIp) {
+    public CorpDto getInfo(String sessIp) {
         return corpMapper.selectCorpInfo(sessIp);
     }
 }

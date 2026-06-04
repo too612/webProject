@@ -10,7 +10,11 @@
             corp_name AS corpName,
             business_registration_number AS businessRegistrationNumber,
             chief_name AS chiefName,
-            chief_image_path AS chiefImagePath,
+            CASE
+                WHEN chief_image_path = 'single-image' THEN 'single-image'
+                WHEN chief_image_path = 'split-editor-image' THEN 'split-editor-image'
+                ELSE 'split-editor-image'
+            END AS displayMode,
             phone_number AS phoneNumber,
             postal_code AS postalCode,
             address_line1 AS addressLine1,
@@ -23,7 +27,8 @@
         LIMIT 1
     </select>
 
-    <insert id="insertPastorProfile" parameterType="com.main.app.official.about.pastor.dto.PastorRequest">
+    <insert id="insertPastorProfile" parameterType="com.main.app.official.about.pastor.dto.PastorRequest"
+            useGeneratedKeys="true" keyProperty="corpId">
         INSERT INTO com_corp (
             corp_name,
             business_registration_number,
@@ -45,16 +50,16 @@
             #{corpName},
             #{businessRegistrationNumber},
             #{chiefName},
-            #{chiefImagePath},
+            COALESCE(#{displayMode}, 'split-editor-image'),
             #{phoneNumber},
             #{postalCode},
             #{addressLine1},
             #{addressLine2},
             #{introduction},
-            #{createdBy},
-            CAST(#{createdIp} AS inet),
-            #{updatedBy},
-            CAST(#{updatedIp} AS inet),
+            COALESCE(NULLIF(#{createdBy}, ''), 'system'),
+            CAST(COALESCE(NULLIF(#{createdIp}, ''), '127.0.0.1') AS inet),
+            COALESCE(NULLIF(#{updatedBy}, ''), COALESCE(NULLIF(#{createdBy}, ''), 'system')),
+            CAST(COALESCE(NULLIF(#{updatedIp}, ''), COALESCE(NULLIF(#{createdIp}, ''), '127.0.0.1')) AS inet),
             NOW(),
             TRUE,
             FALSE
@@ -67,14 +72,14 @@
             corp_name = COALESCE(#{request.corpName}, corp_name),
             business_registration_number = COALESCE(#{request.businessRegistrationNumber}, business_registration_number),
             chief_name = COALESCE(#{request.chiefName}, chief_name),
-            chief_image_path = #{request.chiefImagePath},
+            chief_image_path = COALESCE(#{request.displayMode}, chief_image_path),
             phone_number = #{request.phoneNumber},
             postal_code = #{request.postalCode},
             address_line1 = #{request.addressLine1},
             address_line2 = #{request.addressLine2},
             introduction = #{request.introduction},
-            updated_by = #{request.updatedBy},
-            updated_ip = CAST(#{request.updatedIp} AS inet),
+                        updated_by = COALESCE(NULLIF(#{request.updatedBy}, ''), 'system'),
+                        updated_ip = CAST(COALESCE(NULLIF(#{request.updatedIp}, ''), '127.0.0.1') AS inet),
             updated_at = NOW()
         WHERE corp_id = #{corpId}
           AND is_deleted = FALSE

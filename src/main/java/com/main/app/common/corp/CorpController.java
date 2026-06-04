@@ -16,9 +16,9 @@ public class CorpController {
 
     private final CorpService corpService;
 
-    @GetMapping("/getCorpInfo")
-    public ApiResponse<CorpDto> getCorpInfo(HttpServletRequest request) {
+    @GetMapping("/getInfo")
+    public ApiResponse<CorpDto> getInfo(HttpServletRequest request) {
         String sessIp = ClientIpUtil.resolveClientIp(request);
-        return ApiResponse.ok(corpService.getCorpInfo(sessIp));
+        return ApiResponse.ok(corpService.getInfo(sessIp));
     }
 }

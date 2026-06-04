@@ -4,6 +4,8 @@
     [string]$Action
 )
 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
 chcp 65001 | Out-Null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
@@ -309,13 +311,13 @@ function Start-Servers {
     $frontendCommand = $encInit + "`$host.UI.RawUI.WindowTitle='$frontendWindowTitle'; Set-Location -LiteralPath '$frontendDir'; npm run dev"
 
     Write-Info '백엔드 연속 컴파일 창을 시작합니다.'
-    $backendWatchProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-Command', $backendWatchCommand) -PassThru
+    $backendWatchProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-ExecutionPolicy', 'Bypass', '-Command', $backendWatchCommand) -PassThru
 
     Write-Info '백엔드 서버 창을 시작합니다.'
-    $backendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-Command', $backendCommand) -PassThru
+    $backendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-ExecutionPolicy', 'Bypass', '-Command', $backendCommand) -PassThru
 
     Write-Info '프론트 서버 창을 시작합니다.'
-    $frontendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-Command', $frontendCommand) -PassThru
+    $frontendProc = Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-NoLogo', '-ExecutionPolicy', 'Bypass', '-Command', $frontendCommand) -PassThru
 
     $newState = @{
         backendPid      = $backendProc.Id

@@ -9,9 +9,24 @@ function isHistoryTimelineItem(value: unknown): value is HistoryContent['timelin
   }
 
   const candidate = value as Partial<HistoryContent['timeline'][number]>;
+  const isEventItem = (event: unknown): boolean => {
+    if (!event || typeof event !== 'object') {
+      return false;
+    }
+
+    const eventCandidate = event as { date?: unknown; description?: unknown; images?: unknown };
+    const validImages =
+      eventCandidate.images === undefined
+      || (Array.isArray(eventCandidate.images) && eventCandidate.images.every((image) => typeof image === 'string'));
+
+    return typeof eventCandidate.date === 'string'
+      && typeof eventCandidate.description === 'string'
+      && validImages;
+  };
+
   return typeof candidate.year === 'string'
     && Array.isArray(candidate.events)
-    && candidate.events.every((event) => typeof event === 'string');
+    && candidate.events.every((event) => isEventItem(event));
 }
 
 function isHistoryContent(value: unknown): value is HistoryContent {

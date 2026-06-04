@@ -1,12 +1,11 @@
 package com.main.app.official.news.bulletin;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
-import com.main.app.common.util.FileUploadUtil;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.bulletin.dto.BulletinDto;
 import com.main.app.official.news.bulletin.dto.BulletinRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import java.util.UUID;
 public class BulletinService {
 
     private final BulletinMapper bulletinMapper;
+    private final FileService fileService;
 
-    @Value("${spring.servlet.multipart.location:c:/upload/}")
-    private String uploadPath;
-
-    public BulletinService(BulletinMapper bulletinMapper) {
+    public BulletinService(BulletinMapper bulletinMapper, FileService fileService) {
         this.bulletinMapper = bulletinMapper;
+        this.fileService = fileService;
     }
 
     @SuppressWarnings("null")
@@ -53,7 +51,7 @@ public class BulletinService {
 
         BulletinDto board = bulletinMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(bulletinMapper.selectFileList(rqstNo));
+            board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -100,12 +98,12 @@ public class BulletinService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         bulletinMapper.deleteComments(rqstNo);
-        bulletinMapper.deleteFiles(rqstNo);
+        fileService.softDeleteFilesByBoardNo(rqstNo);
         bulletinMapper.deleteBoard(rqstNo);
     }
 
     public FileDto getFile(Long fileId) {
-        return bulletinMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
@@ -150,6 +148,7 @@ public class BulletinService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        FileUploadUtil.saveFiles(boardNo, files, uploadPath, bulletinMapper::insertFile);
+        fileService.uploadFiles(boardNo, files, "board", "bulletin", null, null);
     }
 }
+

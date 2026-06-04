@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.file.FileMapper">
+
+    <resultMap id="fileResultMap" type="com.main.app.common.file.dto.FileDto">
+        <id property="fileId" column="file_id"/>
+        <result property="boardNo" column="board_no"/>
+        <result property="orgFileNm" column="org_file_nm"/>
+        <result property="storedFileNm" column="stored_file_nm"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="fileCategory" column="file_category"/>
+        <result property="menuKey" column="menu_key"/>
+        <result property="pathYear" column="path_year"/>
+        <result property="pathMmdd" column="path_mmdd"/>
+        <result property="relativeDir" column="relative_dir"/>
+        <result property="filePath" column="relative_path"/>
+        <result property="relativePath" column="relative_path"/>
+        <result property="fileExt" column="file_ext"/>
+        <result property="mimeType" column="mime_type"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="uploaderIp" column="uploader_ip"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="insDt" column="ins_dt"/>
+        <result property="delDt" column="del_dt"/>
+    </resultMap>
+
+    <insert id="insertFile" parameterType="com.main.app.common.file.dto.FileDto" useGeneratedKeys="true" keyProperty="fileId">
+        INSERT INTO file_table (
+            board_no,
+            org_file_nm,
+            stored_file_nm,
+            file_size,
+            file_category,
+            menu_key,
+            path_year,
+            path_mmdd,
+            relative_dir,
+            relative_path,
+            file_ext,
+            mime_type,
+            uploader_id,
+            uploader_ip,
+            is_deleted,
+            ins_dt
+        ) VALUES (
+            #{boardNo},
+            #{orgFileNm},
+            #{storedFileNm},
+            #{fileSize},
+            #{fileCategory},
+            #{menuKey},
+            #{pathYear},
+            #{pathMmdd},
+            #{relativeDir},
+            #{relativePath},
+            #{fileExt},
+            #{mimeType},
+            #{uploaderId},
+            #{uploaderIp},
+            COALESCE(#{isDeleted}, FALSE),
+            NOW()
+        )
+    </insert>
+
+    <select id="selectFile" resultMap="fileResultMap">
+        SELECT
+            file_id,
+            board_no,
+            org_file_nm,
+            stored_file_nm,
+            file_size,
+            file_category,
+            menu_key,
+            path_year,
+            path_mmdd,
+            relative_dir,
+            relative_path,
+            file_ext,
+            mime_type,
+            uploader_id,
+            uploader_ip,
+            is_deleted,
+            ins_dt,
+            del_dt
+        FROM file_table
+        WHERE file_id = #{fileId}
+          AND is_deleted = FALSE
+    </select>
+
+    <select id="selectFileList" resultMap="fileResultMap">
+        SELECT
+            file_id,
+            board_no,
+            org_file_nm,
+            stored_file_nm,
+            file_size,
+            file_category,
+            menu_key,
+            path_year,
+            path_mmdd,
+            relative_dir,
+            relative_path,
+            file_ext,
+            mime_type,
+            uploader_id,
+            uploader_ip,
+            is_deleted,
+            ins_dt,
+            del_dt
+        FROM file_table
+        WHERE board_no = #{boardNo}
+          AND is_deleted = FALSE
+        ORDER BY ins_dt DESC
+    </select>
+
+    <update id="softDeleteFile">
+        UPDATE file_table
+        SET is_deleted = TRUE,
+            del_dt = NOW()
+        WHERE file_id = #{fileId}
+          AND is_deleted = FALSE
+    </update>
+
+    <update id="softDeleteFilesByBoardNo">
+        UPDATE file_table
+        SET is_deleted = TRUE,
+            del_dt = NOW()
+        WHERE board_no = #{boardNo}
+          AND is_deleted = FALSE
+    </update>
+
+</mapper>

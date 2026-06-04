@@ -11,7 +11,7 @@ export function useCorpInfo() {
     setLoading(true);
     setError(null);
     try {
-      const data = await corpApi.getCorpInfo();
+      const data = await corpApi.getInfo();
       setCorpInfo(data);
     } catch (e) {
       const message = e instanceof Error ? e.message : '기관정보 조회 중 오류가 발생했습니다.';

@@ -55,7 +55,7 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
         { menuId: 'official-about-pastor', menuName: '담임목사', path: '/about/pastor', parentId: 'official-about', level: 2, orderNo: 1, subMenus: [] },
         { menuId: 'official-about-vision', menuName: '비전', path: '/about/vision', parentId: 'official-about', level: 2, orderNo: 2, subMenus: [] },
         { menuId: 'official-about-history', menuName: '연혁', path: '/about/history', parentId: 'official-about', level: 2, orderNo: 3, subMenus: [] },
-        { menuId: 'official-about-beliefs', menuName: '신앙고백', path: '/about/beliefs', parentId: 'official-about', level: 2, orderNo: 4, subMenus: [] },
+        { menuId: 'official-about-congregation', menuName: '공동체 안내', path: '/about/congregation', parentId: 'official-about', level: 2, orderNo: 4, subMenus: [] },
       ],
     },
     {

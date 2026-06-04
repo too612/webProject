@@ -30,7 +30,7 @@ export default function Footer() {
             <a href="#" title="Naver" className="naver">
               <img src="/img/sns_icon_naver_gray.png" alt="Naver" />
             </a>
-            <a href="#" title="YouTube" className="youtube">
+            <a href="https://www.youtube.com/@dsr87450" title="YouTube" className="youtube" target="_blank" rel="noopener noreferrer">
               <img src="/img/sns_icon_youtube_gray.png" alt="YouTube" />
             </a>
             <a href="#" title="Kakao" className="kakao">

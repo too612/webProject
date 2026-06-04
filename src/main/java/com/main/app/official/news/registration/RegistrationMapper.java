@@ -1,7 +1,6 @@
 package com.main.app.official.news.registration;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.dto.FileDto;
 import com.main.app.official.news.registration.dto.RegistrationDto;
 import com.main.app.official.news.registration.dto.RegistrationRequest;
 import org.apache.ibatis.annotations.Mapper;
@@ -27,16 +26,7 @@ public interface RegistrationMapper {
     void updateReplyOrder(Map<String, Object> params);
 
     void deleteComments(String boardNo);
-
-    void deleteFiles(String boardNo);
-
     void deleteBoard(String id);
-
-    void insertFile(FileDto fileDto);
-
-    FileDto selectFile(Long fileId);
-
-    List<FileDto> selectFileList(String boardNo);
 
     List<CommentDto> selectCommentList(String boardNo);
 
@@ -52,3 +42,4 @@ public interface RegistrationMapper {
 
     void decreaseDislike(int commentId);
 }
+
