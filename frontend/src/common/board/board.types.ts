@@ -13,6 +13,10 @@ export interface BoardItem {
   title: string;
   cont?: string;
   rqstId?: string;
+  preacherName?: string;
+  scriptureReference?: string;
+  sermonDate?: string;
+  worshipType?: string;
   insDt?: string;
   uptDt?: string;
   views?: number;

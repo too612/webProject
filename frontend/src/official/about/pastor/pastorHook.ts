@@ -48,6 +48,24 @@ export function usePastorProfile() {
           deletedFileIds,
         };
         await pastorApi.setUpdate(profile.corpId, updateRequest, files);
+
+        // Reflect edited fields immediately, then reconcile with server response.
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                corpName: payload.corpName,
+                businessRegistrationNumber: payload.businessRegistrationNumber,
+                chiefName: payload.chiefName,
+                displayMode: payload.displayMode,
+                phoneNumber: payload.phoneNumber,
+                postalCode: payload.postalCode,
+                addressLine1: payload.addressLine1,
+                addressLine2: payload.addressLine2,
+                introduction: payload.introduction,
+              }
+            : prev
+        );
       } else {
         await pastorApi.setCreate(payload, files);
       }

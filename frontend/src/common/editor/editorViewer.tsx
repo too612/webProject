@@ -10,13 +10,20 @@ function escapeHtml(value: string): string {
 }
 
 function toRenderableHtml(value: string): string {
-  const trimmed = value.trim();
-  const hasHtmlTag = /<\/?[a-z][\s\S]*>/i.test(trimmed);
+  const normalized = value.replace(/\r\n?/g, '\n');
+  const hasHtmlTag = /<\/?[a-z][\s\S]*>/i.test(normalized.trim());
   if (hasHtmlTag) {
-    return trimmed;
+    const hasLineBreakTag = /<(br\s*\/?)>/i.test(normalized);
+    const hasBlockTag = /<\/?(p|div|section|article|blockquote|li|ul|ol|h[1-6]|pre|table|tr|td|th|hr)\b/i.test(normalized);
+
+    if (!hasLineBreakTag && !hasBlockTag && normalized.includes('\n')) {
+      return normalized.replace(/\n/g, '<br />');
+    }
+
+    return normalized;
   }
 
-  return escapeHtml(trimmed).replace(/\n/g, '<br />');
+  return escapeHtml(normalized).replace(/\n/g, '<br />');
 }
 
 export default function EditorViewer({ value, emptyText = '등록된 내용이 없습니다.' }: EditorViewerProps) {

@@ -38,17 +38,19 @@ export default function VisionPage() {
             </div>
           </div>
 
-          <aside className="border border-slate-200 bg-slate-50/70 p-5 space-y-3">
+          <div className="space-y-3">
             <h3 className="font-bold text-brand-dark">사역 방향</h3>
-            <ul className="space-y-2 text-sm text-gray-700">
-              {content.ministryDirections.map((direction) => (
-                <li key={direction} className="flex gap-2 items-start">
-                  <span className="mt-[7px] inline-block h-1.5 w-1.5 bg-brand-primary" aria-hidden="true" />
-                  <span>{direction}</span>
-                </li>
-              ))}
-            </ul>
-          </aside>
+            <aside className="border border-slate-200 bg-slate-50/70 p-5">
+              <ul className="space-y-2 text-sm text-gray-700">
+                {content.ministryDirections.map((direction) => (
+                  <li key={direction} className="flex gap-2 items-start">
+                    <span className="mt-[7px] inline-block h-1.5 w-1.5 bg-brand-primary" aria-hidden="true" />
+                    <span>{direction}</span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
         </div>
 
         <blockquote className="border-l-4 border-brand-primary bg-white px-4 py-3 italic text-sm text-gray-600">

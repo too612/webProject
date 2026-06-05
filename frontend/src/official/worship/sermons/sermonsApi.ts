@@ -17,12 +17,14 @@ type BoardViewPayload = {
   board: BoardDto;
   comments: CommentDto[];
   commentCount: number;
+  userVotes?: Record<string, 'like' | 'dislike' | null | undefined>;
 };
 
 type BoardListQuery = {
   page?: number;
   searchType?: string;
   keyword?: string;
+  worshipType?: string;
 };
 
 function appendIfPresent(formData: FormData, key: string, value: unknown) {
@@ -37,6 +39,7 @@ export const sermonsApi = {
         page: query.page ?? 0,
         searchType: query.searchType,
         keyword: query.keyword,
+        worshipType: query.worshipType,
       },
     });
 
@@ -62,6 +65,7 @@ export const sermonsApi = {
       board: data?.board ?? null,
       comments: data?.comments ?? [],
       commentCount: data?.commentCount ?? 0,
+      userVotes: data?.userVotes ?? {},
     };
   },
 
@@ -105,11 +109,15 @@ export const sermonsApi = {
     return response.data;
   },
 
-  async saveBoard(payload: Partial<BoardDto>, files: File[] = []) {
+  async saveBoard(payload: Partial<BoardDto>, files: File[] = [], deletedFileIds: (string | number)[] = []) {
     const formData = new FormData();
     appendIfPresent(formData, 'title', payload.title);
     appendIfPresent(formData, 'cont', payload.cont);
     appendIfPresent(formData, 'rqstId', payload.rqstId);
+    appendIfPresent(formData, 'preacherName', payload.preacherName);
+    appendIfPresent(formData, 'scriptureReference', payload.scriptureReference);
+    appendIfPresent(formData, 'sermonDate', payload.sermonDate);
+    appendIfPresent(formData, 'worshipType', payload.worshipType);
     appendIfPresent(formData, 'secret', payload.secret);
     appendIfPresent(formData, 'password', payload.password);
     appendIfPresent(formData, 'boardType', payload.boardType);
@@ -120,6 +128,10 @@ export const sermonsApi = {
 
     files.forEach((file) => {
       formData.append('files', file);
+    });
+
+    deletedFileIds.forEach((fileId) => {
+      formData.append('deletedFileIds', String(fileId));
     });
 
     const response = await client.post<ApiResponse<{ basePath?: string; rqstNo?: string }>>(
@@ -135,18 +147,26 @@ export const sermonsApi = {
     return response.data.data ?? null;
   },
 
-  async updateBoard(payload: Partial<BoardDto>, files: File[] = []) {
+  async updateBoard(payload: Partial<BoardDto>, files: File[] = [], deletedFileIds: (string | number)[] = []) {
     const formData = new FormData();
     appendIfPresent(formData, 'rqstNo', payload.rqstNo);
     appendIfPresent(formData, 'title', payload.title);
     appendIfPresent(formData, 'cont', payload.cont);
     appendIfPresent(formData, 'rqstId', payload.rqstId);
+    appendIfPresent(formData, 'preacherName', payload.preacherName);
+    appendIfPresent(formData, 'scriptureReference', payload.scriptureReference);
+    appendIfPresent(formData, 'sermonDate', payload.sermonDate);
+    appendIfPresent(formData, 'worshipType', payload.worshipType);
     appendIfPresent(formData, 'secret', payload.secret);
     appendIfPresent(formData, 'password', payload.password);
     appendIfPresent(formData, 'boardType', payload.boardType);
 
     files.forEach((file) => {
       formData.append('files', file);
+    });
+
+    deletedFileIds.forEach((fileId) => {
+      formData.append('deletedFileIds', String(fileId));
     });
 
     const response = await client.post<ApiResponse<{ rqstNo?: string }>>(
@@ -191,7 +211,7 @@ export const sermonsApi = {
   },
 
   async voteComment(commentId: number | string, action: 'like' | 'dislike') {
-    const response = await client.post<ApiResponse<{ likes: number; dislikes: number; userVote: string }>>(
+    const response = await client.post<ApiResponse<{ likes: number; dislikes: number; userVote?: 'like' | 'dislike' | null }>>(
       `${SERMONS_API_BASE_PATH}/comment/vote`,
       { commentId: String(commentId), action },
       { headers: { 'Content-Type': 'application/json' } }

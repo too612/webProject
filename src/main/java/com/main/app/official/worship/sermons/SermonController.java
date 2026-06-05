@@ -37,6 +37,8 @@ import jakarta.servlet.http.HttpSession;
 public class SermonController {
 
     private static final String BASE_PATH = "/worship/sermons";
+    private static final String VIEW_HISTORY_SESSION_KEY = "sermonViewHistory";
+    private static final long VIEW_COUNT_COOLDOWN_MILLIS = 3000L;
 
     private final SermonService sermonService;
 
@@ -48,9 +50,10 @@ public class SermonController {
     public ApiResponse<Page<SermonDto>> list(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "searchType", required = false) String searchType,
-            @RequestParam(name = "keyword", required = false) String keyword) {
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "worshipType", required = false) String worshipType) {
         Pageable pageable = PageRequest.of(page, 10);
-        Page<SermonDto> paging = sermonService.getBoardList(pageable, searchType, keyword);
+        Page<SermonDto> paging = sermonService.getBoardList(pageable, searchType, keyword, worshipType);
         return ApiResponse.ok(paging);
     }
 
@@ -98,7 +101,7 @@ public class SermonController {
         sermonService.updateBoard(request, files);
 
         Map<String, String> payload = new HashMap<>();
-        payload.put("rqstNo", request.getRqstNo());
+        payload.put("rqstNo", request.getRqstNo() == null ? "" : String.valueOf(request.getRqstNo()));
         return ApiResponse.ok(payload, "게시글이 수정되었습니다.");
     }
 
@@ -115,7 +118,19 @@ public class SermonController {
     public ApiResponse<Map<String, Object>> view(
             @RequestParam(name = "rqstNo") String rqstNo,
             HttpSession session) {
-        SermonDto board = sermonService.getBoardDetail(rqstNo, true);
+        @SuppressWarnings("unchecked")
+        Map<String, Long> viewHistory = (Map<String, Long>) session.getAttribute(VIEW_HISTORY_SESSION_KEY);
+        if (viewHistory == null) {
+            viewHistory = new HashMap<>();
+            session.setAttribute(VIEW_HISTORY_SESSION_KEY, viewHistory);
+        }
+
+        long now = System.currentTimeMillis();
+        Long lastViewedAt = viewHistory.get(rqstNo);
+        boolean increaseViewCount = lastViewedAt == null || (now - lastViewedAt) >= VIEW_COUNT_COOLDOWN_MILLIS;
+
+        SermonDto board = sermonService.getBoardDetail(rqstNo, increaseViewCount);
+        viewHistory.put(rqstNo, now);
         List<CommentDto> comments = sermonService.getCommentList(rqstNo);
 
         @SuppressWarnings("unchecked")
@@ -137,7 +152,7 @@ public class SermonController {
             @RequestParam(name = "rqstNo") String rqstNo,
             @RequestParam(name = "password") String password) {
         SermonDto board = sermonService.getBoardDetail(rqstNo, false);
-        if (board == null || !password.equals(board.getPassword())) {
+        if (board == null || !sermonService.isValidPassword(rqstNo, password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다."));
         }
@@ -204,4 +219,3 @@ public class SermonController {
         return ApiResponse.ok(response);
     }
 }
-

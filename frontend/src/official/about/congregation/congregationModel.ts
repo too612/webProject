@@ -10,7 +10,7 @@ export type CongregationContent = {
 };
 
 export const DEFAULT_CONGREGATION_CONTENT: CongregationContent = {
-  headline: '공동체 이야기',
+  headline: '공동체안내',
   summary:
     '말씀과 성령 안에서 장년, 청년, 차세대가 함께 자라가는 공동체를 소개합니다.',
   congregations: [

@@ -2,4 +2,61 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.main.app.system.config.code.CodeMapper"></mapper>
+<mapper namespace="com.main.app.system.config.code.CodeMapper">
+
+        <sql id="codeSource">
+                SELECT v.group_code AS groupCode
+                         , v.group_name AS groupName
+                         , v.code_value AS codeValue
+                         , v.code_name AS codeName
+                         , v.order_no AS orderNo
+                  FROM (
+                                VALUES
+                                        ('WORSHIP_TYPE', '예배구분', 'SUNDAY', '주일예배', 10),
+                                        ('WORSHIP_TYPE', '예배구분', 'WEDNESDAY', '수요예배', 20),
+                                        ('WORSHIP_TYPE', '예배구분', 'DAWN', '새벽예배', 30),
+                                        ('WORSHIP_TYPE', '예배구분', 'SPECIAL', '특별예배', 40)
+                           ) AS v(group_code, group_name, code_value, code_name, order_no)
+        </sql>
+
+        <select id="selectCodeList" resultType="com.main.app.system.config.code.dto.CodeDto">
+                SELECT C.groupCode
+                         , C.groupName
+                         , C.codeValue
+                         , C.codeName
+                         , C.orderNo
+                  FROM (
+                                <include refid="codeSource"/>
+                           ) C
+                 WHERE 1 = 1
+                <if test="groupCode != null and groupCode != ''">
+                        AND C.groupCode = #{groupCode}
+                </if>
+                <if test="keyword != null and keyword != ''">
+                        AND (C.groupCode ILIKE CONCAT('%', #{keyword}, '%')
+                                OR C.groupName ILIKE CONCAT('%', #{keyword}, '%')
+                                OR C.codeValue ILIKE CONCAT('%', #{keyword}, '%')
+                                OR C.codeName ILIKE CONCAT('%', #{keyword}, '%'))
+                </if>
+                 ORDER BY C.groupCode ASC, C.orderNo ASC, C.codeValue ASC
+                 LIMIT #{size} OFFSET #{offset}
+        </select>
+
+        <select id="countCodeList" resultType="long">
+                SELECT COUNT(*)
+                  FROM (
+                                <include refid="codeSource"/>
+                           ) C
+                 WHERE 1 = 1
+                <if test="groupCode != null and groupCode != ''">
+                        AND C.groupCode = #{groupCode}
+                </if>
+                <if test="keyword != null and keyword != ''">
+                        AND (C.groupCode ILIKE CONCAT('%', #{keyword}, '%')
+                                OR C.groupName ILIKE CONCAT('%', #{keyword}, '%')
+                                OR C.codeValue ILIKE CONCAT('%', #{keyword}, '%')
+                                OR C.codeName ILIKE CONCAT('%', #{keyword}, '%'))
+                </if>
+        </select>
+
+</mapper>

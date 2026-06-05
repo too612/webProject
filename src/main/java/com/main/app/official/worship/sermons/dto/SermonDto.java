@@ -1,5 +1,6 @@
 package com.main.app.official.worship.sermons.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,6 +15,10 @@ public class SermonDto {
     private String title;
     private String cont;
     private String rqstId;
+    private String preacherName;
+    private String scriptureReference;
+    private LocalDate sermonDate;
+    private String worshipType;
     private LocalDateTime insDt;
     private LocalDateTime uptDt;
     private Integer views;
@@ -34,4 +39,3 @@ public class SermonDto {
 
     private Integer commentCount;
 }
-

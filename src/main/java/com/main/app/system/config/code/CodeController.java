@@ -20,7 +20,8 @@ public class CodeController {
     public ApiResponse<Map<String, Object>> getCodeList(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "keyword", required = false) String keyword) {
-        return ApiResponse.ok(codeService.getCodeList(page, size, keyword));
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "groupCode", required = false) String groupCode) {
+        return ApiResponse.ok(codeService.getCodeList(page, size, keyword, groupCode));
     }
 }

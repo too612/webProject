@@ -361,6 +361,19 @@
     margin-right: auto !important;
 }
 
+.editor-viewer-content p {
+    margin: 0;
+    line-height: 1.7;
+}
+
+.editor-viewer-content p:empty::before {
+    content: "\00a0";
+}
+
+.editor-viewer-content p:empty {
+    min-height: 1.7em;
+}
+
 .editor-viewer-content img.editor-image-align-center {
     display: block;
     margin-left: auto !important;
@@ -1168,6 +1181,12 @@ ul, li {
         min-width: 0;
         min-height: 40px;
         font-size: 13px;
+    }
+
+    .breadcrumb .dropdown-menu {
+        min-width: 100%;
+        width: 100%;
+        text-align: center;
     }
 
     .breadcrumb-item > button {

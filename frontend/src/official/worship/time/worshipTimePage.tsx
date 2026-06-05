@@ -1,63 +1,91 @@
-﻿import { useEffect, useMemo } from 'react';
+﻿/**
+ * File Name   : worshipTimePage
+ * Description : 예배시간 안내 조회 화면
+ * -----------------------------------------------------------------------------
+ */
+
+import { useEffect, useMemo } from 'react';
 import { useWorshipTimeItems } from './worshipTimeHook';
+
+/****************************************************************************************************
+ * config/constant method (상수, 타입가드, 값 보정 유틸)
+ ****************************************************************************************************/
+
+const PAGE_DESCRIPTION = '하나님께 드리는 거룩한 예배와 모임의 시간을 안내드립니다.';
+
+/****************************************************************************************************
+ * component method (state, hook 초기화)
+ ****************************************************************************************************/
 
 export default function WorshipTimePage() {
   const { items, loading, error, loadWorshipTimeItems } = useWorshipTimeItems();
 
+  /****************************************************************************************************
+   * initial/lifecycle method (onload 및 데이터 동기화)
+   ****************************************************************************************************/
+
   useEffect(() => {
     loadWorshipTimeItems();
   }, [loadWorshipTimeItems]);
+
+  /****************************************************************************************************
+   * logic method (업무 검증 및 값 계산)
+   ****************************************************************************************************/
 
   const schedules = useMemo(
     () => [...items].sort((left, right) => (left.orderNo ?? 999) - (right.orderNo ?? 999)),
     [items]
   );
 
+  /****************************************************************************************************
+   * render method (조회 모드 UI 렌더링)
+   ****************************************************************************************************/
+
   return (
-    <section className="space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-brand-dark">예배 시간 안내</h2>
-        <p className="text-sm text-gray-500">정기 예배 및 모임 일정을 안내드립니다.</p>
-        {error && <div className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</div>}
-      </div>
+    <section className="space-y-5">
+      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-8">
+        {/* 헤더 섹션: pastorPage 스타일 적용 */}
+        <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
+          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">예배 시간 안내</h2>
+          <p className="text-sm text-gray-600 leading-relaxed">{PAGE_DESCRIPTION}</p>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {!loading && schedules.length === 0 && (
-          <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 text-sm text-gray-500">
-            등록된 예배 시간이 없습니다.
-          </article>
+        {error && (
+          <div className="rounded-none bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         )}
-        {schedules.map((item) => (
-          <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2" key={`${item.orderNo ?? 0}-${item.time ?? ''}-${item.title ?? ''}`}>
-            <span className="text-xs text-brand-primary font-medium">{item.time ?? '-'}</span>
-            <h3 className="font-semibold text-brand-dark">{item.title ?? item.category ?? '예배'}</h3>
-            <p className="text-sm text-gray-500">{item.note ?? ''}</p>
-          </article>
-        ))}
-      </div>
 
-      <div className="bg-white rounded-panel shadow-panel border border-gray-100 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-brand-primary text-white">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">구분</th>
-              <th className="px-4 py-3 text-left font-medium">시간</th>
-              <th className="px-4 py-3 text-left font-medium">비고</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {schedules.map((item) => (
-              <tr key={`table-${item.orderNo ?? 0}-${item.title ?? ''}`}>
-                <td className="px-4 py-3 text-gray-700">{item.category ?? item.title ?? '-'}</td>
-                <td className="px-4 py-3 text-gray-700">{item.time ?? '-'}</td>
-                <td className="px-4 py-3 text-gray-500">{item.location ?? '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        {/* 현대적인 리스트 디자인 */}
+        <div className="divide-y divide-slate-100 border-t border-slate-200">
+          {!loading && schedules.length === 0 && (
+            <div className="py-20 text-center text-slate-400 text-sm">
+              등록된 예배 시간 정보가 없습니다.
+            </div>
+          )}
+          {schedules.map((item) => (
+            <div 
+              key={`schedule-${item.orderNo ?? 0}-${item.title ?? ''}`}
+              className="group grid grid-cols-1 md:grid-cols-[160px_1fr] items-center py-5 md:py-6 px-2 hover:bg-slate-50/50 transition-colors"
+            >
+              <div className="text-brand-primary font-bold text-lg mb-1 md:mb-0">
+                {item.time ?? '-'}
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-slate-800">{item.title ?? item.category ?? '예배'}</h3>
+                <p className="text-sm text-slate-500">{item.note ?? ''}</p>
+              </div>
+            </div>
+          ))}
+        </div>
 
-      <p className="text-xs text-gray-400 text-center">예배 시간은 교회 일정에 따라 변경될 수 있습니다. 변경 시 공지사항을 확인해 주세요.</p>
+        <div className="pt-4 border-t border-slate-100">
+          <p className="text-xs text-slate-400 flex items-center gap-1">
+            <span className="material-icons text-sm">info</span>
+            예배 시간은 교회 일정에 따라 변경될 수 있습니다. 변경 시 공지사항을 확인해 주세요.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

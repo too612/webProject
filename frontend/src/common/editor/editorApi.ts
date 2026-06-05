@@ -6,6 +6,11 @@ export const editorApi = {
   },
 
   toPlainText(value: EditorValue): string {
-    return (value ?? '').replace(/<[^>]*>/g, '').trim();
+    return (value ?? '')
+      .replace(/\r\n?/g, '\n')
+      .replace(/<br\s*\/?\s*>/gi, '\n')
+      .replace(/<\/p>\s*<p>/gi, '\n')
+      .replace(/<[^>]*>/g, '')
+      .trim();
   },
 };

@@ -86,6 +86,7 @@ export default function Attachment({
   accept,
   maxFiles,
   maxFileSize,
+  compact = false,
 }: AttachmentProps) {
   const [uploading, setUploading] = useState<UploadEntry[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -206,7 +207,7 @@ export default function Attachment({
     <div
       {...getRootProps()}
       className={[
-        'relative rounded-xl border p-3 text-sm transition-colors',
+        `relative rounded-xl border ${compact ? 'p-2 text-xs' : 'p-3 text-sm'} transition-colors`,
         isDragActive ? 'border-blue-400 bg-blue-50/60' : 'border-slate-200 bg-slate-50/40',
       ].join(' ')}
     >
@@ -217,7 +218,7 @@ export default function Attachment({
       {isDragActive && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-blue-50/85">
           <div className="flex flex-col items-center gap-1 text-blue-500">
-            <span className="material-icons text-4xl">cloud_upload</span>
+            <span className={`material-icons ${compact ? 'text-3xl' : 'text-4xl'}`}>cloud_upload</span>
             <span className="text-xs font-medium">여기에 놓으세요</span>
           </div>
         </div>
@@ -225,16 +226,16 @@ export default function Attachment({
 
       <div
         className={[
-          'rounded-lg border border-dashed px-4 py-5 transition-colors',
+          `rounded-lg border border-dashed ${compact ? 'px-3 py-3' : 'px-4 py-5'} transition-colors`,
           canAdd ? 'cursor-pointer' : 'cursor-default',
           isDragActive ? 'border-blue-400 bg-blue-50/70' : 'border-slate-300 bg-white',
         ].join(' ')}
       >
         <div className="flex flex-col items-center justify-center gap-2 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-            <span className="material-icons text-[20px]">upload_file</span>
+          <div className={`flex items-center justify-center rounded-full bg-slate-100 text-slate-500 ${compact ? 'h-8 w-8' : 'h-10 w-10'}`}>
+            <span className={`material-icons ${compact ? 'text-base' : 'text-[20px]'}`}>upload_file</span>
           </div>
-          <p className="text-sm font-medium text-slate-700">
+          <p className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-slate-700`}>
             {canAdd ? '파일을 드래그하거나 선택해서 업로드하세요' : '첨부 가능한 파일 수에 도달했습니다'}
           </p>
           <p className="text-xs text-slate-400">

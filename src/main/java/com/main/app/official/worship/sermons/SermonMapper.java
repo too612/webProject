@@ -26,8 +26,19 @@ public interface SermonMapper {
 
     void updateReplyOrder(Map<String, Object> params);
 
-    void deleteComments(String boardNo);
-    void deleteBoard(String id);
+    int softDeleteComments(Long sermonId);
+
+    int softDeleteFiles(Long sermonId);
+
+    int softDeleteBoard(Long sermonId);
+
+    void insertFile(com.main.app.common.file.dto.FileDto fileDto);
+
+    com.main.app.common.file.dto.FileDto selectFile(Long fileId);
+
+    List<com.main.app.common.file.dto.FileDto> selectFileList(Long sermonId);
+
+    int softDeleteFileById(Long fileId);
 
     List<CommentDto> selectCommentList(String boardNo);
 
@@ -43,4 +54,3 @@ public interface SermonMapper {
 
     void decreaseDislike(int commentId);
 }
-

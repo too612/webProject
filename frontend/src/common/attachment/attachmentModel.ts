@@ -42,6 +42,8 @@ export type AttachmentProps = {
   maxFiles?: number;
   /** 파일당 최대 크기(바이트, 기본: 무제한) */
   maxFileSize?: number;
+  /** 컴팩트 모드 (높이를 줄인 레이아웃) */
+  compact?: boolean;
 };
 
 /** useAttachment 훅 반환값 */

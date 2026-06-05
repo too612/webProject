@@ -15,6 +15,7 @@ export type SystemConfigCodeListQuery = {
   page?: number;
   size?: number;
   keyword?: string;
+  groupCode?: string;
 };
 
 type SpringPage<T> = {
@@ -45,6 +46,10 @@ export const systemConfigCodeApi = {
 
       if (query.keyword) {
         params.keyword = query.keyword;
+      }
+
+      if (query.groupCode) {
+        params.groupCode = query.groupCode;
       }
 
       const response = await client.get<ApiResponse<SpringPage<SystemConfigCodeRow>>>('/system/config/codes', { params });

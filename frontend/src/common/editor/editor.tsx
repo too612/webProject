@@ -43,6 +43,29 @@ type EditorImageAttrs = {
   height?: number | null;
 };
 
+const hasHtmlTag = (value: string) => /<\/?[a-z][\s\S]*>/i.test(value.trim());
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const normalizeEditorContent = (value: string) => {
+  const normalized = (value || '').replace(/\r\n?/g, '\n');
+  if (!normalized) {
+    return '';
+  }
+
+  if (hasHtmlTag(normalized)) {
+    return normalized;
+  }
+
+  return `<p>${escapeHtml(normalized).replace(/\n/g, '<br />')}</p>`;
+};
+
 const getImagePosFromSelection = (editorInstance: NonNullable<ReturnType<typeof useEditor>>) => {
   const { selection, doc } = editorInstance.state;
   const { from, to } = selection;
@@ -495,7 +518,7 @@ export default function Editor({
         placeholder,
       }),
     ],
-    content: value,
+    content: normalizeEditorContent(value),
     editable: !disabled,
     onUpdate: ({ editor: currentEditor }) => {
       const html = currentEditor.getHTML();
@@ -519,7 +542,7 @@ export default function Editor({
       return;
     }
 
-    const incoming = value || '';
+    const incoming = normalizeEditorContent(value || '');
     if (incoming === lastEmittedHtmlRef.current) {
       return;
     }
