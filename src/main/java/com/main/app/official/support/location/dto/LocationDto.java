@@ -12,4 +12,6 @@ public class LocationDto {
     private String notice;
     private String naverMapUrl;
     private String kakaoMapUrl;
+    private Double lat; // 위도
+    private Double lng; // 경도
 }

@@ -1,4 +1,4 @@
-export type LiveTab = 'videos' | 'shorts' | 'live';
+export type LiveTab = 'sunday_day' | 'sunday_evening' | 'friday' | 'live';
 
 export type LiveItem = {
   tabType?: string;
@@ -6,5 +6,7 @@ export type LiveItem = {
   description?: string;
   linkUrl?: string;
   cta?: string;
+  thumbnailUrl?: string;
+  videoId?: string;
   orderNo?: number;
 };

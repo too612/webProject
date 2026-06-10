@@ -7,12 +7,14 @@
         SELECT
             '다사랑교회 오시는 길' AS title,
             '교회 위치와 교통 안내를 확인하세요.' AS subtitle,
-            '세종특별자치시 집현북로 52' AS address,
-            '044-000-0000' AS phone,
-            '평일 09:00~18:00' AS hours,
-            '대중교통 및 주차 안내는 예배 전 공지사항을 참고해 주세요.' AS notice,
-            'https://map.naver.com/v5/search/%EC%84%B8%EC%A2%85%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EC%8B%9C%20%EC%A7%91%ED%98%84%EB%B6%81%EB%A1%9C%2052' AS naverMapUrl,
-            'https://map.kakao.com/link/search/%EC%84%B8%EC%A2%85%ED%8A%B9%EB%B3%84%EC%9E%90%EC%B9%98%EC%8B%9C%20%EC%A7%91%ED%98%84%EB%B6%81%EB%A1%9C%2052' AS kakaoMapUrl
+            '경기도 오산시 오산로 132번길 28-19' AS address,
+            '031-373-2071' AS phone,
+            '매일 09:00~18:00' AS hours,
+            '대중교통 및 주차 안내에 대한 세부문의는 전화번호를 확인바랍니다.' AS notice,
+            'https://map.naver.com/v5/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%98%A4%EC%82%B0%EC%8B%9C%20%EC%98%A4%EC%82%B0%EB%A1%9C%20132%EB%B2%88%EA%B8%B8%2028-19' AS naverMapUrl,
+            'https://map.kakao.com/link/search/%EA%B2%BD%EA%B8%B0%EB%8F%84%20%EC%98%A4%EC%82%B0%EC%8B%9C%20%EC%98%A4%EC%82%B0%EB%A1%9C%20132%EB%B2%88%EA%B8%B8%2028-19' AS kakaoMapUrl,
+            37.1382391818775 AS lat,
+            127.072737195697 AS lng
     </select>
 
 </mapper>

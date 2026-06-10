@@ -11,6 +11,13 @@
                '라이브 페이지 열기' AS cta,
                1 AS orderNo
         UNION ALL
+        SELECT 'videos' AS tabType,
+               '최근 예배 영상' AS title,
+               '유튜브 채널에서 최신 예배 영상을 시청하실 수 있습니다.' AS description,
+               'https://www.youtube.com/@dsr87450/videos' AS linkUrl,
+               '전체 영상 보기' AS cta,
+               2 AS orderNo
+        UNION ALL
         SELECT 'shorts' AS tabType,
                'Shorts 묵상 모음' AS title,
                '짧은 말씀 요약과 교회 소식을 Shorts 채널에서 바로 확인할 수 있습니다.' AS description,

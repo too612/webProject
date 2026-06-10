@@ -12,7 +12,7 @@ export type VisionContent = {
 };
 
 export const DEFAULT_VISION_CONTENT: VisionContent = {
-  headline: '하나님을 기쁘시게 하는 교회',
+  headline: '건강한 교회 행복한 성도',
   summary:
     '우리 교회는 예배와 말씀, 사랑과 섬김을 통해 도시와 다음 세대를 세워가는 공동체가 되기를 꿈꿉니다.',
   coreVisions: [

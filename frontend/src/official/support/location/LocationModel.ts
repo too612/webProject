@@ -7,4 +7,6 @@ export type LocationInfo = {
   notice: string;
   naverMapUrl: string;
   kakaoMapUrl: string;
+  lat?: number;
+  lng?: number;
 };

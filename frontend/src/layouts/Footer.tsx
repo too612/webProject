@@ -27,16 +27,16 @@ export default function Footer() {
             </div>
           </div>
           <div className="footer-social">
-            <a href="#" title="Naver" className="naver">
+            <a href="#" title="Naver" className="naver" target="_blank" rel="noopener noreferrer">
               <img src="/img/sns_icon_naver_gray.png" alt="Naver" />
             </a>
             <a href="https://www.youtube.com/@dsr87450" title="YouTube" className="youtube" target="_blank" rel="noopener noreferrer">
               <img src="/img/sns_icon_youtube_gray.png" alt="YouTube" />
             </a>
-            <a href="#" title="Kakao" className="kakao">
+            <a href="#" title="Kakao" className="kakao" target="_blank" rel="noopener noreferrer">
               <img src="/img/sns_icon_kakao_gray.png" alt="Kakao" />
             </a>
-            <a href="#" title="Instagram" className="instagram">
+            <a href="https://www.instagram.com/dsrang_church?igsh=MzcyNjZvbXd1djJq" title="Instagram" className="instagram" target="_blank" rel="noopener noreferrer">
               <img src="/img/sns_icon_instagram_gray.png" alt="Instagram" />
             </a>
           </div>

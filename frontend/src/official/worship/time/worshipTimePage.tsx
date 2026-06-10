@@ -46,7 +46,7 @@ export default function WorshipTimePage() {
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-8">
         {/* 헤더 섹션: pastorPage 스타일 적용 */}
         <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">예배 시간 안내</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">예배시간</h2>
           <p className="text-sm text-gray-600 leading-relaxed">{PAGE_DESCRIPTION}</p>
         </div>
 
@@ -71,9 +71,17 @@ export default function WorshipTimePage() {
               <div className="text-brand-primary font-bold text-lg mb-1 md:mb-0">
                 {item.time ?? '-'}
               </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-semibold text-slate-800">{item.title ?? item.category ?? '예배'}</h3>
-                <p className="text-sm text-slate-500">{item.note ?? ''}</p>
+              <div className="md:pl-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+                <div className="space-y-1 text-left">
+                  <h3 className="text-base font-semibold text-slate-800">{item.title ?? item.category ?? '예배'}</h3>
+                  <p className="text-sm text-slate-500">{item.note ?? ''}</p>
+                </div>
+                {item.location && (
+                  <div className="flex items-center gap-1 text-xs text-slate-400 shrink-0">
+                    <span className="material-icons text-sm">place</span>
+                    <span>{item.location}</span>
+                  </div>
+                )}
               </div>
             </div>
           ))}

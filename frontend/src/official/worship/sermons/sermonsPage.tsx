@@ -8,6 +8,7 @@
 import { FormEvent, Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Attachment, useAttachment } from '../../../common/attachment';
+import EditorViewer from '../../../common/editor/editorViewer';
 import { sermonsApi } from './sermonsApi';
 import { SERMONS_API_BASE_PATH, SERMONS_BASE_PATH } from './sermonsModel';
 import { systemConfigCodeApi } from '../../../system/config/code/codeApi';
@@ -82,7 +83,7 @@ export default function SermonsPage() {
   const [searchType, setSearchType] = useState(searchParams.get('searchType') ?? 'title');
   const [keyword, setKeyword] = useState(searchParams.get('keyword') ?? '');
   const [inputKeyword, setInputKeyword] = useState(searchParams.get('keyword') ?? '');
-  const [worshipType, setWorshipType] = useState(searchParams.get('worshipType') ?? '');
+  const [worshipType] = useState(searchParams.get('worshipType') ?? '');
   const [items, setItems] = useState<BoardDto[]>([]);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -169,7 +170,7 @@ export default function SermonsPage() {
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">주일설교</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">설교정보</h2>
             <p className="text-sm text-gray-600 leading-relaxed">게시물 수: {totalElements || rows.length} | 페이지: {page + 1}/{Math.max(totalPages, 1)}</p>
           </div>
           <Link className="hidden sm:inline-flex items-center bg-brand-primary !text-white rounded-md px-4 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] transition-colors" to={WRITE_PATH}>글쓰기</Link>
@@ -253,7 +254,7 @@ export default function SermonsPage() {
           ))}
         </div>
 
-        <form className="max-w-2xl mx-auto space-y-3 border border-slate-200 bg-slate-50/50 p-4" onSubmit={onSearch}>
+        <form className="w-full space-y-3" onSubmit={onSearch}>
           <div className="flex items-center gap-2">
             <select className="w-[112px] shrink-0 border border-slate-200 rounded-md px-2.5 py-2 text-sm text-slate-700" value={searchType} onChange={(event) => setSearchType(event.target.value)}>
               <option value="title">제목</option>
@@ -670,7 +671,9 @@ export function SermonsViewPage() {
           </div>
         </section>
 
-        <section className="py-4 prose max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: resolvedContent }} />
+        <section className="py-4 text-gray-700">
+          <EditorViewer value={resolvedContent} emptyText="등록된 내용이 없습니다." />
+        </section>
 
         <section className="mt-6 pt-6 border-t border-gray-100">
           <div className="mb-3 flex items-center justify-between">
@@ -942,14 +945,10 @@ export function SermonsWritePage() {
               <label className="block text-sm font-medium text-gray-700">설교일자</label>
               <input
                 className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                type="text"
-                inputMode="numeric"
-                maxLength={10}
-                placeholder="YYYY-MM-DD"
+                type="date"
                 value={form.sermonDate}
                 onChange={(event) => setForm((prev) => ({ ...prev, sermonDate: event.target.value }))}
               />
-              <p className="text-xs text-gray-400">연-월-일만 입력합니다.</p>
             </div>
           </div>
 
