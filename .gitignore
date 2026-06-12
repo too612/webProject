@@ -51,3 +51,4 @@ logs/*.gz
 /*.txt
 !HELP.md
 
+node_modules

@@ -1,5 +1,6 @@
 package com.main.app.common.file;
 
+import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -7,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -73,8 +76,8 @@ public class FileController {
 
         try {
             Resource resource = new UrlResource(path.toUri());
-            String encodedFileName = URLEncoder.encode(file.getOrgFileNm(), StandardCharsets.UTF_8).replaceAll("\\+",
-                    "%20");
+            String encodedFileName = URLEncoder.encode(file.getOrgFileNm(), StandardCharsets.UTF_8)
+                    .replaceAll("\\+", "%20");
             String disposition = "attachment; filename*=UTF-8''" + encodedFileName;
 
             return ResponseEntity.ok()
@@ -82,6 +85,53 @@ public class FileController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
         } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * 게시글에 첨부된 파일 전체를 ZIP으로 묶어 다운로드한다.
+     * URL: GET /api/common/files/getInfoZip?boardNo={boardNo}
+     * 프론트엔드의 buildZipUrl: `/api/common/files/getInfoZip?boardNo=${rqstNo}`
+     */
+    @GetMapping("/getInfoZip")
+    public ResponseEntity<byte[]> downloadZip(@RequestParam("boardNo") String boardNo) {
+        List<FileDto> files = fileService.getFileList(boardNo);
+
+        if (files == null || files.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ZipOutputStream zos = new ZipOutputStream(baos)) {
+
+            for (FileDto file : files) {
+                Path path = resolvePhysicalPath(file);
+                if (path == null || !Files.exists(path)) {
+                    continue; // 물리 파일이 없으면 건너뜀
+                }
+
+                // ZIP 내 파일명 중복 방지: fileId_원본파일명
+                String entryName = file.getFileId() + "_" + file.getOrgFileNm();
+                zos.putNextEntry(new ZipEntry(entryName));
+                Files.copy(path, zos);
+                zos.closeEntry();
+            }
+
+            zos.finish();
+            byte[] zipBytes = baos.toByteArray();
+
+            String encodedFileName = URLEncoder.encode("download.zip", StandardCharsets.UTF_8)
+                    .replaceAll("\\+", "%20");
+            String disposition = "attachment; filename*=UTF-8''" + encodedFileName;
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(zipBytes.length))
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(zipBytes);
+
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
