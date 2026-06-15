@@ -51,7 +51,7 @@ public class BulletinService {
 
         BulletinDto board = bulletinMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+         //   board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class BulletinService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         bulletinMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+      //  fileService.softDeleteFilesByBoardNo(rqstNo);
         bulletinMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,7 @@ public class BulletinService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "bulletin", null, null);
+       // fileService.uploadFiles(boardNo, files, "board", "bulletin", null, null);
     }
 }
 

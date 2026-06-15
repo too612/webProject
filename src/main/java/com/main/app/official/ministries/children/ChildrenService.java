@@ -51,7 +51,7 @@ public class ChildrenService {
 
         ChildrenDto board = childrenMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class ChildrenService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         childrenMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         childrenMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,6 @@ public class ChildrenService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "children", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "children", null, null);
     }
 }
-

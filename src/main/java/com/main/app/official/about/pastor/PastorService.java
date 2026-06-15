@@ -34,7 +34,7 @@ public class PastorService {
         PastorDto profile = pastorMapper.selectPastorProfile();
         if (profile != null && profile.getCorpId() != null) {
             try {
-                profile.setFileList(fileService.getFileList(String.valueOf(profile.getCorpId())));
+                profile.setFileList(fileService.getFileList("pastor", String.valueOf(profile.getCorpId())));
             } catch (Exception ex) {
                 log.warn("Failed to load pastor file list for corpId={}", profile.getCorpId(), ex);
             }
@@ -75,9 +75,8 @@ public class PastorService {
         }
 
         if (request.getCorpId() != null) {
-            fileService.uploadFiles(String.valueOf(request.getCorpId()), files, "photo", "pastor",
-                    effectiveUpdatedBy,
-                    effectiveIp);
+            fileService.uploadFiles("pastor", String.valueOf(request.getCorpId()), files,
+                    effectiveUpdatedBy, effectiveIp);
         }
     }
 
@@ -104,8 +103,8 @@ public class PastorService {
         }
 
         if (files != null && !files.isEmpty()) {
-            fileService.softDeleteFilesByBoardNo(String.valueOf(corpId));
-            fileService.uploadFiles(String.valueOf(corpId), files, "photo", "pastor", effectiveUpdatedBy,
+            fileService.softDeleteFilesByRef("pastor", String.valueOf(corpId));
+            fileService.uploadFiles("pastor", String.valueOf(corpId), files, effectiveUpdatedBy,
                     effectiveUpdatedIp);
         }
     }

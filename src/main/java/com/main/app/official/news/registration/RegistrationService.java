@@ -51,7 +51,7 @@ public class RegistrationService {
 
         RegistrationDto board = registrationMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+           // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class RegistrationService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         registrationMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+        //fileService.softDeleteFilesByBoardNo(rqstNo);
         registrationMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,7 @@ public class RegistrationService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "registration", null, null);
+       // fileService.uploadFiles(boardNo, files, "board", "registration", null, null);
     }
 }
 

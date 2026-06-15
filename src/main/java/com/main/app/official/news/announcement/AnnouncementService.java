@@ -51,7 +51,7 @@ public class AnnouncementService {
 
         AnnouncementDto board = announcementMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class AnnouncementService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         announcementMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         announcementMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,6 @@ public class AnnouncementService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "announcement", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "announcement", null, null);
     }
 }
-

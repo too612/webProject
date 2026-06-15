@@ -15,9 +15,7 @@ type SpringPage<T> = {
 
 type BoardViewPayload = {
   board: BoardDto;
-  comments: CommentDto[];
   commentCount: number;
-  userVotes?: Record<string, 'like' | 'dislike' | null | undefined>;
 };
 
 type BoardListQuery = {
@@ -55,17 +53,15 @@ export const sermonsApi = {
     };
   },
 
-  async getBoardView(rqstNo: string) {
+  async getBoardView(rqstNo: string, password?: string) {
     const response = await client.get<ApiResponse<BoardViewPayload>>(`${SERMONS_API_BASE_PATH}/view`, {
-      params: { rqstNo },
+      params: { rqstNo, password },
     });
 
     const data = response.data.data;
     return {
       board: data?.board ?? null,
-      comments: data?.comments ?? [],
       commentCount: data?.commentCount ?? 0,
-      userVotes: data?.userVotes ?? {},
     };
   },
 
@@ -83,33 +79,7 @@ export const sermonsApi = {
     return response.data.data ?? null;
   },
 
-  async saveComment(data: {
-    boardNo: string;
-    content: string;
-    writer?: string;
-    secret?: string;
-    spoiler?: string;
-    password?: string;
-    parentCommentId?: number;
-  }) {
-    const formData = new URLSearchParams();
-    formData.set('boardNo', data.boardNo);
-    formData.set('content', data.content);
-    if (data.writer) formData.set('writer', data.writer);
-    if (data.secret) formData.set('secret', data.secret);
-    if (data.spoiler) formData.set('spoiler', data.spoiler);
-    if (data.password) formData.set('password', data.password);
-    if (data.parentCommentId != null) formData.set('parentCommentId', String(data.parentCommentId));
-
-    const response = await client.post<ApiResponse<{ boardNo: string }>>(
-      `${SERMONS_API_BASE_PATH}/comment/write`,
-      formData,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
-    return response.data;
-  },
-
-  async saveBoard(payload: Partial<BoardDto>, files: File[] = [], deletedFileIds: (string | number)[] = []) {
+  async saveBoard(payload: Partial<BoardDto>) {
     const formData = new FormData();
     appendIfPresent(formData, 'title', payload.title);
     appendIfPresent(formData, 'cont', payload.cont);
@@ -126,28 +96,16 @@ export const sermonsApi = {
     appendIfPresent(formData, 'depth', payload.depth);
     appendIfPresent(formData, 'orderNo', payload.orderNo);
 
-    files.forEach((file) => {
-      formData.append('files', file);
-    });
-
-    deletedFileIds.forEach((fileId) => {
-      formData.append('deletedFileIds', String(fileId));
-    });
-
     const response = await client.post<ApiResponse<{ basePath?: string; rqstNo?: string }>>(
       `${SERMONS_API_BASE_PATH}/write`,
       formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      { headers: { 'Content-Type': 'multipart/form-data' } }
     );
 
     return response.data.data ?? null;
   },
 
-  async updateBoard(payload: Partial<BoardDto>, files: File[] = [], deletedFileIds: (string | number)[] = []) {
+  async updateBoard(payload: Partial<BoardDto>) {
     const formData = new FormData();
     appendIfPresent(formData, 'rqstNo', payload.rqstNo);
     appendIfPresent(formData, 'title', payload.title);
@@ -161,22 +119,10 @@ export const sermonsApi = {
     appendIfPresent(formData, 'password', payload.password);
     appendIfPresent(formData, 'boardType', payload.boardType);
 
-    files.forEach((file) => {
-      formData.append('files', file);
-    });
-
-    deletedFileIds.forEach((fileId) => {
-      formData.append('deletedFileIds', String(fileId));
-    });
-
     const response = await client.post<ApiResponse<{ rqstNo?: string }>>(
       `${SERMONS_API_BASE_PATH}/update`,
       formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      { headers: { 'Content-Type': 'multipart/form-data' } }
     );
 
     return response.data.data ?? null;
@@ -210,12 +156,4 @@ export const sermonsApi = {
     }
   },
 
-  async voteComment(commentId: number | string, action: 'like' | 'dislike') {
-    const response = await client.post<ApiResponse<{ likes: number; dislikes: number; userVote?: 'like' | 'dislike' | null }>>(
-      `${SERMONS_API_BASE_PATH}/comment/vote`,
-      { commentId: String(commentId), action },
-      { headers: { 'Content-Type': 'application/json' } }
-    );
-    return response.data.data ?? null;
-  },
 };

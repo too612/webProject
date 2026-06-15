@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.comment.CommentMapper">
+
+    <resultMap id="commentResultMap" type="com.main.app.common.comment.dto.CommentDto">
+        <id property="commentId" column="comment_id"/>
+        <result property="pgmId" column="pgm_id"/>
+        <result property="refId" column="ref_id"/>
+        <result property="parentCommentId" column="parent_comment_id"/>
+        <result property="writer" column="writer"/>
+        <result property="content" column="content"/>
+        <result property="secret" column="secret"/>
+        <result property="password" column="password"/>
+        <result property="spoiler" column="spoiler"/>
+        <result property="likes" column="likes"/>
+        <result property="dislikes" column="dislikes"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="insDt" column="ins_dt"/>
+        <collection property="replies" column="comment_id" javaType="java.util.List" ofType="com.main.app.common.comment.dto.CommentDto" select="selectReplies"/>
+    </resultMap>
+
+    <select id="selectCommentList" resultMap="commentResultMap">
+        SELECT * FROM com_comment
+         WHERE pgm_id = #{pgmId}
+           AND ref_id = #{refId}
+           AND parent_comment_id IS NULL
+           AND is_deleted = FALSE
+         ORDER BY ins_dt ASC
+    </select>
+
+    <select id="selectReplies" resultMap="commentResultMap">
+        SELECT * FROM com_comment
+         WHERE parent_comment_id = #{parentCommentId}
+           AND is_deleted = FALSE
+         ORDER BY ins_dt ASC
+    </select>
+
+    <insert id="insertComment" parameterType="com.main.app.common.comment.dto.CommentDto">
+        INSERT INTO com_comment (
+            pgm_id, ref_id, parent_comment_id, writer, content, 
+            secret, password, spoiler, ins_dt, ins_id, is_deleted
+        ) VALUES (
+            #{pgmId}, #{refId}, #{parentCommentId}, #{writer}, #{content}, 
+            COALESCE(#{secret}, 'N'), #{password}, COALESCE(#{spoiler}, 'N'), NOW(), #{insId}, FALSE
+        )
+    </insert>
+
+    <select id="selectCommentById" resultMap="commentResultMap">
+        SELECT * FROM com_comment WHERE comment_id = #{commentId}
+    </select>
+
+    <update id="updateVote">
+        UPDATE com_comment
+           SET 
+           <choose>
+               <when test="action == 'like'">likes = likes + #{count}</when>
+               <otherwise>dislikes = dislikes + #{count}</otherwise>
+           </choose>
+         WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="softDeleteComment">
+        UPDATE com_comment
+           SET is_deleted = TRUE,
+               del_dt = NOW(),
+               upd_dt = NOW(),
+               upd_id = #{updId}
+         WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- pgmId + refId 기준 전체 소프트 삭제 (게시글 삭제 시 연관 댓글 일괄 처리) -->
+    <update id="softDeleteCommentsByRef">
+        UPDATE com_comment
+           SET is_deleted = TRUE,
+               del_dt = NOW()
+         WHERE pgm_id = #{pgmId}
+           AND ref_id = #{refId}
+           AND is_deleted = FALSE
+    </update>
+
+</mapper>

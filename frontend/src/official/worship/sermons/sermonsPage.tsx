@@ -21,12 +21,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ko } from 'date-fns/locale';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Attachment, useAttachment } from '../../../common/attachment';
+import { Attachment, useAttachment, attachmentApi } from '../../../common/attachment';
+import { CommentSection } from '../../../common/comment';
 import EditorViewer from '../../../common/editor/editorViewer';
 import { sermonsApi } from './sermonsApi';
-import { SERMONS_API_BASE_PATH, SERMONS_BASE_PATH } from './sermonsModel';
+import { SERMONS_BASE_PATH } from './sermonsModel';
 import { systemConfigCodeApi } from '../../../system/config/code/codeApi';
-import type { BoardItem as BoardDto, CommentItem as CommentDto, FileItem as FileDto } from '../../../common/board/board.types';
+import type { BoardItem as BoardDto, FileItem as FileDto } from '../../../common/board/board.types';
 import type { SystemConfigCodeRow } from '../../../system/config/code/codeModel';
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -47,17 +48,6 @@ type BoardItem = {
   depth: number;
 };
 
-type CommentFormState = {
-  writer: string;
-  content: string;
-  secret: boolean;
-  spoiler: boolean;
-  password: string;
-  parentCommentId: number | undefined;
-};
-
-type SortType = 'latest' | 'popular';
-
 type WorshipTypeOption = {
   value: string;
   label: string;
@@ -70,9 +60,6 @@ type WorshipTypeOption = {
 const VIEW_PATH = `${SERMONS_BASE_PATH}/view`;
 const WRITE_PATH = `${SERMONS_BASE_PATH}/write`;
 const SERMONS_LIST_PATH = SERMONS_BASE_PATH;
-
-/** 댓글 최대 depth — 이 값 이상이면 답글 버튼을 숨긴다 */
-const MAX_COMMENT_DEPTH = 3;
 
 const DEFAULT_WORSHIP_TYPE_OPTIONS: WorshipTypeOption[] = [
   { value: 'SUNDAY', label: '주일예배' },
@@ -98,26 +85,6 @@ function normalizeDate(value: unknown): string {
   const str = String(value);
   // ISO datetime (2024-05-19T00:00:00) → 날짜 부분만 추출
   return str.slice(0, 10);
-}
-
-function updateCommentVotes(list: CommentDto[], commentId: number | string, likes: number, dislikes: number): CommentDto[] {
-  return list.map((comment) => {
-    if (String(comment.commentId) === String(commentId)) return { ...comment, likes, dislikes };
-    if (comment.replies?.length) return { ...comment, replies: updateCommentVotes(comment.replies, commentId, likes, dislikes) };
-    return comment;
-  });
-}
-
-function countAllComments(list: CommentDto[]): number {
-  return list.reduce((sum, c) => sum + 1 + countAllComments(c.replies ?? []), 0);
-}
-
-function getDepthIndentClass(depth: number): string {
-  if (depth <= 0) return '';
-  if (depth === 1) return 'ml-3 sm:ml-6';
-  if (depth === 2) return 'ml-4 sm:ml-12';
-  if (depth === 3) return 'ml-4 sm:ml-[72px]';
-  return 'ml-4 sm:ml-24';
 }
 
 function resolveWorshipTypeLabel(value: unknown): string {
@@ -192,7 +159,7 @@ function formatDateToString(date: Date): string {
 function parseDateString(value: string): Date | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
   const parsed = new Date(value);
-  return isNaN(parsed.getTime()) ? null : parsed;
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function DateInput({
@@ -219,7 +186,7 @@ function DateInput({
         slotProps={{
           field: {
             id,
-          } as object,
+          },
           textField: {
             size: 'small',
             fullWidth: true,
@@ -394,41 +361,41 @@ export default function SermonsPage() {
                   <td className="hidden sm:table-cell px-4 py-3 text-center text-gray-500 whitespace-nowrap">{post.rowNum}</td>
                   <td className="px-4 py-3 text-center text-gray-500 text-xs whitespace-nowrap">{post.worshipType}</td>
                   <td className="px-4 py-3">
-                    {post.secret ? (
-                      <button
-                        type="button"
-                        className={`border-0 bg-transparent p-0 text-left text-brand-dark hover:text-brand-primary hover:underline${post.depth > 0 ? ' pl-5' : ''}`}
-                        onClick={() => setSecretModal({ show: true, rqstNo: String(post.id), password: '' })}
-                      >
-                        {post.depth > 0 && (
-                          <span className="material-icons reply-icon mr-1 align-middle text-base">subdirectory_arrow_right</span>
-                        )}
-                        <span className="material-icons lock-icon">lock</span>
-                        {post.title}
-                        {post.commentCount > 0 && (
-                          <span className="ml-1 text-[13px] text-red-500">[{post.commentCount}]</span>
-                        )}
-                        {post.hasFile && (
-                          <span className="material-icons ml-1 align-middle text-xs text-gray-500" title="첨부파일 있음">attach_file</span>
-                        )}
-                      </button>
-                    ) : (
-                      <Link
-                        to={`${VIEW_PATH}?rqstNo=${post.id}`}
-                        className={`text-brand-dark hover:text-brand-primary hover:underline${post.depth > 0 ? ' pl-5' : ''}`}
-                      >
-                        {post.depth > 0 && (
-                          <span className="material-icons reply-icon mr-1 align-middle text-base">subdirectory_arrow_right</span>
-                        )}
-                        {post.title}
-                        {post.commentCount > 0 && (
-                          <span className="ml-1 text-[13px] text-red-500">[{post.commentCount}]</span>
-                        )}
-                        {post.hasFile && (
-                          <span className="material-icons ml-1 align-middle text-xs text-gray-500" title="첨부파일 있음">attach_file</span>
-                        )}
-                      </Link>
-                    )}
+                    {/* 화살표만으로 답글 표현 */}
+                    <div className="flex items-center">
+                      {post.depth > 0 && (
+                        <span className="material-icons mr-1 text-sm text-slate-400 shrink-0">subdirectory_arrow_right</span>
+                      )}
+                      {post.secret ? (
+                        <button
+                          type="button"
+                          className="border-0 bg-transparent p-0 text-left text-brand-dark hover:text-brand-primary hover:underline inline-flex items-center gap-1"
+                          onClick={() => setSecretModal({ show: true, rqstNo: String(post.id), password: '' })}
+                        >
+                          <span className="material-icons text-sm text-slate-400">lock</span>
+                          {post.title}
+                          {post.commentCount > 0 && (
+                            <span className="text-[13px] text-red-500">[{post.commentCount}]</span>
+                          )}
+                          {post.hasFile && (
+                            <span className="material-icons text-xs text-gray-500" title="첨부파일 있음">attach_file</span>
+                          )}
+                        </button>
+                      ) : (
+                        <Link
+                          to={`${VIEW_PATH}?rqstNo=${post.id}`}
+                          className="text-brand-dark hover:text-brand-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          {post.title}
+                          {post.commentCount > 0 && (
+                            <span className="text-[13px] text-red-500">[{post.commentCount}]</span>
+                          )}
+                          {post.hasFile && (
+                            <span className="material-icons text-xs text-gray-500" title="첨부파일 있음">attach_file</span>
+                          )}
+                        </Link>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center text-gray-400 text-xs">{post.author}</td>
                   <td className="hidden sm:table-cell px-4 py-3 text-center text-gray-400 text-xs">{post.date}</td>
@@ -533,204 +500,6 @@ export default function SermonsPage() {
     </section>
   );
 }
-
-/****************************************************************************************************
- * CommentItem — 댓글 단위 컴포넌트 (재귀)
- ****************************************************************************************************/
-
-function CommentItem({
-  comment,
-  depth,
-  onVote,
-  onSubmitReply,
-  commentLoading,
-  voteMap,
-}: {
-  comment: CommentDto;
-  depth: number;
-  onVote: (commentId: number | string, action: 'like' | 'dislike') => void;
-  onSubmitReply: (parentCommentId: number | undefined, form: CommentFormState) => Promise<void>;
-  commentLoading: boolean;
-  voteMap: Record<string, 'like' | 'dislike' | undefined>;
-}) {
-  const [showReplyForm, setShowReplyForm] = useState(false);
-  const [spoilerVisible, setSpoilerVisible] = useState(false);
-  const [replyForm, setReplyForm] = useState<CommentFormState>({
-    writer: '',
-    content: '',
-    secret: false,
-    spoiler: false,
-    password: '',
-    parentCommentId: typeof comment.commentId === 'number' ? comment.commentId : Number(comment.commentId),
-  });
-
-  const isSecret = comment.secret === 'Y';
-  const isSpoiler = comment.spoiler === 'Y';
-  const currentUserVote = voteMap[String(comment.commentId)];
-  // 최대 depth 초과 시 답글 버튼 숨김
-  const canReply = depth < MAX_COMMENT_DEPTH;
-
-  const handleReplySubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    await onSubmitReply(replyForm.parentCommentId, replyForm);
-    setShowReplyForm(false);
-    setReplyForm((prev) => ({ ...prev, writer: '', content: '', password: '' }));
-  };
-
-  return (
-    <div
-      className={`bg-gray-50 rounded-none p-4${
-        depth > 0 ? ` border-l-2 border-gray-200 ${getDepthIndentClass(depth)}` : ''
-      }`}
-    >
-      <div>
-        {/* 댓글 헤더 */}
-        <div className="flex items-center gap-2 mb-2">
-          {depth > 0 && (
-            <span className="material-icons reply-icon align-middle text-base text-gray-500">subdirectory_arrow_right</span>
-          )}
-          <span className="font-semibold text-sm text-brand-dark">{comment.writer ?? '익명'}</span>
-          <span className="text-xs text-gray-400">
-            {comment.insDt ? String(comment.insDt).replace('T', ' ').slice(0, 16) : ''}
-          </span>
-          {isSecret && <span className="material-icons text-sm text-gray-500" title="비밀글">lock</span>}
-          {isSpoiler && <span className="spoiler-label ml-1 text-xs text-amber-500">스포일러</span>}
-        </div>
-
-        {/* 댓글 본문 */}
-        {isSecret ? (
-          <div className="text-sm text-gray-400 italic">
-            <span className="material-icons align-middle text-sm">lock</span> 작성자만 볼 수 있는 댓글입니다.
-          </div>
-        ) : isSpoiler && !spoilerVisible ? (
-          <div
-            className="select-none cursor-pointer text-sm text-gray-700 blur-[6px]"
-            onClick={() => setSpoilerVisible(true)}
-            title="클릭하면 내용을 볼 수 있습니다"
-          >
-            {comment.content ?? ''}
-          </div>
-        ) : (
-          <div className="text-sm text-gray-700">{comment.content ?? ''}</div>
-        )}
-
-        {/* 좋아요/싫어요/답글 액션 */}
-        <div className="comment-actions mt-1.5 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onVote(comment.commentId, 'like')}
-            className={`inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-[13px] transition-colors ${
-              currentUserVote === 'like' ? 'text-slate-800' : 'text-slate-600 hover:text-slate-800'
-            }`}
-          >
-            <span className="material-icons text-base">
-              {currentUserVote === 'like' ? 'thumb_up' : 'thumb_up_off_alt'}
-            </span>
-            {comment.likes ?? 0}
-          </button>
-          <button
-            type="button"
-            onClick={() => onVote(comment.commentId, 'dislike')}
-            className={`inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-[13px] transition-colors ${
-              currentUserVote === 'dislike' ? 'text-slate-800' : 'text-slate-600 hover:text-slate-800'
-            }`}
-          >
-            <span className="material-icons text-base">
-              {currentUserVote === 'dislike' ? 'thumb_down' : 'thumb_down_off_alt'}
-            </span>
-            {comment.dislikes ?? 0}
-          </button>
-          {isSpoiler && spoilerVisible && (
-            <button
-              type="button"
-              className="cursor-pointer border-0 bg-transparent text-xs text-amber-500"
-              onClick={() => setSpoilerVisible(false)}
-            >
-              숨기기
-            </button>
-          )}
-          {canReply && (
-            <button
-              type="button"
-              onClick={() => setShowReplyForm((v) => !v)}
-              className="cursor-pointer border-0 bg-transparent text-[13px] text-gray-500"
-            >
-              {showReplyForm ? '취소' : '답글'}
-            </button>
-          )}
-        </div>
-
-        {/* 답글 작성 폼 */}
-        {showReplyForm && (
-          <form onSubmit={handleReplySubmit} className="mt-2 border-t border-gray-200 pt-2">
-            <textarea
-              className="form-textarea w-full !min-h-[56px]"
-              placeholder="답글을 입력하세요."
-              value={replyForm.content}
-              onChange={(e) => setReplyForm((prev) => ({ ...prev, content: e.target.value }))}
-              rows={2}
-            />
-            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
-              <input
-                className="form-input w-[96px]"
-                type="text"
-                placeholder="작성자"
-                value={replyForm.writer}
-                onChange={(e) => setReplyForm((prev) => ({ ...prev, writer: e.target.value }))}
-              />
-              <input
-                className="form-input w-[96px]"
-                type="password"
-                placeholder="비밀번호"
-                value={replyForm.password}
-                onChange={(e) => setReplyForm((prev) => ({ ...prev, password: e.target.value }))}
-              />
-              <label className="inline-flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={replyForm.secret}
-                  onChange={(e) => setReplyForm((prev) => ({ ...prev, secret: e.target.checked }))}
-                />
-                비밀글
-              </label>
-              <label className="inline-flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={replyForm.spoiler}
-                  onChange={(e) => setReplyForm((prev) => ({ ...prev, spoiler: e.target.checked }))}
-                />
-                스포일러
-              </label>
-              <button
-                type="submit"
-                className="ml-auto inline-flex items-center bg-brand-primary text-white rounded-md px-3 py-2 text-xs font-medium hover:bg-[#4e5caf] transition-colors disabled:opacity-40"
-                disabled={commentLoading}
-              >
-                {commentLoading ? '저장 중...' : '답글 저장'}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-
-      {/* 하위 댓글 재귀 렌더링 */}
-      {comment.replies && comment.replies.length > 0 &&
-        comment.replies.map((reply, i) => (
-          <CommentItem
-            key={`${reply.commentId ?? 'reply'}-${i}`}
-            comment={reply}
-            depth={depth + 1}
-            onVote={onVote}
-            onSubmitReply={onSubmitReply}
-            commentLoading={commentLoading}
-            voteMap={voteMap}
-          />
-        ))
-      }
-    </div>
-  );
-}
-
 /****************************************************************************************************
  * SermonsViewPage — 상세 조회 화면
  ****************************************************************************************************/
@@ -739,33 +508,27 @@ export function SermonsViewPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rqstNo = searchParams.get('rqstNo') ?? '';
+  const passwordParam = searchParams.get('password') ?? '';
 
   const [board, setBoard] = useState<BoardDto | null>(null);
-  const [comments, setComments] = useState<CommentDto[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(Boolean(rqstNo));
   const [error, setError] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [action, setAction] = useState<'edit' | 'delete' | null>(null);
   const [password, setPassword] = useState('');
-  const [commentForm, setCommentForm] = useState<CommentFormState>({
-    writer: '', content: '', secret: false, spoiler: false, password: '', parentCommentId: undefined,
-  });
-  const [commentLoading, setCommentLoading] = useState(false);
-  const [sortType, setSortType] = useState<SortType>('latest');
-  const [userVotes, setUserVotes] = useState<Record<string, 'like' | 'dislike' | undefined>>({});
 
   // useCallback 으로 통합 → 댓글 저장 후 재호출 가능
   const loadData = useCallback(async () => {
     if (!rqstNo) return;
     try {
-      const data = await sermonsApi.getBoardView(rqstNo);
+      const data = await sermonsApi.getBoardView(rqstNo, passwordParam);
       setBoard(data.board);
-      setComments(data.comments);
-      setUserVotes((data.userVotes ?? {}) as Record<string, 'like' | 'dislike' | undefined>);
+      setCommentCount(data.commentCount);
     } catch {
       setError('게시글을 불러오지 못했습니다.');
     }
-  }, [rqstNo]);
+  }, [rqstNo, passwordParam]);
 
   useEffect(() => {
     if (!rqstNo) { setLoading(false); return; }
@@ -804,66 +567,6 @@ export function SermonsViewPage() {
     }
   };
 
-  const onVote = async (commentId: number | string, voteAction: 'like' | 'dislike') => {
-    try {
-      const result = await sermonsApi.voteComment(commentId, voteAction);
-      if (result) {
-        setComments((prev) => updateCommentVotes(prev, commentId, result.likes, result.dislikes));
-        setUserVotes((prev) => {
-          const next = { ...prev };
-          const key = String(commentId);
-          const vote = result.userVote ?? undefined;
-          if (!vote) { delete next[key]; } else { next[key] = vote; }
-          return next;
-        });
-      }
-    } catch {
-      // ignore
-    }
-  };
-
-  const onSubmitReply = async (parentCommentId: number | undefined, form: CommentFormState) => {
-    if (!rqstNo) return;
-    if (!form.writer.trim() || !form.content.trim() || !form.password.trim()) {
-      alert('작성자, 내용, 비밀번호는 필수입니다.');
-      return;
-    }
-    try {
-      setCommentLoading(true);
-      await sermonsApi.saveComment({
-        boardNo: rqstNo,
-        content: form.content,
-        writer: form.writer,
-        secret: form.secret ? 'Y' : 'N',
-        spoiler: form.spoiler ? 'Y' : 'N',
-        password: form.password,
-        parentCommentId,
-      });
-      await loadData();
-    } catch {
-      alert('댓글 저장 중 오류가 발생했습니다.');
-    } finally {
-      setCommentLoading(false);
-    }
-  };
-
-  const onCommentSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    await onSubmitReply(undefined, commentForm);
-    if (!commentLoading) {
-      setCommentForm({ writer: '', content: '', secret: false, spoiler: false, password: '', parentCommentId: undefined });
-    }
-  };
-
-  const sortedComments = [...comments].sort((a, b) => {
-    if (sortType === 'popular') {
-      return ((b.likes ?? 0) - (b.dislikes ?? 0)) - ((a.likes ?? 0) - (a.dislikes ?? 0));
-    }
-    return String(b.insDt ?? '').localeCompare(String(a.insDt ?? ''));
-  });
-  const topLevelComments = sortedComments.filter((c) => !c.parentCommentId);
-  const totalCommentCount = countAllComments(comments);
-
   /* 조회 화면 출력용 값 — 모두 정제된 문자열로 변환 */
   const resolvedTitle = board?.title ?? '주일설교';
   const resolvedAuthor = board?.rqstId ?? '-';
@@ -896,7 +599,7 @@ export function SermonsViewPage() {
                 <span className="material-icons text-base">visibility</span>{resolvedViews}회
               </div>
             </div>
-            <StatusBadge commentCount={totalCommentCount} />
+            <StatusBadge commentCount={commentCount} />
           </div>
         </header>
 
@@ -926,108 +629,11 @@ export function SermonsViewPage() {
             orgFileNm: f.orgFileNm ?? f.filename,
             fileSize: f.fileSize ?? 0,
           }))}
-          buildZipUrl={fileList.length > 1 ? `/api/common/files/getInfoZip?boardNo=${rqstNo}` : undefined}
+          buildDownloadUrl={(fileId) => `/api/common/files/${fileId}/download`}
+          buildZipUrl={fileList.length > 1 ? `/api/common/files/downloadZip?pgmId=sermon&refId=${rqstNo}` : undefined}
         />
 
-        {/* 댓글 영역 */}
-        <section className="mt-6 pt-6 border-t border-gray-100">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="m-0">
-              <span className="material-icons align-middle">chat_bubble</span>댓글 {totalCommentCount}
-            </h3>
-            <div className="flex gap-1.5">
-              <button
-                type="button"
-                onClick={() => setSortType('latest')}
-                className={`cursor-pointer rounded-md border px-2.5 py-1 text-[13px] transition-colors ${
-                  sortType === 'latest'
-                    ? 'border-slate-500 bg-slate-200 text-slate-800'
-                    : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                최신순
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortType('popular')}
-                className={`cursor-pointer rounded-md border px-2.5 py-1 text-[13px] transition-colors ${
-                  sortType === 'popular'
-                    ? 'border-slate-500 bg-slate-200 text-slate-800'
-                    : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                인기순
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {topLevelComments.length === 0 && !loading && (
-              <div className="py-6 text-center text-gray-400">등록된 댓글이 없습니다.</div>
-            )}
-            {topLevelComments.map((comment, i) => (
-              <CommentItem
-                key={`${comment.commentId ?? 'comment'}-${i}`}
-                comment={comment}
-                depth={0}
-                onVote={onVote}
-                onSubmitReply={onSubmitReply}
-                commentLoading={commentLoading}
-                voteMap={userVotes}
-              />
-            ))}
-          </div>
-
-          {/* 댓글 작성 폼 */}
-          <form className="mt-4 pt-4 border-t border-gray-100" onSubmit={onCommentSubmit}>
-            <textarea
-              className="form-textarea w-full !min-h-[56px]"
-              placeholder="댓글을 입력하세요."
-              value={commentForm.content}
-              onChange={(e) => setCommentForm((prev) => ({ ...prev, content: e.target.value }))}
-              rows={2}
-            />
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <input
-                className="form-input w-[104px]"
-                type="text"
-                placeholder="작성자"
-                value={commentForm.writer}
-                onChange={(e) => setCommentForm((prev) => ({ ...prev, writer: e.target.value }))}
-              />
-              <input
-                className="form-input w-[104px]"
-                type="password"
-                placeholder="비밀번호"
-                value={commentForm.password}
-                onChange={(e) => setCommentForm((prev) => ({ ...prev, password: e.target.value }))}
-              />
-              <label className="inline-flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={commentForm.secret}
-                  onChange={(e) => setCommentForm((prev) => ({ ...prev, secret: e.target.checked }))}
-                />
-                비밀글
-              </label>
-              <label className="inline-flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={commentForm.spoiler}
-                  onChange={(e) => setCommentForm((prev) => ({ ...prev, spoiler: e.target.checked }))}
-                />
-                스포일러
-              </label>
-              <button
-                type="submit"
-                className="ml-auto inline-flex items-center bg-brand-primary text-white rounded-md px-3 py-2 text-xs font-medium hover:bg-[#4e5caf] transition-colors disabled:opacity-40"
-                disabled={commentLoading}
-              >
-                {commentLoading ? '저장 중...' : '댓글 저장'}
-              </button>
-            </div>
-          </form>
-        </section>
+        <CommentSection pgmId="SERMONS" refId={rqstNo} />
 
         {/* 하단 액션 버튼 */}
         <div className="flex flex-wrap gap-2 mt-6 pt-5 border-0">
@@ -1228,13 +834,32 @@ export function SermonsWritePage() {
         secret: form.secret ? 'Y' : 'N',
         password: form.password,
       };
+
+      let savedRqstNo = rqstNo;
+
       if (isEdit) {
-        await sermonsApi.updateBoard(payload, attachments.newFiles, attachments.deletedFileIds);
-        alert('설교 수정이 완료되었습니다.');
+        await sermonsApi.updateBoard(payload);
       } else {
-        await sermonsApi.saveBoard(payload, attachments.newFiles, attachments.deletedFileIds);
-        alert(isReply ? '답글이 등록되었습니다.' : '설교 등록이 완료되었습니다.');
+        const result = await sermonsApi.saveBoard(payload);
+        // 신규 등록 시 서버에서 발급된 rqstNo 획득
+        savedRqstNo = result?.rqstNo ?? rqstNo;
       }
+
+      // ★ 파일 삭제 — 공통 파일 API
+      await Promise.all(
+        attachments.deletedFileIds.map((fileId) => attachmentApi.remove(fileId))
+      );
+
+      // ★ 파일 업로드 — 공통 파일 API (pgmId=sermon, refId=게시글번호)
+      if (attachments.newFiles.length > 0 && savedRqstNo) {
+        await Promise.all(
+          attachments.newFiles.map((file) =>
+            attachmentApi.upload(file, 'sermon', savedRqstNo)
+          )
+        );
+      }
+
+      alert(isEdit ? '설교 수정이 완료되었습니다.' : isReply ? '답글이 등록되었습니다.' : '설교 등록이 완료되었습니다.');
       navigate(SERMONS_LIST_PATH);
     } catch {
       alert('저장 중 오류가 발생했습니다.');
@@ -1257,8 +882,9 @@ export function SermonsWritePage() {
           {/* 비밀글 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">비밀글</label>
-            <label className="inline-flex items-center gap-2 text-sm cursor-pointer">
+            <label htmlFor="is-secret-check" className="inline-flex items-center gap-2 text-sm cursor-pointer">
               <input
+                id="is-secret-check"
                 type="checkbox"
                 checked={form.secret}
                 onChange={(e) => setForm((prev) => ({ ...prev, secret: e.target.checked }))}

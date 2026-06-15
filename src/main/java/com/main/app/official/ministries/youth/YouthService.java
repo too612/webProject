@@ -51,7 +51,7 @@ public class YouthService {
 
         YouthDto board = youthMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class YouthService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         youthMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         youthMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,6 @@ public class YouthService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "youth", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "youth", null, null);
     }
 }
-

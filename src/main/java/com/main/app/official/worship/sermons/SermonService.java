@@ -1,9 +1,5 @@
 package com.main.app.official.worship.sermons;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.main.app.common.dto.CommentDto;
+import com.main.app.common.comment.CommentService;
+import com.main.app.common.comment.dto.CommentDto;
+import com.main.app.common.file.FileService;
 import com.main.app.common.file.dto.FileDto;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.worship.sermons.dto.SermonDto;
@@ -32,12 +28,15 @@ public class SermonService {
     private final SermonMapper sermonMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.upload.path:./data/}")
-    private String uploadBasePath;
+    private final FileService fileService;
+    private final CommentService commentService;
 
-    public SermonService(SermonMapper sermonMapper, PasswordEncoder passwordEncoder) {
+    public SermonService(SermonMapper sermonMapper, PasswordEncoder passwordEncoder,
+                         FileService fileService, CommentService commentService) {
         this.sermonMapper = sermonMapper;
         this.passwordEncoder = passwordEncoder;
+        this.fileService = fileService;
+        this.commentService = commentService;
     }
 
     @Transactional(readOnly = true)
@@ -70,102 +69,96 @@ public class SermonService {
 
         SermonDto board = sermonMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(sermonMapper.selectFileList(sermonId));
+            board.setFileList(fileService.getFileList("sermon", String.valueOf(sermonId)));
         }
         return board;
     }
 
     @Transactional
-    public void saveBoard(SermonRequest request, List<MultipartFile> files) {
+    public void saveBoard(SermonRequest request) {
         normalizeRequest(request);
 
         if (request.getRqstNo() == null) {
+            // 답글인 경우 계층 정보 설정
+            if (request.getParentNo() != null) {
+                // 부모 게시글 조회
+                java.util.Map<String, Object> params = new java.util.HashMap<>();
+                params.put("rqstNo", request.getParentNo());
+                SermonDto parent = sermonMapper.selectBoardDetail(params);
+
+                if (parent != null) {
+                    Long groupNo = parent.getGroupNo() != null
+                            ? Long.parseLong(parent.getGroupNo()) : request.getParentNo();
+                    int newOrderNo = (parent.getOrderNo() != null ? parent.getOrderNo() : 0) + 1;
+
+                    // 같은 그룹 내 뒤에 있는 게시글 order_no 밀기
+                    java.util.Map<String, Object> replyParams = new java.util.HashMap<>();
+                    replyParams.put("groupNo", groupNo);
+                    replyParams.put("orderNo", newOrderNo);
+                    sermonMapper.updateReplyOrder(replyParams);
+
+                    request.setGroupNo(groupNo);
+                    request.setDepth((parent.getDepth() != null ? parent.getDepth() : 0) + 1);
+                    request.setOrderNo(newOrderNo);
+                }
+            } else {
+                // 원글 — group_no는 insert 후 자기 자신 sermon_id로 업데이트
+                request.setDepth(0);
+                request.setOrderNo(0);
+            }
+
             sermonMapper.insertBoard(request);
+
+            // 원글이면 group_no = 자기 자신 sermon_id
+            if (request.getParentNo() == null && request.getRqstNo() != null) {
+                java.util.Map<String, Object> updateGroup = new java.util.HashMap<>();
+                updateGroup.put("rqstNo", request.getRqstNo());
+                sermonMapper.updateGroupNo(updateGroup);
+            }
         } else {
             sermonMapper.updateBoard(request);
         }
-
-        processFiles(request.getRqstNo(), files);
     }
 
     @Transactional
-    public void updateBoard(SermonRequest request, List<MultipartFile> files) {
+    public void updateBoard(SermonRequest request) {
         normalizeRequest(request);
         sermonMapper.updateBoard(request);
-
-        if (request.getDeletedFileIds() != null) {
-            request.getDeletedFileIds().forEach(sermonMapper::softDeleteFileById);
-        }
-
-        processFiles(request.getRqstNo(), files);
     }
 
     @Transactional
     public void deleteBoard(String rqstNo) {
         Long sermonId = parseSermonId(rqstNo);
-        if (sermonId == null) {
+        if (sermonId == null)
             return;
-        }
-        sermonMapper.softDeleteComments(sermonId);
-        sermonMapper.softDeleteFiles(sermonId);
+        commentService.softDeleteCommentsByRef("SERMONS", String.valueOf(sermonId));
+        fileService.softDeleteFilesByRef("sermon", rqstNo);
         sermonMapper.softDeleteBoard(sermonId);
     }
 
     public FileDto getFile(Long fileId) {
-        return sermonMapper.selectFile(fileId);
+        return fileService.getFile(fileId);
+    }
+
+    public List<FileDto> getFileList(String rqstNo) {
+        return fileService.getFileList("sermon", rqstNo);
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
-        if (parseSermonId(boardNo) == null) {
-            return List.of();
-        }
-        return sermonMapper.selectCommentList(boardNo);
+        if (parseSermonId(boardNo) == null) return List.of();
+        return commentService.getCommentList("SERMONS", boardNo);
     }
 
     public void saveComment(CommentDto comment) {
-        if (comment.getSecret() == null) {
-            comment.setSecret("N");
-        }
-        if (comment.getSpoiler() == null) {
-            comment.setSpoiler("N");
-        }
-        if (StringUtils.hasText(comment.getPassword())) {
-            comment.setPassword(passwordEncoder.encode(comment.getPassword()));
-        }
-        sermonMapper.insertComment(comment);
+        commentService.saveComment(comment);
     }
 
     public CommentDto getComment(Long commentId) {
-        return sermonMapper.selectCommentById(commentId.intValue());
+        return commentService.getComment(commentId);
     }
 
     public void handleVote(Long commentId, String action, String previousVote) {
-        int id = commentId.intValue();
-        if (previousVote == null) {
-            if ("like".equals(action)) {
-                sermonMapper.increaseLike(id);
-            } else {
-                sermonMapper.increaseDislike(id);
-            }
-            return;
-        }
-
-        if (previousVote.equals(action)) {
-            if ("like".equals(action)) {
-                sermonMapper.decreaseLike(id);
-            } else {
-                sermonMapper.decreaseDislike(id);
-            }
-            return;
-        }
-
-        if ("like".equals(action)) {
-            sermonMapper.decreaseDislike(id);
-            sermonMapper.increaseLike(id);
-        } else {
-            sermonMapper.decreaseLike(id);
-            sermonMapper.increaseDislike(id);
-        }
+        commentService.handleVote(commentId, action, previousVote);
     }
 
     public boolean isValidPassword(String rqstNo, String rawPassword) {
@@ -196,55 +189,6 @@ public class SermonService {
         return StringUtils.hasText(value) && value.matches("^\\$2[aby]\\$.{56}$");
     }
 
-    private void processFiles(Long sermonId, List<MultipartFile> files) {
-        if (sermonId == null || files == null || files.isEmpty()) {
-            return;
-        }
-
-        LocalDate now = LocalDate.now();
-        String year = String.format("%04d", now.getYear());
-        String mmdd = String.format("%02d%02d", now.getMonthValue(), now.getDayOfMonth());
-        String category = "sermon";
-        String relativeDir = "data/" + category + "/" + year + "/" + mmdd;
-        Path physicalDir = resolveUploadBasePath().resolve(category).resolve(year).resolve(mmdd);
-
-        for (MultipartFile file : files) {
-            if (file == null || file.isEmpty()) {
-                continue;
-            }
-
-            try {
-                String originalName = StringUtils.hasText(file.getOriginalFilename())
-                        ? file.getOriginalFilename()
-                        : "unknown";
-                String storedName = java.util.UUID.randomUUID() + "_" + originalName;
-
-                Files.createDirectories(physicalDir);
-                Path destination = physicalDir.resolve(storedName).toAbsolutePath().normalize();
-                file.transferTo(destination);
-
-                FileDto fileDto = new FileDto();
-                fileDto.setBoardNo(String.valueOf(sermonId));
-                fileDto.setOrgFileNm(originalName);
-                fileDto.setStoredFileNm(storedName);
-                fileDto.setFileSize(file.getSize());
-                fileDto.setFilePath(destination.toString());
-                fileDto.setRelativePath(destination.toString());
-                fileDto.setFileExt(extractExtension(originalName));
-                fileDto.setMimeType(file.getContentType());
-                fileDto.setFileCategory(category);
-                fileDto.setRelativeDir(relativeDir);
-
-                sermonMapper.insertFile(fileDto);
-            } catch (Exception ex) {
-                log.error("Failed to upload sermon attachment: sermonId={}, originalName={}",
-                        sermonId,
-                        file.getOriginalFilename(),
-                        ex);
-                throw new IllegalStateException("첨부파일 저장 중 오류가 발생했습니다.", ex);
-            }
-        }
-    }
 
     private Long parseSermonId(String rqstNo) {
         if (!StringUtils.hasText(rqstNo)) {
@@ -255,21 +199,5 @@ public class SermonService {
         } catch (NumberFormatException ex) {
             return null;
         }
-    }
-
-    private String extractExtension(String fileName) {
-        int index = fileName.lastIndexOf('.');
-        if (index < 0 || index == fileName.length() - 1) {
-            return "";
-        }
-        return fileName.substring(index + 1).toLowerCase();
-    }
-
-    private Path resolveUploadBasePath() {
-        Path base = Paths.get(uploadBasePath);
-        if (!base.isAbsolute()) {
-            base = Paths.get(System.getProperty("user.dir")).resolve(base);
-        }
-        return base.toAbsolutePath().normalize();
     }
 }

@@ -51,7 +51,7 @@ public class QnaService {
 
         QnaDto board = qnaMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+           // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class QnaService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         qnaMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+       // fileService.softDeleteFilesByBoardNo(rqstNo);
         qnaMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,7 @@ public class QnaService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "qna", null, null);
+      //  fileService.uploadFiles(boardNo, files, "board", "qna", null, null);
     }
 }
 

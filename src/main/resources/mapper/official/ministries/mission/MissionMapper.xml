@@ -16,8 +16,12 @@
              , A.parent_no AS parentNo
              , A.depth AS depth
              , A.order_no AS orderNo
-             , (SELECT COUNT(*) FROM file_table WHERE board_no = A.rqst_no AND is_deleted = FALSE) > 0 AS hasFile
-             , (SELECT COALESCE(SUM(file_size), 0) FROM file_table WHERE board_no = A.rqst_no AND is_deleted = FALSE) AS totalFileSize
+             , (SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END 
+                  FROM com_file 
+                 WHERE pgm_id = 'mission' AND ref_id = CAST(A.rqst_no AS VARCHAR) AND is_deleted = FALSE) AS hasFile
+             , (SELECT COALESCE(SUM(CAST(file_size AS BIGINT)), 0) 
+                  FROM com_file 
+                 WHERE pgm_id = 'mission' AND ref_id = CAST(A.rqst_no AS VARCHAR) AND is_deleted = FALSE) AS totalFileSize
              , A.secret AS secret
              , A.password AS password
              , (SELECT COUNT(*) FROM comment WHERE board_no = A.rqst_no) AS commentCount
@@ -80,7 +84,9 @@
              , A.order_no AS orderNo
              , A.secret AS secret
              , A.password AS password
-             , (SELECT COUNT(*) FROM file_table WHERE board_no = A.rqst_no AND is_deleted = FALSE) > 0 AS hasFile
+             , (SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END 
+                  FROM com_file 
+                 WHERE pgm_id = 'mission' AND ref_id = CAST(A.rqst_no AS VARCHAR) AND is_deleted = FALSE) AS hasFile
           FROM board A
          WHERE A.rqst_no = #{rqstNo}
            AND A.board_type = 'MISSION'

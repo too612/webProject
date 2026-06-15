@@ -15,27 +15,25 @@
              , S.created_at AS insDt
              , S.updated_at AS uptDt
              , S.view_count AS views
-             , COALESCE(S.depth, 0) AS depth
-             , CAST(S.group_no AS VARCHAR) AS groupNo
-             , CAST(S.parent_no AS VARCHAR) AS parentNo
-             , COALESCE(S.order_no, 0) AS orderNo
-             , CASE WHEN S.is_secret THEN 'Y' ELSE 'N' END AS secret
+             , 0 AS depth
+             , NULL AS groupNo
+             , CASE WHEN S.is_secret = TRUE THEN 'Y' ELSE 'N' END AS secret
              , 'SERMONS' AS boardType
-             , (SELECT COUNT(*) > 0
+             , (SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
                   FROM com_file F
                  WHERE F.pgm_id = 'sermon'
                    AND F.ref_id = CAST(S.sermon_id AS VARCHAR)
                    AND F.is_deleted = FALSE) AS hasFile
-             , (SELECT COALESCE(SUM(F.file_size), 0)
+             , (SELECT COALESCE(SUM(CAST(F.file_size AS BIGINT)), 0)
                   FROM com_file F
                  WHERE F.pgm_id = 'sermon'
                    AND F.ref_id = CAST(S.sermon_id AS VARCHAR)
                    AND F.is_deleted = FALSE) AS totalFileSize
              , (SELECT COUNT(*)
-                  FROM com_comment C
-                 WHERE C.pgm_id = 'SERMONS'
-                   AND C.ref_id = CAST(S.sermon_id AS VARCHAR)
-                   AND C.is_deleted = FALSE) AS commentCount
+                  FROM official_sermon_comment C
+                 WHERE C.sermon_id = S.sermon_id
+                   AND C.is_deleted = FALSE
+                   AND C.parent_comment_id IS NULL) AS commentCount
           FROM official_sermon S
          WHERE S.is_deleted = FALSE
         <if test="worshipType != null and worshipType != ''">
@@ -61,7 +59,7 @@
                 </otherwise>
             </choose>
         </if>
-         ORDER BY S.group_no ASC, S.order_no ASC
+         ORDER BY S.created_at DESC
          LIMIT #{size} OFFSET #{offset}
     </select>
 
@@ -110,13 +108,13 @@
              , NULL AS parentNo
              , 0 AS depth
              , 0 AS orderNo
-             , CASE WHEN S.is_secret THEN 'Y' ELSE 'N' END AS secret
+             , CASE WHEN S.is_secret = TRUE THEN 'Y' ELSE 'N' END AS secret
              , S.password_hash AS password
              , 'SERMONS' AS boardType
-             , (SELECT COUNT(*) > 0
+             , (SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
                   FROM com_file F
                  WHERE F.pgm_id = 'sermon'
-                   AND F.ref_id = CAST(S.sermon_id AS VARCHAR)
+                   AND F.ref_id = CAST(#{rqstNo} AS VARCHAR)
                    AND F.is_deleted = FALSE) AS hasFile
           FROM official_sermon S
          WHERE S.sermon_id = #{rqstNo}
@@ -145,10 +143,6 @@
             status,
             ai_language_code,
             ai_ready,
-            parent_no,
-            group_no,
-            depth,
-            order_no,
             created_by,
             updated_by,
             created_at,
@@ -168,10 +162,6 @@
             'PUBLISHED',
             'ko',
             FALSE,
-            #{parentNo},
-            #{groupNo},
-            COALESCE(#{depth}, 0),
-            COALESCE(#{orderNo}, 0),
             COALESCE(NULLIF(#{rqstId}, ''), 'system'),
             COALESCE(NULLIF(#{rqstId}, ''), 'system'),
             NOW(),
@@ -197,6 +187,14 @@
            AND is_deleted = FALSE
     </update>
 
+    <update id="softDeleteComments" parameterType="long">
+        UPDATE official_sermon_comment
+           SET is_deleted = TRUE
+             , deleted_at = NOW()
+         WHERE sermon_id = #{sermonId}
+           AND is_deleted = FALSE
+    </update>
+
     <update id="softDeleteBoard" parameterType="long">
         UPDATE official_sermon
            SET is_deleted = TRUE
@@ -206,21 +204,125 @@
            AND is_deleted = FALSE
     </update>
 
-    <!-- 답글 삽입 시 동일 group_no 내 order_no >= 기준값인 게시글을 +1 밀기 -->
-    <update id="updateReplyOrder" parameterType="map">
-        UPDATE official_sermon
-           SET order_no = order_no + 1
-         WHERE group_no = #{groupNo}
-           AND order_no >= #{orderNo}
+    <resultMap id="commentResultMap" type="com.main.app.common.dto.CommentDto">
+        <id property="commentId" column="sermon_comment_id"/>
+        <result property="boardNo" column="board_no"/>
+        <result property="writer" column="writer_name"/>
+        <result property="content" column="content_text"/>
+        <result property="insDt" column="created_at"/>
+        <result property="likes" column="like_count"/>
+        <result property="dislikes" column="dislike_count"/>
+        <result property="parentCommentId" column="parent_comment_id"/>
+        <result property="secret" column="secret"/>
+        <result property="password" column="password_hash"/>
+        <result property="spoiler" column="spoiler"/>
+        <collection property="replies" column="sermon_comment_id" javaType="java.util.List" ofType="com.main.app.common.dto.CommentDto" select="selectReplies"/>
+    </resultMap>
+
+    <select id="selectCommentList" parameterType="string" resultMap="commentResultMap">
+        SELECT sermon_comment_id
+             , CAST(sermon_id AS VARCHAR) AS board_no
+             , writer_name
+             , content_text
+             , created_at
+             , like_count
+             , dislike_count
+             , parent_comment_id
+             , CASE WHEN is_secret THEN 'Y' ELSE 'N' END AS secret
+             , password_hash
+             , CASE WHEN is_spoiler THEN 'Y' ELSE 'N' END AS spoiler
+          FROM official_sermon_comment
+         WHERE sermon_id = CAST(#{boardNo} AS BIGINT)
            AND is_deleted = FALSE
+           AND parent_comment_id IS NULL
+         ORDER BY created_at ASC
+    </select>
+
+    <select id="selectReplies" parameterType="long" resultMap="commentResultMap">
+        SELECT sermon_comment_id
+             , CAST(sermon_id AS VARCHAR) AS board_no
+             , writer_name
+             , content_text
+             , created_at
+             , like_count
+             , dislike_count
+             , parent_comment_id
+             , CASE WHEN is_secret THEN 'Y' ELSE 'N' END AS secret
+             , password_hash
+             , CASE WHEN is_spoiler THEN 'Y' ELSE 'N' END AS spoiler
+          FROM official_sermon_comment
+         WHERE parent_comment_id = #{commentId}
+           AND is_deleted = FALSE
+         ORDER BY created_at ASC
+    </select>
+
+    <insert id="insertComment" parameterType="com.main.app.common.dto.CommentDto">
+        INSERT INTO official_sermon_comment (
+            sermon_id,
+            writer_name,
+            content_text,
+            created_at,
+            like_count,
+            dislike_count,
+            parent_comment_id,
+            is_secret,
+            password_hash,
+            is_spoiler,
+            is_deleted
+        ) VALUES (
+            CAST(#{boardNo} AS BIGINT),
+            #{writer},
+            #{content},
+            NOW(),
+            0,
+            0,
+            #{parentCommentId},
+            CASE WHEN COALESCE(#{secret}, 'N') = 'Y' THEN TRUE ELSE FALSE END,
+            #{password},
+            CASE WHEN COALESCE(#{spoiler}, 'N') = 'Y' THEN TRUE ELSE FALSE END,
+            FALSE
+        )
+    </insert>
+
+    <update id="increaseLike" parameterType="int">
+        UPDATE official_sermon_comment
+           SET like_count = like_count + 1
+         WHERE sermon_comment_id = #{commentId}
     </update>
 
-    <!-- 원글 등록 후 group_no = 자기 자신 sermon_id 로 업데이트 -->
-    <update id="updateGroupNo" parameterType="map">
-        UPDATE official_sermon
-           SET group_no = sermon_id
-         WHERE sermon_id = CAST(#{rqstNo} AS BIGINT)
-           AND is_deleted = FALSE
+    <update id="decreaseLike" parameterType="int">
+        UPDATE official_sermon_comment
+           SET like_count = like_count - 1
+         WHERE sermon_comment_id = #{commentId}
     </update>
+
+    <update id="increaseDislike" parameterType="int">
+        UPDATE official_sermon_comment
+           SET dislike_count = dislike_count + 1
+         WHERE sermon_comment_id = #{commentId}
+    </update>
+
+    <update id="decreaseDislike" parameterType="int">
+        UPDATE official_sermon_comment
+           SET dislike_count = dislike_count - 1
+         WHERE sermon_comment_id = #{commentId}
+    </update>
+
+    <select id="selectCommentById" parameterType="int" resultMap="commentResultMap">
+        SELECT sermon_comment_id
+             , CAST(sermon_id AS VARCHAR) AS board_no
+             , writer_name
+             , content_text
+             , created_at
+             , like_count
+             , dislike_count
+             , parent_comment_id
+             , CASE WHEN is_secret THEN 'Y' ELSE 'N' END AS secret
+             , password_hash
+             , CASE WHEN is_spoiler THEN 'Y' ELSE 'N' END AS spoiler
+          FROM official_sermon_comment
+         WHERE sermon_comment_id = #{commentId}
+           AND is_deleted = FALSE
+    </select>
 
 </mapper>

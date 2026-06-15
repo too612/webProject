@@ -51,7 +51,7 @@ public class EventService {
 
         EventDto board = eventMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class EventService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         eventMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         eventMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,6 @@ public class EventService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "event", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "event", null, null);
     }
 }
-

@@ -51,7 +51,7 @@ public class MissionService {
 
         MissionDto board = missionMapper.selectBoardDetail(params);
         if (board != null) {
-            board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,7 +98,7 @@ public class MissionService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         missionMapper.deleteComments(rqstNo);
-        fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         missionMapper.deleteBoard(rqstNo);
     }
 
@@ -148,7 +148,6 @@ public class MissionService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-        fileService.uploadFiles(boardNo, files, "board", "mission", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "mission", null, null);
     }
 }
-
