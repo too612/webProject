@@ -1,3 +1,8 @@
+/**
+ * File Name   : attachmentApi
+ * Description : 첨부파일 API 통신 모듈 (fileUsage 지원)
+ */
+
 import client from '../api/api.client';
 import type { ApiResponse } from '../api/api.types';
 import type { AttachmentFile } from './attachmentModel';
@@ -8,19 +13,24 @@ export const attachmentApi = {
   /**
    * 단일 파일 업로드
    * POST /api/common/files/upload
-   * - pgmId, refId 는 호출 시점에 주입 (upload 함수 시그니처 확장)
-   * - Attachment 컴포넌트의 onUploadFile prop 에 맞게 래핑해서 사용
+   * @param file 업로드할 파일
+   * @param pgmId 프로그램 ID (예: 'sermon', 'pastor')
+   * @param refId 참조 ID (예: 게시글 번호)
+   * @param usage 파일 용도 ('editor' 또는 'attachment', 기본 'attachment')
+   * @param onProgress 진행률 콜백
    */
   async upload(
     file: File,
     pgmId: string,
     refId: string,
+    usage: 'editor' | 'attachment' = 'attachment', // ★ usage 추가
     onProgress?: (pct: number) => void
   ): Promise<AttachmentFile> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('pgmId', pgmId);
     formData.append('refId', refId);
+    formData.append('fileUsage', usage); // ★ 서버로 전송
 
     const response = await client.post<ApiResponse<AttachmentFile>>(
       `${BASE_URL}/upload`,

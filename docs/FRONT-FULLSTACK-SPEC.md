@@ -54,6 +54,7 @@
 
 - Front에서 FormData 빌드 시, 메타데이터 JSON Blob은 "request"라는 키로 append하고, 첨부 파일들은 "files"라는 동일한 키로 반복 append한다. (이때 JSON Blob의 type은 application/json으로 명시한다.)
 - Back 컨트롤러에서는 @RequestPart("request")와 @RequestPart(value = "files", required = false)로 수신한다. 파일이 첨부되지 않은 플로우도 정상 처리되어야 한다.
+- **파일 용도 구분**: 본문(Editor)에 삽입된 이미지인지, 첨부파일 영역에 등록된 파일인지 구분하기 위해 "fileUsage" 키를 함께 전송한다. (값: 'editor' 또는 'attachment', 기본값: 'attachment')
 
 ---
 
@@ -79,19 +80,88 @@
 
 ---
 
-## 6. Back 구현 가이드라인
+## 6. 공통 컴포넌트 가이드
 
-### 6.1 Service Layer
+### 6.1 DataGrid (common/grid)
+
+AG Grid를 기반으로 한 공통 그리드 컴포넌트. 4가지 운영 모드를 지원한다.
+
+#### 6.1.1 운영 모드
+
+| 모드 | 설명 | 사용처 |
+| :--- | :--- | :--- |
+| `basic` | 게시판용. 정렬/필터 비활성화 | 공지사항, 설교, Q&A 등 |
+| `server` | ERP 목록용. 헤더 클릭 시 서버 API 호출 | 회원 목록, 거래 내역 등 |
+| `infinite` | 대용량 데이터 무한 스크롤 | 전체 거래 내역, 시스템 로그 등 |
+| `client` | 소량 데이터 완전 제어 (클라이언트 정렬/필터) | 코드 관리, 설정 화면 등 |
+
+#### 6.1.2 주요 Props
+
+| Props | 타입 | 기본값 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `mode` | `'basic' \| 'server' \| 'infinite' \| 'client'` | `'basic'` | 운영 모드 선택 |
+| `columns` | `ColDef[]` | 필수 | AG Grid 컬럼 정의 |
+| `rows` | `any[]` | 필수 | 표시할 데이터 |
+| `rowHeight` | `number` | `44` | 행 높이 (px) |
+| `defaultColDef` | `ColDef` | `{ sortable: true, filter: true }` | 기본 컬럼 속성 |
+| `onSortChanged` | `(sortModel) => void` | - | 정렬 변경 콜백 (server 모드) |
+| `onFilterChanged` | `(filterModel) => void` | - | 필터 변경 콜백 (server 모드) |
+| `onLoadData` | `(params) => Promise<{ rows, totalCount }>` | - | 무한 스크롤 데이터 로드 콜백 (infinite 모드) |
+| `saveState` | `boolean` | `false` | 컬럼 상태를 localStorage에 저장 |
+| `stateKey` | `string` | - | 상태 저장 고유 키 (saveState=true 필수) |
+
+### 6.2 Editor (common/editor)
+
+Tiptap v2 기반 리치텍스트 에디터 컴포넌트.
+
+#### 6.2.1 주요 Props
+
+| Props | 타입 | 기본값 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `value` | `string` | 필수 | 에디터 내용 (HTML 문자열) |
+| `onChange` | `(value: string) => void` | 필수 | 내용 변경 콜백 |
+| `placeholder` | `string` | `'내용을 입력해 주세요.'` | 플레이스홀더 텍스트 |
+| `disabled` | `boolean` | `false` | 비활성화 여부 |
+| `toolbar` | `EditorToolbarOption[]` | 전체 기능 | 툴바 버튼 목록 (선택) |
+| `onImageUpload` | `(file: File) => Promise<string>` | - | 이미지 파일 업로드 콜백 (제공 시 서버 업로드, 미제공 시 Base64) |
+
+#### 6.2.2 이미지 처리
+
+- `onImageUpload`가 제공되면 이미지 파일을 서버에 업로드하고 반환된 URL을 삽입한다.
+- `onImageUpload`가 없으면 기존 Base64 방식으로 동작한다 (하위 호환성 유지).
+
+### 6.3 Attachment (common/attachment)
+
+파일 첨부 공통 컴포넌트.
+
+#### 6.3.1 주요 Props
+
+| Props | 타입 | 기본값 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `existingFiles` | `AttachmentFile[]` | `[]` | 서버에 저장된 기존 파일 목록 |
+| `newFiles` | `File[]` | `[]` | 추가 예정인 로컬 파일 목록 |
+| `readOnly` | `boolean` | `false` | 읽기 전용 모드 (조회 시) |
+| `buildDownloadUrl` | `(fileId) => string` | `attachmentApi.buildDownloadUrl` | 다운로드 URL 생성기 |
+| `buildZipUrl` | `string` | - | 전체 다운로드 ZIP URL (readOnly 모드) |
+| `accept` | `string` | - | 허용 확장자/MIME |
+| `maxFiles` | `number` | - | 최대 파일 개수 |
+| `maxFileSize` | `number` | - | 파일당 최대 크기(바이트) |
+
+---
+
+## 7. Back 구현 가이드라인
+
+### 7.1 Service Layer
 
 - 단순 조회성 로직에는 @Transactional(readOnly = true)을 부여하여 성능을 최적화한다.
 - CUD 작업에는 @Transactional을 부여하고, 필수값 검증 실패 시 즉시 예외를 발생시킨다. CUD 수행 후 영향받은 결과 건수(영향받은 row 수 == 1)를 명시적으로 확인하여 검증한다.
 
-### 6.2 감사(Audit) 필드 처리
+### 7.2 감사(Audit) 필드 처리
 
 - 생성자/수정자 IP 정보 처리 시, Front가 전송한 데이터는 신뢰하지 않는다.
 - 백엔드 서버 레이어에서 RequestContextHolder와 프로젝트 공통 유틸인 ClientIpUtil을 사용해 IP를 직접 추출하고 최종 결정하여 DB에 기록한다.
 
-### 6.3 Mapper 및 XML SQL 작성
+### 7.3 Mapper 및 XML SQL 작성
 
 - Java 인터페이스 경로와 XML의 namespace를 1:1로 엄격히 일치시킨다.
 - 다중 파라미터를 넘길 경우 XML 매핑 오류를 방지하기 위해 @Param 어노테이션을 필수로 사용한다.
@@ -99,13 +169,13 @@
 
 ---
 
-## 7. 주석 작성 규칙
+## 8. 주석 작성 규칙
 
-### 7.1 Front 주석 구조
+### 8.1 Front 주석 구조
 
 모든 프런트엔드 파일은 코드 가독성과 유지보수 통일성을 위해 아래 지정된 4가지 섹션 주석 구조(HEADER & CONFIG, COMPONENT & LIFECYCLE, LOGIC & EVENT HANDLERS, RENDER METHODS)를 대형 주석 블록 형태로 파일 내에 반드시 준수하여 작성한다.
 
-### 7.2 Back Javadoc 표준
+### 8.2 Back Javadoc 표준
 
 - 공개(public) 메서드에는 단순 코드를 한글로 번역한 주석(구현 번역형 설명) 작성을 금지한다.
 - 해당 메서드가 수행하는 비즈니스적 역할, 보장하는 결과, 데이터 보정 규칙 중심으로 Javadoc을 작성한다.
@@ -113,7 +183,7 @@
 
 ---
 
-## 8. 검증 체크리스트 (Definition of Done)
+## 9. 검증 체크리스트 (Definition of Done)
 
 기능 개발 완료 및 반영 전, 아래 체크리스트를 통과해야 한다.
 
@@ -131,7 +201,7 @@
 
 ---
 
-## 9. 문서화 규칙
+## 10. 문서화 규칙
 
 기능 개발이 최종 완료되면 프로젝트 docs/ 디렉터리에 아래 항목을 명시한 개발 완료 문서를 남긴다.
 
@@ -143,18 +213,18 @@
 
 ---
 
-## 10. Pastor 레퍼런스 (참조 표준 코드 위치)
+## 11. Pastor 레퍼런스 (참조 표준 코드 위치)
 
 새로운 도메인이나 기능을 개발할 때 구조가 헷갈린다면, 아키텍처 표준이 가장 완벽하게 적용되어 있는 아래 Pastor(목회자 관리) 모듈의 소스 코드를 그대로 복사하여 뼈대로 사용한다.
 
-### 10.1 Front-End 표준 소스
+### 11.1 Front-End 표준 소스
 
 - frontend/src/official/about/pastor/pastorPage.tsx
 - frontend/src/official/about/pastor/pastorHook.ts
 - frontend/src/official/about/pastor/pastorApi.ts
 - frontend/src/official/about/pastor/pastorModel.ts
 
-### 10.2 Back-End 표준 소스
+### 11.2 Back-End 표준 소스
 
 - src/main/java/com/main/app/official/about/pastor/PastorController.java
 - src/main/java/com/main/app/official/about/pastor/PastorService.java

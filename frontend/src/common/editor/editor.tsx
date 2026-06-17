@@ -439,6 +439,7 @@ export default function Editor({
   placeholder = '내용을 입력해 주세요.',
   disabled = false,
   toolbar,
+  onImageUpload, // ★ 추가: 이미지 업로드 콜백
 }: EditorProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const lastEmittedHtmlRef = useRef<string>('');
@@ -723,12 +724,30 @@ export default function Editor({
       .run();
   };
 
+  // ★ 수정된 addImageByFile 함수 (onImageUpload 사용)
   const addImageByFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) {
+    if (!file) return;
+
+    // ★ onImageUpload가 있으면 서버 업로드 실행
+    if (onImageUpload) {
+      try {
+        const imageUrl = await onImageUpload(file);
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: imageUrl, alt: file.name, width: 640 })
+          .updateAttributes('image', { align: 'center' })
+          .run();
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+      }
+      event.target.value = '';
       return;
     }
 
+    // ★ Fallback: 기존 Base64 방식
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result;

@@ -4,95 +4,133 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.about.pastor.PastorMapper">
 
-    <select id="selectPastorProfile" resultType="com.main.app.official.about.pastor.dto.PastorDto">
-        SELECT
-            corp_id AS corpId,
-            corp_name AS corpName,
-            business_registration_number AS businessRegistrationNumber,
-            chief_name AS chiefName,
-            CASE
-                WHEN chief_image_path = 'single-image' THEN 'single-image'
-                WHEN chief_image_path = 'split-editor-image' THEN 'split-editor-image'
-                ELSE 'split-editor-image'
-            END AS displayMode,
-            phone_number AS phoneNumber,
-            postal_code AS postalCode,
-            address_line1 AS addressLine1,
-            address_line2 AS addressLine2,
-            introduction,
-            updated_at AS updatedAt
-        FROM com_corp
-        WHERE is_deleted = FALSE
-        ORDER BY updated_at DESC, corp_id DESC
-        LIMIT 1
-    </select>
+    <resultMap id="pastorResultMap" type="com.main.app.official.about.pastor.dto.PastorDto">
+        <id     property="corpId"                  column="corp_id"/>
+        <result property="corpName"                column="corp_name"/>
+        <result property="businessRegistrationNumber" column="business_registration_number"/>
+        <result property="chiefName"               column="chief_name"/>
+        <!-- display_mode 컬럼 제거 -->
+        <result property="phoneNumber"             column="phone_number"/>
+        <result property="postalCode"              column="postal_code"/>
+        <result property="addressLine1"            column="address_line1"/>
+        <result property="addressLine2"            column="address_line2"/>
+        <result property="introduction"            column="introduction"/>
+        <result property="photoPath"               column="photo_path"/>
+        <result property="updatedAt"               column="updated_at"/>
+    </resultMap>
 
-    <insert id="insertPastorProfile" parameterType="com.main.app.official.about.pastor.dto.PastorRequest"
-            useGeneratedKeys="true" keyProperty="corpId">
-        INSERT INTO com_corp (
+    <!-- 목회자 프로필 조회 (단건) - display_mode 제거 -->
+    <select id="selectProfile" resultMap="pastorResultMap">
+        SELECT
+            corp_id,
             corp_name,
             business_registration_number,
             chief_name,
-            chief_image_path,
+            /* display_mode 제거 */
             phone_number,
             postal_code,
             address_line1,
             address_line2,
             introduction,
-            created_by,
-            created_ip,
-            updated_by,
-            updated_ip,
-            updated_at,
+            photo_path,
+            updated_at
+        FROM com_corp
+        WHERE is_deleted = FALSE
+          AND is_active = TRUE
+        LIMIT 1
+    </select>
+
+    <!-- corpId로 목회자 프로필 조회 - display_mode 제거 -->
+    <select id="selectProfileByCorpId" resultMap="pastorResultMap">
+        SELECT
+            corp_id,
+            corp_name,
+            business_registration_number,
+            chief_name,
+            /* display_mode 제거 */
+            phone_number,
+            postal_code,
+            address_line1,
+            address_line2,
+            introduction,
+            photo_path,
+            updated_at
+        FROM com_corp
+        WHERE corp_id = #{corpId}
+          AND is_deleted = FALSE
+    </select>
+
+    <!-- 목회자 프로필 등록 -->
+    <insert id="insertProfile"
+            parameterType="com.main.app.official.about.pastor.dto.PastorRequest"
+            useGeneratedKeys="true"
+            keyProperty="corpId">
+        INSERT INTO com_corp (
+            corp_name,
+            business_registration_number,
+            chief_name,
+            /* display_mode 제거 */
+            phone_number,
+            postal_code,
+            address_line1,
+            address_line2,
+            introduction,
             is_active,
-            is_deleted
+            is_deleted,
+            created_at,
+            updated_at,
+            created_by,
+            updated_by,
+            created_ip,
+            updated_ip
         ) VALUES (
             #{corpName},
             #{businessRegistrationNumber},
             #{chiefName},
-            COALESCE(#{displayMode}, 'split-editor-image'),
+            /* display_mode 제거 */
             #{phoneNumber},
             #{postalCode},
             #{addressLine1},
             #{addressLine2},
             #{introduction},
-            COALESCE(NULLIF(#{createdBy}, ''), 'system'),
-            CAST(COALESCE(NULLIF(#{createdIp}, ''), '127.0.0.1') AS inet),
-            COALESCE(NULLIF(#{updatedBy}, ''), COALESCE(NULLIF(#{createdBy}, ''), 'system')),
-            CAST(COALESCE(NULLIF(#{updatedIp}, ''), COALESCE(NULLIF(#{createdIp}, ''), '127.0.0.1')) AS inet),
-            NOW(),
             TRUE,
-            FALSE
+            FALSE,
+            NOW(),
+            NOW(),
+            #{createdBy},
+            #{updatedBy},
+            #{createdIp},
+            #{updatedIp}
         )
     </insert>
 
-    <update id="updatePastorProfile">
+    <!-- 목회자 프로필 수정 -->
+    <update id="updateProfile"
+            parameterType="com.main.app.official.about.pastor.dto.PastorRequest">
         UPDATE com_corp
-        SET
-            corp_name = COALESCE(#{request.corpName}, corp_name),
-            business_registration_number = COALESCE(#{request.businessRegistrationNumber}, business_registration_number),
-            chief_name = COALESCE(#{request.chiefName}, chief_name),
-            chief_image_path = COALESCE(#{request.displayMode}, chief_image_path),
-            phone_number = #{request.phoneNumber},
-            postal_code = #{request.postalCode},
-            address_line1 = #{request.addressLine1},
-            address_line2 = #{request.addressLine2},
-            introduction = #{request.introduction},
-                        updated_by = COALESCE(NULLIF(#{request.updatedBy}, ''), 'system'),
-                        updated_ip = CAST(COALESCE(NULLIF(#{request.updatedIp}, ''), '127.0.0.1') AS inet),
-            updated_at = NOW()
+        SET corp_name = #{corpName},
+            business_registration_number = #{businessRegistrationNumber},
+            chief_name = #{chiefName},
+            /* display_mode 제거 */
+            phone_number = #{phoneNumber},
+            postal_code = #{postalCode},
+            address_line1 = #{addressLine1},
+            address_line2 = #{addressLine2},
+            introduction = #{introduction},
+            updated_at = NOW(),
+            updated_by = #{updatedBy},
+            updated_ip = #{updatedIp}
         WHERE corp_id = #{corpId}
           AND is_deleted = FALSE
     </update>
 
-    <update id="softDeletePastorProfile">
+    <!-- 목회자 프로필 소프트 삭제 -->
+    <update id="softDeleteProfile">
         UPDATE com_corp
-        SET
-            is_deleted = TRUE,
+        SET is_deleted = TRUE,
             is_active = FALSE,
-            updated_by = #{updatedBy},
-            updated_ip = CAST(#{updatedIp} AS inet),
-            updated_at = NOW()
+            updated_at = NOW(),
+            updated_by = 'system'
         WHERE corp_id = #{corpId}
           AND is_deleted = FALSE
     </update>

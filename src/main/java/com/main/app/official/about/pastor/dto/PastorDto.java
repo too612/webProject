@@ -12,7 +12,6 @@ public class PastorDto {
     private String corpName;
     private String businessRegistrationNumber;
     private String chiefName;
-    private String displayMode;
     private String phoneNumber;
     private String postalCode;
     private String addressLine1;

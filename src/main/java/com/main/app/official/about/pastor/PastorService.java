@@ -1,152 +1,174 @@
 package com.main.app.official.about.pastor;
 
-import com.main.app.common.file.FileService;
-import com.main.app.common.util.ClientIpUtil;
-import com.main.app.common.util.StringUtil;
-import com.main.app.official.about.pastor.dto.PastorDto;
-import com.main.app.official.about.pastor.dto.PastorRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
-@Service("officialPastorService")
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.main.app.common.file.FileService;
+import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.util.ClientIpUtil;
+import com.main.app.official.about.pastor.dto.PastorDto;
+import com.main.app.official.about.pastor.dto.PastorRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class PastorService {
 
-    private static final String DISPLAY_MODE_SINGLE_IMAGE = "single-image";
-    private static final String DISPLAY_MODE_SPLIT = "split-editor-image";
-
     private final PastorMapper pastorMapper;
     private final FileService fileService;
 
+    private static final String PGM_ID = "pastor";
+
+    // =========================================================================
+    // 표준 API 메서드 (Controller 호출용) - FRONT-FULLSTACK-SPEC.md 준수
+    // =========================================================================
+
     /**
-     * 담임목사 소개 정보를 조회하고, 식별자가 있으면 첨부 파일 목록을 함께 반환한다.
+     * 단건 조회 (getInfo)
      */
     @Transactional(readOnly = true)
     public PastorDto getInfo() {
-        PastorDto profile = pastorMapper.selectPastorProfile();
-        if (profile != null && profile.getCorpId() != null) {
-            try {
-                profile.setFileList(fileService.getFileList("pastor", String.valueOf(profile.getCorpId())));
-            } catch (Exception ex) {
-                log.warn("Failed to load pastor file list for corpId={}", profile.getCorpId(), ex);
-            }
-        }
-        return profile;
+        return getProfileInternal();
     }
 
     /**
-     * 담임목사 소개 정보를 신규 등록한다.
-     * 필수값 검증, 표시 모드 정규화, 생성/수정자 및 IP 기본값 보정을 수행한다.
+     * 등록 (setCreate)
      */
     @Transactional
-    public void setCreate(PastorRequest request, List<MultipartFile> files) throws Exception {
-        String sessIp = resolveClientIp();
-        if (request.getChiefName() == null || request.getChiefName().isBlank()) {
-            throw new IllegalArgumentException("담임목사 이름은 필수입니다.");
+    public void setCreate(PastorRequest request, List<MultipartFile> files) {
+        String ip = getClientIp();
+        saveProfileInternal(request, files, ip);
+    }
+
+    /**
+     * 수정 (setUpdate)
+     */
+    @Transactional
+    public void setUpdate(Long corpId, PastorRequest request, List<MultipartFile> files) {
+        // Request에 corpId가 없을 수 있으므로 명시적으로 설정
+        request.setCorpId(corpId);
+        String ip = getClientIp();
+        updateProfileInternal(request, files, ip);
+    }
+
+    /**
+     * 삭제 (delRemove)
+     */
+    @Transactional
+    public void delRemove(Long corpId, String updatedBy) {
+        deleteProfileInternal(corpId, updatedBy);
+    }
+
+    // =========================================================================
+    // 내부 비즈니스 로직 (실제 구현)
+    // =========================================================================
+
+    /**
+     * 프로필 조회 (내부)
+     */
+    private PastorDto getProfileInternal() {
+        PastorDto dto = pastorMapper.selectProfile();
+        if (dto != null && dto.getCorpId() != null) {
+            List<FileDto> files = fileService.getFileList(PGM_ID, String.valueOf(dto.getCorpId()));
+            dto.setFileList(files);
         }
-        if (request.getCorpName() == null || request.getCorpName().isBlank()) {
+        return dto;
+    }
+
+    /**
+     * 프로필 저장 (내부)
+     */
+    private void saveProfileInternal(PastorRequest request, List<MultipartFile> files, String ip) {
+        // 기본값 설정
+        if (!StringUtils.hasText(request.getCorpName())) {
             request.setCorpName("기관정보");
         }
-        if (request.getBusinessRegistrationNumber() == null || request.getBusinessRegistrationNumber().isBlank()) {
-            throw new IllegalArgumentException("사업자등록번호는 필수입니다.");
+        if (!StringUtils.hasText(request.getChiefName())) {
+            request.setChiefName("담임목사");
         }
 
-        String effectiveCreatedBy = StringUtil.coalesceBlank(request.getCreatedBy(), "system");
-        String effectiveUpdatedBy = StringUtil.coalesceBlank(request.getUpdatedBy(), effectiveCreatedBy);
-        String effectiveIp = StringUtil.coalesceBlank(sessIp, "127.0.0.1");
+        // DB 저장
+        pastorMapper.insertProfile(request);
 
-        request.setDisplayMode(normalizeDisplayMode(request.getDisplayMode()));
-        request.setCreatedBy(effectiveCreatedBy);
-        request.setUpdatedBy(effectiveUpdatedBy);
-        request.setCreatedIp(effectiveIp);
-        request.setUpdatedIp(effectiveIp);
-
-        int result = pastorMapper.insertPastorProfile(request);
-        if (result != 1) {
-            throw new Exception("담임목사 정보 등록에 실패했습니다.");
-        }
-
-        if (request.getCorpId() != null) {
-            fileService.uploadFiles("pastor", String.valueOf(request.getCorpId()), files,
-                    effectiveUpdatedBy, effectiveIp);
-        }
-    }
-
-    /**
-     * 담임목사 소개 정보를 수정한다.
-     * 표시 모드와 수정 메타데이터를 정규화하고, 삭제 요청 파일 및 신규 첨부를 반영한다.
-     */
-    @Transactional
-    public void setUpdate(Long corpId, PastorRequest request, List<MultipartFile> files) throws Exception {
-        String effectiveUpdatedBy = StringUtil.coalesceBlank(request.getUpdatedBy(), "system");
-        String effectiveUpdatedIp = StringUtil.coalesceBlank(resolveClientIp(), "127.0.0.1");
-
-        request.setDisplayMode(normalizeDisplayMode(request.getDisplayMode()));
-        request.setUpdatedBy(effectiveUpdatedBy);
-        request.setUpdatedIp(effectiveUpdatedIp);
-
-        int result = pastorMapper.updatePastorProfile(corpId, request);
-        if (result != 1) {
-            throw new Exception("담임목사 정보 수정에 실패했습니다.");
-        }
-
-        if (request.getDeletedFileIds() != null) {
-            request.getDeletedFileIds().forEach(fileService::softDeleteFile);
-        }
-
+        // 파일 업로드 (file_usage='attachment')
         if (files != null && !files.isEmpty()) {
-            fileService.softDeleteFilesByRef("pastor", String.valueOf(corpId));
-            fileService.uploadFiles("pastor", String.valueOf(corpId), files, effectiveUpdatedBy,
-                    effectiveUpdatedIp);
+            String corpId = String.valueOf(request.getCorpId());
+            fileService.uploadFiles(PGM_ID, corpId, files, null, ip, "attachment");
         }
+
+        log.info("Pastor profile saved: corpId={}", request.getCorpId());
     }
 
     /**
-     * 담임목사 소개 정보를 소프트 삭제한다.
-     * 수정자와 IP 기본값을 보정한 뒤 삭제 메타데이터를 기록한다.
+     * 프로필 수정 (내부)
      */
-    @Transactional
-    public void delRemove(Long corpId, String updatedBy) throws Exception {
-        updatedBy = StringUtil.coalesceBlank(updatedBy, "system");
-        String updatedIp = StringUtil.coalesceBlank(resolveClientIp(), "127.0.0.1");
-
-        int result = pastorMapper.softDeletePastorProfile(corpId, updatedBy, updatedIp);
-        if (result != 1) {
-            throw new Exception("담임목사 정보 삭제에 실패했습니다.");
+    private void updateProfileInternal(PastorRequest request, List<MultipartFile> files, String ip) {
+        if (request.getCorpId() == null) {
+            throw new IllegalArgumentException("corpId가 필요합니다.");
         }
+
+        // DB 업데이트
+        pastorMapper.updateProfile(request);
+
+        // 삭제할 파일 처리
+        if (request.getDeletedFileIds() != null && !request.getDeletedFileIds().isEmpty()) {
+            for (Long fileId : request.getDeletedFileIds()) {
+                fileService.softDeleteFile(fileId);
+            }
+        }
+
+        // 새 파일 업로드
+        if (files != null && !files.isEmpty()) {
+            String corpId = String.valueOf(request.getCorpId());
+            fileService.uploadFiles(PGM_ID, corpId, files, null, ip, "attachment");
+        }
+
+        log.info("Pastor profile updated: corpId={}", request.getCorpId());
     }
 
     /**
-     * 허용된 표시 모드만 통과시키고, 그 외 값은 분리형 모드로 고정한다.
+     * 프로필 삭제 (내부)
      */
-    private String normalizeDisplayMode(String displayMode) {
-        if (DISPLAY_MODE_SINGLE_IMAGE.equals(displayMode)) {
-            return DISPLAY_MODE_SINGLE_IMAGE;
-        }
-        return DISPLAY_MODE_SPLIT;
+    private void deleteProfileInternal(Long corpId, String updatedBy) {
+        // 연관 파일 소프트 삭제
+        fileService.softDeleteFilesByRef(PGM_ID, String.valueOf(corpId));
+
+        // 프로필 소프트 삭제
+        pastorMapper.softDeleteProfile(corpId);
+
+        log.info("Pastor profile deleted: corpId={}, updatedBy={}", corpId, updatedBy);
     }
 
+    // =========================================================================
+    // 유틸리티
+    // =========================================================================
+
     /**
-     * 현재 요청 컨텍스트에서 클라이언트 IP를 해석한다.
-     * 컨텍스트를 얻을 수 없거나 실패하면 루프백 주소를 반환한다.
+     * 현재 요청의 클라이언트 IP를 추출합니다.
+     * (ClientIpUtil이 있다면 그것을 사용하는 것이 좋습니다)
      */
-    private String resolveClientIp() {
+    private String getClientIp() {
         try {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
                     .getRequestAttributes();
-            if (attributes != null && attributes.getRequest() != null) {
-                return ClientIpUtil.resolveClientIp(attributes.getRequest());
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                // ClientIpUtil이 있다면 아래 주석 해제
+                // return ClientIpUtil.getClientIp(request);
+                return request.getRemoteAddr();
             }
-        } catch (Exception ex) {
-            log.debug("Failed to resolve client IP from request context", ex);
+        } catch (Exception e) {
+            log.warn("Failed to get client IP, using default", e);
         }
         return "127.0.0.1";
     }

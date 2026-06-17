@@ -44,7 +44,8 @@ public class FileController {
     /**
      * 단건 파일 업로드
      * POST /api/common/files/upload
-     * - pgmId, refId 를 받아 com_file 에 저장 후 FileDto 반환
+     * - pgmId, refId, fileUsage 를 받아 com_file 에 저장
+     * - fileUsage 기본값: 'attachment'
      * - 프론트엔드 attachmentApi.upload() 에서 호출
      */
     @PostMapping("/upload")
@@ -52,13 +53,15 @@ public class FileController {
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId,
             @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "fileUsage", defaultValue = "attachment") String fileUsage, // ★ 추가
             HttpServletRequest request) {
-        FileDto saved = fileService.uploadFile(pgmId, refId, file, null, request.getRemoteAddr());
+
+        FileDto saved = fileService.uploadFile(pgmId, refId, file, null, request.getRemoteAddr(), fileUsage);
         return ResponseEntity.ok(ApiResponse.ok(saved, "파일이 업로드되었습니다."));
     }
 
     /**
-     * pgmId + refId 기준 파일 목록 조회
+     * pgmId + refId 기준 파일 목록 조회 (기본: attachment만)
      * GET /api/common/files?pgmId={pgmId}&refId={refId}
      */
     @GetMapping
@@ -69,18 +72,33 @@ public class FileController {
     }
 
     /**
+     * pgmId + refId + fileUsage 기준 파일 목록 조회 (선택)
+     * GET /api/common/files/list?pgmId={pgmId}&refId={refId}&fileUsage={fileUsage}
+     */
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<FileDto>>> getFileListByUsage(
+            @RequestParam("pgmId") String pgmId,
+            @RequestParam("refId") String refId,
+            @RequestParam("fileUsage") String fileUsage) {
+        return ResponseEntity.ok(ApiResponse.ok(fileService.getFileListByUsage(pgmId, refId, fileUsage)));
+    }
+
+    /**
      * 파일 단건 다운로드
      * GET /api/common/files/{fileId}/download
      */
     @GetMapping("/{fileId}/download")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId) {
         FileDto file = fileService.getFile(fileId);
-        if (file == null) return ResponseEntity.notFound().build();
+        if (file == null)
+            return ResponseEntity.notFound().build();
 
-        if (!StringUtils.hasText(file.getFilePath())) return ResponseEntity.notFound().build();
+        if (!StringUtils.hasText(file.getFilePath()))
+            return ResponseEntity.notFound().build();
 
         java.nio.file.Path path = Paths.get(file.getFilePath());
-        if (!Files.exists(path)) return ResponseEntity.notFound().build();
+        if (!Files.exists(path))
+            return ResponseEntity.notFound().build();
 
         try {
             Resource resource = new UrlResource(path.toUri());
@@ -107,15 +125,18 @@ public class FileController {
             @RequestParam("refId") String refId) {
         List<FileDto> files = fileService.getFileList(pgmId, refId);
 
-        if (files == null || files.isEmpty()) return ResponseEntity.notFound().build();
+        if (files == null || files.isEmpty())
+            return ResponseEntity.notFound().build();
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
+                ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
 
             for (FileDto file : files) {
-                if (!StringUtils.hasText(file.getFilePath())) continue;
+                if (!StringUtils.hasText(file.getFilePath()))
+                    continue;
                 java.nio.file.Path path = Paths.get(file.getFilePath());
-                if (!Files.exists(path)) continue;
+                if (!Files.exists(path))
+                    continue;
 
                 String entryName = file.getFileId() + "_" + file.getOrgFileNm();
                 zos.putNextEntry(new ZipEntry(entryName));
