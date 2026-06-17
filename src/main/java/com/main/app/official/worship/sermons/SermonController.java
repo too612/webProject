@@ -1,3 +1,11 @@
+/**
+ * @fileoverview 설교 게시판 API 컨트롤러
+ * 
+ * 확장 내용 (ERP 수준):
+ * - 정렬(sortField, sortOrder) 파라미터 추가
+ * - 페이지 크기(size) 파라미터 추가 (기존 10 고정에서 유연하게)
+ * - 프론트엔드 DataGrid의 server/infinite 모드와 완벽하게 연동
+ */
 package com.main.app.official.worship.sermons;
 
 import java.io.ByteArrayOutputStream;
@@ -16,8 +24,6 @@ import java.util.zip.ZipOutputStream;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,14 +56,31 @@ public class SermonController {
         this.sermonService = sermonService;
     }
 
+    /**
+     * 설교 목록 조회 (ERP 수준 페이징/정렬 지원)
+     * 
+     * @param page        요청 페이지 (0부터 시작)
+     * @param size        페이지당 행 수 (기본 10, AG Grid pageSize와 연동)
+     * @param sortField   정렬 기준 필드 (예: created_at, view_count, title)
+     * @param sortOrder   정렬 방향 (ASC 또는 DESC, 기본 ASC)
+     * @param searchType  검색 유형 (title, content, author)
+     * @param keyword     검색어
+     * @param worshipType 예배구분 필터
+     * @return 페이징 처리된 설교 목록
+     */
     @GetMapping
     public ApiResponse<Page<SermonDto>> list(
             @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size, // ★ size 파라미터 추가
+            @RequestParam(name = "sortField", required = false) String sortField, // ★ 정렬 필드
+            @RequestParam(name = "sortOrder", defaultValue = "ASC") String sortOrder, // ★ 정렬 방향
             @RequestParam(name = "searchType", required = false) String searchType,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "worshipType", required = false) String worshipType) {
-        Pageable pageable = PageRequest.of(page, 10);
-        Page<SermonDto> paging = sermonService.getBoardList(pageable, searchType, keyword, worshipType);
+
+        // Service 계층에 모든 파라미터 전달
+        Page<SermonDto> paging = sermonService.getBoardList(
+                page, size, sortField, sortOrder, searchType, keyword, worshipType);
         return ApiResponse.ok(paging);
     }
 
@@ -208,13 +231,15 @@ public class SermonController {
         }
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
+                ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
 
             for (FileDto file : files) {
-                if (file.getFilePath() == null) continue;
+                if (file.getFilePath() == null)
+                    continue;
 
                 java.nio.file.Path path = Paths.get(file.getFilePath());
-                if (!Files.exists(path)) continue;
+                if (!Files.exists(path))
+                    continue;
 
                 // ZIP 내 파일명 중복 방지
                 String entryName = file.getFileId() + "_" + file.getOrgFileNm();

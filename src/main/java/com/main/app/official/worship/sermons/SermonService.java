@@ -1,16 +1,25 @@
+/**
+ * @fileoverview 설교 게시판 비즈니스 로직 서비스
+ * 
+ * 확장 내용 (ERP 수준):
+ * - 정렬 필드(sortField) 화이트리스트 검증 추가 (SQL Injection 방지)
+ * - 페이징 파라미터(page, size)를 Map에 담아 Mapper로 전달
+ */
 package com.main.app.official.worship.sermons;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
 import com.main.app.common.comment.CommentService;
 import com.main.app.common.comment.dto.CommentDto;
 import com.main.app.common.file.FileService;
@@ -27,29 +36,68 @@ public class SermonService {
 
     private final SermonMapper sermonMapper;
     private final PasswordEncoder passwordEncoder;
-
     private final FileService fileService;
     private final CommentService commentService;
 
+    // ★ 정렬 허용 필드 화이트리스트 (SQL Injection 방지)
+    private static final List<String> ALLOWED_SORT_FIELDS = Arrays.asList(
+            "created_at", "view_count", "title", "sermon_date", "author_id");
+
     public SermonService(SermonMapper sermonMapper, PasswordEncoder passwordEncoder,
-                         FileService fileService, CommentService commentService) {
+            FileService fileService, CommentService commentService) {
         this.sermonMapper = sermonMapper;
         this.passwordEncoder = passwordEncoder;
         this.fileService = fileService;
         this.commentService = commentService;
     }
 
+    /**
+     * 설교 목록 조회 (ERP 수준 페이징/정렬 지원)
+     * 
+     * @param page        요청 페이지 (0부터 시작)
+     * @param size        페이지당 행 수
+     * @param sortField   정렬 기준 필드 (화이트리스트 검증됨)
+     * @param sortOrder   정렬 방향 (ASC/DESC)
+     * @param searchType  검색 유형
+     * @param keyword     검색어
+     * @param worshipType 예배구분 필터
+     * @return 페이징 처리된 설교 목록
+     */
     @Transactional(readOnly = true)
-    public Page<SermonDto> getBoardList(Pageable pageable, String searchType, String keyword, String worshipType) {
+    public Page<SermonDto> getBoardList(int page, int size, String sortField, String sortOrder,
+            String searchType, String keyword, String worshipType) {
+
+        // ★ 1. 정렬 필드 검증 (화이트리스트에 없으면 기본값 사용)
+        String validSortField = "created_at"; // 기본값
+        if (StringUtils.hasText(sortField) && ALLOWED_SORT_FIELDS.contains(sortField)) {
+            validSortField = sortField;
+        } else if (StringUtils.hasText(sortField)) {
+            log.warn("Invalid sortField attempted: {}, falling back to default", sortField);
+        }
+
+        // ★ 2. 정렬 방향 검증 (ASC 또는 DESC만 허용)
+        String validSortOrder = "ASC";
+        if (StringUtils.hasText(sortOrder)
+                && (sortOrder.equalsIgnoreCase("ASC") || sortOrder.equalsIgnoreCase("DESC"))) {
+            validSortOrder = sortOrder.toUpperCase();
+        }
+
+        // ★ 3. 파라미터 Map 구성
         Map<String, Object> params = new HashMap<>();
         params.put("searchType", searchType);
         params.put("keyword", keyword);
         params.put("worshipType", worshipType);
-        params.put("size", pageable.getPageSize());
-        params.put("offset", pageable.getOffset());
+        params.put("size", size);
+        params.put("offset", page * size);
+        params.put("sortField", validSortField); // ★ Mapper에서 ORDER BY 동적 처리
+        params.put("sortOrder", validSortOrder); // ★ Mapper에서 ORDER BY 동적 처리
 
+        // ★ 4. Mapper 호출
         List<SermonDto> list = sermonMapper.selectBoardList(params);
         long total = sermonMapper.countBoardList(params);
+
+        // ★ 5. Spring Data Page 객체로 변환하여 반환
+        Pageable pageable = PageRequest.of(page, size);
         return PaginationUtil.toPage(list, pageable, total);
     }
 
@@ -88,7 +136,8 @@ public class SermonService {
 
                 if (parent != null) {
                     Long groupNo = parent.getGroupNo() != null
-                            ? Long.parseLong(parent.getGroupNo()) : request.getParentNo();
+                            ? Long.parseLong(parent.getGroupNo())
+                            : request.getParentNo();
                     int newOrderNo = (parent.getOrderNo() != null ? parent.getOrderNo() : 0) + 1;
 
                     // 같은 그룹 내 뒤에 있는 게시글 order_no 밀기
@@ -145,7 +194,8 @@ public class SermonService {
     }
 
     public List<CommentDto> getCommentList(String boardNo) {
-        if (parseSermonId(boardNo) == null) return List.of();
+        if (parseSermonId(boardNo) == null)
+            return List.of();
         return commentService.getCommentList("SERMONS", boardNo);
     }
 
@@ -188,7 +238,6 @@ public class SermonService {
     private boolean isBcryptHash(String value) {
         return StringUtils.hasText(value) && value.matches("^\\$2[aby]\\$.{56}$");
     }
-
 
     private Long parseSermonId(String rqstNo) {
         if (!StringUtils.hasText(rqstNo)) {
