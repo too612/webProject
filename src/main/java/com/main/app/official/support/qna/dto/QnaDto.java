@@ -1,6 +1,6 @@
 package com.main.app.official.support.qna.dto;
 
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.dto.AttachmentDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ public class QnaDto {
     private Integer depth;
     private Integer orderNo;
     private boolean hasFile;
-    private List<FileDto> fileList;
+    private List<AttachmentDto> fileList;
     private Long totalFileSize;
     private String secret;
     private String password;

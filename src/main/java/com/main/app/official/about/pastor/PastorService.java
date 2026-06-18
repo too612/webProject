@@ -9,8 +9,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.main.app.common.file.FileService;
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.AttachmentService;
+import com.main.app.common.attachment.dto.AttachmentDto;
 import com.main.app.common.util.ClientIpUtil;
 import com.main.app.official.about.pastor.dto.PastorDto;
 import com.main.app.official.about.pastor.dto.PastorRequest;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PastorService {
 
     private final PastorMapper pastorMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
     private static final String PGM_ID = "pastor";
 
@@ -79,7 +79,7 @@ public class PastorService {
     private PastorDto getProfileInternal() {
         PastorDto dto = pastorMapper.selectProfile();
         if (dto != null && dto.getCorpId() != null) {
-            List<FileDto> files = fileService.getFileList(PGM_ID, String.valueOf(dto.getCorpId()));
+            List<AttachmentDto> files = fileService.getFileList(PGM_ID, String.valueOf(dto.getCorpId()));
             dto.setFileList(files);
         }
         return dto;

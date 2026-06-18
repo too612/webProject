@@ -1,8 +1,8 @@
 package com.main.app.official.support.qna;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.support.qna.dto.QnaDto;
 import com.main.app.official.support.qna.dto.QnaRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class QnaService {
 
     private final QnaMapper qnaMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public QnaService(QnaMapper qnaMapper, FileService fileService) {
+    public QnaService(QnaMapper qnaMapper, AttachmentService fileService) {
         this.qnaMapper = qnaMapper;
         this.fileService = fileService;
     }
@@ -102,7 +102,7 @@ public class QnaService {
         qnaMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 

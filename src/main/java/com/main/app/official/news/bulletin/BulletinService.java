@@ -1,8 +1,8 @@
 package com.main.app.official.news.bulletin;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.bulletin.dto.BulletinDto;
 import com.main.app.official.news.bulletin.dto.BulletinRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class BulletinService {
 
     private final BulletinMapper bulletinMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public BulletinService(BulletinMapper bulletinMapper, FileService fileService) {
+    public BulletinService(BulletinMapper bulletinMapper, AttachmentService fileService) {
         this.bulletinMapper = bulletinMapper;
         this.fileService = fileService;
     }
@@ -51,7 +51,7 @@ public class BulletinService {
 
         BulletinDto board = bulletinMapper.selectBoardDetail(params);
         if (board != null) {
-         //   board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,11 +98,11 @@ public class BulletinService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         bulletinMapper.deleteComments(rqstNo);
-      //  fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         bulletinMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 
@@ -148,7 +148,6 @@ public class BulletinService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-       // fileService.uploadFiles(boardNo, files, "board", "bulletin", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "bulletin", null, null);
     }
 }
-

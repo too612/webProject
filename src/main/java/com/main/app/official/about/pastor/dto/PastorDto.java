@@ -1,6 +1,6 @@
 package com.main.app.official.about.pastor.dto;
 
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.dto.AttachmentDto;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
@@ -18,5 +18,5 @@ public class PastorDto {
     private String addressLine2;
     private String introduction;
     private OffsetDateTime updatedAt;
-    private List<FileDto> fileList;
+    private List<AttachmentDto> fileList;
 }

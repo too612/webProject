@@ -22,8 +22,8 @@ import org.springframework.util.StringUtils;
 
 import com.main.app.common.comment.CommentService;
 import com.main.app.common.comment.dto.CommentDto;
-import com.main.app.common.file.FileService;
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.AttachmentService;
+import com.main.app.common.attachment.dto.AttachmentDto;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.worship.sermons.dto.SermonDto;
 import com.main.app.official.worship.sermons.dto.SermonRequest;
@@ -36,7 +36,7 @@ public class SermonService {
 
     private final SermonMapper sermonMapper;
     private final PasswordEncoder passwordEncoder;
-    private final FileService fileService;
+    private final AttachmentService fileService;
     private final CommentService commentService;
 
     // ★ 정렬 허용 필드 화이트리스트 (SQL Injection 방지)
@@ -44,7 +44,7 @@ public class SermonService {
             "created_at", "view_count", "title", "sermon_date", "author_id");
 
     public SermonService(SermonMapper sermonMapper, PasswordEncoder passwordEncoder,
-            FileService fileService, CommentService commentService) {
+            AttachmentService fileService, CommentService commentService) {
         this.sermonMapper = sermonMapper;
         this.passwordEncoder = passwordEncoder;
         this.fileService = fileService;
@@ -185,11 +185,11 @@ public class SermonService {
         sermonMapper.softDeleteBoard(sermonId);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 
-    public List<FileDto> getFileList(String rqstNo) {
+    public List<AttachmentDto> getFileList(String rqstNo) {
         return fileService.getFileList("sermon", rqstNo);
     }
 

@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.main.app.common.file.FileMapper">
+<mapper namespace="com.main.app.common.attachment.AttachmentMapper">
 
-    <resultMap id="fileResultMap" type="com.main.app.common.file.dto.FileDto">
+    <resultMap id="fileResultMap" type="com.main.app.common.attachment.dto.AttachmentDto">
         <id     property="fileId"       column="file_id"/>
         <result property="pgmId"        column="pgm_id"/>
         <result property="refId"        column="ref_id"/>
@@ -31,7 +31,7 @@
 
     <!-- 파일 단건 등록 (fileUsage 포함) -->
     <insert id="insertFile"
-            parameterType="com.main.app.common.file.dto.FileDto"
+            parameterType="com.main.app.common.attachment.dto.AttachmentDto"
             useGeneratedKeys="true"
             keyProperty="fileId">
         INSERT INTO com_file (

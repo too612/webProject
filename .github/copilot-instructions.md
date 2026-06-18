@@ -7,8 +7,9 @@
 
 # 아키텍처 가이드라인 준수
 
-- 모든 신규 파일 생성 및 패키지 구조는 `SYSTEM-ARCHITECTURE.md`를 기준으로 삼는다.
-- Front/Back 기능 개발 및 API 네이밍 표준은 `FRONT-FULLSTACK-SPEC.md`를 엄격히 따른다.
+- 모든 신규 파일 생성 및 패키지 구조는 `docs/SYSTEM-ARCHITECTURE.md`를 기준으로 삼는다.
+- Front/Back 기능 개발 및 API 네이밍 표준은 `docs/FRONT-FULLSTACK-SPEC.md`를 엄격히 따른다.
+- **신규 Front 기능 개발 시 `docs/FRONT-FULLSTACK-SPEC.md` 2.4절의 구조 선택 기준을 우선 판단하여 Page 방식(4파일) 또는 List/View/Write 방식(6파일)을 결정한다.**
 - 역할 기반 하위 폴더(controller/, service/)는 절대로 생성하지 않는다.
 - Unique 인덱스가 걸린 테이블의 소프트 삭제 로직 생성 시, 유니크 제약조건 충돌 방지 대책을 항상 반영한다.
 

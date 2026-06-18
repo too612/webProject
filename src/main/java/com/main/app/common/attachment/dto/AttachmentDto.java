@@ -1,9 +1,9 @@
-package com.main.app.common.file.dto;
+package com.main.app.common.attachment.dto;
 
 import lombok.Data;
 
 @Data
-public class FileDto {
+public class AttachmentDto {
     private Long fileId;
     private String pgmId;
     private String refId;

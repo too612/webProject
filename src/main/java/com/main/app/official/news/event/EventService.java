@@ -1,8 +1,8 @@
 package com.main.app.official.news.event;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.event.dto.EventDto;
 import com.main.app.official.news.event.dto.EventRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class EventService {
 
     private final EventMapper eventMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public EventService(EventMapper eventMapper, FileService fileService) {
+    public EventService(EventMapper eventMapper, AttachmentService fileService) {
         this.eventMapper = eventMapper;
         this.fileService = fileService;
     }
@@ -102,7 +102,7 @@ public class EventService {
         eventMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 

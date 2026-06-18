@@ -1,8 +1,8 @@
 package com.main.app.official.news.registration;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.registration.dto.RegistrationDto;
 import com.main.app.official.news.registration.dto.RegistrationRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class RegistrationService {
 
     private final RegistrationMapper registrationMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public RegistrationService(RegistrationMapper registrationMapper, FileService fileService) {
+    public RegistrationService(RegistrationMapper registrationMapper, AttachmentService fileService) {
         this.registrationMapper = registrationMapper;
         this.fileService = fileService;
     }
@@ -51,7 +51,7 @@ public class RegistrationService {
 
         RegistrationDto board = registrationMapper.selectBoardDetail(params);
         if (board != null) {
-           // board.setFileList(fileService.getFileList(rqstNo));
+            // board.setFileList(fileService.getFileList(rqstNo));
         }
         return board;
     }
@@ -98,11 +98,11 @@ public class RegistrationService {
     @Transactional
     public void deleteBoard(String rqstNo) {
         registrationMapper.deleteComments(rqstNo);
-        //fileService.softDeleteFilesByBoardNo(rqstNo);
+        // fileService.softDeleteFilesByBoardNo(rqstNo);
         registrationMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 
@@ -148,7 +148,6 @@ public class RegistrationService {
     }
 
     private void processFiles(String boardNo, List<MultipartFile> files) {
-       // fileService.uploadFiles(boardNo, files, "board", "registration", null, null);
+        // fileService.uploadFiles(boardNo, files, "board", "registration", null, null);
     }
 }
-

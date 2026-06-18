@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.comment.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.dto.AttachmentDto;
 import com.main.app.official.worship.sermons.dto.SermonDto;
 import com.main.app.official.worship.sermons.dto.SermonRequest;
 
@@ -198,7 +198,7 @@ public class SermonController {
      */
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam("fileId") Long fileId) throws MalformedURLException {
-        FileDto file = sermonService.getFile(fileId);
+        AttachmentDto file = sermonService.getFile(fileId);
         if (file == null) {
             return ResponseEntity.notFound().build();
         }
@@ -224,7 +224,7 @@ public class SermonController {
      */
     @GetMapping("/downloadZip")
     public ResponseEntity<byte[]> downloadZip(@RequestParam("rqstNo") String rqstNo) {
-        List<FileDto> files = sermonService.getFileList(rqstNo);
+        List<AttachmentDto> files = sermonService.getFileList(rqstNo);
 
         if (files == null || files.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -233,7 +233,7 @@ public class SermonController {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
 
-            for (FileDto file : files) {
+            for (AttachmentDto file : files) {
                 if (file.getFilePath() == null)
                     continue;
 

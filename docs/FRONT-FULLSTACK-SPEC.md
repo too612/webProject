@@ -4,12 +4,11 @@
 
 이 문서는 Front 관점에서 기능을 설계하고 구현할 때, 백엔드 규칙까지 함께 맞추기 위한 공통 단일 기준 문서다.
 
-- 기준 백엔드 규칙은 docs/PASTOR-JAVA-SPEC.md를 따르며, 본 문서는 해당 규칙을 Front 작업 흐름에 맞게 통합/해석한 실행 가이드다.
+- 본 문서는 해당 규칙을 Front 작업 흐름에 맞게 통합/해석한 실행 가이드다.
 - 대상 도메인: official, community, erp, mypage, system, common
 - 대상 파일: featurePage.tsx, featureHook.ts, featureApi.ts, featureModel.ts
+- 대상 파일(선택) : featureList.tsx, featureView.tsx, featureWrite.tsx
 - 연계 대상: Controller, Service, DTO, Mapper(XML)
-
----
 
 ## 2. 기능 기본 구조
 
@@ -22,7 +21,14 @@
 - featureApi.ts: HTTP 호출 및 백엔드 에러 메시지 표준화 처리
 - featureModel.ts: 타입 계약 정의 및 도메인 전용 상수 관리
 
-### 2.2 Back 파일 구조
+### 2.2 Front 파일 구조 (선택사항)
+
+- featurePage.tsx내에 목록, 등록, 상세화면이 구성될 경우 featurePage.tsx 파일을 제거하고 아래 3개의 파일구조로 작업한다.
+- featureList.tsx : 화면 렌더링, 이벤트 바인딩, 조회 모드 전환 책임
+- featureView.tsx : 화면 렌더링, 이벤트 바인딩, 상세화면 모드 전환 책임
+- featureWrite.tsx : 화면 렌더링, 이벤트 바인딩, 수정 모드 전환 책임
+
+### 2.3 Back 파일 구조
 
 - FeatureController.java: 엔드포인트 정의 및 최소한의 라우팅/응답 매핑 책임
 - FeatureService.java: 비즈니스 검증, 데이터 보정, 트랜잭션 처리 및 유스케이스 구현
@@ -30,7 +36,24 @@
 - FeatureMapper.xml: SQL 구현 및 DB 레벨 기본값 방어
 - dto/{Feature}Request.java, dto/{Feature}Dto.java: 요청/응답 데이터 계약 구조
 
----
+### 2.4 Front 파일 구조 선택 기준
+
+`2.1`의 4파일 세트(Page 방식)와 `2.2`의 6파일 세트(List/View/Write 방식) 중 하나를 선택할 때는 아래 기준을 따른다.
+
+- **Page 방식 (4파일 세트) 적용 조건**:
+  - 단일 페이지 내에서 **조회/수정/작성 모드가 탭 또는 모달로 전환**되는 경우
+  - 기능 규모가 작아 목록과 상세를 분리할 필요가 없는 경우
+  - 예시: `pastor` (담임목사 소개 관리)
+
+- **List/View/Write 방식 (6파일 세트) 적용 조건**:
+  - **목록 페이지, 상세 페이지, 작성/수정 페이지가 URL 경로로 완전히 분리**되어야 하는 경우
+  - 각 화면이 독립적인 레이아웃이나 서브메뉴를 가져야 하는 경우
+  - 게시판처럼 목록(`/list`) → 상세(`/view/:id`) → 작성(`/write`) 경로가 명확히 구분되는 경우
+  - 예시: `sermons` (설교 게시판)
+
+- **공통 원칙**:
+  - 어떤 방식을 선택하든 `Hook`, `Api`, `Model`은 항상 분리하여 유지한다.
+  - 한 도메인 내에서도 메뉴 성격에 따라 두 방식을 혼용할 수 있다.
 
 ## 3. API 계약 및 명명 규칙
 
@@ -52,19 +75,17 @@
 
 ### 3.3 멀티파트(파일 업로드) 규격
 
-- Front에서 FormData 빌드 시, 메타데이터 JSON Blob은 "request"라는 키로 append하고, 첨부 파일들은 "files"라는 동일한 키로 반복 append한다. (이때 JSON Blob의 type은 application/json으로 명시한다.)
+- Front에서 FormData 빌드 시, 메타데이터 JSON Blob은 "request"라는 키로 append하고, 첨부 파일들은 "files"라는 동일한 키로 반복 append한다.
+  (이때 JSON Blob의 type은 application/json으로 명시한다.)
 - Back 컨트롤러에서는 @RequestPart("request")와 @RequestPart(value = "files", required = false)로 수신한다. 파일이 첨부되지 않은 플로우도 정상 처리되어야 한다.
-- **파일 용도 구분**: 본문(Editor)에 삽입된 이미지인지, 첨부파일 영역에 등록된 파일인지 구분하기 위해 "fileUsage" 키를 함께 전송한다. (값: 'editor' 또는 'attachment', 기본값: 'attachment')
-
----
+- **파일 용도 구분**: 본문(Editor)에 삽입된 이미지인지, 첨부파일 영역에 등록된 파일인지 구분하기 위해 "fileUsage" 키를 함께 전송한다.
+  (값: 'editor' 또는 'attachment', 기본값: 'attachment')
 
 ## 4. 타입 및 DTO 규칙
 
 - 단일 Request DTO 유지: 생성(C)과 수정(U) 시 필드 차이가 충분히 크지 않다면 단일 Request DTO 타입을 공유하여 사용한다.
 - 화면 전용 필드 제한: 응답 데이터 타입에는 화면 표시 목적의 필드만 포함하며, 불필요한 엔티티 내부 필드는 노출하지 않는다.
 - Null / Blank 보정: 데이터 정합성을 위해 1차적으로 Front 레이어에서 빈 값을 보정하여 전송하고, Back 서비스 레이어에서 최종 검증 및 기본값을 보장한다.
-
----
 
 ## 5. Front 구현 가이드라인
 
@@ -78,8 +99,6 @@
 - 표준 상태 인터페이스(data, loading, error)를 반드시 유지한다.
 - 명세에 따른 표준 유스케이스 함수인 loadXxx, saveXxx, removeXxx 구조로 바인딩 로직을 추상화한다.
 
----
-
 ## 6. 공통 컴포넌트 가이드
 
 ### 6.1 DataGrid (common/grid)
@@ -88,27 +107,27 @@ AG Grid를 기반으로 한 공통 그리드 컴포넌트. 4가지 운영 모드
 
 #### 6.1.1 운영 모드
 
-| 모드 | 설명 | 사용처 |
-| :--- | :--- | :--- |
-| `basic` | 게시판용. 정렬/필터 비활성화 | 공지사항, 설교, Q&A 등 |
-| `server` | ERP 목록용. 헤더 클릭 시 서버 API 호출 | 회원 목록, 거래 내역 등 |
-| `infinite` | 대용량 데이터 무한 스크롤 | 전체 거래 내역, 시스템 로그 등 |
-| `client` | 소량 데이터 완전 제어 (클라이언트 정렬/필터) | 코드 관리, 설정 화면 등 |
+| 모드       | 설명                                         | 사용처                         |
+| :--------- | :------------------------------------------- | :----------------------------- |
+| `basic`    | 게시판용. 정렬/필터 비활성화                 | 공지사항, 설교, Q&A 등         |
+| `server`   | ERP 목록용. 헤더 클릭 시 서버 API 호출       | 회원 목록, 거래 내역 등        |
+| `infinite` | 대용량 데이터 무한 스크롤                    | 전체 거래 내역, 시스템 로그 등 |
+| `client`   | 소량 데이터 완전 제어 (클라이언트 정렬/필터) | 코드 관리, 설정 화면 등        |
 
 #### 6.1.2 주요 Props
 
-| Props | 타입 | 기본값 | 설명 |
-| :--- | :--- | :--- | :--- |
-| `mode` | `'basic' \| 'server' \| 'infinite' \| 'client'` | `'basic'` | 운영 모드 선택 |
-| `columns` | `ColDef[]` | 필수 | AG Grid 컬럼 정의 |
-| `rows` | `any[]` | 필수 | 표시할 데이터 |
-| `rowHeight` | `number` | `44` | 행 높이 (px) |
-| `defaultColDef` | `ColDef` | `{ sortable: true, filter: true }` | 기본 컬럼 속성 |
-| `onSortChanged` | `(sortModel) => void` | - | 정렬 변경 콜백 (server 모드) |
-| `onFilterChanged` | `(filterModel) => void` | - | 필터 변경 콜백 (server 모드) |
-| `onLoadData` | `(params) => Promise<{ rows, totalCount }>` | - | 무한 스크롤 데이터 로드 콜백 (infinite 모드) |
-| `saveState` | `boolean` | `false` | 컬럼 상태를 localStorage에 저장 |
-| `stateKey` | `string` | - | 상태 저장 고유 키 (saveState=true 필수) |
+| Props             | 타입                                            | 기본값                             | 설명                                         |
+| :---------------- | :---------------------------------------------- | :--------------------------------- | :------------------------------------------- |
+| `mode`            | `'basic' \| 'server' \| 'infinite' \| 'client'` | `'basic'`                          | 운영 모드 선택                               |
+| `columns`         | `ColDef[]`                                      | 필수                               | AG Grid 컬럼 정의                            |
+| `rows`            | `any[]`                                         | 필수                               | 표시할 데이터                                |
+| `rowHeight`       | `number`                                        | `44`                               | 행 높이 (px)                                 |
+| `defaultColDef`   | `ColDef`                                        | `{ sortable: true, filter: true }` | 기본 컬럼 속성                               |
+| `onSortChanged`   | `(sortModel) => void`                           | -                                  | 정렬 변경 콜백 (server 모드)                 |
+| `onFilterChanged` | `(filterModel) => void`                         | -                                  | 필터 변경 콜백 (server 모드)                 |
+| `onLoadData`      | `(params) => Promise<{ rows, totalCount }>`     | -                                  | 무한 스크롤 데이터 로드 콜백 (infinite 모드) |
+| `saveState`       | `boolean`                                       | `false`                            | 컬럼 상태를 localStorage에 저장              |
+| `stateKey`        | `string`                                        | -                                  | 상태 저장 고유 키 (saveState=true 필수)      |
 
 ### 6.2 Editor (common/editor)
 
@@ -116,14 +135,14 @@ Tiptap v2 기반 리치텍스트 에디터 컴포넌트.
 
 #### 6.2.1 주요 Props
 
-| Props | 타입 | 기본값 | 설명 |
-| :--- | :--- | :--- | :--- |
-| `value` | `string` | 필수 | 에디터 내용 (HTML 문자열) |
-| `onChange` | `(value: string) => void` | 필수 | 내용 변경 콜백 |
-| `placeholder` | `string` | `'내용을 입력해 주세요.'` | 플레이스홀더 텍스트 |
-| `disabled` | `boolean` | `false` | 비활성화 여부 |
-| `toolbar` | `EditorToolbarOption[]` | 전체 기능 | 툴바 버튼 목록 (선택) |
-| `onImageUpload` | `(file: File) => Promise<string>` | - | 이미지 파일 업로드 콜백 (제공 시 서버 업로드, 미제공 시 Base64) |
+| Props           | 타입                              | 기본값                    | 설명                                                            |
+| :-------------- | :-------------------------------- | :------------------------ | :-------------------------------------------------------------- |
+| `value`         | `string`                          | 필수                      | 에디터 내용 (HTML 문자열)                                       |
+| `onChange`      | `(value: string) => void`         | 필수                      | 내용 변경 콜백                                                  |
+| `placeholder`   | `string`                          | `'내용을 입력해 주세요.'` | 플레이스홀더 텍스트                                             |
+| `disabled`      | `boolean`                         | `false`                   | 비활성화 여부                                                   |
+| `toolbar`       | `EditorToolbarOption[]`           | 전체 기능                 | 툴바 버튼 목록 (선택)                                           |
+| `onImageUpload` | `(file: File) => Promise<string>` | -                         | 이미지 파일 업로드 콜백 (제공 시 서버 업로드, 미제공 시 Base64) |
 
 #### 6.2.2 이미지 처리
 
@@ -136,18 +155,16 @@ Tiptap v2 기반 리치텍스트 에디터 컴포넌트.
 
 #### 6.3.1 주요 Props
 
-| Props | 타입 | 기본값 | 설명 |
-| :--- | :--- | :--- | :--- |
-| `existingFiles` | `AttachmentFile[]` | `[]` | 서버에 저장된 기존 파일 목록 |
-| `newFiles` | `File[]` | `[]` | 추가 예정인 로컬 파일 목록 |
-| `readOnly` | `boolean` | `false` | 읽기 전용 모드 (조회 시) |
-| `buildDownloadUrl` | `(fileId) => string` | `attachmentApi.buildDownloadUrl` | 다운로드 URL 생성기 |
-| `buildZipUrl` | `string` | - | 전체 다운로드 ZIP URL (readOnly 모드) |
-| `accept` | `string` | - | 허용 확장자/MIME |
-| `maxFiles` | `number` | - | 최대 파일 개수 |
-| `maxFileSize` | `number` | - | 파일당 최대 크기(바이트) |
-
----
+| Props              | 타입                 | 기본값                           | 설명                                  |
+| :----------------- | :------------------- | :------------------------------- | :------------------------------------ |
+| `existingFiles`    | `AttachmentFile[]`   | `[]`                             | 서버에 저장된 기존 파일 목록          |
+| `newFiles`         | `File[]`             | `[]`                             | 추가 예정인 로컬 파일 목록            |
+| `readOnly`         | `boolean`            | `false`                          | 읽기 전용 모드 (조회 시)              |
+| `buildDownloadUrl` | `(fileId) => string` | `attachmentApi.buildDownloadUrl` | 다운로드 URL 생성기                   |
+| `buildZipUrl`      | `string`             | -                                | 전체 다운로드 ZIP URL (readOnly 모드) |
+| `accept`           | `string`             | -                                | 허용 확장자/MIME                      |
+| `maxFiles`         | `number`             | -                                | 최대 파일 개수                        |
+| `maxFileSize`      | `number`             | -                                | 파일당 최대 크기(바이트)              |
 
 ## 7. Back 구현 가이드라인
 
@@ -167,8 +184,6 @@ Tiptap v2 기반 리치텍스트 에디터 컴포넌트.
 - 다중 파라미터를 넘길 경우 XML 매핑 오류를 방지하기 위해 @Param 어노테이션을 필수로 사용한다.
 - 소프트 삭제 정책에 따라, 모든 조회(SELECT) 쿼리에는 is_deleted = FALSE 조건이 누락되지 않도록 철저히 방어 조건을 심는다.
 
----
-
 ## 8. 주석 작성 규칙
 
 ### 8.1 Front 주석 구조
@@ -180,8 +195,6 @@ Tiptap v2 기반 리치텍스트 에디터 컴포넌트.
 - 공개(public) 메서드에는 단순 코드를 한글로 번역한 주석(구현 번역형 설명) 작성을 금지한다.
 - 해당 메서드가 수행하는 비즈니스적 역할, 보장하는 결과, 데이터 보정 규칙 중심으로 Javadoc을 작성한다.
 - @param, @throws 문구는 비즈니스적으로 특별한 의미를 가질 때만 최소한으로 작성한다.
-
----
 
 ## 9. 검증 체크리스트 (Definition of Done)
 
@@ -199,19 +212,16 @@ Tiptap v2 기반 리치텍스트 에디터 컴포넌트.
 - 데이터 삭제 후 해당 메뉴 재진입 시 상태값 초기화 여부
 - 비정상적인 모드값 유입 시 Fallback 동작 여부
 
----
-
 ## 10. 문서화 규칙
 
 기능 개발이 최종 완료되면 프로젝트 docs/ 디렉터리에 아래 항목을 명시한 개발 완료 문서를 남긴다.
 
+- 파일명은 RESULT_DOC.md로 한다.
 - 최종 확정된 API 엔드포인트 주소
 - 주고받는 요청(Request) / 응답(Response) 타입 스키마
 - 특이 케이스에 대한 검증/보정 비즈니스 규칙
 - SQL에서 처리한 기본값 정책 및 소프트 삭제 쿼리 조건
 - 자체 검증 완료 결과 리포트
-
----
 
 ## 11. Pastor 레퍼런스 (참조 표준 코드 위치)
 

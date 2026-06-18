@@ -1,4 +1,4 @@
-package com.main.app.common.file;
+package com.main.app.common.attachment;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,28 +16,28 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.dto.AttachmentDto;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class FileService {
+public class AttachmentService {
 
-    private final FileMapper fileMapper;
+    private final AttachmentMapper attachmentMapper;
 
     // 파일 저장 루트 경로 (application.properties에서 주입 가능)
     private static final String FILE_STORAGE_ROOT = "./data/";
 
-    public FileService(FileMapper fileMapper) {
-        this.fileMapper = fileMapper;
+    public AttachmentService(AttachmentMapper attachmentMapper) {
+        this.attachmentMapper = attachmentMapper;
     }
 
     /**
      * 파일 단건 업로드 (fileUsage 지정)
      */
     @Transactional
-    public FileDto uploadFile(String pgmId, String refId, MultipartFile file,
+    public AttachmentDto uploadFile(String pgmId, String refId, MultipartFile file,
             String description, String uploaderIp, String fileUsage) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("업로드할 파일이 비어 있습니다.");
@@ -75,29 +75,29 @@ public class FileService {
             Path targetPath = Paths.get(fullFilePath);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            // 6. FileDto 생성
-            FileDto fileDto = new FileDto();
-            fileDto.setPgmId(pgmId);
-            fileDto.setRefId(refId);
-            fileDto.setOrgFileNm(originalFilename);
-            fileDto.setStoredFileNm(storedFileName);
-            fileDto.setFilePath(fullFilePath);
-            fileDto.setRelativePath(relativeDir + "/" + storedFileName);
-            fileDto.setFileExt(extension.isEmpty() ? null : extension.substring(1));
-            fileDto.setMimeType(file.getContentType());
-            fileDto.setFileSize(file.getSize());
-            fileDto.setDescription(description);
-            fileDto.setUploaderIp(uploaderIp);
-            fileDto.setUploaderId("system");
-            fileDto.setInsId("system");
-            fileDto.setFileUsage(StringUtils.hasText(fileUsage) ? fileUsage : "attachment");
+            // 6. AttachmentDto 생성
+            AttachmentDto attachmentDto = new AttachmentDto();
+            attachmentDto.setPgmId(pgmId);
+            attachmentDto.setRefId(refId);
+            attachmentDto.setOrgFileNm(originalFilename);
+            attachmentDto.setStoredFileNm(storedFileName);
+            attachmentDto.setFilePath(fullFilePath);
+            attachmentDto.setRelativePath(relativeDir + "/" + storedFileName);
+            attachmentDto.setFileExt(extension.isEmpty() ? null : extension.substring(1));
+            attachmentDto.setMimeType(file.getContentType());
+            attachmentDto.setFileSize(file.getSize());
+            attachmentDto.setDescription(description);
+            attachmentDto.setUploaderIp(uploaderIp);
+            attachmentDto.setUploaderId("system");
+            attachmentDto.setInsId("system");
+            attachmentDto.setFileUsage(StringUtils.hasText(fileUsage) ? fileUsage : "attachment");
 
             // 7. DB 저장
-            fileMapper.insertFile(fileDto);
+            attachmentMapper.insertFile(attachmentDto);
 
             log.info("File uploaded: pgmId={}, refId={}, fileId={}, usage={}",
-                    pgmId, refId, fileDto.getFileId(), fileDto.getFileUsage());
-            return fileDto;
+                    pgmId, refId, attachmentDto.getFileId(), attachmentDto.getFileUsage());
+            return attachmentDto;
 
         } catch (IOException e) {
             log.error("File upload failed: {}", e.getMessage(), e);
@@ -109,7 +109,7 @@ public class FileService {
      * 여러 파일을 한 번에 업로드 (fileUsage 기본값 'attachment')
      */
     @Transactional
-    public List<FileDto> uploadFiles(String pgmId, String refId, List<MultipartFile> files,
+    public List<AttachmentDto> uploadFiles(String pgmId, String refId, List<MultipartFile> files,
             String description, String uploaderIp) {
         return uploadFiles(pgmId, refId, files, description, uploaderIp, "attachment");
     }
@@ -118,16 +118,16 @@ public class FileService {
      * 여러 파일을 한 번에 업로드 (fileUsage 지정)
      */
     @Transactional
-    public List<FileDto> uploadFiles(String pgmId, String refId, List<MultipartFile> files,
+    public List<AttachmentDto> uploadFiles(String pgmId, String refId, List<MultipartFile> files,
             String description, String uploaderIp, String fileUsage) {
         if (files == null || files.isEmpty()) {
             return List.of();
         }
 
-        List<FileDto> results = new ArrayList<>();
+        List<AttachmentDto> results = new ArrayList<>();
         for (MultipartFile file : files) {
             try {
-                FileDto dto = uploadFile(pgmId, refId, file, description, uploaderIp, fileUsage);
+                AttachmentDto dto = uploadFile(pgmId, refId, file, description, uploaderIp, fileUsage);
                 results.add(dto);
             } catch (Exception e) {
                 log.error("파일 업로드 실패: {}", file.getOriginalFilename(), e);
@@ -140,22 +140,22 @@ public class FileService {
     /**
      * 파일 단건 조회
      */
-    public FileDto getFile(Long fileId) {
-        return fileMapper.selectFile(fileId);
+    public AttachmentDto getFile(Long fileId) {
+        return attachmentMapper.selectFile(fileId);
     }
 
     /**
      * 파일 목록 조회 (기본: file_usage='attachment'만)
      */
-    public List<FileDto> getFileList(String pgmId, String refId) {
-        return fileMapper.selectFileList(pgmId, refId);
+    public List<AttachmentDto> getFileList(String pgmId, String refId) {
+        return attachmentMapper.selectFileList(pgmId, refId);
     }
 
     /**
      * 파일 목록 조회 (fileUsage 필터)
      */
-    public List<FileDto> getFileListByUsage(String pgmId, String refId, String fileUsage) {
-        return fileMapper.selectFileListByUsage(pgmId, refId, fileUsage);
+    public List<AttachmentDto> getFileListByUsage(String pgmId, String refId, String fileUsage) {
+        return attachmentMapper.selectFileListByUsage(pgmId, refId, fileUsage);
     }
 
     /**
@@ -163,7 +163,7 @@ public class FileService {
      */
     @Transactional
     public boolean softDeleteFile(Long fileId) {
-        return fileMapper.softDeleteFile(fileId) > 0;
+        return attachmentMapper.softDeleteFile(fileId) > 0;
     }
 
     /**
@@ -171,6 +171,6 @@ public class FileService {
      */
     @Transactional
     public boolean softDeleteFilesByRef(String pgmId, String refId) {
-        return fileMapper.softDeleteFilesByRef(pgmId, refId) > 0;
+        return attachmentMapper.softDeleteFilesByRef(pgmId, refId) > 0;
     }
 }

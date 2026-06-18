@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.dto.AttachmentDto;
 import com.main.app.official.ministries.youth.dto.YouthDto;
 import com.main.app.official.ministries.youth.dto.YouthRequest;
 
@@ -152,7 +152,7 @@ public class YouthController {
 
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam("fileId") Long fileId) throws MalformedURLException {
-        FileDto file = youthService.getFile(fileId);
+        AttachmentDto file = youthService.getFile(fileId);
         UrlResource resource = new UrlResource("file:" + file.getFilePath());
         String originalFileName = Objects.requireNonNullElse(file.getOrgFileNm(), "download");
         String encodedUploadFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8);

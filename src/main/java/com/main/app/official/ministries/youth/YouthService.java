@@ -1,8 +1,8 @@
 package com.main.app.official.ministries.youth;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.ministries.youth.dto.YouthDto;
 import com.main.app.official.ministries.youth.dto.YouthRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class YouthService {
 
     private final YouthMapper youthMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public YouthService(YouthMapper youthMapper, FileService fileService) {
+    public YouthService(YouthMapper youthMapper, AttachmentService fileService) {
         this.youthMapper = youthMapper;
         this.fileService = fileService;
     }
@@ -102,7 +102,7 @@ public class YouthService {
         youthMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 

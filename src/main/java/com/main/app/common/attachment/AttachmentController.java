@@ -1,4 +1,4 @@
-package com.main.app.common.file;
+package com.main.app.common.attachment;
 
 import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
@@ -29,16 +29,16 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.main.app.common.dto.ApiResponse;
-import com.main.app.common.file.dto.FileDto;
+import com.main.app.common.attachment.dto.AttachmentDto;
 
 @RestController
 @RequestMapping("/api/common/files")
-public class FileController {
+public class AttachmentController {
 
-    private final FileService fileService;
+    private final AttachmentService attachmentService;
 
-    public FileController(FileService fileService) {
-        this.fileService = fileService;
+    public AttachmentController(AttachmentService attachmentService) {
+        this.attachmentService = attachmentService;
     }
 
     /**
@@ -49,14 +49,15 @@ public class FileController {
      * - 프론트엔드 attachmentApi.upload() 에서 호출
      */
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<FileDto>> uploadFile(
+    public ResponseEntity<ApiResponse<AttachmentDto>> uploadFile(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "fileUsage", defaultValue = "attachment") String fileUsage, // ★ 추가
+            @RequestParam(value = "fileUsage", defaultValue = "attachment") String fileUsage,
             HttpServletRequest request) {
 
-        FileDto saved = fileService.uploadFile(pgmId, refId, file, null, request.getRemoteAddr(), fileUsage);
+        AttachmentDto saved = attachmentService.uploadFile(pgmId, refId, file, null, request.getRemoteAddr(),
+                fileUsage);
         return ResponseEntity.ok(ApiResponse.ok(saved, "파일이 업로드되었습니다."));
     }
 
@@ -65,10 +66,10 @@ public class FileController {
      * GET /api/common/files?pgmId={pgmId}&refId={refId}
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FileDto>>> getFileList(
+    public ResponseEntity<ApiResponse<List<AttachmentDto>>> getFileList(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId) {
-        return ResponseEntity.ok(ApiResponse.ok(fileService.getFileList(pgmId, refId)));
+        return ResponseEntity.ok(ApiResponse.ok(attachmentService.getFileList(pgmId, refId)));
     }
 
     /**
@@ -76,11 +77,11 @@ public class FileController {
      * GET /api/common/files/list?pgmId={pgmId}&refId={refId}&fileUsage={fileUsage}
      */
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<List<FileDto>>> getFileListByUsage(
+    public ResponseEntity<ApiResponse<List<AttachmentDto>>> getFileListByUsage(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId,
             @RequestParam("fileUsage") String fileUsage) {
-        return ResponseEntity.ok(ApiResponse.ok(fileService.getFileListByUsage(pgmId, refId, fileUsage)));
+        return ResponseEntity.ok(ApiResponse.ok(attachmentService.getFileListByUsage(pgmId, refId, fileUsage)));
     }
 
     /**
@@ -89,7 +90,7 @@ public class FileController {
      */
     @GetMapping("/{fileId}/download")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId) {
-        FileDto file = fileService.getFile(fileId);
+        AttachmentDto file = attachmentService.getFile(fileId);
         if (file == null)
             return ResponseEntity.notFound().build();
 
@@ -123,7 +124,7 @@ public class FileController {
     public ResponseEntity<byte[]> downloadZip(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId) {
-        List<FileDto> files = fileService.getFileList(pgmId, refId);
+        List<AttachmentDto> files = attachmentService.getFileList(pgmId, refId);
 
         if (files == null || files.isEmpty())
             return ResponseEntity.notFound().build();
@@ -131,7 +132,7 @@ public class FileController {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
 
-            for (FileDto file : files) {
+            for (AttachmentDto file : files) {
                 if (!StringUtils.hasText(file.getFilePath()))
                     continue;
                 java.nio.file.Path path = Paths.get(file.getFilePath());
@@ -168,7 +169,7 @@ public class FileController {
      */
     @DeleteMapping("/{fileId}")
     public ResponseEntity<ApiResponse<Void>> deleteFile(@PathVariable("fileId") Long fileId) {
-        boolean deleted = fileService.softDeleteFile(fileId);
+        boolean deleted = attachmentService.softDeleteFile(fileId);
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.fail(HttpStatus.NOT_FOUND.value(), "파일을 찾을 수 없습니다."));

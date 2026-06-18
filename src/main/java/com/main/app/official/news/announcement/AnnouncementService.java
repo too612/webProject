@@ -1,8 +1,8 @@
 package com.main.app.official.news.announcement;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.news.announcement.dto.AnnouncementDto;
 import com.main.app.official.news.announcement.dto.AnnouncementRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class AnnouncementService {
 
     private final AnnouncementMapper announcementMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public AnnouncementService(AnnouncementMapper announcementMapper, FileService fileService) {
+    public AnnouncementService(AnnouncementMapper announcementMapper, AttachmentService fileService) {
         this.announcementMapper = announcementMapper;
         this.fileService = fileService;
     }
@@ -102,7 +102,7 @@ public class AnnouncementService {
         announcementMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 

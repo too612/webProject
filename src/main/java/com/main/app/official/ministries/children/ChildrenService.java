@@ -1,8 +1,8 @@
 package com.main.app.official.ministries.children;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.ministries.children.dto.ChildrenDto;
 import com.main.app.official.ministries.children.dto.ChildrenRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class ChildrenService {
 
     private final ChildrenMapper childrenMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public ChildrenService(ChildrenMapper childrenMapper, FileService fileService) {
+    public ChildrenService(ChildrenMapper childrenMapper, AttachmentService fileService) {
         this.childrenMapper = childrenMapper;
         this.fileService = fileService;
     }
@@ -102,7 +102,7 @@ public class ChildrenService {
         childrenMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 

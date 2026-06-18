@@ -1,8 +1,8 @@
 package com.main.app.official.ministries.mission;
 
 import com.main.app.common.dto.CommentDto;
-import com.main.app.common.file.dto.FileDto;
-import com.main.app.common.file.FileService;
+import com.main.app.common.attachment.dto.AttachmentDto;
+import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.util.PaginationUtil;
 import com.main.app.official.ministries.mission.dto.MissionDto;
 import com.main.app.official.ministries.mission.dto.MissionRequest;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class MissionService {
 
     private final MissionMapper missionMapper;
-    private final FileService fileService;
+    private final AttachmentService fileService;
 
-    public MissionService(MissionMapper missionMapper, FileService fileService) {
+    public MissionService(MissionMapper missionMapper, AttachmentService fileService) {
         this.missionMapper = missionMapper;
         this.fileService = fileService;
     }
@@ -102,7 +102,7 @@ public class MissionService {
         missionMapper.deleteBoard(rqstNo);
     }
 
-    public FileDto getFile(Long fileId) {
+    public AttachmentDto getFile(Long fileId) {
         return fileService.getFile(fileId);
     }
 
