@@ -1,8 +1,8 @@
 import type { MenuItem } from './menu.types';
 import { SERMONS_BASE_PATH } from '../../official/worship/sermons/sermonsModel';
 import { CHILDREN_BASE_PATH } from '../../official/news/children/childrenModel';
-import { YOUTH_BASE_PATH } from '../../official/ministries/youth/youthModel';
-import { MISSION_BASE_PATH } from '../../official/ministries/mission/missionModel';
+import { YOUTH_BASE_PATH } from '../../official/news/youth/youthModel';
+import { MISSION_BASE_PATH } from '../../official/news/mission/missionModel';
 import { ANNOUNCEMENT_BASE_PATH } from '../../official/support/announcement/announcementModel';
 import { BULLETIN_BASE_PATH } from '../../official/support/bulletin/bulletinModel';
 import { REGISTRATION_BASE_PATH } from '../../official/ministries/registration/registrationModel';
@@ -39,16 +39,16 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
     {
       menuId: 'official-ministries', menuName: '사역', path: YOUTH_BASE_PATH, level: 1, orderNo: 3,
       subMenus: [
-        { menuId: 'official-ministries-youth', menuName: '청년사역', path: YOUTH_BASE_PATH, parentId: 'official-ministries', level: 2, orderNo: 1, subMenus: [] },
-        { menuId: 'official-ministries-mission', menuName: '선교사역', path: MISSION_BASE_PATH, parentId: 'official-ministries', level: 2, orderNo: 2, subMenus: [] },
-        { menuId: 'official-ministries-registration', menuName: '새가족등록', path: REGISTRATION_BASE_PATH, parentId: 'official-ministries', level: 2, orderNo: 3, subMenus: [] },
+        { menuId: 'official-ministries-registration', menuName: '새가족등록', path: REGISTRATION_BASE_PATH, parentId: 'official-ministries', level: 2, orderNo: 1, subMenus: [] },
       ],
     },
     {
       menuId: 'official-news', menuName: '소식', path: '/news/bulletin', level: 1, orderNo: 4,
       subMenus: [
         { menuId: 'official-news-children', menuName: '어린이사역', path: CHILDREN_BASE_PATH, parentId: 'official-news', level: 2, orderNo: 1, subMenus: [] },
-        { menuId: 'official-news-event', menuName: '행사안내', path: '/news/event', parentId: 'official-news', level: 2, orderNo: 2, subMenus: [] },
+        { menuId: 'official-news-youth', menuName: '청년사역', path: YOUTH_BASE_PATH, parentId: 'official-news', level: 2, orderNo: 2, subMenus: [] },
+        { menuId: 'official-news-mission', menuName: '선교사역', path: MISSION_BASE_PATH, parentId: 'official-news', level: 2, orderNo: 3, subMenus: [] },
+        { menuId: 'official-news-event', menuName: '행사안내', path: '/news/event', parentId: 'official-news', level: 2, orderNo: 4, subMenus: [] },
       ],
     },
     {

@@ -1,4 +1,4 @@
-package com.main.app.official.ministries.mission.dto;
+package com.main.app.official.news.mission.dto;
 
 import com.main.app.common.attachment.dto.AttachmentDto;
 import lombok.Data;
@@ -27,4 +27,3 @@ public class MissionDto {
     private String password;
     private Integer commentCount;
 }
-

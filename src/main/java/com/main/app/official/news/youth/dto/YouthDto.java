@@ -1,4 +1,4 @@
-package com.main.app.official.ministries.youth.dto;
+package com.main.app.official.news.youth.dto;
 
 import com.main.app.common.attachment.dto.AttachmentDto;
 import lombok.Data;
@@ -27,4 +27,3 @@ public class YouthDto {
     private String password;
     private Integer commentCount;
 }
-

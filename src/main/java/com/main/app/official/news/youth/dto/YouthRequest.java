@@ -1,9 +1,9 @@
-package com.main.app.official.ministries.mission.dto;
+package com.main.app.official.news.youth.dto;
 
 import lombok.Data;
 
 @Data
-public class MissionRequest {
+public class YouthRequest {
     private String rqstNo;
     private String title;
     private String cont;
