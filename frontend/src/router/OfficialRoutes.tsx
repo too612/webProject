@@ -25,9 +25,9 @@ const SermonsView = lazy(() => import('../official/worship/sermons/sermonsView')
 const SermonsWrite = lazy(() => import('../official/worship/sermons/sermonsWrite'));
 
 // ===== children =====
-const ChildrenPage = lazy(() => import('../official/ministries/children/childrenPage'));
-const ChildrenViewPage = lazy(() => import('../official/ministries/children/childrenPage').then((module) => ({ default: module.ChildrenViewPage })));
-const ChildrenWritePage = lazy(() => import('../official/ministries/children/childrenPage').then((module) => ({ default: module.ChildrenWritePage })));
+const ChildrenPage = lazy(() => import('../official/news/children/childrenPage'));
+const ChildrenViewPage = lazy(() => import('../official/news/children/childrenPage').then((module) => ({ default: module.ChildrenViewPage })));
+const ChildrenWritePage = lazy(() => import('../official/news/children/childrenPage').then((module) => ({ default: module.ChildrenWritePage })));
 
 // ===== youth =====
 const YouthPage = lazy(() => import('../official/ministries/youth/youthPage'));
@@ -40,29 +40,29 @@ const MissionViewPage = lazy(() => import('../official/ministries/mission/missio
 const MissionWritePage = lazy(() => import('../official/ministries/mission/missionPage').then((module) => ({ default: module.MissionWritePage })));
 
 // ===== announcement =====
-const AnnouncementPage = lazy(() => import('../official/news/announcement/announcementPage'));
-const AnnouncementViewPage = lazy(() => import('../official/news/announcement/announcementPage').then((module) => ({ default: module.AnnouncementViewPage })));
-const AnnouncementWritePage = lazy(() => import('../official/news/announcement/announcementPage').then((module) => ({ default: module.AnnouncementWritePage })));
+const AnnouncementPage = lazy(() => import('../official/support/announcement/announcementPage'));
+const AnnouncementViewPage = lazy(() => import('../official/support/announcement/announcementPage').then((module) => ({ default: module.AnnouncementViewPage })));
+const AnnouncementWritePage = lazy(() => import('../official/support/announcement/announcementPage').then((module) => ({ default: module.AnnouncementWritePage })));
 
 // ===== bulletin =====
-const BulletinPage = lazy(() => import('../official/news/bulletin/bulletinPage'));
-const BulletinViewPage = lazy(() => import('../official/news/bulletin/bulletinPage').then((module) => ({ default: module.BulletinViewPage })));
-const BulletinWritePage = lazy(() => import('../official/news/bulletin/bulletinPage').then((module) => ({ default: module.BulletinWritePage })));
+const BulletinPage = lazy(() => import('../official/support/bulletin/bulletinPage'));
+const BulletinViewPage = lazy(() => import('../official/support/bulletin/bulletinPage').then((module) => ({ default: module.BulletinViewPage })));
+const BulletinWritePage = lazy(() => import('../official/support/bulletin/bulletinPage').then((module) => ({ default: module.BulletinWritePage })));
 
 // ===== event =====
 const EventPage = lazy(() => import('../official/news/event/eventPage'));
 
 // ===== registration =====
-const RegistrationPage = lazy(() => import('../official/news/registration/registrationPage'));
-const RegistrationViewPage = lazy(() => import('../official/news/registration/registrationPage').then((module) => ({ default: module.RegistrationViewPage })));
-const RegistrationWritePage = lazy(() => import('../official/news/registration/registrationPage').then((module) => ({ default: module.RegistrationWritePage })));
+const RegistrationPage = lazy(() => import('../official/ministries/registration/registrationPage'));
+const RegistrationViewPage = lazy(() => import('../official/ministries/registration/registrationPage').then((module) => ({ default: module.RegistrationViewPage })));
+const RegistrationWritePage = lazy(() => import('../official/ministries/registration/registrationPage').then((module) => ({ default: module.RegistrationWritePage })));
 
 // ===== support =====
 const FaqPage = lazy(() => import('../official/support/faq/faqPage'));
-const LocationPage = lazy(() => import('../official/support/location/locationPage'));
-const QnaPage = lazy(() => import('../official/support/qna/qnaPage'));
-const QnaViewPage = lazy(() => import('../official/support/qna/qnaPage').then((module) => ({ default: module.QnaViewPage })));
-const QnaWritePage = lazy(() => import('../official/support/qna/qnaPage').then((module) => ({ default: module.QnaWritePage })));
+const LocationPage = lazy(() => import('../official/about/location/locationPage'));
+const QnaPage = lazy(() => import('../official/about/qna/qnaPage'));
+const QnaViewPage = lazy(() => import('../official/about/qna/qnaPage').then((module) => ({ default: module.QnaViewPage })));
+const QnaWritePage = lazy(() => import('../official/about/qna/qnaPage').then((module) => ({ default: module.QnaWritePage })));
 
 export const officialRoutes: RouteObject[] = [
   {
@@ -85,6 +85,10 @@ export const officialRoutes: RouteObject[] = [
           { path: 'vision', element: <VisionPage /> },
           { path: 'history', element: <HistoryPage /> },
           { path: 'congregation', element: <CongregationPage /> },
+          { path: 'location', element: <LocationPage /> },
+          { path: 'qna', element: <QnaPage /> },
+          { path: 'qna/view', element: <QnaViewPage /> },
+          { path: 'qna/write', element: <QnaWritePage /> },
         ],
       },
       {
@@ -103,15 +107,15 @@ export const officialRoutes: RouteObject[] = [
         path: 'ministries',
         element: <SubmenuLayout />,
         children: [
-          { path: 'children', element: <ChildrenPage /> },
-          { path: 'children/view', element: <ChildrenViewPage /> },
-          { path: 'children/write', element: <ChildrenWritePage /> },
           { path: 'youth', element: <YouthPage /> },
           { path: 'youth/view', element: <YouthViewPage /> },
           { path: 'youth/write', element: <YouthWritePage /> },
           { path: 'mission', element: <MissionPage /> },
           { path: 'mission/view', element: <MissionViewPage /> },
           { path: 'mission/write', element: <MissionWritePage /> },
+          { path: 'registration', element: <RegistrationPage /> },
+          { path: 'registration/view', element: <RegistrationViewPage /> },
+          { path: 'registration/write', element: <RegistrationWritePage /> },
         ],
       },
       {
@@ -119,26 +123,22 @@ export const officialRoutes: RouteObject[] = [
         element: <SubmenuLayout />,
         children: [
           { path: 'event', element: <EventPage /> },
-          { path: 'announcement', element: <AnnouncementPage /> },
-          { path: 'announcement/view', element: <AnnouncementViewPage /> },
-          { path: 'announcement/write', element: <AnnouncementWritePage /> },
-          { path: 'bulletin', element: <BulletinPage /> },
-          { path: 'bulletin/view', element: <BulletinViewPage /> },
-          { path: 'bulletin/write', element: <BulletinWritePage /> },
-          { path: 'registration', element: <RegistrationPage /> },
-          { path: 'registration/view', element: <RegistrationViewPage /> },
-          { path: 'registration/write', element: <RegistrationWritePage /> },
+          { path: 'children', element: <ChildrenPage /> },
+          { path: 'children/view', element: <ChildrenViewPage /> },
+          { path: 'children/write', element: <ChildrenWritePage /> },
         ],
       },
       {
         path: 'support',
         element: <SubmenuLayout />,
         children: [
-          { path: 'location', element: <LocationPage /> },
           { path: 'faq', element: <FaqPage /> },
-          { path: 'qna', element: <QnaPage /> },
-          { path: 'qna/view', element: <QnaViewPage /> },
-          { path: 'qna/write', element: <QnaWritePage /> },
+          { path: 'announcement', element: <AnnouncementPage /> },
+          { path: 'announcement/view', element: <AnnouncementViewPage /> },
+          { path: 'announcement/write', element: <AnnouncementWritePage /> },
+          { path: 'bulletin', element: <BulletinPage /> },
+          { path: 'bulletin/view', element: <BulletinViewPage /> },
+          { path: 'bulletin/write', element: <BulletinWritePage /> },
         ],
       },
     ],

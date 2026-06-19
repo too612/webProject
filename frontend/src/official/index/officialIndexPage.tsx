@@ -5,10 +5,10 @@ import { useOfficialIndexData } from './officialIndexHook';
 const QUICK_MENUS = [
     { to: '/worship/sermons', icon: 'live_tv', label: '주일설교' },
     { to: '/news/registration', icon: 'person_add', label: '새가족등록' },
-    { to: '/news/bulletin', icon: 'menu_book', label: '주보' },
+    { to: '/support/bulletin', icon: 'menu_book', label: '주보' },
     { to: '#', icon: 'volunteer_activism', label: '온라인헌금' },
     { to: '/worship/time', icon: 'calendar_today', label: '예배시간' },
-    { to: '/support/location', icon: 'place', label: '오시는 길' },
+    { to: '/about/location', icon: 'place', label: '오시는 길' },
 ];
 
 const WORSHIP_SCHEDULE = [
@@ -105,7 +105,7 @@ export default function OfficialIndexPage() {
             title: item.title,
             date: item.date,
             image: EVENT_GALLERY_IMAGES[idx % EVENT_GALLERY_IMAGES.length],
-            target: `/news/announcement/view?rqstNo=${item.id}`,
+            target: `/support/announcement/view?rqstNo=${item.id}`,
         }))
         : MOCK_EVENT_GALLERY_SLIDES;
 
@@ -403,7 +403,7 @@ export default function OfficialIndexPage() {
                                     : [{ id: '', title: '등록된 공지사항이 없습니다.', date: '' }]
                                 ).map((n, idx) => (
                                     <li className="py-2.5 flex items-center justify-between gap-4" key={n.id || idx}>
-                                        <Link to="/news/announcement" className="text-sm text-gray-700 hover:text-brand-primary truncate">{n.title}</Link>
+                                        <Link to="/support/announcement" className="text-sm text-gray-700 hover:text-brand-primary truncate">{n.title}</Link>
                                         <span className="text-xs text-gray-400 shrink-0">{n.date}</span>
                                     </li>
                                 ))}
@@ -417,7 +417,7 @@ export default function OfficialIndexPage() {
                             <ul className="divide-y divide-gray-100">
                                 {COMMUNITY_STORIES.map((n) => (
                                     <li className="py-2.5 flex items-center justify-between gap-4" key={n.title}>
-                                        <Link to="/news/announcement" className="text-sm text-gray-700 hover:text-brand-primary truncate">{n.title}</Link>
+                                        <Link to="/support/announcement" className="text-sm text-gray-700 hover:text-brand-primary truncate">{n.title}</Link>
                                         <span className="text-xs text-gray-400 shrink-0">{n.date}</span>
                                     </li>
                                 ))}

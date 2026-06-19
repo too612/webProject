@@ -29,8 +29,8 @@ export default function FaqPage() {
       </div>
 
       <div className="flex gap-4 flex-wrap">
-        <Link className="text-brand-primary hover:underline text-sm" to="/support/location">오시는 길</Link>
-        <Link className="text-brand-primary hover:underline text-sm" to="/support/qna">Q&A</Link>
+        <Link className="text-brand-primary hover:underline text-sm" to="/about/location">오시는 길</Link>
+        <Link className="text-brand-primary hover:underline text-sm" to="/about/qna">Q&A</Link>
       </div>
     </section>
   );
