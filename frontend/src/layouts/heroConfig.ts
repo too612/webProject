@@ -22,19 +22,19 @@ const OFFICIAL_HERO_BY_PATH: Array<{
     imageUrl: '/img/hero/official-worship.webp',
   },
   {
-    match: (path) => path.startsWith('/ministries'),
+    match: (path) => path.startsWith('/training'),
     subtitle: '다양한 사역과 섬김의 현장을 안내합니다.',
     imageUrl: '/img/hero/official-ministries.webp',
   },
   {
-    match: (path) => path.startsWith('/news'),
-    subtitle: '교회 소식과 공지, 행사 정보를 전합니다.',
-    imageUrl: '/img/hero/official-news.webp',
+    match: (path) => path.startsWith('/nextgen'),
+    subtitle: '다음세대를 위한 소식과 활동을 전합니다.',
+    imageUrl: '/img/hero/official-nextgen.webp',
   },
   {
-    match: (path) => path.startsWith('/support'),
+    match: (path) => path.startsWith('/news'),
     subtitle: '찾아오시는 길과 문의 안내를 제공합니다.',
-    imageUrl: '/img/hero/official-support.webp',
+    imageUrl: '/img/hero/official-news.webp',
   },
 ];
 

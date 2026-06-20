@@ -1,11 +1,5 @@
 import type { MenuItem } from './menu.types';
 import { SERMONS_BASE_PATH } from '../../official/worship/sermons/sermonsModel';
-import { CHILDREN_BASE_PATH } from '../../official/news/children/childrenModel';
-import { YOUTH_BASE_PATH } from '../../official/news/youth/youthModel';
-import { MISSION_BASE_PATH } from '../../official/news/mission/missionModel';
-import { ANNOUNCEMENT_BASE_PATH } from '../../official/support/announcement/announcementModel';
-import { BULLETIN_BASE_PATH } from '../../official/support/bulletin/bulletinModel';
-import { REGISTRATION_BASE_PATH } from '../../official/ministries/registration/registrationModel';
 import { QNA_BASE_PATH } from '../../official/about/qna/qnaModel';
 
 export const fallbackMenus: MenuItem[] = [
@@ -21,9 +15,9 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
       menuId: 'official-about', menuName: '교회소개', path: '/about/pastor', level: 1, orderNo: 1,
       subMenus: [
         { menuId: 'official-about-pastor', menuName: '담임목사', path: '/about/pastor', parentId: 'official-about', level: 2, orderNo: 1, subMenus: [] },
-        { menuId: 'official-about-vision', menuName: '비전', path: '/about/vision', parentId: 'official-about', level: 2, orderNo: 2, subMenus: [] },
+        { menuId: 'official-about-people', menuName: '비전', path: '/about/people', parentId: 'official-about', level: 2, orderNo: 2, subMenus: [] },
         { menuId: 'official-about-history', menuName: '연혁', path: '/about/history', parentId: 'official-about', level: 2, orderNo: 3, subMenus: [] },
-        { menuId: 'official-about-congregation', menuName: '공동체 안내', path: '/about/congregation', parentId: 'official-about', level: 2, orderNo: 4, subMenus: [] },
+        { menuId: 'official-about-cellgroup', menuName: '셀가족 공동체', path: '/training/cellgroup', parentId: 'official-about', level: 2, orderNo: 4, subMenus: [] },
         { menuId: 'official-about-location', menuName: '오시는 길', path: '/about/location', parentId: 'official-about', level: 2, orderNo: 5, subMenus: [] },
         { menuId: 'official-about-qna', menuName: 'Q&A', path: QNA_BASE_PATH, parentId: 'official-about', level: 2, orderNo: 6, subMenus: [] },
       ],
@@ -37,26 +31,29 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
       ],
     },
     {
-      menuId: 'official-ministries', menuName: '사역', path: YOUTH_BASE_PATH, level: 1, orderNo: 3,
+      menuId: 'official-training', menuName: '사역', path: '/training/cellgroup', level: 1, orderNo: 3,
       subMenus: [
-        { menuId: 'official-ministries-registration', menuName: '새가족등록', path: REGISTRATION_BASE_PATH, parentId: 'official-ministries', level: 2, orderNo: 1, subMenus: [] },
+        { menuId: 'official-training-cellgroup', menuName: '셀가족 공동체', path: '/training/cellgroup', parentId: 'official-training', level: 2, orderNo: 1, subMenus: [] },
+        { menuId: 'official-training-course', menuName: '양육과정', path: '/training/course', parentId: 'official-training', level: 2, orderNo: 2, subMenus: [] },
+        { menuId: 'official-training-servicegroup', menuName: '섬기는 공동체', path: '/training/servicegroup', parentId: 'official-training', level: 2, orderNo: 3, subMenus: [] },
+        { menuId: 'official-training-outreach', menuName: '해외선교아웃리치', path: '/training/outreach', parentId: 'official-training', level: 2, orderNo: 4, subMenus: [] },
       ],
     },
     {
-      menuId: 'official-news', menuName: '소식', path: '/news/bulletin', level: 1, orderNo: 4,
+      menuId: 'official-nextgen', menuName: '소식', path: '/nextgen/bulletin', level: 1, orderNo: 4,
       subMenus: [
-        { menuId: 'official-news-children', menuName: '어린이사역', path: CHILDREN_BASE_PATH, parentId: 'official-news', level: 2, orderNo: 1, subMenus: [] },
-        { menuId: 'official-news-youth', menuName: '청년사역', path: YOUTH_BASE_PATH, parentId: 'official-news', level: 2, orderNo: 2, subMenus: [] },
-        { menuId: 'official-news-mission', menuName: '선교사역', path: MISSION_BASE_PATH, parentId: 'official-news', level: 2, orderNo: 3, subMenus: [] },
-        { menuId: 'official-news-event', menuName: '행사안내', path: '/news/event', parentId: 'official-news', level: 2, orderNo: 4, subMenus: [] },
+        { menuId: 'official-nextgen-school', menuName: '어린이사역', path: '/nextgen/school', parentId: 'official-nextgen', level: 2, orderNo: 1, subMenus: [] },
+        { menuId: 'official-nextgen-youth', menuName: '청년사역', path: '/nextgen/youth', parentId: 'official-nextgen', level: 2, orderNo: 2, subMenus: [] },
       ],
     },
     {
-      menuId: 'official-support', menuName: '안내', path: '/support/faq', level: 1, orderNo: 5,
+      menuId: 'official-news', menuName: '안내', path: '/news/faq', level: 1, orderNo: 5,
       subMenus: [
-        { menuId: 'official-support-announcement', menuName: '공지사항', path: ANNOUNCEMENT_BASE_PATH, parentId: 'official-support', level: 2, orderNo: 1, subMenus: [] },
-        { menuId: 'official-support-bulletin', menuName: '주보', path: BULLETIN_BASE_PATH, parentId: 'official-support', level: 2, orderNo: 2, subMenus: [] },
-        { menuId: 'official-support-faq', menuName: 'FAQ', path: '/support/faq', parentId: 'official-support', level: 2, orderNo: 3, subMenus: [] },
+        { menuId: 'official-news-notice', menuName: '공지사항', path: '/news/notice', parentId: 'official-news', level: 2, orderNo: 1, subMenus: [] },
+        { menuId: 'official-news-bulletin', menuName: '주보', path: '/news/bulletin', parentId: 'official-news', level: 2, orderNo: 2, subMenus: [] },
+        { menuId: 'official-news-gallery', menuName: '다사랑앨범', path: '/news/gallery', parentId: 'official-news', level: 2, orderNo: 3, subMenus: [] },
+        { menuId: 'official-news-mission', menuName: '선교지소식', path: '/news/mission', parentId: 'official-news', level: 2, orderNo: 4, subMenus: [] },
+        { menuId: 'official-news-nextsteps', menuName: '새가족안내', path: '/news/nextsteps', parentId: 'official-news', level: 2, orderNo: 5, subMenus: [] },
       ],
     },
   ],

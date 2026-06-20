@@ -1,58 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.news.mission.MissionMapper">
-
-    <select id="selectBoardList" parameterType="map" resultType="com.main.app.official.news.mission.dto.MissionDto">
-        SELECT A.rqst_no AS rqstNo, A.title AS title, A.cont AS cont, A.rqst_id AS rqstId, A.ins_dt AS insDt, A.upt_dt AS uptDt, A.views AS views, A.board_type AS boardType, A.group_no AS groupNo, A.parent_no AS parentNo, A.depth AS depth, A.order_no AS orderNo,
-               (SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM com_file WHERE pgm_id = 'mission' AND ref_id = CAST(A.rqst_no AS VARCHAR) AND is_deleted = FALSE) AS hasFile,
-               (SELECT COALESCE(SUM(CAST(file_size AS BIGINT)), 0) FROM com_file WHERE pgm_id = 'mission' AND ref_id = CAST(A.rqst_no AS VARCHAR) AND is_deleted = FALSE) AS totalFileSize,
-               A.secret AS secret, A.password AS password, (SELECT COUNT(*) FROM comment WHERE board_no = A.rqst_no) AS commentCount
-          FROM board A WHERE A.board_type = 'MISSION'
-         <if test="keyword != null and keyword != ''">
-             <choose>
-                 <when test="searchType == 'title'">AND A.title LIKE CONCAT('%', #{keyword}, '%')</when>
-                 <when test="searchType == 'content'">AND A.cont LIKE CONCAT('%', #{keyword}, '%')</when>
-                 <when test="searchType == 'author' or searchType == 'writer'">AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')</when>
-                 <otherwise>AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))</otherwise>
-             </choose>
-         </if>
-         ORDER BY A.group_no DESC, A.order_no ASC, A.ins_dt DESC LIMIT #{size} OFFSET #{offset}
+    <select id="selectMission" resultType="com.main.app.official.news.mission.dto.MissionDto">
+        SELECT 'Mission' AS title, 'Mission content template' AS content
     </select>
-
-    <select id="countBoardList" parameterType="map" resultType="long">
-        SELECT COUNT(*) FROM board A WHERE A.board_type = 'MISSION'
-        <if test="keyword != null and keyword != ''">
-            <choose>
-                <when test="searchType == 'title'">AND A.title LIKE CONCAT('%', #{keyword}, '%')</when>
-                <when test="searchType == 'content'">AND A.cont LIKE CONCAT('%', #{keyword}, '%')</when>
-                <when test="searchType == 'author' or searchType == 'writer'">AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')</when>
-                <otherwise>AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))</otherwise>
-            </choose>
-        </if>
-    </select>
-
-    <select id="selectBoardDetail" parameterType="map" resultType="com.main.app.official.news.mission.dto.MissionDto">
-        SELECT A.rqst_no AS rqstNo, A.title AS title, A.cont AS cont, A.rqst_id AS rqstId, A.ins_dt AS insDt, A.upt_dt AS uptDt, A.views AS views, A.board_type AS boardType, A.group_no AS groupNo, A.parent_no AS parentNo, A.depth AS depth, A.order_no AS orderNo, A.secret AS secret, A.password AS password,
-               (SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM com_file WHERE pgm_id = 'mission' AND ref_id = CAST(A.rqst_no AS VARCHAR) AND is_deleted = FALSE) AS hasFile
-          FROM board A WHERE A.rqst_no = #{rqstNo} AND A.board_type = 'MISSION'
-    </select>
-
-    <update id="updateReadCount" parameterType="map">UPDATE board SET views = COALESCE(views, 0) + 1 WHERE rqst_no = #{rqstNo} AND board_type = 'MISSION'</update>
-    <insert id="insertBoard" parameterType="com.main.app.official.news.mission.dto.MissionRequest">
-        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt, views, group_no, parent_no, depth, order_no, secret, password, board_type)
-        SELECT #{rqstNo}, #{title}, #{cont}, #{rqstId}, NOW(), NOW(), 0, COALESCE(NULLIF(#{groupNo}, ''), P.group_no, #{rqstNo}), #{parentNo}, COALESCE(#{depth}, COALESCE(P.depth, -1) + 1), #{orderNo}, COALESCE(#{secret}, 'N'), #{password}, 'MISSION'
-          FROM (SELECT 1) AS dummy LEFT JOIN board P ON P.rqst_no = #{parentNo}
-    </insert>
-    <update id="updateBoard" parameterType="com.main.app.official.news.mission.dto.MissionRequest">UPDATE board SET title = #{title}, cont = #{cont}, secret = COALESCE(#{secret}, 'N'), password = #{password}, upt_dt = NOW() WHERE rqst_no = #{rqstNo} AND board_type = 'MISSION'</update>
-    <update id="updateReplyOrder" parameterType="map">UPDATE board SET order_no = order_no + 1 WHERE group_no = #{groupNo} AND order_no > #{orderNo}</update>
-    <delete id="deleteComments" parameterType="string">DELETE FROM comment WHERE board_no = #{boardNo}</delete>
-    <delete id="deleteBoard" parameterType="string">DELETE FROM board WHERE rqst_no = #{id}</delete>
-    <select id="selectCommentList" parameterType="string" resultType="com.main.app.common.dto.CommentDto">SELECT comment_id AS commentId, board_no AS boardNo, writer, content, ins_dt AS insDt, likes, dislikes, parent_comment_id AS parentCommentId, secret, password, spoiler FROM comment WHERE board_no = #{boardNo} ORDER BY ins_dt ASC</select>
-    <insert id="insertComment" parameterType="com.main.app.common.dto.CommentDto">INSERT INTO comment (board_no, writer, content, ins_dt, likes, dislikes, parent_comment_id, secret, password, spoiler) VALUES (#{boardNo}, #{writer}, #{content}, NOW(), 0, 0, #{parentCommentId}, COALESCE(#{secret}, 'N'), #{password}, COALESCE(#{spoiler}, 'N'))</insert>
-    <select id="selectCommentById" parameterType="int" resultType="com.main.app.common.dto.CommentDto">SELECT comment_id AS commentId, board_no AS boardNo, writer, content, ins_dt AS insDt, likes, dislikes, parent_comment_id AS parentCommentId, secret, password, spoiler FROM comment WHERE comment_id = #{commentId}</select>
-    <update id="increaseLike" parameterType="int">UPDATE comment SET likes = likes + 1 WHERE comment_id = #{commentId}</update>
-    <update id="decreaseLike" parameterType="int">UPDATE comment SET likes = likes - 1 WHERE comment_id = #{commentId}</update>
-    <update id="increaseDislike" parameterType="int">UPDATE comment SET dislikes = dislikes + 1 WHERE comment_id = #{commentId}</update>
-    <update id="decreaseDislike" parameterType="int">UPDATE comment SET dislikes = dislikes - 1 WHERE comment_id = #{commentId}</update>
-
+    <insert id="insertMission" parameterType="com.main.app.official.news.mission.dto.MissionRequest">SELECT 1</insert>
+    <update id="updateMission" parameterType="com.main.app.official.news.mission.dto.MissionRequest">SELECT 1</update>
+    <delete id="deleteMission" parameterType="String">SELECT 1</delete>
 </mapper>

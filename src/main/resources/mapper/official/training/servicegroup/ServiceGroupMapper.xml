@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.training.servicegroup.ServiceGroupMapper">
+
+    <!-- TODO: servicegroup 전용 테이블 확정 후 SQL 교체 -->
+    <select id="selectServiceGroup" resultType="com.main.app.official.training.servicegroup.dto.ServiceGroupDto">
+        SELECT
+            1::BIGINT AS id,
+            'ServiceGroup' AS title,
+            'ServiceGroup content template' AS content
+    </select>
+
+    <insert id="insertServiceGroup" parameterType="com.main.app.official.training.servicegroup.dto.ServiceGroupRequest">
+        SELECT 1
+    </insert>
+
+    <update id="updateServiceGroup">
+        SELECT 1
+    </update>
+
+    <update id="deleteServiceGroup">
+        SELECT 1
+    </update>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.training.course.CourseMapper">
+
+    <!-- TODO: course 전용 테이블 확정 후 SQL 교체 -->
+    <select id="selectCourse" resultType="com.main.app.official.training.course.dto.CourseDto">
+        SELECT
+            1::BIGINT AS id,
+            'Course' AS title,
+            'Course content template' AS content
+    </select>
+
+    <insert id="insertCourse" parameterType="com.main.app.official.training.course.dto.CourseRequest">
+        SELECT 1
+    </insert>
+
+    <update id="updateCourse">
+        SELECT 1
+    </update>
+
+    <update id="deleteCourse">
+        SELECT 1
+    </update>
+
+</mapper>

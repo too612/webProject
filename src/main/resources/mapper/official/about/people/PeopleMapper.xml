@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.about.people.PeopleMapper">
+
+    <!-- TODO: People 전용 테이블 확정 후 SQL 교체 -->
+    <select id="selectPeople" resultType="com.main.app.official.about.people.dto.PeopleDto">
+        SELECT
+            1::BIGINT AS id,
+            'People' AS title,
+            'People content template' AS content
+    </select>
+
+    <insert id="insertPeople" parameterType="com.main.app.official.about.people.dto.PeopleRequest">
+        SELECT 1
+    </insert>
+
+    <update id="updatePeople">
+        SELECT 1
+    </update>
+
+    <update id="deletePeople">
+        SELECT 1
+    </update>
+
+</mapper>

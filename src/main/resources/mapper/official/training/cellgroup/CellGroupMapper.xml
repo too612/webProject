@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.training.cellgroup.CellGroupMapper">
+
+    <!-- TODO: cellgroup 전용 테이블 확정 후 SQL 교체 -->
+    <select id="selectCellGroup" resultType="com.main.app.official.training.cellgroup.dto.CellGroupDto">
+        SELECT
+            1::BIGINT AS id,
+            'CellGroup' AS title,
+            'CellGroup content template' AS content
+    </select>
+
+    <insert id="insertCellGroup" parameterType="com.main.app.official.training.cellgroup.dto.CellGroupRequest">
+        SELECT 1
+    </insert>
+
+    <update id="updateCellGroup">
+        SELECT 1
+    </update>
+
+    <update id="deleteCellGroup">
+        SELECT 1
+    </update>
+
+</mapper>

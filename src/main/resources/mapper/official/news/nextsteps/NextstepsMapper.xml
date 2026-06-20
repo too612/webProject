@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.news.nextsteps.NextstepsMapper">
+    <select id="selectNextsteps" resultType="com.main.app.official.news.nextsteps.dto.NextstepsDto">
+        SELECT 'Nextsteps' AS title, 'Nextsteps content template' AS content
+    </select>
+    <insert id="insertNextsteps" parameterType="com.main.app.official.news.nextsteps.dto.NextstepsRequest">SELECT 1</insert>
+    <update id="updateNextsteps" parameterType="com.main.app.official.news.nextsteps.dto.NextstepsRequest">SELECT 1</update>
+    <delete id="deleteNextsteps" parameterType="String">SELECT 1</delete>
+</mapper>

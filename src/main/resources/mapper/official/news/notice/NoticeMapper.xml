@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.news.notice.NoticeMapper">
+
+    <resultMap id="boardResultMap" type="com.main.app.official.news.notice.dto.NoticeDto">
+        <result property="rqstNo" column="rqst_no"/><result property="title" column="title"/><result property="cont" column="cont"/>
+        <result property="rqstId" column="rqst_id"/><result property="insDt" column="ins_dt"/><result property="uptDt" column="upt_dt"/>
+        <result property="views" column="views"/><result property="boardType" column="board_type"/><result property="groupNo" column="group_no"/>
+        <result property="parentNo" column="parent_no"/><result property="depth" column="depth"/><result property="orderNo" column="order_no"/>
+        <result property="secret" column="secret"/><result property="password" column="password"/>
+    </resultMap>
+
+    <resultMap id="commentResultMap" type="com.main.app.common.dto.CommentDto">
+        <result property="commentId" column="comment_id"/><result property="boardType" column="board_type"/><result property="refId" column="ref_id"/>
+        <result property="rqstId" column="rqst_id"/><result property="cont" column="cont"/><result property="insDt" column="ins_dt"/>
+        <result property="uptDt" column="upt_dt"/><result property="likes" column="likes"/><result property="dislikes" column="dislikes"/>
+    </resultMap>
+
+    <select id="selectBoardList" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT A.rqst_no, A.title, A.rqst_id, A.ins_dt, A.upt_dt, A.views, A.group_no, A.parent_no, A.depth, A.order_no, A.secret,
+               (SELECT COUNT(*) FROM comment WHERE board_no = A.rqst_no) AS commentCount
+          FROM board A WHERE A.board_type = 'NOTICE'
+         <if test="keyword != null and keyword != ''">
+             <choose>
+                 <when test="searchType == 'title'">AND A.title LIKE CONCAT('%', #{keyword}, '%')</when>
+                 <when test="searchType == 'content'">AND A.cont LIKE CONCAT('%', #{keyword}, '%')</when>
+                 <when test="searchType == 'author' or searchType == 'writer'">AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')</when>
+                 <otherwise>AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))</otherwise>
+             </choose>
+         </if>
+         ORDER BY A.group_no DESC, A.order_no ASC, A.ins_dt DESC LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countBoardList" parameterType="java.util.Map" resultType="long">
+        SELECT COUNT(*) FROM board A WHERE A.board_type = 'NOTICE'
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">AND A.title LIKE CONCAT('%', #{keyword}, '%')</when>
+                <when test="searchType == 'content'">AND A.cont LIKE CONCAT('%', #{keyword}, '%')</when>
+                <when test="searchType == 'author' or searchType == 'writer'">AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')</when>
+                <otherwise>AND (A.title LIKE CONCAT('%', #{keyword}, '%') OR A.cont LIKE CONCAT('%', #{keyword}, '%'))</otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectBoardDetail" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT A.rqst_no, A.title, A.cont, A.rqst_id, A.ins_dt, A.upt_dt, A.views, A.group_no, A.parent_no, A.depth, A.order_no, A.secret, A.password
+          FROM board A WHERE A.rqst_no = #{rqstNo} AND A.board_type = 'NOTICE'
+    </select>
+
+    <update id="updateReadCount" parameterType="java.util.Map">UPDATE board SET views = views + 1 WHERE rqst_no = #{rqstNo} AND board_type = 'NOTICE'</update>
+    <insert id="insertBoard" parameterType="com.main.app.official.news.notice.dto.NoticeRequest">
+        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt, views, group_no, parent_no, depth, order_no, secret, password, board_type)
+        VALUES (#{rqstNo}, #{title}, #{cont}, #{rqstId}, NOW(), NOW(), 0, #{groupNo}, #{parentNo}, #{depth}, #{orderNo}, #{secret}, #{password}, 'NOTICE')
+    </insert>
+    <update id="updateBoard" parameterType="com.main.app.official.news.notice.dto.NoticeRequest">
+        UPDATE board SET title=#{title}, cont=#{cont}, upt_dt=NOW(), secret=#{secret} WHERE rqst_no=#{rqstNo} AND board_type='NOTICE'
+    </update>
+    <update id="updateReplyOrder" parameterType="java.util.Map">UPDATE board SET order_no = order_no + 1 WHERE group_no = #{groupNo} AND order_no > #{orderNo}</update>
+    <delete id="deleteComments" parameterType="String">DELETE FROM comment WHERE board_no = #{boardNo}</delete>
+    <delete id="deleteBoard" parameterType="String">DELETE FROM board WHERE rqst_no = #{id}</delete>
+
+    <select id="selectCommentList" parameterType="String" resultMap="commentResultMap">
+        SELECT comment_id, board_type, ref_id, rqst_id, cont, ins_dt, upt_dt, likes, dislikes FROM comment WHERE board_no = #{boardNo} ORDER BY ins_dt ASC
+    </select>
+    <insert id="insertComment" parameterType="com.main.app.common.dto.CommentDto">INSERT INTO comment (board_type, ref_id, rqst_id, cont, ins_dt) VALUES ('NOTICE', #{refId}, #{rqstId}, #{cont}, NOW())</insert>
+    <select id="selectCommentById" parameterType="int" resultMap="commentResultMap">SELECT comment_id, board_type, ref_id, rqst_id, cont, ins_dt, upt_dt, likes, dislikes FROM comment WHERE comment_id = #{commentId}</select>
+    <update id="increaseLike" parameterType="int">UPDATE comment SET likes = likes + 1 WHERE comment_id = #{commentId}</update>
+    <update id="decreaseLike" parameterType="int">UPDATE comment SET likes = likes - 1 WHERE comment_id = #{commentId}</update>
+    <update id="increaseDislike" parameterType="int">UPDATE comment SET dislikes = dislikes + 1 WHERE comment_id = #{commentId}</update>
+    <update id="decreaseDislike" parameterType="int">UPDATE comment SET dislikes = dislikes - 1 WHERE comment_id = #{commentId}</update>
+</mapper>

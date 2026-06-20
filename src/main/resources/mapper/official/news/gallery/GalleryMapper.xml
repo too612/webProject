@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.news.gallery.GalleryMapper">
+    <select id="selectGallery" resultType="com.main.app.official.news.gallery.dto.GalleryDto">
+        SELECT 'Gallery' AS title, 'Gallery content template' AS content
+    </select>
+    <insert id="insertGallery" parameterType="com.main.app.official.news.gallery.dto.GalleryRequest">SELECT 1</insert>
+    <update id="updateGallery" parameterType="com.main.app.official.news.gallery.dto.GalleryRequest">SELECT 1</update>
+    <delete id="deleteGallery" parameterType="String">SELECT 1</delete>
+</mapper>

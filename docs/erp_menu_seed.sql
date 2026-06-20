@@ -50,27 +50,29 @@ M_GEN_04_02	경제	M_GEN_04	/community/world/economic	2	2
 M_GEN_04_03	건강	M_GEN_04	/community/world/health	3	2	
 M_MAIN	메인		/official	1	0	
 M_MAIN_01	교회소개	M_MAIN	/about/pastor	1	1	
-M_MAIN_01_01	목회자소개	M_MAIN_01	/about/pastor	1	2	
-M_MAIN_01_02	비전	M_MAIN_01	/about/vision	2	2	
-M_MAIN_01_03	연혁	M_MAIN_01	/about/history	3	2	
-M_MAIN_01_04	공동체안내	M_MAIN_01	/about/congregation	4	2	
-M_MAIN_02	예배안내	M_MAIN	/worship/time	2	1	
-M_MAIN_02_01	예배시간	M_MAIN_02	/worship/time	1	2	
-M_MAIN_02_02	온라인예배	M_MAIN_02	/worship/live	2	2	
+M_MAIN_01_01	인사말 및 비전	M_MAIN_01	/about/pastor	1	2	
+M_MAIN_01_02	교회연혁	M_MAIN_01	/about/history	2	2	
+M_MAIN_01_03	섬기는 사람들	M_MAIN_01	/about/people	3	2	
+M_MAIN_01_04	오시는 길	M_MAIN_01	/about/location	4	2	
+M_MAIN_01_05	교회문의	M_MAIN_01	/about/qna	5	2	
+M_MAIN_02	예배∙말씀	M_MAIN	/worship/time	2	1	
+M_MAIN_02_01	예배시간 안내	M_MAIN_02	/worship/time	1	2	
+M_MAIN_02_02	설교 및 온라인 예배	M_MAIN_02	/worship/live	2	2	
 M_MAIN_02_03	설교정보	M_MAIN_02	/worship/sermons	3	2	
-M_MAIN_03	모임	M_MAIN	/ministries/children	3	1	
-M_MAIN_03_01	주일학교	M_MAIN_03	/ministries/children	1	2	
-M_MAIN_03_02	청년부	M_MAIN_03	/ministries/youth	2	2	
-M_MAIN_03_03	선교부	M_MAIN_03	/ministries/mission	3	2	
-M_MAIN_04	소식	M_MAIN	/news/announcement	4	1	
-M_MAIN_04_01	공지사항	M_MAIN_04	/news/announcement	1	2	
-M_MAIN_04_02	행사	M_MAIN_04	/news/event	2	2	
-M_MAIN_04_03	주보	M_MAIN_04	/news/bulletin	3	2	
-M_MAIN_04_04	새가족 등록	M_MAIN_04	/news/registration	4	2	
-M_MAIN_05	문의사항	M_MAIN	/support/location	5	1	
-M_MAIN_05_01	오시는 길	M_MAIN_05	/support/location	1	2	
-M_MAIN_05_02	Q&A	M_MAIN_05	/support/qna	2	2	
-M_MAIN_05_03	FAQ	M_MAIN_05	/support/faq	3	2	
+M_MAIN_03	양육∙훈련	M_MAIN	/training/course	3	1	
+M_MAIN_03_01	양육과정	M_MAIN_03	/training/course	1	2	
+M_MAIN_03_02	섬기는공동체	M_MAIN_03	/training/servicegroup	2	2	
+M_MAIN_03_03	셀가족공동체	M_MAIN_03	/training/cellgroup	3	2	
+M_MAIN_03_04	해외선교아웃리치	M_MAIN_03	/training/registration	4	2	
+M_MAIN_04	다음세대	M_MAIN	/nextgen/school	4	1	
+M_MAIN_04_01	주일학교	M_MAIN_04	/nextgen/school	1	2	
+M_MAIN_04_02	중고등부∙청년부	M_MAIN_04	/nextgen/youth	2	2	
+M_MAIN_05	다사랑소식	M_MAIN	/news/notice	5	1	
+M_MAIN_05_01	공지사항	M_MAIN_05	/news/notice	1	2	
+M_MAIN_05_02	주보	M_MAIN_05	/news/bulletin	2	2	
+M_MAIN_05_03	다사랑앨범	M_MAIN_05	/news/gallery	3	2	
+M_MAIN_05_04	선교지소식	M_MAIN_05	/news/mission	4	2	
+M_MAIN_05_05	새가족안내	M_MAIN_05	/news/nextsteps	5	2	
 M_MYPAGE	MYPAGE		/mypage	1	0	
 M_MYPAGE_01	마이페이지	M_MYPAGE	/mypage/user/profile	1	1	
 M_MYPAGE_01_01	내 정보 관리	M_MYPAGE_01	/mypage/user/profile	1	2	

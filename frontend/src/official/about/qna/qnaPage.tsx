@@ -38,7 +38,7 @@ type CommentFormState = {
 
 type SortType = 'latest' | 'popular';
 
-function QnaBoardListPage({
+export default function QnaBoardListPage({
   title,
   breadcrumb,
   viewPath,
