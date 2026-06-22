@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.article.ArticleMapper">
+
+    <resultMap id="articleResultMap" type="com.main.app.common.article.dto.ArticleDto">
+        <id property="articleId" column="post_id"/>
+        <result property="articleUuid" column="post_uuid"/>
+        <result property="title" column="title"/>
+        <result property="contentHtml" column="content_html"/>
+        <result property="contentText" column="content_text"/>
+        <result property="authorId" column="author_id"/>
+        <result property="menuKey" column="menu_key"/>
+        <result property="templateCode" column="template_code"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="groupId" column="group_id"/>
+        <result property="depth" column="depth"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="isSecret" column="is_secret"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="status" column="status"/>
+        <result property="metadata" column="metadata"/>
+        <result property="summaryText" column="summary_text"/>
+        <result property="keywordsJson" column="keywords_json"/>
+        <result property="aiLanguageCode" column="ai_language_code"/>
+        <result property="aiReady" column="ai_ready"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="isNotice" column="is_notice"/>
+        <result property="noticeStartDt" column="notice_start_dt"/>
+        <result property="noticeEndDt" column="notice_end_dt"/>
+        <result property="isPopup" column="is_popup"/>
+        <result property="popupStartDt" column="popup_start_dt"/>
+        <result property="popupEndDt" column="popup_end_dt"/>
+        <result property="popupLinkUrl" column="popup_link_url"/>
+        <result property="thumbnailFileId" column="thumbnail_file_id"/>
+        <result property="fileCount" column="file_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="firstFileId" column="first_file_id"/>
+        <result property="popupDismissOption" column="popup_dismiss_option"/>
+    </resultMap>
+
+    <!-- ============================================================
+         SELECT LIST
+         ============================================================ -->
+    <select id="selectList" parameterType="map" resultMap="articleResultMap">
+        SELECT
+            post_id, post_uuid, title, content_html, content_text, author_id,
+            menu_key, template_code, parent_id, group_id, depth, order_no,
+            is_secret, view_count, status, metadata,
+            summary_text, keywords_json, ai_language_code, ai_ready,
+            is_notice, notice_start_dt, notice_end_dt,
+            is_popup, popup_start_dt, popup_end_dt, popup_link_url, thumbnail_file_id,
+            popup_dismiss_option,
+            created_at, updated_at,
+            (SELECT COUNT(*) FROM com_file WHERE pgm_id='post' AND ref_id=CAST(post_id AS VARCHAR) AND is_deleted=FALSE) AS file_count,
+            (SELECT COUNT(*) FROM com_comment WHERE pgm_id='post' AND ref_id=CAST(post_id AS VARCHAR) AND is_deleted=FALSE) AS comment_count,
+            (SELECT file_id FROM com_file
+             WHERE pgm_id='post' AND ref_id=CAST(post_id AS VARCHAR) AND is_deleted=FALSE AND file_usage='attachment'
+             ORDER BY ins_dt ASC LIMIT 1) AS first_file_id
+        FROM common_post
+        WHERE is_deleted = FALSE
+        <if test="menuKey != null and menuKey != ''">
+            AND menu_key = #{menuKey}
+        </if>
+        <if test="templateCode != null and templateCode != ''">
+            AND template_code = #{templateCode}
+        </if>
+        <if test="searchType != null and searchType != '' and keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    <![CDATA[ AND title LIKE CONCAT('%', #{keyword}, '%') ]]>
+                </when>
+                <when test="searchType == 'content'">
+                    <![CDATA[ AND content_text LIKE CONCAT('%', #{keyword}, '%') ]]>
+                </when>
+                <when test="searchType == 'author'">
+                    <![CDATA[ AND author_id LIKE CONCAT('%', #{keyword}, '%') ]]>
+                </when>
+                <otherwise>
+                    <![CDATA[ AND (title LIKE CONCAT('%', #{keyword}, '%') OR content_text LIKE CONCAT('%', #{keyword}, '%')) ]]>
+                </otherwise>
+            </choose>
+        </if>
+        <choose>
+            <when test="sortField != null and sortField != ''">
+                ORDER BY ${sortField} ${sortOrder}
+            </when>
+            <otherwise>
+                ORDER BY order_no ASC, created_at DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- ============================================================
+         COUNT LIST
+         ============================================================ -->
+    <select id="countList" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM common_post
+        WHERE is_deleted = FALSE
+        <if test="menuKey != null and menuKey != ''">
+            AND menu_key = #{menuKey}
+        </if>
+        <if test="templateCode != null and templateCode != ''">
+            AND template_code = #{templateCode}
+        </if>
+        <if test="searchType != null and searchType != '' and keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    <![CDATA[ AND title LIKE CONCAT('%', #{keyword}, '%') ]]>
+                </when>
+                <when test="searchType == 'content'">
+                    <![CDATA[ AND content_text LIKE CONCAT('%', #{keyword}, '%') ]]>
+                </when>
+                <when test="searchType == 'author'">
+                    <![CDATA[ AND author_id LIKE CONCAT('%', #{keyword}, '%') ]]>
+                </when>
+                <otherwise>
+                    <![CDATA[ AND (title LIKE CONCAT('%', #{keyword}, '%') OR content_text LIKE CONCAT('%', #{keyword}, '%')) ]]>
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <!-- ============================================================
+         SELECT BY ID
+         ============================================================ -->
+    <select id="selectById" parameterType="long" resultMap="articleResultMap">
+        SELECT
+            post_id, post_uuid, title, content_html, content_text, author_id,
+            menu_key, template_code, parent_id, group_id, depth, order_no,
+            is_secret, password_hash, view_count, status, metadata,
+            summary_text, keywords_json, ai_language_code, ai_ready,
+            is_notice, notice_start_dt, notice_end_dt,
+            is_popup, popup_start_dt, popup_end_dt, popup_link_url, thumbnail_file_id,
+            popup_dismiss_option,
+            created_at, updated_at
+        FROM common_post
+        WHERE post_id = #{articleId} AND is_deleted = FALSE
+    </select>
+
+    <!-- ============================================================
+         UPDATE VIEW COUNT
+         ============================================================ -->
+    <update id="updateViewCount">
+        UPDATE common_post
+        SET view_count = COALESCE(view_count, 0) + 1
+        WHERE post_id = #{articleId} AND is_deleted = FALSE
+    </update>
+
+    <!-- ============================================================
+         INSERT
+         ============================================================ -->
+    <insert id="insert" parameterType="com.main.app.common.article.dto.ArticleRequest" useGeneratedKeys="true" keyProperty="articleId">
+        INSERT INTO common_post (
+            title, content_html, content_text, author_id,
+            menu_key, template_code, parent_id, group_id, depth, order_no,
+            is_secret, password_hash, status, metadata,
+            is_notice, notice_start_dt, notice_end_dt,
+            is_popup, popup_start_dt, popup_end_dt, popup_link_url, thumbnail_file_id,
+            popup_dismiss_option,
+            created_at, updated_at, is_deleted
+        ) VALUES (
+            #{title}, #{cont}, #{cont}, #{rqstId},
+            #{menuKey}, #{templateCode}, #{parentId}, #{groupId}, #{depth}, #{orderNo},
+            #{secret}, #{passwordHash}, 'PUBLISHED',
+            #{metadata}::jsonb,
+            #{isNotice}, #{noticeStartDt}, #{noticeEndDt},
+            #{isPopup}, #{popupStartDt}, #{popupEndDt}, #{popupLinkUrl}, #{thumbnailFileId},
+            #{popupDismissOption},
+            NOW(), NOW(), FALSE
+        )
+    </insert>
+
+    <!-- ============================================================
+         UPDATE
+         ============================================================ -->
+    <update id="update" parameterType="com.main.app.common.article.dto.ArticleRequest">
+        UPDATE common_post
+        SET
+            title = #{title},
+            content_html = #{cont},
+            content_text = #{cont},
+            author_id = #{rqstId},
+            menu_key = #{menuKey},
+            template_code = #{templateCode},
+            is_secret = #{secret},
+            password_hash = COALESCE(#{passwordHash}, password_hash),
+            metadata = #{metadata}::jsonb,
+            is_notice = #{isNotice},
+            notice_start_dt = #{noticeStartDt},
+            notice_end_dt = #{noticeEndDt},
+            is_popup = #{isPopup},
+            popup_start_dt = #{popupStartDt},
+            popup_end_dt = #{popupEndDt},
+            popup_link_url = #{popupLinkUrl},
+            thumbnail_file_id = #{thumbnailFileId},
+            popup_dismiss_option = #{popupDismissOption},
+            updated_at = NOW()
+        WHERE post_id = #{articleId} AND is_deleted = FALSE
+    </update>
+
+    <!-- ============================================================
+         UPDATE REPLY ORDER
+         ============================================================ -->
+    <update id="updateReplyOrder" parameterType="map">
+        UPDATE common_post
+        SET order_no = order_no + 1
+        WHERE group_id = #{groupId}
+          AND order_no >= #{orderNo}
+          AND is_deleted = FALSE
+    </update>
+
+    <!-- ============================================================
+         UPDATE GROUP ID
+         ============================================================ -->
+    <update id="updateGroupId">
+        UPDATE common_post
+        SET group_id = #{articleId}
+        WHERE post_id = #{articleId} AND is_deleted = FALSE
+    </update>
+
+    <!-- ============================================================
+         SOFT DELETE
+         ============================================================ -->
+    <update id="softDelete">
+        UPDATE common_post
+        SET is_deleted = TRUE, deleted_at = NOW(), updated_at = NOW()
+        WHERE post_id = #{articleId}
+    </update>
+
+    <!-- ============================================================
+         이전/다음글 ID 조회
+         ============================================================ -->
+    <select id="selectPrevId" resultType="java.lang.Long">
+        SELECT post_id
+        FROM common_post
+        WHERE is_deleted = FALSE
+          AND menu_key = #{menuKey}
+          AND template_code = #{templateCode}
+        <if test="sortField != null and sortField != ''">
+            <![CDATA[
+            AND (
+                ${sortField} < (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                OR (
+                    ${sortField} = (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                    AND post_id < #{articleId}
+                )
+            )
+            ]]>
+        </if>
+        ORDER BY ${sortField} ${sortOrder}, post_id ${sortOrder}
+        LIMIT 1
+    </select>
+
+    <select id="selectNextId" resultType="java.lang.Long">
+        SELECT post_id
+        FROM common_post
+        WHERE is_deleted = FALSE
+          AND menu_key = #{menuKey}
+          AND template_code = #{templateCode}
+        <if test="sortField != null and sortField != ''">
+            <![CDATA[
+            AND (
+                ${sortField} > (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                OR (
+                    ${sortField} = (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                    AND post_id > #{articleId}
+                )
+            )
+            ]]>
+        </if>
+        ORDER BY ${sortField} ${sortOrder}, post_id ${sortOrder}
+        LIMIT 1
+    </select>
+
+    <!-- ============================================================
+         배너 목록 조회
+         ============================================================ -->
+    <select id="selectBanners" parameterType="map" resultMap="articleResultMap">
+        SELECT
+            post_id, post_uuid, title, content_html, content_text, author_id,
+            menu_key, template_code, parent_id, group_id, depth, order_no,
+            is_secret, view_count, status, metadata,
+            summary_text, keywords_json, ai_language_code, ai_ready,
+            is_notice, notice_start_dt, notice_end_dt,
+            is_popup, popup_start_dt, popup_end_dt, popup_link_url, thumbnail_file_id,
+            popup_dismiss_option,
+            created_at, updated_at
+        FROM common_post
+        WHERE is_deleted = FALSE
+          AND menu_key = 'BANNER'
+          AND template_code = #{templateCode}
+          AND status = 'PUBLISHED'
+        <if test="now != null">
+            AND popup_start_dt IS NOT NULL
+            AND popup_end_dt IS NOT NULL
+            AND popup_start_dt <![CDATA[ <= ]]> #{now}
+            AND popup_end_dt <![CDATA[ >= ]]> #{now}
+        </if>
+        ORDER BY order_no ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- ============================================================
+         슬라이드 순서 변경
+         ============================================================ -->
+    <update id="updateOrderNo">
+        UPDATE common_post
+        SET order_no = #{orderNo}, updated_at = NOW()
+        WHERE post_id = #{articleId}
+          AND is_deleted = FALSE
+    </update>
+
+    <!-- ============================================================
+         ★ 썸네일 업데이트 (추가)
+         ============================================================ -->
+    <update id="updateThumbnail">
+        UPDATE common_post
+        SET thumbnail_file_id = #{fileId}, updated_at = NOW()
+        WHERE post_id = #{articleId}
+          AND is_deleted = FALSE
+    </update>
+
+</mapper>

@@ -1,309 +1,142 @@
-/**
- * @fileoverview 설교 게시판 API 컨트롤러
- * 
- * 확장 내용 (ERP 수준):
- * - 정렬(sortField, sortOrder) 파라미터 추가
- * - 페이지 크기(size) 파라미터 추가 (기존 10 고정에서 유연하게)
- * - 프론트엔드 DataGrid의 server/infinite 모드와 완벽하게 연동
- */
 package com.main.app.official.worship.sermons;
 
-import java.io.ByteArrayOutputStream;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import com.main.app.common.article.ArticleController;
+import com.main.app.common.article.dto.ArticleDto;
+import com.main.app.common.article.dto.ArticleRequest;
+import com.main.app.common.dto.ApiResponse;
+import com.main.app.official.worship.sermons.dto.SermonRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import com.main.app.common.dto.ApiResponse;
-import com.main.app.common.comment.dto.CommentDto;
-import com.main.app.common.attachment.dto.AttachmentDto;
-import com.main.app.official.worship.sermons.dto.SermonDto;
-import com.main.app.official.worship.sermons.dto.SermonRequest;
-
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/official/worship/sermons")
+@RequiredArgsConstructor
+@Deprecated(forRemoval = true, since = "1.0")
 public class SermonController {
 
-    private static final String BASE_PATH = "/worship/sermons";
-    private static final String VIEW_HISTORY_SESSION_KEY = "sermonViewHistory";
-    private static final long VIEW_COUNT_COOLDOWN_MILLIS = 3000L;
+    private final ArticleController articleController;
 
-    private final SermonService sermonService;
-
-    public SermonController(SermonService sermonService) {
-        this.sermonService = sermonService;
-    }
-
-    /**
-     * 설교 목록 조회 (ERP 수준 페이징/정렬 지원)
-     * 
-     * @param page        요청 페이지 (0부터 시작)
-     * @param size        페이지당 행 수 (기본 10, AG Grid pageSize와 연동)
-     * @param sortField   정렬 기준 필드 (예: created_at, view_count, title)
-     * @param sortOrder   정렬 방향 (ASC 또는 DESC, 기본 ASC)
-     * @param searchType  검색 유형 (title, content, author)
-     * @param keyword     검색어
-     * @param worshipType 예배구분 필터
-     * @return 페이징 처리된 설교 목록
-     */
     @GetMapping
-    public ApiResponse<Page<SermonDto>> list(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size, // ★ size 파라미터 추가
-            @RequestParam(name = "sortField", required = false) String sortField, // ★ 정렬 필드
-            @RequestParam(name = "sortOrder", defaultValue = "ASC") String sortOrder, // ★ 정렬 방향
-            @RequestParam(name = "searchType", required = false) String searchType,
-            @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "worshipType", required = false) String worshipType) {
-
-        // Service 계층에 모든 파라미터 전달
-        Page<SermonDto> paging = sermonService.getBoardList(
-                page, size, sortField, sortOrder, searchType, keyword, worshipType);
-        return ApiResponse.ok(paging);
-    }
-
-    @GetMapping("/write")
-    public ApiResponse<SermonDto> writeForm(@RequestParam(name = "rqstNo", required = false) String rqstNo) {
-        if (rqstNo != null) {
-            SermonDto board = sermonService.getBoardDetail(rqstNo, false);
-            return ApiResponse.ok(board);
-        }
-
-        SermonDto board = new SermonDto();
-        board.setBoardType("SERMONS");
-        return ApiResponse.ok(board);
-    }
-
-    @GetMapping("/reply")
-    public ApiResponse<SermonDto> replyForm(@RequestParam(name = "parentNo") String parentNo) {
-        SermonDto parent = sermonService.getBoardDetail(parentNo, false);
-        SermonDto reply = new SermonDto();
-        reply.setParentNo(parentNo);
-        reply.setTitle(parent.getTitle());
-        reply.setBoardType("SERMONS");
-        return ApiResponse.ok(reply);
-    }
-
-    @PostMapping("/write")
-    public ApiResponse<Map<String, String>> save(SermonRequest request) {
-        if (request.getOrderNo() == null) {
-            request.setOrderNo(0);
-        }
-        if (request.getDepth() == null) {
-            request.setDepth(0);
-        }
-        sermonService.saveBoard(request);
-
-        // 프론트엔드에서 파일 업로드 시 rqstNo 가 필요하므로 반환
-        Map<String, String> payload = new HashMap<>();
-        payload.put("basePath", BASE_PATH);
-        payload.put("rqstNo", request.getRqstNo() == null ? "" : String.valueOf(request.getRqstNo()));
-        return ApiResponse.ok(payload, "게시글이 등록되었습니다.");
-    }
-
-    @PostMapping("/update")
-    public ApiResponse<Map<String, String>> update(SermonRequest request) {
-        sermonService.updateBoard(request);
-
-        Map<String, String> payload = new HashMap<>();
-        payload.put("rqstNo", request.getRqstNo() == null ? "" : String.valueOf(request.getRqstNo()));
-        return ApiResponse.ok(payload, "게시글이 수정되었습니다.");
-    }
-
-    @PostMapping("/delete")
-    public ApiResponse<Map<String, String>> delete(@RequestParam(name = "rqstNo") String rqstNo) {
-        sermonService.deleteBoard(rqstNo);
-
-        Map<String, String> payload = new HashMap<>();
-        payload.put("rqstNo", rqstNo);
-        return ApiResponse.ok(payload, "게시글이 삭제되었습니다.");
+    public ApiResponse<Page<ArticleDto>> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(defaultValue = "ASC") String sortOrder) {
+        return articleController.list("SERMON", null, page, size, searchType, keyword, sortField, sortOrder);
     }
 
     @GetMapping("/view")
-    public ApiResponse<Map<String, Object>> view(
-            @RequestParam(name = "rqstNo") String rqstNo,
-            HttpSession session) {
-        @SuppressWarnings("unchecked")
-        Map<String, Long> viewHistory = (Map<String, Long>) session.getAttribute(VIEW_HISTORY_SESSION_KEY);
-        if (viewHistory == null) {
-            viewHistory = new HashMap<>();
-            session.setAttribute(VIEW_HISTORY_SESSION_KEY, viewHistory);
-        }
-
-        long now = System.currentTimeMillis();
-        Long lastViewedAt = viewHistory.get(rqstNo);
-        boolean increaseViewCount = lastViewedAt == null || (now - lastViewedAt) >= VIEW_COUNT_COOLDOWN_MILLIS;
-
-        SermonDto board = sermonService.getBoardDetail(rqstNo, increaseViewCount);
-        viewHistory.put(rqstNo, now);
-        List<CommentDto> comments = sermonService.getCommentList(rqstNo);
-
-        @SuppressWarnings("unchecked")
-        Map<Long, String> voteHistory = (Map<Long, String>) session.getAttribute("voteHistory");
-        if (voteHistory == null) {
-            voteHistory = new HashMap<>();
-        }
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("board", board);
-        payload.put("comments", comments);
-        payload.put("commentCount", comments.size());
-        payload.put("userVotes", voteHistory);
-        return ApiResponse.ok(payload);
+    public ApiResponse<ArticleDto> view(@RequestParam("rqstNo") Long articleId,
+                                        @RequestParam(required = false) String password) {
+        return articleController.view(articleId, password);
     }
 
-    @PostMapping("/view")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> checkPasswordAndView(
-            @RequestParam(name = "rqstNo") String rqstNo,
-            @RequestParam(name = "password") String password) {
-        SermonDto board = sermonService.getBoardDetail(rqstNo, false);
-        if (board == null || !sermonService.isValidPassword(rqstNo, password)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.fail(HttpStatus.BAD_REQUEST.value(), "비밀번호가 일치하지 않습니다."));
-        }
+    @PostMapping("/check-password")
+    public ApiResponse<Boolean> checkPassword(@RequestParam("rqstNo") Long articleId,
+                                              @RequestParam("password") String password) {
+        return articleController.verifyPassword(articleId, password);
+    }
 
-        List<CommentDto> comments = sermonService.getCommentList(rqstNo);
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("board", board);
-        payload.put("comments", comments);
-        payload.put("commentCount", comments.size());
-        return ResponseEntity.ok(ApiResponse.ok(payload));
+    @PostMapping("/write")
+    public ApiResponse<ArticleDto> write(@RequestPart("request") SermonRequest legacyRequest,
+                                         @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        ArticleRequest newRequest = convertToArticleRequest(legacyRequest);
+        newRequest.setFiles(files);
+        return articleController.create(newRequest, files);
+    }
+
+    @PostMapping("/update")
+    public ApiResponse<ArticleDto> update(@RequestPart("request") SermonRequest legacyRequest,
+                                          @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        ArticleRequest newRequest = convertToArticleRequest(legacyRequest);
+        newRequest.setFiles(files);
+        return articleController.update(newRequest.getArticleId(), newRequest, files);
+    }
+
+    @PostMapping("/delete")
+    public ApiResponse<Void> delete(@RequestParam("rqstNo") Long articleId) {
+        return articleController.delete(articleId);
     }
 
     /**
-     * 단건 파일 다운로드
-     * GET /api/official/worship/sermons/download?fileId={fileId}
+     * 레거시 SermonRequest → 신규 ArticleRequest 변환 (Jackson 미사용)
      */
-    @GetMapping("/download")
-    public ResponseEntity<Resource> download(@RequestParam("fileId") Long fileId) throws MalformedURLException {
-        AttachmentDto file = sermonService.getFile(fileId);
-        if (file == null) {
-            return ResponseEntity.notFound().build();
-        }
-        UrlResource resource = new UrlResource("file:" + file.getFilePath());
-        String originalFileName = Objects.requireNonNullElse(file.getOrgFileNm(), "download");
-        String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8)
-                .replaceAll("\\+", "%20");
-        String contentDisposition = "attachment; filename*=UTF-8''" + encodedFileName;
+    private ArticleRequest convertToArticleRequest(SermonRequest legacy) {
+        ArticleRequest request = new ArticleRequest();
+        request.setArticleId(legacy.getRqstNo());
+        request.setTitle(legacy.getTitle());
+        request.setCont(legacy.getCont());
+        request.setRqstId(legacy.getRqstId());
+        request.setMenuKey("SERMON");
+        request.setTemplateCode("DEFAULT");
+        request.setParentId(legacy.getParentNo());
+        request.setPassword(legacy.getPassword());
+        request.setSecret("Y".equals(legacy.getSecret()));
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+        // ★ 수동 JSON 생성 (Jackson 없이)
+        String metadataJson = buildMetadataJson(legacy);
+        request.setMetadata(metadataJson);
+
+        request.setIsNotice(legacy.getIsNotice());
+        request.setNoticeStartDt(legacy.getNoticeStartDt());
+        request.setNoticeEndDt(legacy.getNoticeEndDt());
+        request.setIsPopup(legacy.getIsPopup());
+        request.setPopupStartDt(legacy.getPopupStartDt());
+        request.setPopupEndDt(legacy.getPopupEndDt());
+        request.setPopupLinkUrl(legacy.getPopupLinkUrl());
+        request.setThumbnailFileId(legacy.getThumbnailFileId());
+        request.setPopupDismissOption(legacy.getPopupDismissOption());
+
+        return request;
     }
 
     /**
-     * 전체 파일 ZIP 다운로드
-     * GET /api/official/worship/sermons/downloadZip?rqstNo={rqstNo}
-     * - rqstNo(sermonId) 기준으로 official_sermon_file 에서 파일 목록 조회
-     * - filePath(절대경로) 기준으로 파일을 읽어 ZIP 으로 묶어 반환
-     * - 파일이 1개인 경우에도 동작 (프론트에서 2개 이상일 때만 버튼 노출)
-     * - ZIP 내 파일명 중복 방지: {fileId}_{원본파일명}
+     * 수동 JSON 문자열 생성 (Jackson 미사용)
      */
-    @GetMapping("/downloadZip")
-    public ResponseEntity<byte[]> downloadZip(@RequestParam("rqstNo") String rqstNo) {
-        List<AttachmentDto> files = sermonService.getFileList(rqstNo);
+    private String buildMetadataJson(SermonRequest legacy) {
+        StringBuilder json = new StringBuilder("{");
+        boolean first = true;
 
-        if (files == null || files.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        if (legacy.getPreacherName() != null) {
+            if (!first) json.append(",");
+            json.append("\"preacher\":\"").append(escapeJson(legacy.getPreacherName())).append("\"");
+            first = false;
         }
-
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ZipOutputStream zos = new ZipOutputStream(baos, StandardCharsets.UTF_8)) {
-
-            for (AttachmentDto file : files) {
-                if (file.getFilePath() == null)
-                    continue;
-
-                java.nio.file.Path path = Paths.get(file.getFilePath());
-                if (!Files.exists(path))
-                    continue;
-
-                // ZIP 내 파일명 중복 방지
-                String entryName = file.getFileId() + "_" + file.getOrgFileNm();
-                zos.putNextEntry(new ZipEntry(entryName));
-                Files.copy(path, zos);
-                zos.closeEntry();
-            }
-
-            zos.finish();
-            byte[] zipBytes = baos.toByteArray();
-
-            String encodedFileName = URLEncoder.encode("download.zip", StandardCharsets.UTF_8)
-                    .replaceAll("\\+", "%20");
-            String disposition = "attachment; filename*=UTF-8''" + encodedFileName;
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
-                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(zipBytes.length))
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(zipBytes);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if (legacy.getScriptureReference() != null) {
+            if (!first) json.append(",");
+            json.append("\"scripture\":\"").append(escapeJson(legacy.getScriptureReference())).append("\"");
+            first = false;
         }
+        if (legacy.getWorshipType() != null) {
+            if (!first) json.append(",");
+            json.append("\"worshipType\":\"").append(escapeJson(legacy.getWorshipType())).append("\"");
+            first = false;
+        }
+        if (legacy.getSermonDate() != null) {
+            if (!first) json.append(",");
+            json.append("\"sermonDate\":\"").append(escapeJson(legacy.getSermonDate())).append("\"");
+        }
+        json.append("}");
+        return json.toString();
     }
 
-    @PostMapping("/comment/write")
-    public ApiResponse<Map<String, Object>> writeComment(CommentDto comment) {
-        sermonService.saveComment(comment);
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("boardNo", comment.getRefId());
-        return ApiResponse.ok(payload, "댓글이 등록되었습니다.");
-    }
-
-    @PostMapping("/comment/vote")
-    public ApiResponse<Map<String, Object>> likeComment(
-            @RequestBody Map<String, String> payload,
-            HttpSession session) {
-        Long commentId = Long.parseLong(payload.get("commentId"));
-        String action = payload.get("action");
-
-        @SuppressWarnings("unchecked")
-        Map<Long, String> voteHistory = (Map<Long, String>) session.getAttribute("voteHistory");
-        if (voteHistory == null) {
-            voteHistory = new HashMap<>();
-            session.setAttribute("voteHistory", voteHistory);
-        }
-
-        String previousVote = voteHistory.get(commentId);
-        sermonService.handleVote(commentId, action, previousVote);
-
-        if (action.equals(previousVote)) {
-            voteHistory.remove(commentId);
-        } else {
-            voteHistory.put(commentId, action);
-        }
-
-        CommentDto updatedComment = sermonService.getComment(commentId);
-        Map<String, Object> response = new HashMap<>();
-        response.put("likes", updatedComment.getLikes());
-        response.put("dislikes", updatedComment.getDislikes());
-        response.put("userVote", voteHistory.get(commentId));
-
-        return ApiResponse.ok(response);
+    /**
+     * JSON 문자열 이스케이프 처리
+     */
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
     }
 }

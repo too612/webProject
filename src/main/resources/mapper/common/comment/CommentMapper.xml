@@ -36,6 +36,15 @@
          ORDER BY ins_dt ASC
     </select>
 
+    <!-- ★ 추가된 쿼리 (countComments) -->
+    <select id="countComments" resultType="int">
+        SELECT COUNT(*)
+        FROM com_comment
+        WHERE pgm_id = #{pgmId}
+          AND ref_id = #{refId}
+          AND is_deleted = FALSE
+    </select>
+
     <insert id="insertComment" parameterType="com.main.app.common.comment.dto.CommentDto">
         INSERT INTO com_comment (
             pgm_id, ref_id, parent_comment_id, writer, content, 
@@ -69,7 +78,6 @@
          WHERE comment_id = #{commentId}
     </update>
 
-    <!-- pgmId + refId 기준 전체 소프트 삭제 (게시글 삭제 시 연관 댓글 일괄 처리) -->
     <update id="softDeleteCommentsByRef">
         UPDATE com_comment
            SET is_deleted = TRUE,

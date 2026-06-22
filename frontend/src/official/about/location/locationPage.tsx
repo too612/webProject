@@ -209,10 +209,6 @@ export default function LocationPage() {
                       <span className="text-sm font-medium text-slate-700 group-hover:text-brand-primary">자주 묻는 질문</span>
                       <span className="material-icons text-slate-300 group-hover:text-brand-primary text-base">chevron_right</span>
                     </Link>
-                    <Link className="flex items-center justify-between group p-3 rounded-md bg-slate-50 hover:bg-brand-primary/5 transition-colors" to="/about/qna">
-                      <span className="text-sm font-medium text-slate-700 group-hover:text-brand-primary">1:1 온라인 문의</span>
-                      <span className="material-icons text-slate-300 group-hover:text-brand-primary text-base">chevron_right</span>
-                    </Link>
                   </div>
                 </div>
               </div>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.nextgen.youth.YouthMapper">
+
+    <resultMap id="boardResultMap" type="com.main.app.official.nextgen.youth.dto.YouthDto">
+        <result property="rqstNo"    column="rqst_no"/>
+        <result property="title"     column="title"/>
+        <result property="cont"      column="cont"/>
+        <result property="rqstId"    column="rqst_id"/>
+        <result property="insDt"     column="ins_dt"/>
+        <result property="uptDt"     column="upt_dt"/>
+        <result property="views"     column="views"/>
+        <result property="boardType" column="board_type"/>
+        <result property="groupNo"   column="group_no"/>
+        <result property="parentNo"  column="parent_no"/>
+        <result property="depth"     column="depth"/>
+        <result property="orderNo"   column="order_no"/>
+        <result property="secret"    column="secret"/>
+        <result property="password"  column="password"/>
+    </resultMap>
+
+    <resultMap id="commentResultMap" type="com.main.app.common.dto.CommentDto">
+        <result property="commentId" column="comment_id"/>
+        <result property="boardType" column="board_type"/>
+        <result property="refId"     column="ref_id"/>
+        <result property="rqstId"    column="rqst_id"/>
+        <result property="cont"      column="cont"/>
+        <result property="insDt"     column="ins_dt"/>
+        <result property="uptDt"     column="upt_dt"/>
+        <result property="likes"     column="likes"/>
+        <result property="dislikes"  column="dislikes"/>
+    </resultMap>
+
+    <select id="selectBoardList" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT A.rqst_no
+             , A.title
+             , A.rqst_id
+             , A.ins_dt
+             , A.upt_dt
+             , A.views
+             , A.group_no
+             , A.parent_no
+             , A.depth
+             , A.order_no
+             , A.secret
+             , (SELECT COUNT(*) FROM board_comment WHERE ref_id = A.rqst_no AND board_type = 'YOUTH') AS commentCount
+          FROM board A
+         WHERE A.board_type = 'YOUTH'
+           AND A.is_deleted = FALSE
+        <if test="searchType != null and keyword != null and keyword != ''">
+            <choose>
+                <when test="'title'.equals(searchType)">
+                    AND A.title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="'content'.equals(searchType)">
+                    AND A.cont LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="'author'.equals(searchType)">
+                    AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+            </choose>
+        </if>
+         ORDER BY A.group_no DESC, A.order_no ASC
+         LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countBoardList" parameterType="java.util.Map" resultType="long">
+        SELECT COUNT(*)
+          FROM board A
+         WHERE A.board_type = 'YOUTH'
+           AND A.is_deleted = FALSE
+        <if test="searchType != null and keyword != null and keyword != ''">
+            <choose>
+                <when test="'title'.equals(searchType)">
+                    AND A.title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="'content'.equals(searchType)">
+                    AND A.cont LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="'author'.equals(searchType)">
+                    AND A.rqst_id LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectBoardDetail" parameterType="java.util.Map" resultMap="boardResultMap">
+        SELECT A.rqst_no   AS rqstNo
+             , A.title
+             , A.cont
+             , A.rqst_id
+             , A.ins_dt
+             , A.upt_dt
+             , A.views
+             , A.group_no
+             , A.parent_no
+             , A.depth
+             , A.order_no
+             , A.secret
+             , A.password
+          FROM board A
+         WHERE A.rqst_no = #{rqstNo}
+           AND A.is_deleted = FALSE
+    </select>
+
+    <update id="updateReadCount" parameterType="java.util.Map">
+        UPDATE board
+           SET views = views + 1
+         WHERE rqst_no = #{rqstNo}
+    </update>
+
+    <insert id="insertBoard" parameterType="com.main.app.official.nextgen.youth.dto.YouthRequest">
+        INSERT INTO board (rqst_no, title, cont, rqst_id, ins_dt, upt_dt, views, group_no, parent_no, depth, order_no, secret, password, board_type)
+        VALUES (#{rqstNo}, #{title}, #{cont}, #{rqstId}, NOW(), NOW(), 0, #{groupNo}, #{parentNo}, #{depth}, #{orderNo}, #{secret}, #{password}, 'YOUTH')
+    </insert>
+
+    <update id="updateBoard" parameterType="com.main.app.official.nextgen.youth.dto.YouthRequest">
+        UPDATE board
+           SET title    = #{title}
+             , cont     = #{cont}
+             , upt_dt   = NOW()
+             , secret   = #{secret}
+         WHERE rqst_no  = #{rqstNo}
+           AND board_type = 'YOUTH'
+    </update>
+
+    <update id="updateReplyOrder" parameterType="java.util.Map">
+        UPDATE board
+           SET order_no = order_no + 1
+         WHERE group_no = #{groupNo}
+           AND order_no >= #{orderNo}
+           AND board_type = 'YOUTH'
+    </update>
+
+    <update id="deleteComments" parameterType="String">
+        UPDATE board_comment
+           SET is_deleted = TRUE
+         WHERE ref_id = #{boardNo}
+           AND board_type = 'YOUTH'
+    </update>
+
+    <update id="deleteBoard" parameterType="String">
+        UPDATE board
+           SET is_deleted = TRUE
+         WHERE rqst_no = #{id}
+    </update>
+
+    <select id="selectCommentList" parameterType="String" resultMap="commentResultMap">
+        SELECT comment_id, board_type, ref_id, rqst_id, cont, ins_dt, upt_dt, likes, dislikes
+          FROM board_comment
+         WHERE ref_id = #{boardNo}
+           AND board_type = 'YOUTH'
+           AND is_deleted = FALSE
+         ORDER BY ins_dt ASC
+    </select>
+
+    <insert id="insertComment" parameterType="com.main.app.common.dto.CommentDto">
+        INSERT INTO board_comment (board_type, ref_id, rqst_id, cont, ins_dt)
+        VALUES ('YOUTH', #{refId}, #{rqstId}, #{cont}, NOW())
+    </insert>
+
+    <select id="selectCommentById" parameterType="int" resultMap="commentResultMap">
+        SELECT comment_id, board_type, ref_id, rqst_id, cont, ins_dt, upt_dt, likes, dislikes
+          FROM board_comment
+         WHERE comment_id = #{commentId}
+    </select>
+
+    <update id="increaseLike" parameterType="int">
+        UPDATE board_comment SET likes = likes + 1 WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="decreaseLike" parameterType="int">
+        UPDATE board_comment SET likes = likes - 1 WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="increaseDislike" parameterType="int">
+        UPDATE board_comment SET dislikes = dislikes + 1 WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="decreaseDislike" parameterType="int">
+        UPDATE board_comment SET dislikes = dislikes - 1 WHERE comment_id = #{commentId}
+    </update>
+
+</mapper>

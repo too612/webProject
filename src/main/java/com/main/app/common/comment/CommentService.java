@@ -21,6 +21,13 @@ public class CommentService {
         return commentMapper.selectCommentList(pgmId, refId);
     }
 
+    // ★ 추가된 메서드 (countComments)
+    @Transactional(readOnly = true)
+    public int countComments(String pgmId, String refId) {
+        Integer count = commentMapper.countComments(pgmId, refId);
+        return count != null ? count : 0;
+    }
+
     @Transactional
     public void saveComment(CommentDto comment) {
         if (StringUtils.hasText(comment.getPassword())) {
@@ -40,13 +47,10 @@ public class CommentService {
             commentMapper.updateVote(commentId, action, 1);
             return;
         }
-
         if (previousVote.equals(action)) {
             commentMapper.updateVote(commentId, action, -1);
             return;
         }
-
-        // 추천 <-> 비추천 변경 시
         String reverseAction = action.equals("like") ? "dislike" : "like";
         commentMapper.updateVote(commentId, reverseAction, -1);
         commentMapper.updateVote(commentId, action, 1);

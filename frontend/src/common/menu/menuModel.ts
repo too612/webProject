@@ -1,6 +1,5 @@
 import type { MenuItem } from './menu.types';
 import { SERMONS_BASE_PATH } from '../../official/worship/sermons/sermonsModel';
-import { QNA_BASE_PATH } from '../../official/about/qna/qnaModel';
 
 export const fallbackMenus: MenuItem[] = [
   { menuId: 'official', menuName: '공식', path: '/', level: 1, orderNo: 1, subMenus: [] },
@@ -19,7 +18,6 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
         { menuId: 'official-about-history', menuName: '연혁', path: '/about/history', parentId: 'official-about', level: 2, orderNo: 3, subMenus: [] },
         { menuId: 'official-about-cellgroup', menuName: '셀가족 공동체', path: '/training/cellgroup', parentId: 'official-about', level: 2, orderNo: 4, subMenus: [] },
         { menuId: 'official-about-location', menuName: '오시는 길', path: '/about/location', parentId: 'official-about', level: 2, orderNo: 5, subMenus: [] },
-        { menuId: 'official-about-qna', menuName: 'Q&A', path: QNA_BASE_PATH, parentId: 'official-about', level: 2, orderNo: 6, subMenus: [] },
       ],
     },
     {
@@ -54,6 +52,7 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
         { menuId: 'official-news-gallery', menuName: '다사랑앨범', path: '/news/gallery', parentId: 'official-news', level: 2, orderNo: 3, subMenus: [] },
         { menuId: 'official-news-mission', menuName: '선교지소식', path: '/news/mission', parentId: 'official-news', level: 2, orderNo: 4, subMenus: [] },
         { menuId: 'official-news-nextsteps', menuName: '새가족안내', path: '/news/nextsteps', parentId: 'official-news', level: 2, orderNo: 5, subMenus: [] },
+        { menuId: 'official-news-banner', menuName: '배너관리', path: '/news/banner', parentId: 'official-news', level: 2, orderNo: 6, subMenus: [] },
       ],
     },
   ],

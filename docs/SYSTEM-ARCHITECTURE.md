@@ -48,11 +48,11 @@ src/main/java/com/main/app/
 │   ├── menu/               # 메뉴 조회 로직
 │   └── util/               # 유틸리티
 ├── official/
-│   ├── about/              # 소개 (pastor / history / beliefs / vision)
+│   ├── about/              # 소개 (pastor / history / location / people / qna)
 │   ├── index/              # 메인 페이지
-│   ├── ministries/         # 사역부서 (children / youth / mission)
-│   ├── news/               # 소식 (announcement / bulletin / registration / event)
-│   ├── support/            # 지원 (qna / faq / location)
+│   ├── news/               # 소식 (notice / bulletin / gallery / mission / nextsteps)
+│   ├── nextgen/            # 다음세대 (school / youth)
+│   ├── training/           # 양육·훈련 (course / servicegroup / cellgroup / outreach)
 │   └── worship/            # 예배 (time / live / sermons)
 ├── community/
 │   ├── facilities/
@@ -110,9 +110,10 @@ src/main/resources/mapper/
 ├── common/
 ├── official/
 │   ├── about/
-│   ├── ministries/
+│   ├── index/
 │   ├── news/
-│   ├── support/
+│   ├── nextgen/
+│   ├── training/
 │   └── worship/
 ├── community/
 ├── erp/
@@ -288,9 +289,9 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 | `common` | 완료 | 완료 | auth/menu/chatbot/editor/attachment/grid 응집 완료 |
 | `official/about` | 완료 | 완료 | pastor 기준 패턴 확정 · 프로필 이미지 첨부파일 모듈 연결 |
 | `official/worship` | 완료 | 완료 | time / live / sermons (sermons List/View/Write 분할 완료) |
-| `official/news` | 완료 | 완료 | announcement / bulletin / registration / event |
-| `official/ministries` | 완료 | 완료 | children / youth / mission |
-| `official/support` | 완료 | 완료 | 평면화 완료 |
+| `official/news` | 완료 | 완료 | notice / bulletin / gallery / mission / nextsteps |
+| `official/training` | 완료 | 완료 | course / servicegroup / cellgroup / outreach |
+| `official/nextgen` | 완료 | 완료 | school / youth |
 | `mypage` | 완료 | 완료 | user 6개 메뉴 |
 | `system` | 완료 | 완료 | user / config / log / backup |
 | `community` | 완료 | 완료 | group / facilities / saint / world |
@@ -394,9 +395,9 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 |--------|-------------------|-----------|----------------------|---------|
 | `official` | `/about/*` | 노출 | `public/img/hero/official-about.webp` | 소개/비전 중심 |
 | `official` | `/worship/*` | 노출 | `public/img/hero/official-worship.webp` | 예배/설교 중심 |
-| `official` | `/ministries/*` | 노출 | `public/img/hero/official-ministries.webp` | 사역/섬김 중심 |
+| `official` | `/nextgen/*` | 노출 | `public/img/hero/official-nextgen.webp` | 다음세대 중심 |
+| `official` | `/training/*` | 노출 | `public/img/hero/official-training.webp` | 양육/훈련 중심 |
 | `official` | `/news/*` | 노출 | `public/img/hero/official-news.webp` | 소식/공지 중심 |
-| `official` | `/support/*` | 노출 | `public/img/hero/official-support.webp` | 안내/문의 중심 |
 | `community` | `/community/group/*` | 노출 | `public/img/hero/community-group.webp` | 모임/공동체 중심 |
 | `community` | `/community/facilities/*` | 노출 | `public/img/hero/community-facilities.webp` | 시설/이용 중심 |
 | `community` | `/community/saint/*` | 노출 | `public/img/hero/community-saint.webp` | 지원/돌봄 중심 |

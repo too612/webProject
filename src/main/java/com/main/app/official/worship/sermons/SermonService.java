@@ -67,21 +67,6 @@ public class SermonService {
     public Page<SermonDto> getBoardList(int page, int size, String sortField, String sortOrder,
             String searchType, String keyword, String worshipType) {
 
-        // ★ 1. 정렬 필드 검증 (화이트리스트에 없으면 기본값 사용)
-        String validSortField = "created_at"; // 기본값
-        if (StringUtils.hasText(sortField) && ALLOWED_SORT_FIELDS.contains(sortField)) {
-            validSortField = sortField;
-        } else if (StringUtils.hasText(sortField)) {
-            log.warn("Invalid sortField attempted: {}, falling back to default", sortField);
-        }
-
-        // ★ 2. 정렬 방향 검증 (ASC 또는 DESC만 허용)
-        String validSortOrder = "ASC";
-        if (StringUtils.hasText(sortOrder)
-                && (sortOrder.equalsIgnoreCase("ASC") || sortOrder.equalsIgnoreCase("DESC"))) {
-            validSortOrder = sortOrder.toUpperCase();
-        }
-
         // ★ 3. 파라미터 Map 구성
         Map<String, Object> params = new HashMap<>();
         params.put("searchType", searchType);
@@ -89,8 +74,21 @@ public class SermonService {
         params.put("worshipType", worshipType);
         params.put("size", size);
         params.put("offset", page * size);
-        params.put("sortField", validSortField); // ★ Mapper에서 ORDER BY 동적 처리
-        params.put("sortOrder", validSortOrder); // ★ Mapper에서 ORDER BY 동적 처리
+
+        // ★ 1. 정렬 파라미터: 화이트리스트에 있는 경우에만 Mapper에 전달 (없으면 Mapper 기본정렬 사용)
+        if (StringUtils.hasText(sortField) && ALLOWED_SORT_FIELDS.contains(sortField)) {
+            params.put("sortField", sortField);
+            // ★ 2. 정렬 방향 검증 (ASC 또는 DESC만 허용)
+            if (StringUtils.hasText(sortOrder)
+                    && (sortOrder.equalsIgnoreCase("ASC") || sortOrder.equalsIgnoreCase("DESC"))) {
+                params.put("sortOrder", sortOrder.toUpperCase());
+            } else {
+                params.put("sortOrder", "ASC");
+            }
+        } else if (StringUtils.hasText(sortField)) {
+            log.warn("Invalid sortField attempted: {}, ignored, using Mapper default sorting", sortField);
+        }
+        // sortField/sortOrder가 없으면 Mapper의 <otherwise> 브랜치가 실행됨
 
         // ★ 4. Mapper 호출
         List<SermonDto> list = sermonMapper.selectBoardList(params);

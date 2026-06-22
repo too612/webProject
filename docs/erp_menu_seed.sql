@@ -63,7 +63,7 @@ M_MAIN_03	양육∙훈련	M_MAIN	/training/course	3	1
 M_MAIN_03_01	양육과정	M_MAIN_03	/training/course	1	2	
 M_MAIN_03_02	섬기는공동체	M_MAIN_03	/training/servicegroup	2	2	
 M_MAIN_03_03	셀가족공동체	M_MAIN_03	/training/cellgroup	3	2	
-M_MAIN_03_04	해외선교아웃리치	M_MAIN_03	/training/registration	4	2	
+M_MAIN_03_04	해외선교아웃리치	M_MAIN_03	/training/outreach	4	2	
 M_MAIN_04	다음세대	M_MAIN	/nextgen/school	4	1	
 M_MAIN_04_01	주일학교	M_MAIN_04	/nextgen/school	1	2	
 M_MAIN_04_02	중고등부∙청년부	M_MAIN_04	/nextgen/youth	2	2	
