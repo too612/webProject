@@ -20,7 +20,7 @@ export const ARTICLE_SLIDE_CONFIG: ArticleTemplateConfig = {
     defaultSearchType: "title",
     defaultFilters: {},
     buttons: {
-      write: { id: "btn_write", label: "슬라이드 등록", visible: true },
+      write: { id: "btn_write", label: "배너 등록", visible: true },
       search: { id: "btn_search", label: "검색", visible: true },
       excel: {
         id: "btn_excel_download",

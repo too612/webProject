@@ -4,12 +4,102 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.training.cellgroup.CellGroupMapper">
 
-    <!-- TODO: cellgroup 전용 테이블 확정 후 SQL 교체 -->
-    <select id="selectCellGroup" resultType="com.main.app.official.training.cellgroup.dto.CellGroupDto">
+    <resultMap id="cellGroupContentResultMap" type="com.main.app.official.training.cellgroup.dto.CellGroupDto">
+        <result property="headline" column="headline"/>
+        <result property="summary" column="summary"/>
+        <collection property="groups"
+                    column="parent_dept_cd"
+                    javaType="java.util.List"
+                    ofType="com.main.app.official.training.cellgroup.dto.CellGroupGroupDto"
+                    select="selectCellGroups"/>
+    </resultMap>
+
+    <resultMap id="cellGroupGroupResultMap" type="com.main.app.official.training.cellgroup.dto.CellGroupGroupDto">
+        <result property="deptCode" column="dept_code"/>
+        <result property="title" column="title"/>
+        <result property="subtitle" column="subtitle"/>
+        <result property="description" column="description"/>
+        <result property="pastorName" column="pastor_name"/>
+        <result property="elderName" column="elder_name"/>
+        <result property="meetingInfo" column="meeting_info"/>
+        <result property="imageUrl" column="image_url"/>
+        <collection property="members"
+                    column="dept_code"
+                    javaType="java.util.List"
+                    ofType="com.main.app.official.training.cellgroup.dto.CellGroupMemberDto"
+                    select="selectCellMembers"/>
+    </resultMap>
+
+    <resultMap id="cellGroupMemberResultMap" type="com.main.app.official.training.cellgroup.dto.CellGroupMemberDto">
+        <result property="name" column="name"/>
+        <result property="role" column="role"/>
+    </resultMap>
+
+    <select id="selectCellGroup" resultMap="cellGroupContentResultMap">
         SELECT
-            1::BIGINT AS id,
-            'CellGroup' AS title,
-            'CellGroup content template' AS content
+            '셀가족 공동체' AS headline,
+            '성도모임부 하위 셀가족 공동체가 말씀과 교제로 연결되어 함께 성장합니다.' AS summary,
+            'D000002' AS parent_dept_cd
+    </select>
+
+    <select id="selectCellGroups" parameterType="string" resultMap="cellGroupGroupResultMap">
+        SELECT
+            child.dept_cd AS dept_code,
+            child.dept_nm AS title,
+            child.dept_cd AS subtitle,
+            COALESCE(NULLIF(child.remark, ''), child.dept_nm || ' 셀가족 공동체입니다.') AS description,
+            CASE
+                WHEN leader.grade_code IS NOT NULL THEN leader.name_ko
+                ELSE NULL
+            END AS pastor_name,
+            CASE
+                WHEN leader.position_code IN ('103-010', '103-020', '103-030') THEN leader.name_ko
+                ELSE NULL
+            END AS elder_name,
+            CASE
+                WHEN child.dept_cd LIKE 'D00001%' THEN '주중 오전/오후 셀 모임'
+                WHEN child.dept_cd LIKE 'D000019' OR child.dept_cd LIKE 'D000020' THEN '주말 청년 셀 모임'
+                ELSE '정기 셀 모임'
+            END AS meeting_info,
+            NULL AS image_url
+        FROM hrm_org_dept child
+        LEFT JOIN hrm_person leader
+               ON child.chef_emp_no = leader.employee_no
+        WHERE child.parent_dept_key = (
+            SELECT dept_key
+            FROM hrm_org_dept
+            WHERE dept_cd = #{parentDeptCd}
+              AND use_yn = 'Y'
+            LIMIT 1
+        )
+          AND child.use_yn = 'Y'
+        ORDER BY child.dept_cd
+    </select>
+
+    <select id="selectCellMembers" parameterType="string" resultMap="cellGroupMemberResultMap">
+        SELECT
+            person.name_ko AS name,
+            CASE
+                WHEN person.employee_no = dept.chef_emp_no THEN '셀리더'
+                ELSE COALESCE(position_code.code_name, grade_code.code_name, '셀원')
+            END AS role
+        FROM hrm_person person
+        JOIN hrm_org_dept dept
+          ON person.dept_cd = dept.dept_cd
+        LEFT JOIN common_code grade_code
+               ON person.grade_code = grade_code.code
+              AND grade_code.parent_code = '102'
+              AND grade_code.use_yn = 'Y'
+        LEFT JOIN common_code position_code
+               ON person.position_code = position_code.code
+              AND position_code.parent_code = '103'
+              AND position_code.use_yn = 'Y'
+        WHERE person.dept_cd = #{deptCode}
+          AND person.service_status_code = '101-010'
+        ORDER BY
+            CASE WHEN person.employee_no = dept.chef_emp_no THEN 0 ELSE 1 END,
+            COALESCE(grade_code.sort_order, position_code.sort_order, 9999),
+            person.employee_no
     </select>
 
     <insert id="insertCellGroup" parameterType="com.main.app.official.training.cellgroup.dto.CellGroupRequest">

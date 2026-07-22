@@ -11,6 +11,7 @@ interface ArticleListProps {
   menuKey: string;
   templateCode?: string;
   basePath: string;
+  embedded?: boolean;
   middleColumns?: GridColumnDef[];
   onSecretClick?: (articleId: number, password?: string) => void;
   onExcelDownload?: () => void;
@@ -19,12 +20,15 @@ interface ArticleListProps {
   onGalleryDeleteClick?: (item: any) => void;
   onReorderSlides?: (items: any[]) => void;
   enableDragDrop?: boolean;
+  refreshKey?: number;
+  headerExtra?: React.ReactNode;
 }
 
 export function ArticleList({
   menuKey,
   templateCode,
   basePath,
+  embedded = false,
   middleColumns = [],
   onSecretClick,
   onExcelDownload,
@@ -33,6 +37,8 @@ export function ArticleList({
   onGalleryDeleteClick,
   onReorderSlides,
   enableDragDrop = false,
+  refreshKey = 0,
+  headerExtra,
 }: Readonly<ArticleListProps>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getArticleTemplateConfig(templateCode || "DEFAULT");
@@ -68,7 +74,7 @@ export function ArticleList({
       query.templateCode = templateCode;
     }
     loadList(query);
-  }, [page, menuKey, templateCode, searchType, keyword, loadList]);
+  }, [page, menuKey, templateCode, searchType, keyword, loadList, refreshKey]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -103,6 +109,30 @@ export function ArticleList({
       ((item: any) => {
         window.location.href = `${basePath}/view?rqstNo=${item.articleId}`;
       });
+
+    if (embedded) {
+      if (listError) {
+        return (
+          <ErrorMessage
+            message={listError}
+            onRetry={() => loadList({ page, menuKey, templateCode })}
+          />
+        );
+      }
+
+      return (
+        <GalleryView
+          items={items}
+          config={config}
+          loading={listLoading}
+          onItemClick={handleItemClick}
+          onEditClick={onGalleryEditClick}
+          onDeleteClick={onGalleryDeleteClick}
+          onReorder={onReorderSlides}
+          enableDragDrop={enableDragDrop}
+        />
+      );
+    }
 
     return (
       <section className="space-y-5">
@@ -141,6 +171,8 @@ export function ArticleList({
               )}
             </div>
           </div>
+
+          {headerExtra}
 
           {listError && (
             <ErrorMessage

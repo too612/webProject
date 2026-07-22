@@ -1,32 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.index.OfficialIndexMapper">
 
-    <!-- 최근 설교 4건 -->
-    <select id="selectRecentSermons" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
-        SELECT
-            CAST(rqst_no AS VARCHAR) AS id,
-            title,
-            TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
-        FROM board
-        WHERE board_type = 'SERMONS'
-          AND depth = 1
-        ORDER BY ins_dt DESC
-        LIMIT 4
+    <select id="selectRecentAnnouncements" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
+        SELECT CAST(post_id AS VARCHAR) AS id, title, TO_CHAR(created_at, 'YYYY.MM.DD') AS date
+        FROM common_post
+        WHERE menu_key = 'PINNABLE' AND template_code = 'PINNABLE'
+          AND status = 'PUBLISHED' AND is_deleted = FALSE
+        ORDER BY created_at DESC LIMIT 4
     </select>
 
-    <!-- 최근 공지 4건 -->
-    <select id="selectRecentAnnouncements" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
-        SELECT
-            CAST(rqst_no AS VARCHAR) AS id,
-            title,
-            TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
-        FROM board
-        WHERE board_type = 'ANNOUNCEMENT'
-        ORDER BY ins_dt DESC
-        LIMIT 4
+    <select id="selectSlideBanners" resultType="com.main.app.official.index.dto.OfficialIndexDto$BannerItem">
+        SELECT CAST(cp.post_id AS VARCHAR) AS id, cp.title,
+               CAST((SELECT cf.file_id FROM com_file cf
+                      WHERE cf.pgm_id = 'post' AND cf.ref_id = CAST(cp.post_id AS VARCHAR)
+                        AND cf.is_deleted = FALSE AND cf.file_usage = 'attachment'
+                      ORDER BY cf.file_id ASC LIMIT 1) AS VARCHAR) AS imageUrl,
+               cp.popup_link_url AS linkUrl
+        FROM common_post cp
+        WHERE cp.menu_key = 'BANNER' AND cp.template_code = 'SLIDE'
+          AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
+        ORDER BY cp.order_no ASC LIMIT 5
+    </select>
+
+    <select id="selectPopupBanners" resultType="com.main.app.official.index.dto.OfficialIndexDto$BannerItem">
+        SELECT CAST(cp.post_id AS VARCHAR) AS id, cp.title,
+               CAST((SELECT cf.file_id FROM com_file cf
+                      WHERE cf.pgm_id = 'post' AND cf.ref_id = CAST(cp.post_id AS VARCHAR)
+                        AND cf.is_deleted = FALSE AND cf.file_usage = 'attachment'
+                      ORDER BY cf.file_id ASC LIMIT 1) AS VARCHAR) AS imageUrl,
+               cp.popup_link_url AS linkUrl,
+               TO_CHAR(cp.popup_start_dt, 'YYYY-MM-DD HH24:MI:SS') AS startDt,
+               TO_CHAR(cp.popup_end_dt, 'YYYY-MM-DD HH24:MI:SS') AS endDt,
+               cp.popup_dismiss_option AS dismissOption
+        FROM common_post cp
+        WHERE cp.menu_key = 'BANNER' AND cp.template_code = 'POPUP'
+          AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
+        ORDER BY cp.order_no ASC LIMIT 5
+    </select>
+
+    <select id="selectRecentBulletins" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
+        SELECT CAST(post_id AS VARCHAR) AS id, title, TO_CHAR(created_at, 'YYYY.MM.DD') AS date
+        FROM common_post
+        WHERE menu_key = 'SINGLE_IMAGE' AND template_code = 'SINGLE_IMAGE'
+          AND status = 'PUBLISHED' AND is_deleted = FALSE
+        ORDER BY created_at DESC LIMIT 5
+    </select>
+
+    <select id="selectRecentGalleries" resultType="com.main.app.official.index.dto.OfficialIndexDto$GalleryItem">
+        SELECT CAST(cp.post_id AS VARCHAR) AS id, cp.title,
+               CAST((SELECT cf.file_id FROM com_file cf
+                      WHERE cf.pgm_id = 'post' AND cf.ref_id = CAST(cp.post_id AS VARCHAR)
+                        AND cf.is_deleted = FALSE AND cf.file_usage = 'attachment'
+                      ORDER BY cf.file_id ASC LIMIT 1) AS VARCHAR) AS imageUrl,
+               TO_CHAR(cp.created_at, 'YYYY.MM.DD') AS date,
+               cp.content_html AS contentHtml
+        FROM common_post cp
+        WHERE cp.menu_key = 'GALLERY' AND cp.template_code = 'GALLERY'
+          AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
+        ORDER BY cp.created_at DESC LIMIT 6
     </select>
 
 </mapper>

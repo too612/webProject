@@ -13,6 +13,10 @@ export default defineConfig({
         target: "http://localhost:8080",
         changeOrigin: true,
       },
+      "/data": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
     },
   },
 });

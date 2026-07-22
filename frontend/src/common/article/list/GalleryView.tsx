@@ -3,7 +3,7 @@ import type { ArticleItem } from "../ArticleModel";
 import type { ArticleTemplateConfig } from "../config";
 import {
   DndContext,
-  closestCenter,
+  closestCorners,
   PointerSensor,
   useSensor,
   useSensors,
@@ -12,7 +12,7 @@ import {
 import {
   SortableContext,
   useSortable,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -41,6 +41,8 @@ interface SortableCardProps {
   slideCount: number;
   getThumbnailUrl: (item: ArticleItem) => string | null;
   allItems: ArticleItem[];
+  showCardIndex?: boolean;
+  showCardTypeLabel?: boolean;
 }
 
 function SortableCard({
@@ -56,6 +58,8 @@ function SortableCard({
   slideCount,
   getThumbnailUrl,
   allItems,
+  showCardIndex = true,
+  showCardTypeLabel = true,
 }: Readonly<SortableCardProps>) {
   const {
     attributes,
@@ -102,6 +106,7 @@ function SortableCard({
         <div
           className={`${aspectRatioClass} relative overflow-hidden bg-slate-100 cursor-grab active:cursor-grabbing`}
           {...listeners}
+          onClick={() => onItemClick(item, allItems)}
         >
           {thumbnailUrl ? (
             <img
@@ -115,10 +120,10 @@ function SortableCard({
               <span className="material-icons text-6xl">image</span>
             </div>
           )}
-          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded">
+          {showCardIndex && (<div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded z-20">
             #{index + 1}
+          </div>)}
           </div>
-        </div>
         <div className="p-3">
           <div className="flex items-center justify-between">
             <h3
@@ -130,7 +135,7 @@ function SortableCard({
             <div className="flex items-center gap-1 shrink-0">
               {isSlide && onReorder && (
                 <>
-                  <button
+                  <button type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMoveUp();
@@ -139,11 +144,11 @@ function SortableCard({
                     className={`text-slate-400 hover:text-brand-primary transition-colors ${
                       index === 0 ? "opacity-30 cursor-not-allowed" : ""
                     }`}
-                    title="위로 이동"
+                    title="왼쪽으로 이동"
                   >
-                    <span className="material-icons text-sm">arrow_upward</span>
+                    <span className="material-icons text-sm">arrow_back</span>
                   </button>
-                  <button
+                  <button type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMoveDown();
@@ -154,37 +159,39 @@ function SortableCard({
                         ? "opacity-30 cursor-not-allowed"
                         : ""
                     }`}
-                    title="아래로 이동"
+                    title="오른쪽으로 이동"
                   >
                     <span className="material-icons text-sm">
-                      arrow_downward
+                      arrow_forward
                     </span>
                   </button>
                 </>
               )}
-              <button
+              {onEditClick && (
+              <button type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onEditClick?.(item);
+                  onEditClick(item);
                 }}
                 className="text-slate-400 hover:text-brand-primary"
                 title="수정"
               >
                 <span className="material-icons text-sm">edit</span>
-              </button>
-              <button
+              </button>)}
+              {onDeleteClick && (
+              <button type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDeleteClick?.(item);
+                  onDeleteClick(item);
                 }}
                 className="text-slate-400 hover:text-red-500"
                 title="삭제"
               >
                 <span className="material-icons text-sm">delete</span>
-              </button>
+              </button>)}
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+{showCardTypeLabel && (          <div className="flex items-center gap-2 mt-1">
             <span
               className={`text-xs px-2 py-0.5 rounded ${
                 isSlide
@@ -199,7 +206,7 @@ function SortableCard({
                 순서: {index + 1}/{slideCount}
               </span>
             )}
-          </div>
+          </div>)}
         </div>
       </div>
     </div>
@@ -254,6 +261,13 @@ export function GalleryView({
         return `/api/common/files/${firstFile.fileId}/download`;
       }
     }
+    // ★ 본문 HTML에서 첫 번째 이미지 추출
+    if (cardConfig.imageField === "firstImageFromContent" && item.contentHtml) {
+      const match = item.contentHtml.match(/<img[^>]+src=["']([^"']+)["']/);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
     return null;
   };
 
@@ -275,12 +289,12 @@ export function GalleryView({
     return (
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
           items={items.map((i) => i.articleId)}
-          strategy={verticalListSortingStrategy}
+          strategy={rectSortingStrategy}
         >
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
             {items.map((item, index) => (
@@ -298,6 +312,8 @@ export function GalleryView({
                 slideCount={slideCount}
                 getThumbnailUrl={getThumbnailUrl}
                 allItems={items}
+                showCardIndex={cardConfig.showCardIndex}
+                showCardTypeLabel={cardConfig.showCardTypeLabel}
               />
             ))}
           </div>
@@ -323,6 +339,8 @@ export function GalleryView({
           slideCount={slideCount}
           getThumbnailUrl={getThumbnailUrl}
           allItems={items}
+          showCardIndex={cardConfig.showCardIndex}
+          showCardTypeLabel={cardConfig.showCardTypeLabel}
         />
       ))}
     </div>

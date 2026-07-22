@@ -1311,6 +1311,14 @@ ul, li {
     );
 }
 
+.footer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
 .footer-bottom {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     margin-top: 24px;
@@ -1438,8 +1446,15 @@ ul, li {
         flex-direction: column;
         text-align: center;
     }
+    .footer-right {
+        align-items: center;
+        width: 100%;
+    }
     .footer-social {
         margin: 20px auto 0;
+    }
+    .footer-family-site .family-site-select {
+        margin: 0 auto;
     }
 
     .header-main .logo .header-logo-image {

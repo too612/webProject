@@ -5,17 +5,36 @@ import java.util.List;
 
 @Data
 public class OfficialIndexDto {
-
-    /** 최근 설교 목록 (최대 4건) */
-    private List<Item> recentSermons;
-
-    /** 최근 공지 목록 (최대 4건) */
     private List<Item> recentAnnouncements;
+    private List<BannerItem> slideBanners;
+    private List<BannerItem> popupBanners;
+    private List<Item> recentBulletins;
+    private List<GalleryItem> recentGalleries;
 
     @Data
     public static class Item {
         private String id;
         private String title;
         private String date;
+    }
+
+    @Data
+    public static class BannerItem {
+        private String id;
+        private String title;
+        private String imageUrl;
+        private String linkUrl;
+        private String startDt;
+        private String endDt;
+        private String dismissOption;
+    }
+
+    @Data
+    public static class GalleryItem {
+        private String id;
+        private String title;
+        private String imageUrl;
+        private String date;
+        private String contentHtml;
     }
 }

@@ -354,7 +354,7 @@ export function ArticleView({
                 {resolvedViews}회
               </div>
             </div>
-            <StatusBadge commentCount={commentCount} />
+            {viewConfig?.showStatusBadge !== false && <StatusBadge commentCount={commentCount} />}
           </div>
         </header>
 

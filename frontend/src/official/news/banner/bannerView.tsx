@@ -85,7 +85,7 @@ export default function BannerView() {
           </Link>
           <Link
             to={`/news/banner/write?rqstNo=${article.articleId}`}
-            className="px-4 py-2 text-sm bg-brand-primary text-white rounded-md hover:bg-[#4e5caf]"
+            className="px-4 py-2 text-sm bg-brand-primary !text-white rounded-md hover:bg-[#4e5caf]"
           >
             수정
           </Link>

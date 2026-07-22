@@ -3,15 +3,6 @@ import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { PeopleContent } from './peopleModel';
 
-function isPeopleCard(value: unknown): value is PeopleContent['coreVisions'][number] {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const candidate = value as Partial<PeopleContent['coreVisions'][number]>;
-  return typeof candidate.title === 'string' && typeof candidate.description === 'string';
-}
-
 function isPeopleContent(value: unknown): value is PeopleContent {
   if (!value || typeof value !== 'object') {
     return false;
@@ -21,11 +12,9 @@ function isPeopleContent(value: unknown): value is PeopleContent {
   return (
     typeof candidate.headline === 'string'
     && typeof candidate.summary === 'string'
-    && Array.isArray(candidate.coreVisions)
-    && candidate.coreVisions.every((item) => isPeopleCard(item))
-    && Array.isArray(candidate.ministryDirections)
-    && candidate.ministryDirections.every((direction) => typeof direction === 'string')
-    && typeof candidate.bibleVerse === 'string'
+    && !!candidate.pastor
+    && typeof candidate.pastor === 'object'
+    && Array.isArray(candidate.leaders)
   );
 }
 

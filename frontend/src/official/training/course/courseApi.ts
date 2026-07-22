@@ -3,15 +3,6 @@ import { getApiErrorMessage } from '../../../common/api/apiError';
 import type { ApiResponse } from '../../../common/api/api.types';
 import type { CourseContent } from './courseModel';
 
-function isCourseItem(value: unknown): value is CourseContent['courses'][number] {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const candidate = value as Partial<CourseContent['courses'][number]>;
-  return typeof candidate.title === 'string' && typeof candidate.description === 'string';
-}
-
 function isCourseContent(value: unknown): value is CourseContent {
   if (!value || typeof value !== 'object') {
     return false;
@@ -21,8 +12,7 @@ function isCourseContent(value: unknown): value is CourseContent {
   return (
     typeof candidate.headline === 'string'
     && typeof candidate.summary === 'string'
-    && Array.isArray(candidate.courses)
-    && candidate.courses.every((course) => isCourseItem(course))
+    && Array.isArray(candidate.steps)
   );
 }
 

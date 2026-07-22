@@ -33,25 +33,14 @@ const SermonsView = lazy(
 const SermonsWrite = lazy(
   () => import("../official/worship/sermons/sermonsWrite"),
 );
-const ChildrenPage = lazy(
-  () => import("../official/nextgen/school/childrenPage"),
-);
-const ChildrenViewPage = lazy(() =>
-  import("../official/nextgen/school/childrenPage").then((m) => ({
-    default: m.ChildrenViewPage,
-  })),
+const SchoolPage = lazy(() => import("../official/nextgen/school/schoolPage"));
+const SchoolView = lazy(() => import("../official/nextgen/school/schoolView"));
+const SchoolWrite = lazy(
+  () => import("../official/nextgen/school/schoolWrite"),
 );
 const YouthPage = lazy(() => import("../official/nextgen/youth/youthPage"));
-const YouthViewPage = lazy(() =>
-  import("../official/nextgen/youth/youthPage").then((m) => ({
-    default: m.YouthViewPage,
-  })),
-);
-const YouthWritePage = lazy(() =>
-  import("../official/nextgen/youth/youthPage").then((m) => ({
-    default: m.YouthWritePage,
-  })),
-);
+const YouthView = lazy(() => import("../official/nextgen/youth/youthView"));
+const YouthWrite = lazy(() => import("../official/nextgen/youth/youthWrite"));
 
 const NoticeList = lazy(() => import("../official/news/notice/noticeList"));
 const NoticeView = lazy(() => import("../official/news/notice/noticeView"));
@@ -80,6 +69,12 @@ const BannerWrite = lazy(() => import("../official/news/banner/bannerWrite"));
 
 const OutreachPage = lazy(
   () => import("../official/training/outreach/outreachPage"),
+);
+const OutreachView = lazy(
+  () => import("../official/training/outreach/outreachView"),
+);
+const OutreachWrite = lazy(
+  () => import("../official/training/outreach/outreachWrite"),
 );
 const MissionPage = lazy(() => import("../official/news/mission/missionPage"));
 const NextstepsPage = lazy(
@@ -125,6 +120,8 @@ export const officialRoutes: RouteObject[] = [
           { path: "course", element: <CoursePage /> },
           { path: "servicegroup", element: <ServiceGroupPage /> },
           { path: "outreach", element: <OutreachPage /> },
+          { path: "outreach/view", element: <OutreachView /> },
+          { path: "outreach/write", element: <OutreachWrite /> },
         ],
       },
       {
@@ -133,29 +130,16 @@ export const officialRoutes: RouteObject[] = [
         children: [
           {
             path: "school",
-            element: (
-              <ChildrenPage
-                title="아동사역"
-                breadcrumb="아동사역"
-                viewPath="/nextgen/school/view"
-                writePath="/nextgen/school/write"
-              />
-            ),
+            element: <SchoolPage />,
           },
-          { path: "school/view", element: <ChildrenViewPage /> },
+          { path: "school/view", element: <SchoolView /> },
+          { path: "school/write", element: <SchoolWrite /> },
           {
             path: "youth",
-            element: (
-              <YouthPage
-                title="청년사역"
-                breadcrumb="청년사역"
-                viewPath="/nextgen/youth/view"
-                writePath="/nextgen/youth/write"
-              />
-            ),
+            element: <YouthPage />,
           },
-          { path: "youth/view", element: <YouthViewPage /> },
-          { path: "youth/write", element: <YouthWritePage /> },
+          { path: "youth/view", element: <YouthView /> },
+          { path: "youth/write", element: <YouthWrite /> },
         ],
       },
       {

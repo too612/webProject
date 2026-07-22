@@ -6,7 +6,7 @@ import type { ServiceGroupContent } from './serviceGroupModel';
 function isServiceMember(value: unknown): value is ServiceGroupContent['groups'][number]['members'][number] {
   if (!value || typeof value !== 'object') return false;
   const c = value as Partial<ServiceGroupContent['groups'][number]['members'][number]>;
-  return typeof c.name === 'string' && typeof c.phone === 'string';
+  return typeof c.name === 'string';
 }
 
 function isServiceGroup(value: unknown): value is ServiceGroupContent['groups'][number] {

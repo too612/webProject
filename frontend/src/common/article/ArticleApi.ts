@@ -115,7 +115,7 @@ export const articleApi = {
 
   reorderSlides: (slideIds: number[]) => {
     return client
-      .patch<ApiResponse<void>>("/common/article/slides/reorder", { slideIds })
+      .patch<ApiResponse<void>>("/common/article/slides/reorder", slideIds)
       .then((res) => res.data);
   },
 };

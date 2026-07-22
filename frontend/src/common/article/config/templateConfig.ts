@@ -77,6 +77,8 @@ export interface ListConfig {
     showDescription: boolean;
     cardWidth?: number;
     cardHeight?: number;
+    showCardIndex?: boolean;
+    showCardTypeLabel?: boolean;
   };
 }
 
@@ -91,6 +93,7 @@ export interface ViewConfig {
   showComment: boolean;
   commentSort: "latest" | "recommend";
   showMetaFields: boolean;
+  showStatusBadge: boolean;
   metaLayout: "card" | "inline";
   buttons?: {
     list?: { id: string; label: string; visible?: boolean };
@@ -184,6 +187,7 @@ export const DEFAULT_ARTICLE_CONFIG: ArticleTemplateConfig = {
     showComment: true,
     commentSort: "latest",
     showMetaFields: true,
+    showStatusBadge: true,
     metaLayout: "card",
     buttons: {
       list: { id: "btn_list", label: "목록", visible: true },
@@ -248,6 +252,9 @@ import { ARTICLE_GALLERY_CONFIG } from "./templates/ArticleGallery";
 import { ARTICLE_SINGLE_IMAGE_CONFIG } from "./templates/ArticleSingleImage";
 import { ARTICLE_POPUP_CONFIG } from "./templates/ArticlePopup";
 import { ARTICLE_SLIDE_CONFIG } from "./templates/ArticleSlide";
+import { ARTICLE_SCHOOL_GALLERY_CONFIG } from "./templates/ArticleSchoolGallery";
+import { ARTICLE_OUTREACH_GALLERY_CONFIG } from "./templates/ArticleOutreachGallery";
+import { ARTICLE_YOUTH_GALLERY_CONFIG } from "./templates/ArticleYouthGallery";
 
 const CONFIG_REGISTRY: Record<string, ArticleTemplateConfig> = {
   DEFAULT: ARTICLE_DEFAULT_CONFIG,
@@ -256,6 +263,9 @@ const CONFIG_REGISTRY: Record<string, ArticleTemplateConfig> = {
   SINGLE_IMAGE: ARTICLE_SINGLE_IMAGE_CONFIG,
   POPUP: ARTICLE_POPUP_CONFIG,
   SLIDE: ARTICLE_SLIDE_CONFIG,
+  SCHOOL_GALLERY: ARTICLE_SCHOOL_GALLERY_CONFIG,
+  OUTREACH_GALLERY: ARTICLE_OUTREACH_GALLERY_CONFIG,
+  YOUTH_GALLERY: ARTICLE_YOUTH_GALLERY_CONFIG,
 };
 
 export function getArticleTemplateConfig(

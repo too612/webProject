@@ -2,9 +2,11 @@ package com.main.app.official.training.cellgroup.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class CellGroupDto {
-    private Long id;
-    private String title;
-    private String content;
+    private String headline;
+    private String summary;
+    private List<CellGroupGroupDto> groups;
 }

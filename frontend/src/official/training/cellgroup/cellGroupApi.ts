@@ -6,7 +6,7 @@ import type { CellGroupContent } from './cellGroupModel';
 function isCellMember(value: unknown): value is CellGroupContent['groups'][number]['members'][number] {
   if (!value || typeof value !== 'object') return false;
   const c = value as Partial<CellGroupContent['groups'][number]['members'][number]>;
-  return typeof c.name === 'string';
+  return typeof c.name === 'string' && typeof c.role === 'string';
 }
 
 function isCellGroup(value: unknown): value is CellGroupContent['groups'][number] {

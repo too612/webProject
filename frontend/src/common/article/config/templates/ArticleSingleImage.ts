@@ -29,6 +29,8 @@ export const ARTICLE_SINGLE_IMAGE_CONFIG: ArticleTemplateConfig = {
       titleField: "title",
       showDescription: false,
       cardWidth: 200,
+      showCardIndex: false,
+      showCardTypeLabel: false,
     },
   },
 

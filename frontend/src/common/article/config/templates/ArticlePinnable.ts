@@ -20,7 +20,7 @@ export const ARTICLE_PINNABLE_CONFIG: ArticleTemplateConfig = {
     defaultSortField: "is_notice",
     defaultSortOrder: "DESC",
     hideColumns: ["status"],
-    excelDownload: true,
+    excelDownload: false,
     defaultSearchType: "title",
     defaultFilters: {},
     buttons: {
@@ -29,7 +29,7 @@ export const ARTICLE_PINNABLE_CONFIG: ArticleTemplateConfig = {
       excel: {
         id: "btn_excel_download",
         label: "엑셀 다운로드",
-        visible: true,
+        visible: false,
       },
     },
   },

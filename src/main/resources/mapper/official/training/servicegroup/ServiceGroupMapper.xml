@@ -4,12 +4,131 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.training.servicegroup.ServiceGroupMapper">
 
-    <!-- TODO: servicegroup 전용 테이블 확정 후 SQL 교체 -->
-    <select id="selectServiceGroup" resultType="com.main.app.official.training.servicegroup.dto.ServiceGroupDto">
+    <resultMap id="serviceGroupContentResultMap" type="com.main.app.official.training.servicegroup.dto.ServiceGroupDto">
+        <result property="headline" column="headline"/>
+        <result property="summary" column="summary"/>
+        <result property="parentDepartmentName" column="parent_department_name"/>
+        <result property="parentDepartmentLeader" column="parent_department_leader"/>
+        <result property="parentDepartmentLeaderRole" column="parent_department_leader_role"/>
+        <result property="parentDepartmentDescription" column="parent_department_description"/>
+        <collection property="groups"
+                    column="{parentDeptCd=parent_dept_cd}"
+                    javaType="java.util.List"
+                    ofType="com.main.app.official.training.servicegroup.dto.ServiceGroupGroupDto"
+                    select="selectServiceGroups"/>
+    </resultMap>
+
+    <resultMap id="serviceGroupGroupResultMap" type="com.main.app.official.training.servicegroup.dto.ServiceGroupGroupDto">
+        <result property="deptCode" column="dept_code"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="leaderName" column="leader_name"/>
+        <result property="leaderRole" column="leader_role"/>
+        <result property="pastorName" column="pastor_name"/>
+        <result property="elderName" column="elder_name"/>
+        <collection property="members"
+                    column="{deptCode=dept_code}"
+                    javaType="java.util.List"
+                    ofType="com.main.app.official.training.servicegroup.dto.ServiceGroupMemberDto"
+                    select="selectServiceMembers"/>
+    </resultMap>
+
+    <resultMap id="serviceGroupMemberResultMap" type="com.main.app.official.training.servicegroup.dto.ServiceGroupMemberDto">
+        <result property="name" column="name"/>
+        <result property="role" column="role"/>
+        <result property="summary" column="summary"/>
+    </resultMap>
+
+    <select id="selectServiceGroup" resultMap="serviceGroupContentResultMap">
         SELECT
-            1::BIGINT AS id,
-            'ServiceGroup' AS title,
-            'ServiceGroup content template' AS content
+            '섬기는 공동체' AS headline,
+            '경영지원부 산하 각 부서는 예배와 운영, 봉사의 실무를 맡아 공동체가 안정적으로 사역할 수 있도록 섬기고 있습니다.' AS summary,
+            parent_dept.dept_nm AS parent_department_name,
+            leader.name_ko AS parent_department_leader,
+            COALESCE(grade_code.code_name, position_code.code_name, leader.extra_attributes ->> 'role', '부서장') AS parent_department_leader_role,
+            CASE parent_dept.dept_cd
+                WHEN 'D000001' THEN '예배와 교회 운영 전반을 지원하는 실무 부서입니다. 재정, 전도, 차량, 봉사, 새가족, 찬양 사역이 유기적으로 연결되어 공동체의 기본 운영을 담당합니다.'
+                ELSE COALESCE(NULLIF(parent_dept.remark, ''), parent_dept.dept_nm || ' 소개')
+            END AS parent_department_description,
+            parent_dept.dept_cd AS parent_dept_cd
+        FROM hrm_org_dept parent_dept
+        LEFT JOIN hrm_person leader
+               ON parent_dept.chef_emp_no = leader.employee_no
+        LEFT JOIN common_code grade_code
+               ON leader.grade_code = grade_code.code
+              AND grade_code.parent_code = '102'
+              AND grade_code.use_yn = 'Y'
+        LEFT JOIN common_code position_code
+               ON leader.position_code = position_code.code
+              AND position_code.parent_code = '103'
+              AND position_code.use_yn = 'Y'
+        WHERE parent_dept.dept_cd = 'D000001'
+          AND parent_dept.use_yn = 'Y'
+    </select>
+
+    <select id="selectServiceGroups" parameterType="map" resultMap="serviceGroupGroupResultMap">
+        SELECT
+            child.dept_cd AS dept_code,
+            child.dept_nm AS title,
+            CASE child.dept_cd
+                WHEN 'D000003' THEN '헌금과 회계, 집행 내역을 정리하고 교회 재정 흐름을 안정적으로 관리합니다.'
+                WHEN 'D000004' THEN '지역 전도와 복음 나눔, 전도 행사 지원을 통해 공동체의 외연을 넓히는 사역입니다.'
+                WHEN 'D000005' THEN '예배와 행사 시 차량 운행과 이동 지원을 맡아 성도들의 참여를 돕습니다.'
+                WHEN 'D000006' THEN '교회 행사와 상시 운영에 필요한 현장 지원과 봉사 인력 조정을 담당합니다.'
+                WHEN 'D000007' THEN '새가족 맞이와 초기 정착을 도우며 공동체 연결을 지원합니다.'
+                WHEN 'D000008' THEN '예배 찬양과 음악 사역을 준비하며 예배 흐름을 섬깁니다.'
+                ELSE COALESCE(NULLIF(child.remark, ''), child.dept_nm || ' 소개')
+            END AS description,
+            leader.name_ko AS leader_name,
+            COALESCE(leader_grade.code_name, leader_position.code_name, leader.extra_attributes ->> 'role', '부서장') AS leader_role,
+            CASE WHEN leader.grade_code IS NOT NULL THEN leader.name_ko END AS pastor_name,
+            CASE WHEN leader.position_code IN ('103-010', '103-020', '103-030') THEN leader.name_ko END AS elder_name
+        FROM hrm_org_dept child
+        JOIN hrm_org_dept parent
+          ON child.parent_dept_key = parent.dept_key
+        LEFT JOIN hrm_person leader
+               ON child.chef_emp_no = leader.employee_no
+        LEFT JOIN common_code leader_grade
+               ON leader.grade_code = leader_grade.code
+              AND leader_grade.parent_code = '102'
+              AND leader_grade.use_yn = 'Y'
+        LEFT JOIN common_code leader_position
+               ON leader.position_code = leader_position.code
+              AND leader_position.parent_code = '103'
+              AND leader_position.use_yn = 'Y'
+        WHERE parent.dept_cd = #{parentDeptCd}
+          AND child.use_yn = 'Y'
+        ORDER BY child.dept_cd
+    </select>
+
+    <select id="selectServiceMembers" parameterType="map" resultMap="serviceGroupMemberResultMap">
+        SELECT
+            person.name_ko AS name,
+            CASE
+                WHEN person.employee_no = dept.chef_emp_no THEN '부서장'
+                ELSE COALESCE(member_position.code_name, member_grade.code_name, person.extra_attributes ->> 'role', '팀원')
+            END AS role,
+            CASE
+                WHEN person.employee_no = dept.chef_emp_no THEN COALESCE(person.ai_profile ->> 'summary', dept.dept_nm || ' 총괄')
+                ELSE COALESCE(person.ai_profile ->> 'summary', person.extra_attributes ->> 'role', '부서 사역 참여')
+            END AS summary
+        FROM hrm_person person
+        JOIN hrm_org_dept dept
+          ON person.dept_cd = dept.dept_cd
+        LEFT JOIN common_code member_grade
+               ON person.grade_code = member_grade.code
+              AND member_grade.parent_code = '102'
+              AND member_grade.use_yn = 'Y'
+        LEFT JOIN common_code member_position
+               ON person.position_code = member_position.code
+              AND member_position.parent_code = '103'
+              AND member_position.use_yn = 'Y'
+        WHERE person.dept_cd = #{deptCode}
+          AND person.service_status_code = '101-010'
+        ORDER BY
+            CASE WHEN person.employee_no = dept.chef_emp_no THEN 0 ELSE 1 END,
+            COALESCE(member_grade.sort_order, member_position.sort_order, 9999),
+            person.employee_no
     </select>
 
     <insert id="insertServiceGroup" parameterType="com.main.app.official.training.servicegroup.dto.ServiceGroupRequest">

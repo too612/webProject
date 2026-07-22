@@ -4,12 +4,47 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.about.people.PeopleMapper">
 
-    <!-- TODO: People 전용 테이블 확정 후 SQL 교체 -->
-    <select id="selectPeople" resultType="com.main.app.official.about.people.dto.PeopleDto">
+    <select id="selectPeopleMembers" resultType="com.main.app.official.about.people.dto.PeopleMemberRowDto">
         SELECT
-            1::BIGINT AS id,
-            'People' AS title,
-            'People content template' AS content
+            hp.employee_no AS employeeNo,
+            hp.name_ko AS nameKo,
+            hp.grade_code AS gradeCode,
+            cg.code_name AS gradeName,
+            hp.position_code AS positionCode,
+            COALESCE(cp.code_name, cg.code_name) AS positionName,
+            ce.code_name AS employmentTypeName,
+            cs.code_name AS serviceStatusName,
+            hp.profile_photo_url AS profilePhotoUrl,
+            hp.photo_url AS photoUrl,
+            hp.ai_profile ->> 'summary' AS aiSummary,
+            hd.dept_nm AS deptName,
+            COALESCE(hp.extra_attributes ->> 'role', cp.code_name, cg.code_name) AS dutyName,
+            hp.hire_date AS hireDate
+        FROM hrm_person hp
+        LEFT JOIN common_code cg
+               ON hp.grade_code = cg.code
+              AND cg.parent_code = '102'
+              AND cg.use_yn = 'Y'
+        LEFT JOIN common_code cp
+               ON hp.position_code = cp.code
+              AND cp.parent_code = '103'
+              AND cp.use_yn = 'Y'
+        LEFT JOIN common_code ce
+               ON hp.employment_type_code = ce.code
+              AND ce.parent_code = '104'
+              AND ce.use_yn = 'Y'
+        LEFT JOIN common_code cs
+               ON hp.service_status_code = cs.code
+              AND cs.parent_code = '101'
+              AND cs.use_yn = 'Y'
+          LEFT JOIN hrm_org_dept hd
+               ON hp.dept_cd = hd.dept_cd
+              AND hd.use_yn = 'Y'
+          WHERE hp.grade_code IS NOT NULL
+          AND hp.service_status_code = '101-010'
+        ORDER BY
+            COALESCE(cg.sort_order, 9999),
+            hp.employee_no
     </select>
 
     <insert id="insertPeople" parameterType="com.main.app.official.about.people.dto.PeopleRequest">
