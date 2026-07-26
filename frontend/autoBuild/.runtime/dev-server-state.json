@@ -1,9 +1,9 @@
 ﻿{
-    "frontendPid":  26092,
-    "backendWatchPid":  28528,
+    "frontendPid":  24360,
+    "backendWatchPid":  24600,
     "projectRoot":  "C:\\privWork\\workspace\\webProject",
     "frontendPort":  5173,
-    "backendPid":  19208,
+    "backendPid":  25064,
     "backendPort":  8080,
-    "startedAt":  "2026-07-23T05:36:30"
+    "startedAt":  "2026-07-26T16:00:11"
 }

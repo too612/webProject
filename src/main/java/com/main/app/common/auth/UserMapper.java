@@ -1,8 +1,12 @@
 package com.main.app.common.auth;
 
 import com.main.app.common.auth.dto.UserDto;
+import com.main.app.common.auth.dto.TermsPolicyDto;
+import com.main.app.common.auth.dto.UserTermsConsentDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -30,6 +34,24 @@ public interface UserMapper {
      * @return 사용자 정보
      */
     UserDto selectUserByEmail(@Param("email") String email);
+
+    /**
+     * 이름과 이메일로 사용자 정보 조회
+     *
+     * @param userName 사용자 이름
+     * @param email 이메일
+     * @return 사용자 정보
+     */
+    UserDto selectUserByNameAndEmail(@Param("userName") String userName, @Param("email") String email);
+
+    /**
+     * 사용자 ID와 이메일로 사용자 정보 조회
+     *
+     * @param userId 사용자 ID
+     * @param email 이메일
+     * @return 사용자 정보
+     */
+    UserDto selectUserByUserIdAndEmail(@Param("userId") String userId, @Param("email") String email);
 
     /**
      * 사용자 ID 중복 체크
@@ -106,4 +128,27 @@ public interface UserMapper {
      * @param password 새 비밀번호 (암호화된)
      */
     void updatePassword(@Param("userId") String userId, @Param("password") String password);
+
+    /**
+     * 활성 약관 버전 조회
+     *
+     * @param termsType 약관 타입 (TERMS, PRIVACY, MARKETING)
+     * @return 활성 약관 버전
+     */
+    String selectActiveTermsVersion(@Param("termsType") String termsType);
+
+    /**
+     * 사용자 약관 동의 이력 저장
+     *
+     * @param consent 동의 이력 정보
+     * @return 저장된 행 수
+     */
+    int insertUserTermsConsent(UserTermsConsentDto consent);
+
+    /**
+     * 활성 약관 목록 조회
+     *
+     * @return 약관 목록
+     */
+    List<TermsPolicyDto> selectActiveTermsPolicies();
 }

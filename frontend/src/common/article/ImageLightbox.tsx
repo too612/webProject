@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { ArticleItem } from "./ArticleModel";
 
 interface ImageLightboxProps {
@@ -16,7 +16,6 @@ export function ImageLightbox({
 }: Readonly<ImageLightboxProps>) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [dragStartX, setDragStartX] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 키보드 이벤트 (ESC, 좌/우 화살표)
@@ -96,16 +95,11 @@ export function ImageLightbox({
   // 드래그/스와이프 (PC + 모바일)
   const handlePointerDown = (e: React.PointerEvent) => {
     setDragStartX(e.clientX);
-    setIsDragging(false);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
+  const handlePointerMove = (_e: React.PointerEvent) => {
     if (dragStartX === null) return;
-    const diff = Math.abs(e.clientX - dragStartX);
-    if (diff > 10) {
-      setIsDragging(true);
-    }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -119,7 +113,6 @@ export function ImageLightbox({
       }
     }
     setDragStartX(null);
-    setIsDragging(false);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
@@ -127,7 +120,6 @@ export function ImageLightbox({
     const touch = e.touches[0];
     if (touch) {
       setDragStartX(touch.clientX);
-      setIsDragging(false);
     }
   };
 
@@ -147,7 +139,6 @@ export function ImageLightbox({
       }
     }
     setDragStartX(null);
-    setIsDragging(false);
   };
 
   const handleContentClick = (e: React.MouseEvent) => {

@@ -1,17 +1,21 @@
-import React, { useEffect } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useArticle } from "./ArticleHook";
-import { useAttachment } from "../../common/attachment";
-import { attachmentApi } from "../../common/attachment";
+import { attachmentApi, useAttachment } from "../../common/attachment";
 import { getArticleTemplateConfig } from "./config";
 import {
   WriteLayout,
   CommonFields,
   MetaFieldsBlock,
-  EditorBlock,
   AttachmentBlock,
   PasswordFields,
 } from "./blocks";
+
+const EditorBlock = lazy(() =>
+  import("./blocks/EditorBlock").then((module) => ({
+    default: module.EditorBlock,
+  })),
+);
 
 export function ArticleWrite({
   templateCode,
@@ -249,11 +253,21 @@ export function ArticleWrite({
       )}
 
       {features.useEditor && (
-        <EditorBlock
-          value={form.content}
-          onChange={(v: string) => setForm((prev) => ({ ...prev, content: v }))}
-          onImageUpload={handleImageUpload}
-        />
+        <Suspense
+          fallback={
+            <div className="py-10 text-sm text-slate-400">
+              에디터를 불러오는 중...
+            </div>
+          }
+        >
+          <EditorBlock
+            value={form.content}
+            onChange={(v: string) =>
+              setForm((prev) => ({ ...prev, content: v }))
+            }
+            onImageUpload={handleImageUpload}
+          />
+        </Suspense>
       )}
 
       {showAttachment && (

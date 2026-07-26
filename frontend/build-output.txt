@@ -1,0 +1,135 @@
+
+> webproject-frontend@0.1.0 build
+> tsc -b && vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 2038 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                             [39m[1m[2m  0.78 kB[22m[1m[22m[2m │ gzip:   0.47 kB[22m
+[2mdist/[22m[35massets/index-CJMZz6JE.css              [39m[1m[2m153.35 kB[22m[1m[22m[2m │ gzip:  28.66 kB[22m
+[2mdist/[22m[36massets/noticeWrite-CDuqWuhM.js         [39m[1m[2m  0.39 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
+[2mdist/[22m[36massets/sermonsWrite-D7lppbwS.js        [39m[1m[2m  0.39 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
+[2mdist/[22m[36massets/bulletinWrite-NaER1gBf.js       [39m[1m[2m  0.40 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/[22m[36massets/youthWrite-CrUjQEVJ.js          [39m[1m[2m  0.40 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/[22m[36massets/schoolWrite-3s3fUWZy.js         [39m[1m[2m  0.40 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/[22m[36massets/outreachWrite-SX8Y6s1d.js       [39m[1m[2m  0.41 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/[22m[36massets/bannerWrite-DEwBuziC.js         [39m[1m[2m  0.43 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[2mdist/[22m[36massets/galleryList-OjSUbwxB.js         [39m[1m[2m  0.44 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[2mdist/[22m[36massets/galleryWrite-BUWZQ0ND.js        [39m[1m[2m  0.46 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[2mdist/[22m[36massets/galleryView-B2dQKgwo.js         [39m[1m[2m  0.48 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/[22m[36massets/noticeView-BEZCxmIE.js          [39m[1m[2m  0.48 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/[22m[36massets/sermonsView-D9rcBced.js         [39m[1m[2m  0.48 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/[22m[36massets/bulletinView-B2hkoMCR.js        [39m[1m[2m  0.49 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/[22m[36massets/youthView-ChvThGqI.js           [39m[1m[2m  0.49 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/[22m[36massets/schoolView-DgVrjaL7.js          [39m[1m[2m  0.49 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/[22m[36massets/outreachView-BdEy-7PR.js        [39m[1m[2m  0.50 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[2mdist/[22m[36massets/noticeList-Bz8RTwLW.js          [39m[1m[2m  0.51 kB[22m[1m[22m[2m │ gzip:   0.39 kB[22m
+[2mdist/[22m[36massets/EditorBlock-CizZ0sIo.js         [39m[1m[2m  0.61 kB[22m[1m[22m[2m │ gzip:   0.41 kB[22m
+[2mdist/[22m[36massets/editorViewer-CsjHwW_2.js        [39m[1m[2m  0.70 kB[22m[1m[22m[2m │ gzip:   0.50 kB[22m
+[2mdist/[22m[36massets/sermonsList-DCdGu6DG.js         [39m[1m[2m  0.90 kB[22m[1m[22m[2m │ gzip:   0.60 kB[22m
+[2mdist/[22m[36massets/dashboardPage-Dj4CDUMZ.js       [39m[1m[2m  1.70 kB[22m[1m[22m[2m │ gzip:   1.02 kB[22m
+[2mdist/[22m[36massets/activityPage-CNm3RRWV.js        [39m[1m[2m  1.90 kB[22m[1m[22m[2m │ gzip:   0.98 kB[22m
+[2mdist/[22m[36massets/ministryPage-JsB1cagR.js        [39m[1m[2m  2.13 kB[22m[1m[22m[2m │ gzip:   1.07 kB[22m
+[2mdist/[22m[36massets/bannerList-BN6R6x1r.js          [39m[1m[2m  2.19 kB[22m[1m[22m[2m │ gzip:   1.07 kB[22m
+[2mdist/[22m[36massets/attendancePage-v-ZCu4tg.js      [39m[1m[2m  2.25 kB[22m[1m[22m[2m │ gzip:   1.10 kB[22m
+[2mdist/[22m[36massets/inquiryPage-CSz0LWPf.js         [39m[1m[2m  2.43 kB[22m[1m[22m[2m │ gzip:   1.09 kB[22m
+[2mdist/[22m[36massets/offeringPage-BFGphT_m.js        [39m[1m[2m  2.47 kB[22m[1m[22m[2m │ gzip:   1.15 kB[22m
+[2mdist/[22m[36massets/healthPage-4EoeXtHW.js          [39m[1m[2m  2.51 kB[22m[1m[22m[2m │ gzip:   1.37 kB[22m
+[2mdist/[22m[36massets/worshipTimePage-DBdkXclU.js     [39m[1m[2m  2.71 kB[22m[1m[22m[2m │ gzip:   1.38 kB[22m
+[2mdist/[22m[36massets/profilePage-nUdlVumG.js         [39m[1m[2m  2.85 kB[22m[1m[22m[2m │ gzip:   1.31 kB[22m
+[2mdist/[22m[36massets/notificationsPage-BtRuTo_G.js   [39m[1m[2m  3.14 kB[22m[1m[22m[2m │ gzip:   1.47 kB[22m
+[2mdist/[22m[36massets/economicPage-LFW6_59E.js        [39m[1m[2m  3.16 kB[22m[1m[22m[2m │ gzip:   1.35 kB[22m
+[2mdist/[22m[36massets/mypageIndexPage-C8XEmKo1.js     [39m[1m[2m  3.19 kB[22m[1m[22m[2m │ gzip:   1.49 kB[22m
+[2mdist/[22m[36massets/calendarPage-68h0Hkwh.js        [39m[1m[2m  3.24 kB[22m[1m[22m[2m │ gzip:   1.62 kB[22m
+[2mdist/[22m[36massets/christianPage-zYL6rkIP.js       [39m[1m[2m  3.31 kB[22m[1m[22m[2m │ gzip:   1.57 kB[22m
+[2mdist/[22m[36massets/systemIndexPage-BA4X1WuY.js     [39m[1m[2m  3.33 kB[22m[1m[22m[2m │ gzip:   1.62 kB[22m
+[2mdist/[22m[36massets/writePage-Db5TH2oe.js           [39m[1m[2m  3.38 kB[22m[1m[22m[2m │ gzip:   1.23 kB[22m
+[2mdist/[22m[36massets/calendarPage-DvFjOBVt.js        [39m[1m[2m  3.41 kB[22m[1m[22m[2m │ gzip:   1.44 kB[22m
+[2mdist/[22m[36massets/b2Page-BflwGTXz.js              [39m[1m[2m  3.51 kB[22m[1m[22m[2m │ gzip:   1.47 kB[22m
+[2mdist/[22m[36massets/a1Page-xPEdbKp7.js              [39m[1m[2m  3.51 kB[22m[1m[22m[2m │ gzip:   1.48 kB[22m
+[2mdist/[22m[36massets/passwordPage-D_Alsr3p.js        [39m[1m[2m  3.53 kB[22m[1m[22m[2m │ gzip:   1.29 kB[22m
+[2mdist/[22m[36massets/withdrawPage-Ck-SQRuA.js        [39m[1m[2m  3.67 kB[22m[1m[22m[2m │ gzip:   1.66 kB[22m
+[2mdist/[22m[36massets/prayerPage-BTSuTAZW.js          [39m[1m[2m  3.97 kB[22m[1m[22m[2m │ gzip:   1.81 kB[22m
+[2mdist/[22m[36massets/historyPage-Ihf3l9uJ.js         [39m[1m[2m  4.08 kB[22m[1m[22m[2m │ gzip:   1.78 kB[22m
+[2mdist/[22m[36massets/menuPage-B8srBpmw.js            [39m[1m[2m  4.12 kB[22m[1m[22m[2m │ gzip:   1.77 kB[22m
+[2mdist/[22m[36massets/reportPage-B0x5KKFS.js          [39m[1m[2m  4.14 kB[22m[1m[22m[2m │ gzip:   1.56 kB[22m
+[2mdist/[22m[36massets/rolePage-BLZKdly9.js            [39m[1m[2m  4.21 kB[22m[1m[22m[2m │ gzip:   1.78 kB[22m
+[2mdist/[22m[36massets/loginPage-B4DVs-jD.js           [39m[1m[2m  4.28 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/salesPage-BGNPvgzW.js           [39m[1m[2m  4.28 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/familyPage-Bsv-6Aqt.js          [39m[1m[2m  4.28 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/diningPage-DXI8qwFI.js          [39m[1m[2m  4.29 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/prayPage-C2oGmp46.js            [39m[1m[2m  4.30 kB[22m[1m[22m[2m │ gzip:   1.86 kB[22m
+[2mdist/[22m[36massets/jobPage-cWcmyRNy.js             [39m[1m[2m  4.30 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/managerPage-puLANdEs.js         [39m[1m[2m  4.32 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/policyPage-y8W5GYIG.js          [39m[1m[2m  4.39 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/noticePage-w9SgsjFn.js          [39m[1m[2m  4.40 kB[22m[1m[22m[2m │ gzip:   1.86 kB[22m
+[2mdist/[22m[36massets/messagePage-DIZhXv4w.js         [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/changePage-ETw-tdFj.js          [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/prayerPage-D4TVOnhP.js          [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.86 kB[22m
+[2mdist/[22m[36massets/managerPage-BBTbuhas.js         [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/applyPage-DCaPX7WG.js           [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.86 kB[22m
+[2mdist/[22m[36massets/completePage-BwzlNoyG.js        [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.86 kB[22m
+[2mdist/[22m[36massets/reportPage-BfVVrzsm.js          [39m[1m[2m  4.41 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/studentPage-FL9HaSLi.js         [39m[1m[2m  4.42 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/managerPage-BcRePjZv.js         [39m[1m[2m  4.42 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/[22m[36massets/newsletterPage-Ce8M-eax.js      [39m[1m[2m  4.42 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/orderPage-JKiPho5f.js           [39m[1m[2m  4.42 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/departmentPage-B3kiMpTy.js      [39m[1m[2m  4.42 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/districtPage-DlWkwmyo.js        [39m[1m[2m  4.43 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/inputPage-zIJCtlvy.js           [39m[1m[2m  4.43 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/participantPage-3oVKDtja.js     [39m[1m[2m  4.43 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/newcomerPage-D4YKk9cE.js        [39m[1m[2m  4.44 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/managerPage-BlO241AM.js         [39m[1m[2m  4.44 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/volunteerPage-Cgf7ui53.js       [39m[1m[2m  4.44 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/expensePage-RnIZW8e6.js         [39m[1m[2m  4.44 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/resultPage-CQwiVGfV.js          [39m[1m[2m  4.44 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/budgetPage-CSwYh9oN.js          [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/coursePage-CkG79cGh.js          [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/vehiclePage-HXov7KQp.js         [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/minutesPage-DOmc4qCa.js         [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/archivePage-Yd3uxXB6.js         [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[2mdist/[22m[36massets/certificatePage-BQlao94n.js     [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/schedulePage-C2DtmZxT.js        [39m[1m[2m  4.45 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/archivePage-CLGSlkNO.js         [39m[1m[2m  4.46 kB[22m[1m[22m[2m │ gzip:   1.91 kB[22m
+[2mdist/[22m[36massets/approvalPage-CIcB7EXi.js        [39m[1m[2m  4.47 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/attendancePage-ethHkE8_.js      [39m[1m[2m  4.48 kB[22m[1m[22m[2m │ gzip:   1.91 kB[22m
+[2mdist/[22m[36massets/attendancePage-DygaMgcx.js      [39m[1m[2m  4.49 kB[22m[1m[22m[2m │ gzip:   1.90 kB[22m
+[2mdist/[22m[36massets/inventoryPage-ye8s6_-z.js       [39m[1m[2m  4.50 kB[22m[1m[22m[2m │ gzip:   1.91 kB[22m
+[2mdist/[22m[36massets/reservationPage-uNwoS4yD.js     [39m[1m[2m  4.50 kB[22m[1m[22m[2m │ gzip:   1.90 kB[22m
+[2mdist/[22m[36massets/maintenancePage-_y1Xn8Ur.js     [39m[1m[2m  4.52 kB[22m[1m[22m[2m │ gzip:   1.91 kB[22m
+[2mdist/[22m[36massets/cellGroupPage-yD_yluiN.js       [39m[1m[2m  4.60 kB[22m[1m[22m[2m │ gzip:   1.73 kB[22m
+[2mdist/[22m[36massets/systemPage-1-x-_456.js          [39m[1m[2m  4.78 kB[22m[1m[22m[2m │ gzip:   2.04 kB[22m
+[2mdist/[22m[36massets/auditPage-CA2JdHUE.js           [39m[1m[2m  4.81 kB[22m[1m[22m[2m │ gzip:   2.05 kB[22m
+[2mdist/[22m[36massets/bulletinList-BSTdC6zN.js        [39m[1m[2m  4.86 kB[22m[1m[22m[2m │ gzip:   2.12 kB[22m
+[2mdist/[22m[36massets/managerPage-Dm3NhyZC.js         [39m[1m[2m  4.98 kB[22m[1m[22m[2m │ gzip:   2.09 kB[22m
+[2mdist/[22m[36massets/codePage-D5l-8Q7W.js            [39m[1m[2m  4.98 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[2mdist/[22m[36massets/livePage-B9VaB0M3.js            [39m[1m[2m  5.35 kB[22m[1m[22m[2m │ gzip:   2.15 kB[22m
+[2mdist/[22m[36massets/outreachPage-B8IHi71N.js        [39m[1m[2m  5.70 kB[22m[1m[22m[2m │ gzip:   3.02 kB[22m
+[2mdist/[22m[36massets/missionPage-BljPOFpG.js         [39m[1m[2m  6.04 kB[22m[1m[22m[2m │ gzip:   3.08 kB[22m
+[2mdist/[22m[36massets/peoplePage-83cPByo8.js          [39m[1m[2m  6.24 kB[22m[1m[22m[2m │ gzip:   3.05 kB[22m
+[2mdist/[22m[36massets/youthPage-Bat4ry1_.js           [39m[1m[2m  6.37 kB[22m[1m[22m[2m │ gzip:   2.34 kB[22m
+[2mdist/[22m[36massets/schoolPage-Dqb7r9lU.js          [39m[1m[2m  6.46 kB[22m[1m[22m[2m │ gzip:   1.83 kB[22m
+[2mdist/[22m[36massets/bannerView-B-uxZ-wk.js          [39m[1m[2m  6.59 kB[22m[1m[22m[2m │ gzip:   2.08 kB[22m
+[2mdist/[22m[36massets/erpIndexPage-C-MRbocP.js        [39m[1m[2m  6.68 kB[22m[1m[22m[2m │ gzip:   2.26 kB[22m
+[2mdist/[22m[36massets/coursePage-Cv3YcGuF.js          [39m[1m[2m  6.71 kB[22m[1m[22m[2m │ gzip:   2.95 kB[22m
+[2mdist/[22m[36massets/locationPage-DdwDttW2.js        [39m[1m[2m  7.96 kB[22m[1m[22m[2m │ gzip:   2.75 kB[22m
+[2mdist/[22m[36massets/communityIndexPage-Dxwmoie9.js  [39m[1m[2m  8.49 kB[22m[1m[22m[2m │ gzip:   2.36 kB[22m
+[2mdist/[22m[36massets/historyPage-CsjWrcoz.js         [39m[1m[2m  8.93 kB[22m[1m[22m[2m │ gzip:   3.91 kB[22m
+[2mdist/[22m[36massets/pastorPage-CefNM4ab.js          [39m[1m[2m 10.57 kB[22m[1m[22m[2m │ gzip:   3.61 kB[22m
+[2mdist/[22m[36massets/registerPage-Bvrk2YGQ.js        [39m[1m[2m 11.24 kB[22m[1m[22m[2m │ gzip:   3.36 kB[22m
+[2mdist/[22m[36massets/serviceGroupPage-pKCPtEmH.js    [39m[1m[2m 11.49 kB[22m[1m[22m[2m │ gzip:   4.42 kB[22m
+[2mdist/[22m[36massets/nextstepsPage-B-DWjCMv.js       [39m[1m[2m 13.78 kB[22m[1m[22m[2m │ gzip:   4.41 kB[22m
+[2mdist/[22m[36massets/officialIndexPage-n3sTKFQc.js   [39m[1m[2m 16.59 kB[22m[1m[22m[2m │ gzip:   5.03 kB[22m
+[2mdist/[22m[36massets/ArticleList-KKPPozap.js         [39m[1m[2m 16.94 kB[22m[1m[22m[2m │ gzip:   5.23 kB[22m
+[2mdist/[22m[36massets/editor-ClXu5cuV.js              [39m[1m[2m 19.43 kB[22m[1m[22m[2m │ gzip:   6.07 kB[22m
+[2mdist/[22m[36massets/ArticleView-CSZ79MvD.js         [39m[1m[2m 24.26 kB[22m[1m[22m[2m │ gzip:   6.90 kB[22m
+[2mdist/[22m[36massets/ArticleWrite-BnZFW-eM.js        [39m[1m[2m 31.44 kB[22m[1m[22m[2m │ gzip:   7.49 kB[22m
+[2mdist/[22m[36massets/dnd-vendor-BdK-LCwE.js          [39m[1m[2m 42.77 kB[22m[1m[22m[2m │ gzip:  14.36 kB[22m
+[2mdist/[22m[36massets/index-CfsRopE4.js               [39m[1m[2m 58.72 kB[22m[1m[22m[2m │ gzip:  16.54 kB[22m
+[2mdist/[22m[36massets/attachmentHook-By96Kjp6.js      [39m[1m[2m 72.78 kB[22m[1m[22m[2m │ gzip:  21.15 kB[22m
+[2mdist/[22m[36massets/react-vendor-DksOpxrF.js        [39m[1m[2m256.00 kB[22m[1m[22m[2m │ gzip:  85.81 kB[22m
+[2mdist/[22m[36massets/mui-vendor-DgYsdyYe.js          [39m[1m[2m458.62 kB[22m[1m[22m[2m │ gzip: 136.75 kB[22m
+[2mdist/[22m[36massets/editor-vendor-CDWFRJp3.js       [39m[1m[2m469.26 kB[22m[1m[22m[2m │ gzip: 147.34 kB[22m
+[32m✓ built in 8.82s[39m

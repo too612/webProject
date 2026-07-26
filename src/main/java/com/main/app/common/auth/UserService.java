@@ -1,6 +1,8 @@
 package com.main.app.common.auth;
 
 import com.main.app.common.auth.dto.UserDto;
+import com.main.app.common.auth.dto.TermsPolicyDto;
+import com.main.app.common.auth.dto.UserTermsConsentDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,8 @@ public class UserService {
     private static final int MAX_LOGIN_FAIL_CNT = 5;
     // 계정 잠금 시간 (분)
     private static final int LOCK_TIME_MINUTES = 30;
+    private static final int CONSENT_IP_MAX_LENGTH = 64;
+    private static final int USER_AGENT_MAX_LENGTH = 500;
 
     /**
      * 사용자 ID로 사용자 정보 조회
@@ -53,6 +60,28 @@ public class UserService {
      */
     public UserDto getUserByEmail(String email) {
         return userMapper.selectUserByEmail(email);
+    }
+
+    public UserDto getUserByNameAndEmail(String userName, String email) {
+        return userMapper.selectUserByNameAndEmail(userName, email);
+    }
+
+    public UserDto getUserByUserIdAndEmail(String userId, String email) {
+        return userMapper.selectUserByUserIdAndEmail(userId, email);
+    }
+
+    /**
+     * 활성 약관 목록 조회
+     *
+     * @return 약관 타입별 활성 약관 맵
+     */
+    public Map<String, TermsPolicyDto> getActiveTermsPolicyMap() {
+        List<TermsPolicyDto> policies = userMapper.selectActiveTermsPolicies();
+        Map<String, TermsPolicyDto> result = new LinkedHashMap<>();
+        for (TermsPolicyDto policy : policies) {
+            result.put(policy.getTermsType(), policy);
+        }
+        return result;
     }
 
     /**
@@ -86,7 +115,7 @@ public class UserService {
      * @return 등록 성공 여부
      */
     @Transactional
-    public boolean registerUser(UserDto user) {
+    public boolean registerUser(UserDto user, String consentIp, String userAgent) {
         try {
             // 입력값 검증
             if (user.getUserId() == null || user.getUserId().isEmpty()) {
@@ -120,6 +149,16 @@ public class UserService {
                 user.setGender(null);
             }
 
+            if (user.getPostalCode() != null && user.getPostalCode().trim().isEmpty()) {
+                user.setPostalCode(null);
+            }
+            if (user.getAddressLine1() != null && user.getAddressLine1().trim().isEmpty()) {
+                user.setAddressLine1(null);
+            }
+            if (user.getAddressLine2() != null && user.getAddressLine2().trim().isEmpty()) {
+                user.setAddressLine2(null);
+            }
+
             log.debug("회원가입 입력값 정규화 완료: 약관동의={}, 개인정보동의={}, 마케팅동의={}, 성별={}",
                     user.getAgreeTerms(), user.getAgreePrivacy(), user.getAgreeMarketing(), user.getGender());
 
@@ -127,11 +166,63 @@ public class UserService {
             int result = userMapper.insertUser(user);
             log.debug("회원가입 저장 완료: 저장결과={}", result);
 
+            if (result > 0) {
+                saveConsentHistory(user, consentIp, userAgent);
+            }
+
             return result > 0;
         } catch (Exception e) {
             log.error("회원가입 처리 중 오류 발생", e);
             return false;
         }
+    }
+
+    @Transactional
+    public boolean registerUser(UserDto user) {
+        return registerUser(user, null, null);
+    }
+
+    private void saveConsentHistory(UserDto user, String consentIp, String userAgent) {
+        String normalizedIp = trimToNullAndMax(consentIp, CONSENT_IP_MAX_LENGTH);
+        String normalizedUa = trimToNullAndMax(userAgent, USER_AGENT_MAX_LENGTH);
+
+        insertConsent(user, "TERMS", true, Boolean.TRUE.equals(user.getAgreeTerms()), normalizedIp, normalizedUa);
+        insertConsent(user, "PRIVACY", true, Boolean.TRUE.equals(user.getAgreePrivacy()), normalizedIp, normalizedUa);
+        insertConsent(user, "MARKETING", false, Boolean.TRUE.equals(user.getAgreeMarketing()), normalizedIp, normalizedUa);
+    }
+
+    private void insertConsent(UserDto user, String termsType, boolean isRequired, boolean isAgreed,
+            String consentIp, String userAgent) {
+        String termsVersion = userMapper.selectActiveTermsVersion(termsType);
+        if (termsVersion == null || termsVersion.isBlank()) {
+            throw new IllegalStateException("활성 약관 버전을 찾을 수 없습니다. termsType=" + termsType);
+        }
+
+        UserTermsConsentDto consent = new UserTermsConsentDto();
+        consent.setUserSeq(user.getUserSeq());
+        consent.setTermsType(termsType);
+        consent.setTermsVersion(termsVersion);
+        consent.setIsRequired(isRequired);
+        consent.setIsAgreed(isAgreed);
+        consent.setConsentSource("SIGNUP");
+        consent.setConsentIp(consentIp);
+        consent.setUserAgent(userAgent);
+
+        int inserted = userMapper.insertUserTermsConsent(consent);
+        if (inserted != 1) {
+            throw new IllegalStateException("약관 동의 이력 저장에 실패했습니다. termsType=" + termsType);
+        }
+    }
+
+    private String trimToNullAndMax(String value, int maxLength) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return trimmed.length() > maxLength ? trimmed.substring(0, maxLength) : trimmed;
     }
 
     /**
@@ -273,6 +364,30 @@ public class UserService {
             return true;
         } catch (Exception e) {
             log.error("비밀번호 변경 중 오류 발생. userId={}", userId, e);
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean resetPassword(String userId, String newPassword) {
+        try {
+            String normalizedUserId = userId != null ? userId.trim() : null;
+            if (normalizedUserId == null || normalizedUserId.isEmpty()) {
+                return false;
+            }
+
+            UserDto user = userMapper.selectUserByUserId(normalizedUserId);
+            if (user == null) {
+                return false;
+            }
+
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            userMapper.updatePassword(normalizedUserId, encodedPassword);
+            userMapper.resetLoginFailCnt(normalizedUserId);
+
+            return true;
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 중 오류 발생. userId={}", userId, e);
             return false;
         }
     }

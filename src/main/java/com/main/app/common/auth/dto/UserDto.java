@@ -10,6 +10,9 @@ public class UserDto {
     private String userName; // 사용자 이름
     private String email; // 이메일
     private String phone; // 전화번호
+    private String postalCode; // 우편번호
+    private String addressLine1; // 기본 주소
+    private String addressLine2; // 상세 주소
     private LocalDate birthDate; // 생년월일
     private String gender; // 성별 (M: 남성, F: 여성)
     private String status; // 계정 상태 (A: 활성, I: 비활성, D: 삭제)
@@ -68,6 +71,30 @@ public class UserDto {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
     }
 
     public LocalDate getBirthDate() {

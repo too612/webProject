@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useArticle } from "./ArticleHook";
 import { getArticleTemplateConfig } from "./config";
@@ -199,7 +199,6 @@ export function ArticleView({
 
   // ★ 이미지 전용 모드 (주보)
   const isImageOnlyMode = config.view.imageOnly?.enabled || false;
-  const imageOnlyTitle = config.view.imageOnly?.showTitle !== false;
 
   if (viewLoading) return <LoadingSpinner text="게시글을 불러오는 중..." />;
   if (viewError)
@@ -354,7 +353,9 @@ export function ArticleView({
                 {resolvedViews}회
               </div>
             </div>
-            {viewConfig?.showStatusBadge !== false && <StatusBadge commentCount={commentCount} />}
+            {viewConfig?.showStatusBadge !== false && (
+              <StatusBadge commentCount={commentCount} />
+            )}
           </div>
         </header>
 

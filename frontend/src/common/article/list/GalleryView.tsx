@@ -1,4 +1,3 @@
-import React from "react";
 import type { ArticleItem } from "../ArticleModel";
 import type { ArticleTemplateConfig } from "../config";
 import {
@@ -120,10 +119,12 @@ function SortableCard({
               <span className="material-icons text-6xl">image</span>
             </div>
           )}
-          {showCardIndex && (<div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded z-20">
-            #{index + 1}
-          </div>)}
-          </div>
+          {showCardIndex && (
+            <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded z-20">
+              #{index + 1}
+            </div>
+          )}
+        </div>
         <div className="p-3">
           <div className="flex items-center justify-between">
             <h3
@@ -135,7 +136,8 @@ function SortableCard({
             <div className="flex items-center gap-1 shrink-0">
               {isSlide && onReorder && (
                 <>
-                  <button type="button"
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMoveUp();
@@ -148,7 +150,8 @@ function SortableCard({
                   >
                     <span className="material-icons text-sm">arrow_back</span>
                   </button>
-                  <button type="button"
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleMoveDown();
@@ -168,45 +171,51 @@ function SortableCard({
                 </>
               )}
               {onEditClick && (
-              <button type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEditClick(item);
-                }}
-                className="text-slate-400 hover:text-brand-primary"
-                title="수정"
-              >
-                <span className="material-icons text-sm">edit</span>
-              </button>)}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditClick(item);
+                  }}
+                  className="text-slate-400 hover:text-brand-primary"
+                  title="수정"
+                >
+                  <span className="material-icons text-sm">edit</span>
+                </button>
+              )}
               {onDeleteClick && (
-              <button type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteClick(item);
-                }}
-                className="text-slate-400 hover:text-red-500"
-                title="삭제"
-              >
-                <span className="material-icons text-sm">delete</span>
-              </button>)}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick(item);
+                  }}
+                  className="text-slate-400 hover:text-red-500"
+                  title="삭제"
+                >
+                  <span className="material-icons text-sm">delete</span>
+                </button>
+              )}
             </div>
           </div>
-{showCardTypeLabel && (          <div className="flex items-center gap-2 mt-1">
-            <span
-              className={`text-xs px-2 py-0.5 rounded ${
-                isSlide
-                  ? "bg-blue-50 text-blue-600"
-                  : "bg-purple-50 text-purple-600"
-              }`}
-            >
-              {isSlide ? "슬라이드" : "팝업"}
-            </span>
-            {isSlide && onReorder && (
-              <span className="text-xs text-slate-400">
-                순서: {index + 1}/{slideCount}
+          {showCardTypeLabel && (
+            <div className="flex items-center gap-2 mt-1">
+              <span
+                className={`text-xs px-2 py-0.5 rounded ${
+                  isSlide
+                    ? "bg-blue-50 text-blue-600"
+                    : "bg-purple-50 text-purple-600"
+                }`}
+              >
+                {isSlide ? "슬라이드" : "팝업"}
               </span>
-            )}
-          </div>)}
+              {isSlide && onReorder && (
+                <span className="text-xs text-slate-400">
+                  순서: {index + 1}/{slideCount}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -241,7 +250,14 @@ export function GalleryView({
     );
   }
 
-  const cardConfig = config.list.cardConfig || { aspectRatio: "4:3" };
+  const cardConfig = config.list.cardConfig || {
+    aspectRatio: "4:3",
+    imageField: "thumbnail_file_id",
+    titleField: "title",
+    showDescription: false,
+    showCardIndex: true,
+    showCardTypeLabel: true,
+  };
   const aspectRatioClass =
     cardConfig.aspectRatio === "square" ? "aspect-square" : "aspect-[4/3]";
 

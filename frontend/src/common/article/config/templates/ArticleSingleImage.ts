@@ -42,6 +42,7 @@ export const ARTICLE_SINGLE_IMAGE_CONFIG: ArticleTemplateConfig = {
     showComment: false,
     commentSort: "latest",
     showMetaFields: false,
+    showStatusBadge: false,
     metaLayout: "inline",
     buttons: {
       list: { id: "btn_list", label: "목록", visible: true },

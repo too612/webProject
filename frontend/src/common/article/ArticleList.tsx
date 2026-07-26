@@ -1,6 +1,5 @@
-import React, { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { DataGrid } from "../../common/grid";
 import type { GridColumnDef } from "../../common/grid";
 import { useArticle } from "./ArticleHook";
 import { getArticleTemplateConfig } from "./config";
@@ -21,7 +20,82 @@ interface ArticleListProps {
   onReorderSlides?: (items: any[]) => void;
   enableDragDrop?: boolean;
   refreshKey?: number;
-  headerExtra?: React.ReactNode;
+  headerExtra?: ReactNode;
+}
+
+type BasicCellParams = {
+  data: any;
+  value: unknown;
+  node: {
+    rowIndex: number;
+  };
+};
+
+function getBasicCellParams(
+  column: GridColumnDef,
+  row: any,
+  rowIndex: number,
+): BasicCellParams {
+  const field = typeof column.field === "string" ? column.field : undefined;
+  const baseValue = field ? row?.[field] : undefined;
+  const value =
+    typeof column.valueGetter === "function"
+      ? column.valueGetter({
+          data: row,
+          value: baseValue,
+          node: { rowIndex },
+        } as any)
+      : baseValue;
+
+  return {
+    data: row,
+    value,
+    node: { rowIndex },
+  };
+}
+
+function getColumnClassName(
+  className: GridColumnDef["cellClass"] | GridColumnDef["headerClass"],
+  params: BasicCellParams,
+): string {
+  if (typeof className === "function") {
+    const resolvedClassName = className(params as any);
+    return Array.isArray(resolvedClassName)
+      ? resolvedClassName.join(" ")
+      : (resolvedClassName ?? "");
+  }
+
+  return typeof className === "string" ? className : "";
+}
+
+function getColumnStyle(column: GridColumnDef) {
+  if (typeof column.width === "number") {
+    return { width: `${column.width}px`, minWidth: `${column.width}px` };
+  }
+
+  if (typeof column.width === "string") {
+    return { width: column.width, minWidth: column.width };
+  }
+
+  return undefined;
+}
+
+function renderBasicCell(column: GridColumnDef, row: any, rowIndex: number) {
+  const params = getBasicCellParams(column, row, rowIndex);
+
+  if (typeof column.cellRenderer === "function") {
+    return column.cellRenderer(params);
+  }
+
+  if (
+    params.value === null ||
+    params.value === undefined ||
+    params.value === ""
+  ) {
+    return "-";
+  }
+
+  return params.value as ReactNode;
 }
 
 export function ArticleList({
@@ -448,17 +522,73 @@ export function ArticleList({
           </div>
         </div>
 
-        <DataGrid
-          mode="basic"
-          columns={allColumns}
-          rows={items}
-          loading={listLoading}
-          pagination={false}
-          rowHeight={44}
-          totalCount={totalElements}
-          defaultColDef={{ sortable: false, filter: false }}
-          emptyMessage="등록된 게시물이 없습니다."
-        />
+        <div className="overflow-x-auto rounded-md border border-slate-200 bg-white">
+          {items.length > 0 ? (
+            <table className="min-w-full border-collapse text-sm text-slate-700">
+              <thead className="bg-slate-50">
+                <tr>
+                  {allColumns.map((column, columnIndex) => {
+                    const headerParams = getBasicCellParams(column, {}, 0);
+                    const headerClassName = getColumnClassName(
+                      column.headerClass,
+                      headerParams,
+                    );
+
+                    return (
+                      <th
+                        key={String(
+                          column.field ?? column.headerName ?? columnIndex,
+                        )}
+                        className={`border-b border-slate-200 px-3 py-3 text-xs font-semibold text-slate-600 ${headerClassName}`.trim()}
+                        scope="col"
+                        style={getColumnStyle(column)}
+                      >
+                        {column.headerName ?? "-"}
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((row, rowIndex) => (
+                  <tr
+                    key={row.articleId ?? `${row.title ?? "row"}-${rowIndex}`}
+                    className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/80 transition-colors"
+                  >
+                    {allColumns.map((column, columnIndex) => {
+                      const cellParams = getBasicCellParams(
+                        column,
+                        row,
+                        rowIndex,
+                      );
+                      const cellClassName = getColumnClassName(
+                        column.cellClass,
+                        cellParams,
+                      );
+                      const isTitleColumn = column.field === "title";
+
+                      return (
+                        <td
+                          key={String(
+                            column.field ?? column.headerName ?? columnIndex,
+                          )}
+                          className={`px-3 py-3 align-middle ${isTitleColumn ? "" : "whitespace-nowrap"} ${cellClassName}`.trim()}
+                          style={getColumnStyle(column)}
+                        >
+                          {renderBasicCell(column, row, rowIndex)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="flex h-60 items-center justify-center text-sm text-slate-400">
+              등록된 게시물이 없습니다.
+            </div>
+          )}
+        </div>
 
         <div className="sm:hidden flex justify-end">
           {btn.write?.visible !== false && (

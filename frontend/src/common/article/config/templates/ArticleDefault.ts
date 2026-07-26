@@ -42,6 +42,7 @@ export const ARTICLE_DEFAULT_CONFIG: ArticleTemplateConfig = {
     showComment: true,
     commentSort: "latest",
     showMetaFields: true,
+    showStatusBadge: true,
     metaLayout: "card",
     buttons: {
       list: { id: "btn_list", label: "목록", visible: true },

@@ -9,6 +9,9 @@
         <result property="userName" column="user_name"/>
         <result property="email" column="email"/>
         <result property="phone" column="phone"/>
+        <result property="postalCode" column="postal_code"/>
+        <result property="addressLine1" column="address_line1"/>
+        <result property="addressLine2" column="address_line2"/>
         <result property="birthDate" column="birth_date"/>
         <result property="gender" column="gender"/>
         <result property="status" column="status"/>
@@ -21,6 +24,14 @@
         <result property="loginFailCnt" column="login_fail_cnt"/>
         <result property="lockExpireDt" column="lock_expire_dt"/>
     </resultMap>
+
+      <resultMap id="termsPolicyResultMap" type="com.main.app.common.auth.dto.TermsPolicyDto">
+        <result property="termsType" column="terms_type"/>
+        <result property="termsVersion" column="terms_version"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="isRequired" column="is_required"/>
+      </resultMap>
     
     <!-- 사용자 ID로 사용자 정보 조회 -->
     <select id="selectUserByUserId" parameterType="String" resultMap="userResultMap">
@@ -30,6 +41,9 @@
              , user_name
              , email
              , phone
+             , postal_code
+             , address_line1
+             , address_line2
              , birth_date
              , gender
              , status
@@ -54,6 +68,9 @@
              , user_name
              , email
              , phone
+             , postal_code
+             , address_line1
+             , address_line2
              , birth_date
              , gender
              , status
@@ -78,6 +95,9 @@
              , user_name
              , email
              , phone
+             , postal_code
+             , address_line1
+             , address_line2
              , birth_date
              , gender
              , status
@@ -93,6 +113,62 @@
          WHERE email = #{email}
            AND status != 'D'
     </select>
+
+            <!-- 이름 + 이메일로 사용자 정보 조회 -->
+            <select id="selectUserByNameAndEmail" resultMap="userResultMap">
+           SELECT user_seq
+                , user_id
+                , password
+                , user_name
+                , email
+                , phone
+                , postal_code
+                , address_line1
+                , address_line2
+                , birth_date
+                , gender
+                , status
+                , agree_terms
+                , agree_privacy
+                , agree_marketing
+                , ins_dt
+                , upt_dt
+                , last_login_dt
+                , login_fail_cnt
+                , lock_expire_dt
+             FROM users
+            WHERE user_name = #{userName}
+              AND email = #{email}
+              AND status != 'D'
+            </select>
+
+            <!-- 사용자 ID + 이메일로 사용자 정보 조회 -->
+            <select id="selectUserByUserIdAndEmail" resultMap="userResultMap">
+           SELECT user_seq
+                , user_id
+                , password
+                , user_name
+                , email
+                , phone
+                , postal_code
+                , address_line1
+                , address_line2
+                , birth_date
+                , gender
+                , status
+                , agree_terms
+                , agree_privacy
+                , agree_marketing
+                , ins_dt
+                , upt_dt
+                , last_login_dt
+                , login_fail_cnt
+                , lock_expire_dt
+             FROM users
+            WHERE user_id = #{userId}
+              AND email = #{email}
+              AND status != 'D'
+            </select>
     
     <!-- 사용자 ID 중복 체크 -->
     <select id="checkUserIdExists" parameterType="String" resultType="int">
@@ -109,6 +185,31 @@
          WHERE email = #{email}
            AND status != 'D'
     </select>
+
+    <!-- 활성 약관 버전 조회 -->
+    <select id="selectActiveTermsVersion" parameterType="String" resultType="String">
+        SELECT terms_version
+          FROM terms_policy
+         WHERE terms_type = #{termsType}
+           AND is_active = TRUE
+           AND (effective_to IS NULL OR effective_to > NOW())
+         ORDER BY effective_from DESC, terms_id DESC
+         LIMIT 1
+    </select>
+
+          <!-- 활성 약관 목록 조회 -->
+          <select id="selectActiveTermsPolicies" resultMap="termsPolicyResultMap">
+           SELECT DISTINCT ON (terms_type)
+            terms_type,
+            terms_version,
+            title,
+            content,
+            is_required
+          FROM terms_policy
+            WHERE is_active = TRUE
+           AND (effective_to IS NULL OR effective_to > NOW())
+            ORDER BY terms_type, effective_from DESC, terms_id DESC
+          </select>
     
     <!-- 사용자 등록 -->
     <insert id="insertUser" parameterType="com.main.app.common.auth.dto.UserDto" useGeneratedKeys="true" keyProperty="userSeq">
@@ -118,6 +219,9 @@
           , user_name
           , email
           , phone
+          , postal_code
+          , address_line1
+          , address_line2
           , birth_date
           , gender
           , status
@@ -133,6 +237,9 @@
           , #{userName}
           , #{email}
           , #{phone}
+          , #{postalCode}
+          , #{addressLine1}
+          , #{addressLine2}
           , #{birthDate}
           , #{gender}
           , 'A'
@@ -151,6 +258,9 @@
            SET user_name = #{userName}
              , email = #{email}
              , phone = #{phone}
+             , postal_code = #{postalCode}
+             , address_line1 = #{addressLine1}
+             , address_line2 = #{addressLine2}
              , birth_date = #{birthDate}
              , gender = #{gender}
              , upt_dt = NOW()
@@ -202,5 +312,32 @@
              , upt_dt = NOW()
          WHERE user_id = #{userId}
     </update>
+
+    <!-- 사용자 약관 동의 이력 저장 -->
+    <insert id="insertUserTermsConsent" parameterType="com.main.app.common.auth.dto.UserTermsConsentDto">
+        INSERT INTO user_terms_consents (
+            user_seq
+          , terms_type
+          , terms_version
+          , is_required
+          , is_agreed
+          , agreed_at
+          , consent_source
+          , consent_ip
+          , user_agent
+          , created_at
+        ) VALUES (
+            #{userSeq}
+          , #{termsType}
+          , #{termsVersion}
+          , CAST(#{isRequired} AS BOOLEAN)
+          , CAST(#{isAgreed} AS BOOLEAN)
+          , NOW()
+          , #{consentSource}
+          , #{consentIp}
+          , #{userAgent}
+          , NOW()
+        )
+    </insert>
     
 </mapper>

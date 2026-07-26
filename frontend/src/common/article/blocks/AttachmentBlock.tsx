@@ -1,4 +1,3 @@
-import React from "react";
 import { Attachment } from "../../../common/attachment";
 import type { AttachmentFile } from "../ArticleModel";
 

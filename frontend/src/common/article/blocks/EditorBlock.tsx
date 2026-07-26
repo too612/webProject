@@ -1,4 +1,3 @@
-import React from "react";
 import { Editor } from "../../../common/editor";
 
 interface EditorBlockProps {

@@ -5,9 +5,9 @@
  * pastorHook 패턴을 따르며, sermonsModel의 타입을 사용합니다.
  */
 
-import { useCallback, useState, useRef } from 'react';
-import { sermonsApi } from './sermonsApi';
-import type { SermonItem, SermonListItem } from './sermonsModel';
+import { useCallback, useState, useRef } from "react";
+import { sermonsApi } from "./sermonsApi";
+import type { SermonItem } from "./sermonsModel";
 
 /****************************************************************************************************
  * 타입 정의
@@ -20,7 +20,7 @@ export type SermonsListParams = {
   keyword?: string;
   worshipType?: string;
   sortField?: string;
-  sortOrder?: 'ASC' | 'DESC';
+  sortOrder?: "ASC" | "DESC";
 };
 
 /** 작성 폼 상태 */
@@ -64,7 +64,11 @@ export type UseSermonsReturn = {
   setForm: React.Dispatch<React.SetStateAction<SermonsWriteForm>>;
   writeLoading: boolean;
   writeError: string | null;
-  saveBoard: (payload: any, isEdit: boolean, isReply: boolean) => Promise<string | undefined>;
+  saveBoard: (
+    payload: any,
+    isEdit: boolean,
+    isReply: boolean,
+  ) => Promise<string | undefined>;
   resetWriteForm: () => void;
 
   // ===== 공통 =====
@@ -78,16 +82,16 @@ export type UseSermonsReturn = {
  ****************************************************************************************************/
 
 const INITIAL_FORM: SermonsWriteForm = {
-  title: '',
-  author: '',
-  preacherName: '',
-  scriptureReference: '',
-  sermonDate: '',
-  worshipType: 'SUNDAY',
-  content: '',
+  title: "",
+  author: "",
+  preacherName: "",
+  scriptureReference: "",
+  sermonDate: "",
+  worshipType: "SUNDAY",
+  content: "",
   secret: false,
-  password: '',
-  confirmPassword: '',
+  password: "",
+  confirmPassword: "",
 };
 
 /****************************************************************************************************
@@ -125,39 +129,50 @@ export function useSermons(): UseSermonsReturn {
    * 목록 관련 메서드
    ****************************************************************************************************/
 
-  const loadList = useCallback(async (params: Partial<SermonsListParams> = {}) => {
-    const { page: pageParam, searchType, keyword, worshipType, sortField, sortOrder } = params;
-    const currentPage = pageParam ?? page;
-
-    setListLoading(true);
-    setListError(null);
-
-    try {
-      const data = await sermonsApi.getBoardList({
-        page: currentPage,
-        size: 10,
+  const loadList = useCallback(
+    async (params: Partial<SermonsListParams> = {}) => {
+      const {
+        page: pageParam,
         searchType,
         keyword,
         worshipType,
         sortField,
         sortOrder,
-      });
+      } = params;
+      const currentPage = pageParam ?? page;
 
-      setItems(data.items ?? []);
-      setTotalElements(data.totalElements ?? 0);
-      setTotalPages(data.totalPages ?? 0);
-      setPageSize(data.size ?? 10);
-      if (pageParam !== undefined) setPage(pageParam);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '목록을 불러오지 못했습니다.';
-      setListError(message);
-      setItems([]);
-      setTotalElements(0);
-      setTotalPages(0);
-    } finally {
-      setListLoading(false);
-    }
-  }, [page]);
+      setListLoading(true);
+      setListError(null);
+
+      try {
+        const data = await sermonsApi.getBoardList({
+          page: currentPage,
+          size: 10,
+          searchType,
+          keyword,
+          worshipType,
+          sortField,
+          sortOrder,
+        });
+
+        setItems(data.items ?? []);
+        setTotalElements(data.totalElements ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setPageSize(data.size ?? 10);
+        if (pageParam !== undefined) setPage(pageParam);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "목록을 불러오지 못했습니다.";
+        setListError(message);
+        setItems([]);
+        setTotalElements(0);
+        setTotalPages(0);
+      } finally {
+        setListLoading(false);
+      }
+    },
+    [page],
+  );
 
   /****************************************************************************************************
    * 상세 관련 메서드
@@ -176,7 +191,8 @@ export function useSermons(): UseSermonsReturn {
       setBoard(data.board ?? null);
       setCommentCount(data.commentCount ?? 0);
     } catch (err) {
-      const message = err instanceof Error ? err.message : '게시글을 불러오지 못했습니다.';
+      const message =
+        err instanceof Error ? err.message : "게시글을 불러오지 못했습니다.";
       setViewError(message);
       setBoard(null);
       setCommentCount(0);
@@ -186,15 +202,21 @@ export function useSermons(): UseSermonsReturn {
     }
   }, []);
 
-  const checkPassword = useCallback(async (rqstNo: string, password: string): Promise<boolean> => {
-    try {
-      return await sermonsApi.checkPassword(rqstNo, password);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '비밀번호 확인 중 오류가 발생했습니다.';
-      setViewError(message);
-      return false;
-    }
-  }, []);
+  const checkPassword = useCallback(
+    async (rqstNo: string, password: string): Promise<boolean> => {
+      try {
+        return await sermonsApi.checkPassword(rqstNo, password);
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "비밀번호 확인 중 오류가 발생했습니다.";
+        setViewError(message);
+        return false;
+      }
+    },
+    [],
+  );
 
   const deleteBoard = useCallback(async (rqstNo: string) => {
     setViewLoading(true);
@@ -202,7 +224,8 @@ export function useSermons(): UseSermonsReturn {
     try {
       await sermonsApi.deleteBoard(rqstNo);
     } catch (err) {
-      const message = err instanceof Error ? err.message : '삭제 중 오류가 발생했습니다.';
+      const message =
+        err instanceof Error ? err.message : "삭제 중 오류가 발생했습니다.";
       setViewError(message);
       throw err;
     } finally {
@@ -214,34 +237,38 @@ export function useSermons(): UseSermonsReturn {
    * 작성 관련 메서드
    ****************************************************************************************************/
 
-  const saveBoard = useCallback(async (
-    payload: any,
-    isEdit: boolean,
-    _isReply: boolean
-  ): Promise<string | undefined> => {
-    setWriteLoading(true);
-    setWriteError(null);
-    setGlobalLoading(true);
+  const saveBoard = useCallback(
+    async (
+      payload: any,
+      isEdit: boolean,
+      _isReply: boolean,
+    ): Promise<string | undefined> => {
+      setWriteLoading(true);
+      setWriteError(null);
+      setGlobalLoading(true);
 
-    try {
-      let savedRqstNo: string | undefined;
-      if (isEdit) {
-        await sermonsApi.updateBoard(payload);
-        savedRqstNo = payload.rqstNo;
-      } else {
-        const result = await sermonsApi.saveBoard(payload);
-        savedRqstNo = result?.rqstNo ?? payload.rqstNo;
+      try {
+        let savedRqstNo: string | undefined;
+        if (isEdit) {
+          await sermonsApi.updateBoard(payload);
+          savedRqstNo = payload.rqstNo;
+        } else {
+          const result = await sermonsApi.saveBoard(payload);
+          savedRqstNo = result?.rqstNo ?? payload.rqstNo;
+        }
+        return savedRqstNo;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "저장 중 오류가 발생했습니다.";
+        setWriteError(message);
+        throw err;
+      } finally {
+        setWriteLoading(false);
+        setGlobalLoading(false);
       }
-      return savedRqstNo;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '저장 중 오류가 발생했습니다.';
-      setWriteError(message);
-      throw err;
-    } finally {
-      setWriteLoading(false);
-      setGlobalLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   const resetWriteForm = useCallback(() => {
     setForm(INITIAL_FORM);
