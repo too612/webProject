@@ -1,5 +1,10 @@
 import { FormEvent, ReactNode } from "react";
-import { LoadingSpinner, ErrorMessage } from "../../../common/ui";
+import {
+  ActionButton,
+  Button,
+  ErrorMessage,
+  LoadingSpinner,
+} from "../../../common/ui";
 
 interface WriteLayoutProps {
   title: string;
@@ -36,20 +41,10 @@ export function WriteLayout({
             {children}
 
             <div className="flex gap-2 pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-brand-primary text-white rounded-md px-6 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] disabled:opacity-40 transition-colors"
-              >
-                {loading ? "처리 중..." : "저장하기"}
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className="bg-gray-100 text-gray-700 rounded-md px-6 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors"
-              >
+              <ActionButton action="save" type="submit" loading={loading} />
+              <Button type="button" variant="outline" onClick={onCancel}>
                 취소
-              </button>
+              </Button>
             </div>
           </form>
         )}

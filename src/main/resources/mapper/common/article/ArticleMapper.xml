@@ -83,6 +83,9 @@
                 </otherwise>
             </choose>
         </if>
+        <if test="metadataKey != null and metadataKey != '' and metadataValue != null and metadataValue != ''">
+            AND metadata -&gt;&gt; #{metadataKey} = #{metadataValue}
+        </if>
         <choose>
             <when test="sortField != null and sortField != ''">
                 ORDER BY ${sortField} ${sortOrder}
@@ -122,6 +125,9 @@
                     <![CDATA[ AND (title LIKE CONCAT('%', #{keyword}, '%') OR content_text LIKE CONCAT('%', #{keyword}, '%')) ]]>
                 </otherwise>
             </choose>
+        </if>
+        <if test="metadataKey != null and metadataKey != '' and metadataValue != null and metadataValue != ''">
+            AND metadata -&gt;&gt; #{metadataKey} = #{metadataValue}
         </if>
     </select>
 

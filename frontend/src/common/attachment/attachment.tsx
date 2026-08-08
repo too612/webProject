@@ -8,6 +8,21 @@
  */
 
 import { useCallback, useRef, useState } from "react";
+import {
+  Archive,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Image,
+  Monitor,
+  Music,
+  Paperclip,
+  RefreshCw,
+  UploadCloud,
+  Video,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import type { FileWithPath } from "react-dropzone";
 import type { AttachmentProps } from "./attachmentModel";
@@ -21,19 +36,19 @@ const formatSize = (bytes?: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const fileIcon = (name?: string): string => {
+const fileIcon = (name?: string): LucideIcon => {
   const ext = name?.split(".").pop()?.toLowerCase() ?? "";
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
-    return "image";
-  if (["mp4", "avi", "mov", "mkv", "webm"].includes(ext)) return "movie";
-  if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "audiotrack";
-  if (ext === "pdf") return "picture_as_pdf";
-  if (["doc", "docx", "hwp", "hwpx"].includes(ext)) return "article";
-  if (["xls", "xlsx"].includes(ext)) return "table_chart";
-  if (["ppt", "pptx"].includes(ext)) return "slideshow";
-  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "folder_zip";
-  if (["txt", "md"].includes(ext)) return "text_snippet";
-  return "attach_file";
+    return Image;
+  if (["mp4", "avi", "mov", "mkv", "webm"].includes(ext)) return Video;
+  if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return Music;
+  if (ext === "pdf") return FileText;
+  if (["doc", "docx", "hwp", "hwpx"].includes(ext)) return FileText;
+  if (["xls", "xlsx"].includes(ext)) return FileSpreadsheet;
+  if (["ppt", "pptx"].includes(ext)) return Monitor;
+  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return Archive;
+  if (["txt", "md"].includes(ext)) return FileText;
+  return Paperclip;
 };
 
 type UploadStatus = "uploading" | "success" | "error";
@@ -95,7 +110,7 @@ function FileRow({
   actions,
   subContent,
 }: {
-  icon: string;
+  icon: LucideIcon;
   name: string;
   size?: string;
   badge: string;
@@ -116,24 +131,22 @@ function FileRow({
     red: "border-red-200 bg-red-50/40",
   };
 
+  const iconColorCls =
+    badgeColor === "gray"
+      ? "text-slate-400"
+      : badgeColor === "green"
+        ? "text-emerald-500"
+        : badgeColor === "blue"
+          ? "text-blue-400"
+          : "text-red-400";
+  const Icon = icon;
+
   return (
     <li
       className={`flex flex-col gap-1 rounded-md border px-3 py-2.5 ${rowBorderCls[badgeColor]}`}
     >
       <div className="flex items-center gap-2">
-        <span
-          className={`material-icons text-base shrink-0 ${
-            badgeColor === "gray"
-              ? "text-slate-400"
-              : badgeColor === "green"
-                ? "text-emerald-500"
-                : badgeColor === "blue"
-                  ? "text-blue-400"
-                  : "text-red-400"
-          }`}
-        >
-          {icon}
-        </span>
+        <Icon className={`h-4 w-4 shrink-0 ${iconColorCls}`} />
         <span className="flex-1 truncate text-sm text-slate-700">{name}</span>
         <span
           className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium ${badgeCls[badgeColor]}`}
@@ -378,7 +391,7 @@ export default function Attachment({
                 : "bg-white border border-slate-200 text-slate-400"
             }`}
           >
-            <span className="material-icons text-base">upload_file</span>
+            <UploadCloud className="h-4 w-4" />
           </div>
 
           <div className="flex-1 min-w-0">
@@ -402,7 +415,7 @@ export default function Attachment({
               className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
               onClick={() => inputRef.current?.click()}
             >
-              <span className="material-icons text-sm">attach_file</span>
+              <Paperclip className="h-4 w-4" />
               파일 선택
             </button>
           )}
@@ -417,9 +430,7 @@ export default function Attachment({
           ) : (
             <section className="rounded-none border border-slate-200 overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border-b border-slate-200">
-                <span className="material-icons text-sm text-slate-400">
-                  attach_file
-                </span>
+                <Paperclip className="h-4 w-4 text-slate-400" />
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                   첨부파일
                 </span>
@@ -432,7 +443,7 @@ export default function Attachment({
                     download="download.zip"
                     className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-slate-500 border border-slate-300 rounded-md px-2.5 py-1 hover:bg-slate-100 transition-colors"
                   >
-                    <span className="material-icons text-sm">folder_zip</span>
+                    <Archive className="h-4 w-4" />
                     전체 다운로드
                   </a>
                 )}
@@ -447,9 +458,12 @@ export default function Attachment({
                         download={fileName}
                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50/80 transition-colors group"
                       >
-                        <span className="material-icons text-base text-slate-400 shrink-0 group-hover:text-brand-primary transition-colors">
-                          {fileIcon(fileName)}
-                        </span>
+                        {(() => {
+                          const Icon = fileIcon(fileName);
+                          return (
+                            <Icon className="h-4 w-4 text-slate-400 shrink-0 group-hover:text-brand-primary transition-colors" />
+                          );
+                        })()}
                         <span className="flex-1 text-sm text-slate-700 truncate group-hover:text-brand-primary transition-colors">
                           {fileName}
                         </span>
@@ -458,9 +472,7 @@ export default function Attachment({
                             {formatSize(file.fileSize ?? 0)}
                           </span>
                         )}
-                        <span className="material-icons text-sm text-slate-300 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          download
-                        </span>
+                        <Download className="h-4 w-4 text-slate-300 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </a>
                     </li>
                   );
@@ -490,7 +502,7 @@ export default function Attachment({
                     title="다운로드"
                     className="shrink-0 text-slate-300 hover:text-brand-primary transition-colors ml-1"
                   >
-                    <span className="material-icons text-base">download</span>
+                    <Download className="h-4 w-4" />
                   </a>
                   <button
                     type="button"
@@ -498,7 +510,7 @@ export default function Attachment({
                     className="shrink-0 text-slate-300 hover:text-red-500 transition-colors"
                     onClick={() => onRemoveExisting?.(file.fileId)}
                   >
-                    <span className="material-icons text-base">close</span>
+                    <X className="h-4 w-4" />
                   </button>
                 </>
               }
@@ -520,7 +532,7 @@ export default function Attachment({
                   className="shrink-0 text-slate-300 hover:text-red-500 transition-colors ml-1"
                   onClick={() => onRemoveNew?.(index)}
                 >
-                  <span className="material-icons text-base">close</span>
+                  <X className="h-4 w-4" />
                 </button>
               }
             />
@@ -549,9 +561,7 @@ export default function Attachment({
               actions={
                 <>
                   {u.status === "uploading" && (
-                    <span className="material-icons animate-spin text-base text-blue-400 shrink-0 ml-1">
-                      sync
-                    </span>
+                    <RefreshCw className="h-4 w-4 animate-spin text-blue-400 shrink-0 ml-1" />
                   )}
                   {u.status === "error" && (
                     <>
@@ -561,9 +571,7 @@ export default function Attachment({
                         className="shrink-0 text-red-400 hover:text-red-600 transition-colors ml-1"
                         onClick={() => retryUpload(u)}
                       >
-                        <span className="material-icons text-base">
-                          refresh
-                        </span>
+                        <RefreshCw className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
@@ -575,7 +583,7 @@ export default function Attachment({
                           )
                         }
                       >
-                        <span className="material-icons text-base">close</span>
+                        <X className="h-4 w-4" />
                       </button>
                     </>
                   )}

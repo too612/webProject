@@ -1,6 +1,7 @@
-import { useState, type FocusEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { useMenu } from '../common/menu/menuHook';
+import { useState, type FocusEvent } from "react";
+import { Link } from "react-router-dom";
+import { ChevronDown, Home } from "lucide-react";
+import { useMenu } from "../common/menu/menuHook";
 
 export default function Breadcrumb() {
   const { currentTopMenu, currentSubMenus, menuList: allTopMenus } = useMenu();
@@ -14,7 +15,7 @@ export default function Breadcrumb() {
 
   const handleDropdownBlur = (
     event: FocusEvent<HTMLDivElement>,
-    closeDropdown: () => void
+    closeDropdown: () => void,
   ) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
       closeDropdown();
@@ -26,7 +27,7 @@ export default function Breadcrumb() {
       <div className="container">
         <nav className="breadcrumb-nav">
           <Link className="breadcrumb-item" to="/" aria-label="홈으로 이동">
-            <span className="material-icons text-base">home</span>
+            <Home className="h-4 w-4" />
           </Link>
 
           {currentTopMenu && (
@@ -45,19 +46,24 @@ export default function Breadcrumb() {
                   setIsSubMenuOpen(false);
                 }}
                 onKeyDown={(event) => {
-                  if (event.key === 'Escape') {
+                  if (event.key === "Escape") {
                     closeTopMenu();
                   }
                 }}
               >
                 <span>{currentTopMenu.menuName}</span>
-                <span className="material-icons text-base">expand_more</span>
+                <ChevronDown className="h-4 w-4" />
               </button>
-              <div id="breadcrumb-top-menu" className="dropdown-menu" role="menu" hidden={!isTopMenuOpen}>
+              <div
+                id="breadcrumb-top-menu"
+                className="dropdown-menu"
+                role="menu"
+                hidden={!isTopMenuOpen}
+              >
                 {allTopMenus.map((topMenu) => (
                   <Link
                     key={topMenu.menuId}
-                    to={topMenu.path || topMenu.subMenus?.[0]?.path || '/'}
+                    to={topMenu.path || topMenu.subMenus?.[0]?.path || "/"}
                     role="menuitem"
                     className="whitespace-nowrap"
                     onClick={closeTopMenu}
@@ -85,21 +91,26 @@ export default function Breadcrumb() {
                   setIsTopMenuOpen(false);
                 }}
                 onKeyDown={(event) => {
-                  if (event.key === 'Escape') {
+                  if (event.key === "Escape") {
                     closeSubMenu();
                   }
                 }}
               >
                 <span>{activeSubMenu.menuName}</span>
-                <span className="material-icons text-base">expand_more</span>
+                <ChevronDown className="h-4 w-4" />
               </button>
-              <div id="breadcrumb-sub-menu" className="dropdown-menu" role="menu" hidden={!isSubMenuOpen}>
+              <div
+                id="breadcrumb-sub-menu"
+                className="dropdown-menu"
+                role="menu"
+                hidden={!isSubMenuOpen}
+              >
                 {currentSubMenus.map((sub) => (
                   <Link
                     key={sub.menuId}
-                    to={sub.path || '/'}
+                    to={sub.path || "/"}
                     role="menuitem"
-                    className={`whitespace-nowrap${sub.active ? ' active' : ''}`}
+                    className={`whitespace-nowrap${sub.active ? " active" : ""}`}
                     onClick={closeSubMenu}
                   >
                     {sub.menuName}

@@ -5,13 +5,14 @@
  * common/article 엔진의 확장으로, 배너(팝업/슬라이드)를 관리합니다.
  */
 import { useState } from "react";
+import { toast } from "sonner";
 import { ArticleList } from "../ArticleList";
 
 export default function BannerList() {
   const [activeTab, setActiveTab] = useState<"POPUP" | "SLIDE">("POPUP");
 
   const handleExcelDownload = async () => {
-    alert("엑셀 다운로드 기능 (백엔드 API 연동 필요)");
+    toast.info("엑셀 다운로드 기능 (백엔드 API 연동 필요)");
   };
 
   return (

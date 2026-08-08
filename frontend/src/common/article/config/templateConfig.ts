@@ -255,6 +255,7 @@ import { ARTICLE_SLIDE_CONFIG } from "./templates/ArticleSlide";
 import { ARTICLE_SCHOOL_GALLERY_CONFIG } from "./templates/ArticleSchoolGallery";
 import { ARTICLE_OUTREACH_GALLERY_CONFIG } from "./templates/ArticleOutreachGallery";
 import { ARTICLE_YOUTH_GALLERY_CONFIG } from "./templates/ArticleYouthGallery";
+import { ARTICLE_MISSION_GALLERY_CONFIG } from "./templates/ArticleMissionGallery";
 
 const CONFIG_REGISTRY: Record<string, ArticleTemplateConfig> = {
   DEFAULT: ARTICLE_DEFAULT_CONFIG,
@@ -266,6 +267,7 @@ const CONFIG_REGISTRY: Record<string, ArticleTemplateConfig> = {
   SCHOOL_GALLERY: ARTICLE_SCHOOL_GALLERY_CONFIG,
   OUTREACH_GALLERY: ARTICLE_OUTREACH_GALLERY_CONFIG,
   YOUTH_GALLERY: ARTICLE_YOUTH_GALLERY_CONFIG,
+  MISSION_GALLERY: ARTICLE_MISSION_GALLERY_CONFIG,
 };
 
 export function getArticleTemplateConfig(

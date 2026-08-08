@@ -1,5 +1,6 @@
 import type { ArticleItem } from "../ArticleModel";
 import type { ArticleTemplateConfig } from "../config";
+import { ArrowLeft, ArrowRight, Image, Pencil, Trash2 } from "lucide-react";
 import {
   DndContext,
   closestCorners,
@@ -116,7 +117,7 @@ function SortableCard({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300">
-              <span className="material-icons text-6xl">image</span>
+              <Image className="h-12 w-12 text-slate-300" />
             </div>
           )}
           {showCardIndex && (
@@ -148,7 +149,7 @@ function SortableCard({
                     }`}
                     title="왼쪽으로 이동"
                   >
-                    <span className="material-icons text-sm">arrow_back</span>
+                    <ArrowLeft className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
@@ -164,9 +165,7 @@ function SortableCard({
                     }`}
                     title="오른쪽으로 이동"
                   >
-                    <span className="material-icons text-sm">
-                      arrow_forward
-                    </span>
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                 </>
               )}
@@ -180,7 +179,7 @@ function SortableCard({
                   className="text-slate-400 hover:text-brand-primary"
                   title="수정"
                 >
-                  <span className="material-icons text-sm">edit</span>
+                  <Pencil className="h-4 w-4" />
                 </button>
               )}
               {onDeleteClick && (
@@ -193,7 +192,7 @@ function SortableCard({
                   className="text-slate-400 hover:text-red-500"
                   title="삭제"
                 >
-                  <span className="material-icons text-sm">delete</span>
+                  <Trash2 className="h-4 w-4" />
                 </button>
               )}
             </div>

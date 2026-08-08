@@ -58,6 +58,8 @@ export interface ArticleListQuery {
   size?: number;
   searchType?: string;
   keyword?: string;
+  metadataKey?: string;
+  metadataValue?: string;
   sortField?: string;
   sortOrder?: "ASC" | "DESC";
 }

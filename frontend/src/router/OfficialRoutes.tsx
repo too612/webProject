@@ -77,6 +77,10 @@ const OutreachWrite = lazy(
   () => import("../official/training/outreach/outreachWrite"),
 );
 const MissionPage = lazy(() => import("../official/news/mission/missionPage"));
+const MissionView = lazy(() => import("../official/news/mission/missionView"));
+const MissionWrite = lazy(
+  () => import("../official/news/mission/missionWrite"),
+);
 const NextstepsPage = lazy(
   () => import("../official/news/nextsteps/nextstepsPage"),
 );
@@ -160,6 +164,8 @@ export const officialRoutes: RouteObject[] = [
           { path: "banner/view", element: <BannerView /> },
           { path: "banner/write", element: <BannerWrite /> },
           { path: "mission", element: <MissionPage /> },
+          { path: "mission/view", element: <MissionView /> },
+          { path: "mission/write", element: <MissionWrite /> },
           { path: "nextsteps", element: <NextstepsPage /> },
         ],
       },

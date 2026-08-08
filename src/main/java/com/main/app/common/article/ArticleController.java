@@ -26,9 +26,11 @@ public class ArticleController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String searchType,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String metadataKey,
+            @RequestParam(required = false) String metadataValue,
             @RequestParam(required = false) String sortField,
             @RequestParam(defaultValue = "ASC") String sortOrder) {
-        return ApiResponse.ok(articleService.getList(menuKey, templateCode, page, size, searchType, keyword, sortField, sortOrder));
+        return ApiResponse.ok(articleService.getList(menuKey, templateCode, page, size, searchType, keyword, metadataKey, metadataValue, sortField, sortOrder));
     }
 
     @GetMapping("/{articleId}")

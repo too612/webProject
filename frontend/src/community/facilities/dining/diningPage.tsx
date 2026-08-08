@@ -1,5 +1,6 @@
 import { useCommunityFacilitiesDiningPage } from './diningHook';
 import { COMMUNITY_FACILITIES_DINING_COLUMNS, type CommunityFacilitiesDiningRow } from './diningModel';
+import { ActionButton, Button } from '../../../common/ui';
 
 export default function FacilitiesDiningPage() {
     const {
@@ -35,9 +36,7 @@ export default function FacilitiesDiningPage() {
                     value={inputKeyword}
                     onChange={(e) => handleInputKeywordChange(e.target.value)}
                 />
-                <button type="submit" className="bg-brand-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-primary/90 transition-colors">
-                    검색
-                </button>
+                <ActionButton action="search" type="submit" className="min-w-0" />
             </form>
 
             {error && <div className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-3">{error}</div>}
@@ -72,12 +71,9 @@ export default function FacilitiesDiningPage() {
             <div className="flex items-center justify-between text-sm text-gray-500">
                 <span>전체 {totalElements}건</span>
                 <div className="flex items-center gap-2">
-                    <button type="button" disabled={page === 0} onClick={handlePrevPage} className="px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        이전
-                    </button>
+                    <Button variant="outline" size="sm" disabled={page === 0} onClick={handlePrevPage}>이전</Button>
                     <span>{page + 1} / {Math.max(totalPages, 1)}</span>
-                    <button type="button" disabled={page >= totalPages - 1} onClick={handleNextPage} className="px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        다음
+                    <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={handleNextPage}>다음</Button>
                     </button>
                 </div>
             </div>

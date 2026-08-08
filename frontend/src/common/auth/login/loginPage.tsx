@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Alert, AlertDescription, Input } from "../../common/ui";
 import { useLogin } from "./loginHook";
 
 export default function LoginPage() {
@@ -28,11 +29,11 @@ export default function LoginPage() {
         </div>
 
         {feedbackMessage && (
-          <div
-            className={`text-sm rounded-md px-4 py-3 ${feedbackType === "success" ? "text-green-700 bg-green-50 border border-green-200" : "text-red-600 bg-red-50 border border-red-200"}`}
+          <Alert
+            variant={feedbackType === "success" ? "success" : "destructive"}
           >
-            {feedbackMessage}
-          </div>
+            <AlertDescription>{feedbackMessage}</AlertDescription>
+          </Alert>
         )}
 
         <form className="space-y-4" onSubmit={onSubmit}>
@@ -43,9 +44,8 @@ export default function LoginPage() {
             >
               아이디
             </label>
-            <input
+            <Input
               id="username"
-              className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               placeholder="아이디를 입력하세요"
@@ -60,9 +60,8 @@ export default function LoginPage() {
             >
               비밀번호
             </label>
-            <input
+            <Input
               id="password"
-              className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}

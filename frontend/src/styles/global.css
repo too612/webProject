@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* 기존 브랜드 토큰 유지 */
   --color-brand-primary: #5c6bc0;
   --color-brand-dark: #2b2f42;
   --color-brand-muted: #6d7589;
@@ -11,6 +12,52 @@
   --radius-card: 16px;
   --radius-panel: 12px;
   --font-family-sans: "Noto Sans KR", sans-serif;
+
+  /* shadcn/ui 색상 토큰 */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-primary: #4f6ef7;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #eef2ff;
+  --color-accent-foreground: #3730a3;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #4f6ef7;
+  /* Card / Popover */
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+}
+
+/* Accordion 애니메이션 */
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+.animate-accordion-down {
+  animation: accordion-down 0.2s ease-out;
+}
+.animate-accordion-up {
+  animation: accordion-up 0.2s ease-out;
 }
 
 /* =========================================================
@@ -40,6 +87,23 @@
   select,
   textarea {
     font: inherit;
+  }
+
+  /* native select 디자인 토큰 통일 */
+  select:not([class*="ag-"]) {
+    height: 2.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  select:not([class*="ag-"]):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-ring);
   }
 }
 
@@ -547,9 +611,11 @@
   }
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
+@layer base {
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
 }
 
 ul,

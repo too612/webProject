@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Alert, AlertDescription, Button, Input } from "../../common/ui";
 import { useFindId } from "./findIdHook";
 
 export default function FindIdPage() {
@@ -33,11 +34,11 @@ export default function FindIdPage() {
         </div>
 
         {message && (
-          <div
-            className={`text-sm rounded-md px-4 py-3 ${messageType === "success" ? "text-green-700 bg-green-50 border border-green-200" : "text-red-600 bg-red-50 border border-red-200"}`}
+          <Alert
+            variant={messageType === "success" ? "success" : "destructive"}
           >
-            {message}
-          </div>
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
         )}
 
         {step === 1 && (
@@ -49,9 +50,8 @@ export default function FindIdPage() {
               >
                 이름
               </label>
-              <input
+              <Input
                 id="userName"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={userName}
                 onChange={(event) => setUserName(event.target.value)}
                 placeholder="이름을 입력하세요"
@@ -66,10 +66,9 @@ export default function FindIdPage() {
               >
                 이메일
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="example@email.com"
@@ -99,9 +98,8 @@ export default function FindIdPage() {
               >
                 인증코드
               </label>
-              <input
+              <Input
                 id="code"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={code}
                 onChange={(event) => setCode(event.target.value)}
                 placeholder="6자리 인증코드"

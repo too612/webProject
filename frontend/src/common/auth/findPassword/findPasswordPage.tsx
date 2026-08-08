@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, Button, Input } from "../../common/ui";
 import { useFindPassword } from "./findPasswordHook";
 
 export default function FindPasswordPage() {
@@ -37,11 +38,11 @@ export default function FindPasswordPage() {
         </div>
 
         {message && (
-          <div
-            className={`text-sm rounded-md px-4 py-3 ${messageType === "success" ? "text-green-700 bg-green-50 border border-green-200" : "text-red-600 bg-red-50 border border-red-200"}`}
+          <Alert
+            variant={messageType === "success" ? "success" : "destructive"}
           >
-            {message}
-          </div>
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
         )}
 
         {step === 1 && (
@@ -53,9 +54,8 @@ export default function FindPasswordPage() {
               >
                 아이디
               </label>
-              <input
+              <Input
                 id="userId"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={userId}
                 onChange={(event) => setUserId(event.target.value)}
                 placeholder="아이디를 입력하세요"
@@ -70,10 +70,9 @@ export default function FindPasswordPage() {
               >
                 이메일
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="example@email.com"
@@ -103,9 +102,8 @@ export default function FindPasswordPage() {
               >
                 인증코드
               </label>
-              <input
+              <Input
                 id="code"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={code}
                 onChange={(event) => setCode(event.target.value)}
                 placeholder="6자리 인증코드"
@@ -142,10 +140,9 @@ export default function FindPasswordPage() {
               >
                 새 비밀번호
               </label>
-              <input
+              <Input
                 id="newPassword"
                 type="password"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
                 placeholder="새 비밀번호를 입력하세요"
@@ -167,10 +164,9 @@ export default function FindPasswordPage() {
               >
                 새 비밀번호 확인
               </label>
-              <input
+              <Input
                 id="confirmPassword"
                 type="password"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="새 비밀번호를 다시 입력하세요"

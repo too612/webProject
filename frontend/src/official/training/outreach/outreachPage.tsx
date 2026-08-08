@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
+import { Button } from "../../../common/ui";
 import { useOutreachContent } from "./outreachHook";
 import { DEFAULT_OUTREACH_CONTENT } from "./outreachModel";
 
@@ -106,12 +107,9 @@ export default function OutreachPage() {
                   선교 활동 이미지를 등록하고 모아볼 수 있습니다.
                 </p>
               </div>
-              <Link
-                to="/training/outreach/write"
-                className="inline-flex items-center rounded-md bg-brand-primary !text-white px-4 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] transition-colors"
-              >
-                이미지 등록
-              </Link>
+              <Button asChild>
+                <Link to="/training/outreach/write">이미지 등록</Link>
+              </Button>
             </div>
             <div className="border border-slate-200 bg-white p-5 md:p-6">
               <ArticleList

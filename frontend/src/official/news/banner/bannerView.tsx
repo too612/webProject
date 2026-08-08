@@ -4,8 +4,10 @@
  */
 import { useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { HelpCircle, Image } from "lucide-react";
 import { useArticle } from "../../../common/article";
-import { LoadingSpinner, ErrorMessage } from "../../../common/ui";
+import { Button, LoadingSpinner, ErrorMessage } from "../../../common/ui";
 
 export default function BannerView() {
   const navigate = useNavigate();
@@ -23,10 +25,10 @@ export default function BannerView() {
     if (!confirm("이 배너를 삭제하시겠습니까?")) return;
     try {
       await deleteArticle(Number(postId));
-      alert("삭제되었습니다.");
+      toast.success("삭제되었습니다.");
       navigate("/news/banner");
     } catch {
-      alert("삭제에 실패했습니다.");
+      toast.error("삭제에 실패했습니다.");
     }
   };
 
@@ -77,25 +79,17 @@ export default function BannerView() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h2 className="text-xl font-bold text-brand-dark">배너 미리보기</h2>
         <div className="flex gap-2">
-          <Link
-            to="/news/banner"
-            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-          >
-            목록
-          </Link>
-          <Link
-            to={`/news/banner/write?rqstNo=${article.articleId}`}
-            className="px-4 py-2 text-sm bg-brand-primary !text-white rounded-md hover:bg-[#4e5caf]"
-          >
-            수정
-          </Link>
-          <button
-            type="button"
-            className="px-4 py-2 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100"
-            onClick={handleDelete}
-          >
+          <Button asChild variant="outline">
+            <Link to="/news/banner">무록</Link>
+          </Button>
+          <Button asChild>
+            <Link to={`/news/banner/write?rqstNo=${article.articleId}`}>
+              수정
+            </Link>
+          </Button>
+          <Button variant="destructive" onClick={handleDelete}>
             삭제
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -115,7 +109,7 @@ export default function BannerView() {
                 />
               ) : (
                 <div className="w-full h-48 flex items-center justify-center bg-slate-100 text-slate-400">
-                  <span className="material-icons text-6xl">image</span>
+                  <Image className="h-12 w-12" />
                 </div>
               )}
               <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
@@ -134,7 +128,7 @@ export default function BannerView() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-400">
-                    <span className="material-icons text-6xl">image</span>
+                    <Image className="h-12 w-12" />
                   </div>
                 )}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
@@ -150,7 +144,7 @@ export default function BannerView() {
           )}
           {!isPopup && !isSlide && (
             <div className="text-center text-slate-400">
-              <span className="material-icons text-4xl">help_outline</span>
+              <HelpCircle className="h-10 w-10" />
               <p className="mt-2">알 수 없는 배너 유형입니다.</p>
             </div>
           )}

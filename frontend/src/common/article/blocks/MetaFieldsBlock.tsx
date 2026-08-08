@@ -1,8 +1,3 @@
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { ko } from "date-fns/locale";
-import { DatePicker as MuiDatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTimePicker as MuiDateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import type { FieldConfig } from "../config";
 
 const fieldCls =
@@ -58,61 +53,21 @@ export function MetaFieldsBlock({
             ))}
           </select>
         ) : field.type === "date" ? (
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ko}>
-            <MuiDatePicker
-              value={value ? new Date(value) : null}
-              onChange={(date) =>
-                updateMetadata(
-                  field.key,
-                  date ? date.toISOString().split("T")[0] : "",
-                )
-              }
-              format="yyyy-MM-dd"
-              slotProps={{
-                textField: {
-                  id: fieldId,
-                  size: "small",
-                  fullWidth: true,
-                  sx: {
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "6px",
-                      fontSize: "0.875rem",
-                      backgroundColor: "#fff",
-                      "& fieldset": { borderColor: "#e2e8f0" },
-                    },
-                    "& .MuiInputBase-input": { padding: "8px 12px" },
-                  },
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <input
+            id={fieldId}
+            type="date"
+            className={fieldCls}
+            value={value ? String(value).slice(0, 10) : ""}
+            onChange={(e) => updateMetadata(field.key, e.target.value)}
+          />
         ) : field.type === "datetime" ? (
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ko}>
-            <MuiDateTimePicker
-              value={value ? new Date(value) : null}
-              onChange={(date) =>
-                updateMetadata(field.key, date ? date.toISOString() : "")
-              }
-              format="yyyy-MM-dd HH:mm"
-              ampm={false}
-              slotProps={{
-                textField: {
-                  id: fieldId,
-                  size: "small",
-                  fullWidth: true,
-                  sx: {
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "6px",
-                      fontSize: "0.875rem",
-                      backgroundColor: "#fff",
-                      "& fieldset": { borderColor: "#e2e8f0" },
-                    },
-                    "& .MuiInputBase-input": { padding: "8px 12px" },
-                  },
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <input
+            id={fieldId}
+            type="datetime-local"
+            className={fieldCls}
+            value={value ? String(value).slice(0, 16).replace(" ", "T") : ""}
+            onChange={(e) => updateMetadata(field.key, e.target.value)}
+          />
         ) : field.type === "textarea" ? (
           <textarea
             id={fieldId}

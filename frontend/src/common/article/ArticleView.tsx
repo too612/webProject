@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+import { ArrowLeft, ArrowRight, Calendar, Eye, List, User } from "lucide-react";
 import { useArticle } from "./ArticleHook";
 import { getArticleTemplateConfig } from "./config";
 import { EditorViewer } from "../../common/editor";
 import { Attachment } from "../../common/attachment";
 import { CommentSection } from "../../common/comment";
-import { LoadingSpinner, ErrorMessage, ConfirmModal } from "../../common/ui";
+import {
+  ActionButton,
+  Button,
+  ConfirmModal,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  ErrorMessage,
+  Input,
+  LoadingSpinner,
+} from "../../common/ui";
 
 interface ArticleViewProps {
   basePath: string;
@@ -158,7 +170,7 @@ export function ArticleView({
     if (article?.isSecret) {
       const isValid = await verifyPassword(Number(postId), password);
       if (!isValid) {
-        alert("비밀번호가 올바르지 않습니다.");
+        toast.error("비밀번호가 올바르지 않습니다.");
         return;
       }
     }
@@ -176,10 +188,10 @@ export function ArticleView({
     if (!deleteConfirm.articleId) return;
     try {
       await deleteArticle(Number(deleteConfirm.articleId));
-      alert("게시글이 삭제되었습니다.");
+      toast.success("게시글이 삭제되었습니다.");
       navigate(basePath);
     } catch {
-      alert("삭제 중 오류가 발생했습니다.");
+      toast.error("삭제 중 오류가 발생했습니다.");
     } finally {
       setDeleteConfirm({ isOpen: false, articleId: null });
     }
@@ -260,14 +272,12 @@ export function ArticleView({
             )}
           </div>
           <div className="mt-4 flex justify-end">
-            <button
-              type="button"
+            <ActionButton
+              action="delete"
+              size="sm"
               id="btn_delete"
-              className="inline-flex items-center bg-red-50 text-red-600 rounded-md px-4 py-2.5 text-sm font-medium hover:bg-red-100 transition-colors"
               onClick={() => openPasswordModal("delete")}
-            >
-              삭제
-            </button>
+            />
           </div>
         </article>
         <ConfirmModal
@@ -280,41 +290,33 @@ export function ArticleView({
           onConfirm={handleDeleteConfirm}
           onCancel={handleDeleteCancel}
         />
-        {showPasswordModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-none shadow-xl p-6 w-full max-w-sm">
-              <h4 className="text-base font-bold text-brand-dark mb-4">
-                비밀번호 확인
-              </h4>
-              <input
-                className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white mb-4"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="비밀번호를 입력하세요"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onPasswordConfirm();
-                }}
-              />
-              <div className="flex gap-2 justify-end">
-                <button
-                  type="button"
-                  className="bg-brand-primary text-white rounded-md px-4 py-2.5 text-sm font-medium"
-                  onClick={onPasswordConfirm}
-                >
-                  확인
-                </button>
-                <button
-                  type="button"
-                  className="bg-gray-100 text-gray-700 rounded-md px-4 py-2.5 text-sm font-medium"
-                  onClick={() => setShowPasswordModal(false)}
-                >
-                  취소
-                </button>
-              </div>
+        <Dialog
+          open={showPasswordModal}
+          onOpenChange={(open) => !open && setShowPasswordModal(false)}
+        >
+          <DialogContent className="max-w-sm">
+            <DialogTitle>비밀번호 확인</DialogTitle>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="비밀번호를 입력하세요"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onPasswordConfirm();
+              }}
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end">
+              <Button onClick={onPasswordConfirm}>확인</Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowPasswordModal(false)}
+              >
+                취소
+              </Button>
             </div>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
       </section>
     );
   }
@@ -341,15 +343,15 @@ export function ArticleView({
           <div className="flex items-center justify-between flex-wrap gap-2 mt-3">
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-1 text-sm text-gray-500">
-                <span className="material-icons text-base">person</span>
+                <User className="h-4 w-4" />
                 {resolvedAuthor}
               </div>
               <div className="flex items-center gap-1 text-sm text-gray-500">
-                <span className="material-icons text-base">calendar_today</span>
+                <Calendar className="h-4 w-4" />
                 {resolvedDateTime}
               </div>
               <div className="flex items-center gap-1 text-sm text-gray-500">
-                <span className="material-icons text-base">visibility</span>
+                <Eye className="h-4 w-4" />
                 {resolvedViews}회
               </div>
             </div>
@@ -395,7 +397,7 @@ export function ArticleView({
                   onClick={goToPrev}
                   className="inline-flex items-center gap-1 text-sm text-brand-primary hover:underline"
                 >
-                  <span className="material-icons text-sm">arrow_back</span>
+                  <ArrowLeft className="h-4 w-4" />
                   <span className="truncate max-w-[150px]">
                     {prevNext.prevTitle || "이전 글"}
                   </span>
@@ -407,7 +409,7 @@ export function ArticleView({
                 to={basePath}
                 className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-brand-primary"
               >
-                <span className="material-icons text-sm">list</span> 목록
+                <List className="h-4 w-4" /> 목록
               </Link>
             </div>
             <div className="flex-1 text-right">
@@ -419,7 +421,7 @@ export function ArticleView({
                   <span className="truncate max-w-[150px]">
                     {prevNext.nextTitle || "다음 글"}
                   </span>
-                  <span className="material-icons text-sm">arrow_forward</span>
+                  <ArrowRight className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -428,43 +430,37 @@ export function ArticleView({
 
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
           {btn.list?.visible !== false && (
-            <Link
-              id={btn.list?.id || "btn_list"}
-              className="inline-flex items-center bg-brand-primary !text-white rounded-md px-4 py-2.5 text-sm font-medium hover:bg-[#4e5caf] transition-colors"
-              to={basePath}
-            >
-              {btn.list?.label || "목록"}
-            </Link>
+            <Button asChild>
+              <Link id={btn.list?.id || "btn_list"} to={basePath}>
+                {btn.list?.label || "목록"}
+              </Link>
+            </Button>
           )}
           {postId && btn.reply?.visible !== false && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               id={btn.reply?.id || "btn_reply"}
-              className="inline-flex items-center bg-gray-100 text-gray-700 rounded-md px-4 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors"
               onClick={() => navigate(`${basePath}/write?parentNo=${postId}`)}
             >
               {btn.reply?.label || "답글 작성"}
-            </button>
+            </Button>
           )}
           {btn.edit?.visible !== false && (
-            <button
-              type="button"
+            <Button
+              variant="outline"
               id={btn.edit?.id || "btn_edit"}
-              className="inline-flex items-center bg-gray-100 text-gray-700 rounded-md px-4 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors"
               onClick={() => openPasswordModal("edit")}
             >
               {btn.edit?.label || "수정"}
-            </button>
+            </Button>
           )}
           {btn.delete?.visible !== false && (
-            <button
-              type="button"
+            <ActionButton
+              action="delete"
               id={btn.delete?.id || "btn_delete"}
-              className="inline-flex items-center bg-red-50 text-red-600 rounded-md px-4 py-2.5 text-sm font-medium hover:bg-red-100 transition-colors"
+              label={btn.delete?.label}
               onClick={() => openPasswordModal("delete")}
-            >
-              {btn.delete?.label || "삭제"}
-            </button>
+            />
           )}
         </div>
       </article>
@@ -480,41 +476,33 @@ export function ArticleView({
         onCancel={handleDeleteCancel}
       />
 
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-none shadow-xl p-6 w-full max-w-sm">
-            <h4 className="text-base font-bold text-brand-dark mb-4">
-              비밀번호 확인
-            </h4>
-            <input
-              className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white mb-4"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호를 입력하세요"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onPasswordConfirm();
-              }}
-            />
-            <div className="flex gap-2 justify-end">
-              <button
-                type="button"
-                className="bg-brand-primary text-white rounded-md px-4 py-2.5 text-sm font-medium"
-                onClick={onPasswordConfirm}
-              >
-                확인
-              </button>
-              <button
-                type="button"
-                className="bg-gray-100 text-gray-700 rounded-md px-4 py-2.5 text-sm font-medium"
-                onClick={() => setShowPasswordModal(false)}
-              >
-                취소
-              </button>
-            </div>
+      <Dialog
+        open={showPasswordModal}
+        onOpenChange={(open) => !open && setShowPasswordModal(false)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogTitle>비밀번호 확인</DialogTitle>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="비밀번호를 입력하세요"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onPasswordConfirm();
+            }}
+            autoFocus
+          />
+          <div className="flex gap-2 justify-end">
+            <Button onClick={onPasswordConfirm}>확인</Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowPasswordModal(false)}
+            >
+              취소
+            </Button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

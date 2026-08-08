@@ -1,8 +1,6 @@
 import React from "react";
+import { Input } from "../../../common/ui";
 import type { ArticleWriteForm } from "../ArticleModel";
-
-const fieldCls =
-  "w-full border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white";
 
 interface PasswordFieldsProps {
   password: string;
@@ -24,9 +22,8 @@ export function PasswordFields({
         >
           비밀번호 <span className="text-red-500">*</span>
         </label>
-        <input
+        <Input
           id="article-password"
-          className={fieldCls}
           type="password"
           value={password}
           onChange={(e) =>
@@ -42,9 +39,8 @@ export function PasswordFields({
         >
           비밀번호 확인 <span className="text-red-500">*</span>
         </label>
-        <input
+        <Input
           id="article-password-confirm"
-          className={fieldCls}
           type="password"
           value={confirmPassword}
           onChange={(e) =>

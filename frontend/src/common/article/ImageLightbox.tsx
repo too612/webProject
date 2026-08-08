@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { ChevronLeft, ChevronRight, ImageOff, X } from "lucide-react";
 import type { ArticleItem } from "./ArticleModel";
 
 interface ImageLightboxProps {
@@ -164,7 +165,7 @@ export function ImageLightbox({
           className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-white/15 hover:bg-white/30 text-white rounded-full px-3 py-1.5 transition-colors backdrop-blur-sm border border-white/20"
           aria-label="닫기"
         >
-          <span className="material-icons text-xl">close</span>
+          <X className="h-5 w-5" />
           <span className="text-sm font-medium hidden sm:inline">닫기</span>
         </button>
 
@@ -177,9 +178,7 @@ export function ImageLightbox({
           className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 text-white transition-colors p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10"
           aria-label="이전"
         >
-          <span className="material-icons text-5xl md:text-6xl drop-shadow-lg">
-            chevron_left
-          </span>
+          <ChevronLeft className="h-10 w-10 md:h-12 md:w-12 drop-shadow-lg" />
         </button>
 
         <button
@@ -190,9 +189,7 @@ export function ImageLightbox({
           className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 text-white transition-colors p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/10"
           aria-label="다음"
         >
-          <span className="material-icons text-5xl md:text-6xl drop-shadow-lg">
-            chevron_right
-          </span>
+          <ChevronRight className="h-10 w-10 md:h-12 md:w-12 drop-shadow-lg" />
         </button>
 
         {/* 이미지 영역 (상단/하단 여백 확보) */}
@@ -213,7 +210,7 @@ export function ImageLightbox({
             />
           ) : (
             <div className="w-full h-[30vh] flex items-center justify-center text-gray-500">
-              <span className="material-icons text-6xl">broken_image</span>
+              <ImageOff className="h-14 w-14" />
             </div>
           )}
         </div>

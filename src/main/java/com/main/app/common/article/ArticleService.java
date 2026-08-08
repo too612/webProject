@@ -33,12 +33,15 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public Page<ArticleDto> getList(String menuKey, String templateCode, int page, int size,
-                                    String searchType, String keyword, String sortField, String sortOrder) {
+                                    String searchType, String keyword, String metadataKey, String metadataValue,
+                                    String sortField, String sortOrder) {
         Map<String, Object> params = new HashMap<>();
         params.put("menuKey", menuKey);
         params.put("templateCode", templateCode);
         params.put("searchType", searchType);
         params.put("keyword", keyword);
+        params.put("metadataKey", metadataKey);
+        params.put("metadataValue", metadataValue);
         params.put("sortField", sortField);
         params.put("sortOrder", sortOrder);
         params.put("offset", page * size);

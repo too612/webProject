@@ -1,5 +1,6 @@
 import { ArticleList } from "../../../common/article";
 import { Link } from "react-router-dom";
+import { Button } from "../../../common/ui";
 
 const YOUTH_PAGE_CONTENT = {
   headline: "중고등부/청년부",
@@ -218,12 +219,9 @@ export default function YouthPage() {
         <footer className="p-6 md:p-7 space-y-3">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h3 className="text-lg font-bold text-brand-dark">활동 갤러리</h3>
-            <Link
-              to="/nextgen/youth/write"
-              className="inline-flex items-center bg-brand-primary !text-white px-4 py-2 text-sm font-semibold hover:bg-[#4e5caf] transition-colors"
-            >
-              글 등록
-            </Link>
+            <Button asChild size="sm">
+              <Link to="/nextgen/youth/write">글 등록</Link>
+            </Button>
           </div>
           <ArticleList
             menuKey="YOUTH_GALLERY"

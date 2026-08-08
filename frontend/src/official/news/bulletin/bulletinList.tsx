@@ -7,6 +7,7 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { ArticleList } from "../../../common/article";
 import { ImageLightbox } from "../../../common/article/ImageLightbox";
 import type { ArticleItem } from "../../../common/article/ArticleModel";
@@ -49,10 +50,10 @@ export default function BulletinList() {
     if (!window.confirm(`"${item.title}" 게시글을 삭제하시겠습니까?`)) return;
     try {
       await articleApi.delete(item.articleId);
-      alert("삭제되었습니다.");
+      toast.success("삭제되었습니다.");
       window.location.reload();
     } catch {
-      alert("삭제에 실패했습니다.");
+      toast.error("삭제에 실패했습니다.");
     }
   };
 

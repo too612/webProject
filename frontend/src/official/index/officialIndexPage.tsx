@@ -1,24 +1,45 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  BookOpen,
+  Building2,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Images,
+  MapPin,
+  Megaphone,
+  Moon,
+  PlaySquare,
+  Smile,
+  Sun,
+  Sunrise,
+  Tv,
+  UserPlus,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useOfficialIndexData } from "./officialIndexHook";
 import type { BannerItem, GalleryItem } from "./officialIndexModel";
 import client from "../../common/api/api.client";
 import type { ApiResponse } from "../../common/api/api.types";
 
-const QUICK_MENUS = [
-  { to: "/worship/sermons", icon: "live_tv", label: "주일설교" },
-  { to: "/news/nextsteps", icon: "person_add", label: "새가족등록" },
-  { to: "/news/bulletin", icon: "menu_book", label: "주보" },
-  { to: "#", icon: "volunteer_activism", label: "온라인헌금" },
-  { to: "/worship/time", icon: "calendar_today", label: "예배시간" },
-  { to: "/about/location", icon: "place", label: "오시는 길" },
+const QUICK_MENUS: { to: string; icon: LucideIcon; label: string }[] = [
+  { to: "/worship/sermons", icon: Tv, label: "주일설교" },
+  { to: "/news/nextsteps", icon: UserPlus, label: "새가족등록" },
+  { to: "/news/bulletin", icon: BookOpen, label: "주보" },
+  { to: "#", icon: Heart, label: "온라인헌금" },
+  { to: "/worship/time", icon: Calendar, label: "예배시간" },
+  { to: "/about/location", icon: MapPin, label: "오시는 길" },
 ];
 
-const WORSHIP_SCHEDULE = [
-  { icon: "wb_twilight", title: "새벽예배", time: "매일 오전 5:00" },
-  { icon: "wb_sunny", title: "주일낮예배", time: "주일 오전 11:00" },
-  { icon: "nights_stay", title: "주일저녁예배", time: "주일 오후 7:00" },
-  { icon: "brightness_3", title: "금요심야예배", time: "금요일 오후 9:30" },
+const WORSHIP_SCHEDULE: { icon: LucideIcon; title: string; time: string }[] = [
+  { icon: Sunrise, title: "새벽예배", time: "매일 오전 5:00" },
+  { icon: Sun, title: "주일낙예배", time: "주일 오전 11:00" },
+  { icon: Moon, title: "주일저녁예배", time: "주일 오후 7:00" },
+  { icon: Moon, title: "금요심야예배", time: "금요일 오후 9:30" },
 ];
 
 const GF = [
@@ -55,17 +76,18 @@ function firstImg(html: unknown): string {
 
 function SecH(
   p: Readonly<{
-    icon: string;
+    icon: LucideIcon;
     title: string;
     desc?: string;
     rightExtra?: React.ReactNode;
   }>,
 ) {
+  const Icon = p.icon;
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-xl font-bold text-brand-dark">
-          <i className="material-icons text-brand-primary">{p.icon}</i>
+          <Icon className="h-5 w-5 text-brand-primary" />
           {p.title}
         </h2>
         {p.rightExtra}
@@ -140,7 +162,7 @@ function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
           }}
           className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 rounded-full text-sm font-bold shadow"
         >
-          <i className="material-icons text-base">close</i>
+          <X className="h-4 w-4" />
         </button>
         <div className="flex flex-col sm:flex-row overflow-y-auto sm:overflow-x-auto max-h-[82vh] sm:max-h-none max-w-full px-1 sm:px-2 pb-2 gap-2 snap-y sm:snap-x">
           {visible.map(function (p, vi) {
@@ -343,13 +365,13 @@ export default function OfficialIndexPage() {
               onClick={prev}
               className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55 z-10"
             >
-              <i className="material-icons text-lg">chevron_left</i>
+              <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={next}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55 z-10"
             >
-              <i className="material-icons text-lg">chevron_right</i>
+              <ChevronRight className="h-5 w-5" />
             </button>
             {sLen > 1 && (
               <div
@@ -392,9 +414,12 @@ export default function OfficialIndexPage() {
                   className="flex items-center gap-3 p-4 border border-slate-200 hover:border-brand-primary/30 hover:bg-brand-primary/[0.03] transition-colors group"
                 >
                   <div className="w-11 h-11 rounded-full bg-brand-primary/10 flex items-center justify-center group-hover:bg-brand-primary transition-colors shrink-0">
-                    <i className="material-icons text-brand-primary group-hover:text-white">
-                      {m.icon}
-                    </i>
+                    {(() => {
+                      const Icon = m.icon;
+                      return (
+                        <Icon className="h-5 w-5 text-brand-primary group-hover:text-white" />
+                      );
+                    })()}
                   </div>
                   <span className="text-sm text-gray-700 font-semibold">
                     {m.label}
@@ -412,7 +437,7 @@ export default function OfficialIndexPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="bg-white shadow-panel border border-gray-100 p-7 space-y-3">
               <div className="flex items-center gap-2 text-brand-primary">
-                <i className="material-icons">waving_hand</i>
+                <Smile className="h-5 w-5" />
                 <h3 className="font-bold text-brand-dark text-lg">환영인사</h3>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">
@@ -424,13 +449,12 @@ export default function OfficialIndexPage() {
                 to="/about/pastor"
                 className="text-sm text-brand-primary hover:underline inline-flex items-center gap-1 font-medium"
               >
-                자세히 보기{" "}
-                <i className="material-icons text-sm">arrow_forward</i>
+                자세히 보기 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
             <div className="bg-brand-primary text-white shadow-panel p-7 space-y-3">
               <div className="flex items-center gap-2">
-                <i className="material-icons">church</i>
+                <Building2 className="h-5 w-5" />
                 <h3 className="font-bold text-lg">교회 소개</h3>
               </div>
               <p className="text-sm text-white/85 leading-relaxed">
@@ -441,8 +465,7 @@ export default function OfficialIndexPage() {
                 to="/about/pastor"
                 className="text-sm text-white/90 hover:text-white hover:underline inline-flex items-center gap-1 font-medium"
               >
-                자세히 보기{" "}
-                <i className="material-icons text-sm">arrow_forward</i>
+                자세히 보기 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
@@ -453,7 +476,7 @@ export default function OfficialIndexPage() {
       <section className="py-14 bg-white">
         <div className="container mx-auto px-6 space-y-6">
           <SecH
-            icon="live_tv"
+            icon={Tv}
             title="주일설교"
             desc="주일낮예배 설교 영상을 확인하세요."
             rightExtra={
@@ -494,9 +517,7 @@ export default function OfficialIndexPage() {
                         loading="lazy"
                       />
                     ) : (
-                      <i className="material-icons text-4xl text-slate-300 group-hover:text-brand-primary/70 transition-colors">
-                        video_library
-                      </i>
+                      <PlaySquare className="h-8 w-8 text-slate-300 group-hover:text-brand-primary/70 transition-colors" />
                     )}
                   </div>
                   <div className="p-4 space-y-1.5">
@@ -515,7 +536,7 @@ export default function OfficialIndexPage() {
       <section className="py-14 bg-white">
         <div className="container mx-auto px-6 space-y-6">
           <SecH
-            icon="photo_library"
+            icon={Images}
             title="다사랑앨범"
             desc="최근 앨범을 확인해 보세요."
             rightExtra={
@@ -578,7 +599,7 @@ export default function OfficialIndexPage() {
       <section className="py-14 bg-brand-primary/[0.05]">
         <div className="container mx-auto px-6 space-y-6">
           <SecH
-            icon="schedule"
+            icon={Calendar}
             title="예배 시간 안내"
             desc="처음 오시는 분도 쉽게 확인할 수 있도록 안내합니다."
             rightExtra={
@@ -598,9 +619,10 @@ export default function OfficialIndexPage() {
                   className="bg-white shadow-panel border border-gray-100 p-5 text-center space-y-2"
                 >
                   <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center mx-auto">
-                    <i className="material-icons text-brand-primary">
-                      {w.icon}
-                    </i>
+                    {(() => {
+                      const Icon = w.icon;
+                      return <Icon className="h-5 w-5 text-brand-primary" />;
+                    })()}
                   </div>
                   <h4 className="font-semibold text-brand-dark text-sm">
                     {w.title}
@@ -622,9 +644,7 @@ export default function OfficialIndexPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-bold text-brand-dark text-lg">
-                  <i className="material-icons text-brand-primary text-base">
-                    campaign
-                  </i>
+                  <Megaphone className="h-4 w-4 text-brand-primary" />
                   공지사항
                 </h3>
                 <Link
@@ -673,9 +693,7 @@ export default function OfficialIndexPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-bold text-brand-dark text-lg">
-                  <i className="material-icons text-brand-primary text-base">
-                    menu_book
-                  </i>
+                  <BookOpen className="h-4 w-4 text-brand-primary" />
                   주보
                 </h3>
                 <Link

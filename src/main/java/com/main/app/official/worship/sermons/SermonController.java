@@ -30,7 +30,7 @@ public class SermonController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String sortField,
             @RequestParam(defaultValue = "ASC") String sortOrder) {
-        return articleController.list("SERMON", null, page, size, searchType, keyword, sortField, sortOrder);
+        return articleController.list("SERMON", null, page, size, searchType, keyword, null, null, sortField, sortOrder);
     }
 
     @GetMapping("/view")

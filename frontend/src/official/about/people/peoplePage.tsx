@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "../../../common/ui";
 import { usePeopleContent } from "./peopleHook";
 import { DEFAULT_PEOPLE_CONTENT } from "./peopleModel";
 import type { LeaderCard } from "./peopleModel";
@@ -162,18 +164,15 @@ export default function PeoplePage() {
 
             {selectedPerson && (
               <div className="space-y-5">
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setSelectedKey(null);
                   }}
-                  className="group inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 >
-                  <span className="material-icons text-[18px] text-brand-primary transition-transform duration-200 group-hover:-translate-x-0.5">
-                    arrow_back
-                  </span>
+                  <ArrowLeft className="h-[18px] w-[18px] text-brand-primary transition-transform duration-200 group-hover:-translate-x-0.5" />
                   <span>돌아가기</span>
-                </button>
+                </Button>
 
                 <div className="flex flex-col lg:flex-row gap-0 border border-slate-200 overflow-hidden">
                   <div className="lg:w-72 shrink-0 bg-slate-100 overflow-hidden">

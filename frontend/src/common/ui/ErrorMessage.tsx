@@ -1,3 +1,6 @@
+import { AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 interface ErrorMessageProps {
   message: string;
   onRetry?: () => void;
@@ -11,17 +14,18 @@ export function ErrorMessage({
 }: Readonly<ErrorMessageProps>) {
   return (
     <div
-      className={`rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600 ${className}`}
+      className={cn(
+        "rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive",
+        className,
+      )}
     >
       <div className="flex items-center gap-2">
-        <span className="material-icons text-red-500 text-base">
-          error_outline
-        </span>
+        <AlertCircle className="size-4 shrink-0" />
         <span className="flex-1">{message}</span>
         {onRetry && (
           <button
             onClick={onRetry}
-            className="text-red-700 underline hover:no-underline font-medium text-xs"
+            className="text-destructive underline hover:no-underline font-medium text-xs"
           >
             다시 시도
           </button>

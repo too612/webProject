@@ -1,8 +1,6 @@
 import React from "react";
+import { Input } from "../../../common/ui";
 import type { ArticleWriteForm } from "../ArticleModel";
-
-const fieldCls =
-  "w-full border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white";
 
 interface CommonFieldsProps {
   form: ArticleWriteForm;
@@ -46,9 +44,8 @@ export function CommonFields({
         >
           제목 <span className="text-red-500">*</span>
         </label>
-        <input
+        <Input
           id="article-title"
-          className={fieldCls}
           value={form.title}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, title: e.target.value }))
@@ -65,15 +62,15 @@ export function CommonFields({
           >
             작성자 <span className="text-red-500">*</span>
           </label>
-          <input
+          <Input
             id="article-author"
-            className={fieldCls}
             value={form.author}
             onChange={(e) =>
               setForm((prev) => ({ ...prev, author: e.target.value }))
             }
             placeholder="이름을 입력해주세요."
             readOnly={isEdit}
+            className={isEdit ? "bg-muted" : undefined}
           />
         </div>
       )}

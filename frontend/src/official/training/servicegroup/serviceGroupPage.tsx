@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "../../../common/ui";
 import { useServiceGroupContent } from "./serviceGroupHook";
 import { DEFAULT_SERVICE_GROUP_CONTENT } from "./serviceGroupModel";
 
@@ -224,15 +226,15 @@ export default function ServiceGroupPage() {
                                 {leaderName}
                               </div>
                             </div>
-                            <button
-                              type="button"
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => {
                                 setSelectedDeptCode(group.deptCode ?? null);
                               }}
-                              className="inline-flex items-center text-brand-primary font-semibold cursor-pointer hover:underline"
                             >
-                              상세보기 -&gt;
-                            </button>
+                              상세보기
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -244,18 +246,15 @@ export default function ServiceGroupPage() {
 
             {selectedGroup && (
               <div className="space-y-5">
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setSelectedDeptCode(null);
                   }}
-                  className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 >
-                  <span className="material-icons text-[18px] text-brand-primary">
-                    arrow_back
-                  </span>
+                  <ArrowLeft className="h-[18px] w-[18px] text-brand-primary" />
                   <span>돌아가기</span>
-                </button>
+                </Button>
 
                 {(() => {
                   const activityInfo =

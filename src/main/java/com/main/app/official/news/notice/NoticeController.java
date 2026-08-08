@@ -11,7 +11,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +27,7 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/api/official/news/notice")
 public class NoticeController {
     private static final String BASE_PATH = "/news/notice";
+    private static final String VOTE_HISTORY_KEY = "voteHistory";
     private final NoticeService noticeService;
     public NoticeController(NoticeService noticeService) { this.noticeService = noticeService; }
 
@@ -76,7 +76,7 @@ public class NoticeController {
         NoticeDto board = noticeService.getBoardDetail(rqstNo, true);
         List<CommentDto> comments = noticeService.getCommentList(rqstNo);
         @SuppressWarnings("unchecked")
-        Map<Long, String> vh = (Map<Long, String>) session.getAttribute("voteHistory");
+        Map<Long, String> vh = (Map<Long, String>) session.getAttribute(VOTE_HISTORY_KEY);
         if (vh == null) vh = new HashMap<>();
         Map<String, Object> p = new HashMap<>(); p.put("board", board); p.put("comments", comments); p.put("commentCount", comments.size()); p.put("userVotes", vh);
         return ApiResponse.ok(p);
@@ -105,10 +105,11 @@ public class NoticeController {
 
     @PostMapping("/comment/vote")
     public ApiResponse<Map<String, Object>> likeComment(@RequestBody Map<String, String> payload, HttpSession session) {
-        Long commentId = Long.parseLong(payload.get("commentId")); String action = payload.get("action");
+        Long commentId = Long.parseLong(payload.get("commentId"));
+        String action = payload.get("action");
         @SuppressWarnings("unchecked")
-        Map<Long, String> vh = (Map<Long, String>) session.getAttribute("voteHistory");
-        if (vh == null) { vh = new HashMap<>(); session.setAttribute("voteHistory", vh); }
+        Map<Long, String> vh = (Map<Long, String>) session.getAttribute(VOTE_HISTORY_KEY);
+        if (vh == null) { vh = new HashMap<>(); session.setAttribute(VOTE_HISTORY_KEY, vh); }
         String prev = vh.get(commentId); noticeService.handleVote(commentId, action, prev);
         if (action.equals(prev)) vh.remove(commentId); else vh.put(commentId, action);
         CommentDto uc = noticeService.getComment(commentId);

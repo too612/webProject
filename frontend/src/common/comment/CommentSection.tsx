@@ -1,4 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { MessageSquare } from "lucide-react";
+import { Button, Input, Textarea } from "../../common/ui";
 import { useComment, countComments } from "./CommentHook";
 import CommentItem from "./CommentItem";
 import type { CommentFormState } from "./CommentModel";
@@ -39,7 +42,7 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
       !commentForm.content.trim() ||
       !(commentForm.password ?? "").trim();
     if (isInvalid) {
-      alert("작성자, 내용, 비밀번호는 필수입니다.");
+      toast.warning("작성자, 내용, 비밀번호는 필수입니다.");
       return;
     }
     setCommentLoading(true);
@@ -54,7 +57,7 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
         parentCommentId: undefined,
       });
     } catch {
-      alert("댓글 저장 중 오류가 발생했습니다.");
+      toast.error("댓글 저장 중 오류가 발생했습니다.");
     } finally {
       setCommentLoading(false);
     }
@@ -68,7 +71,7 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
     try {
       await submitComment(form);
     } catch {
-      alert("답글 저장 중 오류가 발생했습니다.");
+      toast.error("답글 저장 중 오류가 발생했습니다.");
     } finally {
       setCommentLoading(false);
     }
@@ -91,7 +94,8 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
     <section className="mt-6 pt-6 border-t border-gray-100">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="m-0 flex items-center gap-1 text-lg font-bold">
-          <span className="material-icons">chat_bubble</span>댓글 {totalCount}
+          <MessageSquare className="h-5 w-5" />
+          댓글 {totalCount}
         </h3>
         <div className="flex gap-1.5">
           {(["latest", "popular"] as const).map((type) => (
@@ -135,8 +139,8 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
         className="mt-4 pt-4 border-t border-gray-100"
         onSubmit={onCommentSubmit}
       >
-        <textarea
-          className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary min-h-[56px]"
+        <Textarea
+          className="min-h-[56px]"
           placeholder="댓글을 입력하세요."
           value={commentForm.content}
           onChange={(e) =>
@@ -145,8 +149,8 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
           rows={2}
         />
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-          <input
-            className="border border-slate-200 rounded-md px-3 py-2 w-[104px]"
+          <Input
+            className="text-xs w-[104px] h-8"
             type="text"
             placeholder="작성자"
             value={commentForm.writer}
@@ -154,8 +158,8 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
               setCommentForm((prev) => ({ ...prev, writer: e.target.value }))
             }
           />
-          <input
-            className="border border-slate-200 rounded-md px-3 py-2 w-[104px]"
+          <Input
+            className="text-xs w-[104px] h-8"
             type="password"
             placeholder="비밀번호"
             value={commentForm.password}
@@ -198,13 +202,14 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
             />
             스포일러
           </label>
-          <button
+          <Button
             type="submit"
-            className="ml-auto bg-brand-primary text-white rounded-md px-4 py-2 font-medium hover:bg-[#4e5caf] disabled:opacity-40"
+            size="sm"
+            className="ml-auto"
             disabled={commentLoading}
           >
             {commentLoading ? "저장 중..." : "댓글 저장"}
-          </button>
+          </Button>
         </div>
       </form>
     </section>

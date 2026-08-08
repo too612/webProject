@@ -1,10 +1,13 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { toast } from "sonner";
+import { CornerDownRight, Lock, Paperclip } from "lucide-react";
 import type { GridColumnDef } from "../../common/grid";
 import { useArticle } from "./ArticleHook";
 import { getArticleTemplateConfig } from "./config";
 import { GalleryView } from "./list/GalleryView";
-import { LoadingSpinner, ErrorMessage } from "../../common/ui";
+import { ActionButton, Button, ErrorMessage, Skeleton } from "../../common/ui";
+import type { ArticleListQuery } from "./ArticleModel";
 
 interface ArticleListProps {
   menuKey: string;
@@ -21,6 +24,7 @@ interface ArticleListProps {
   enableDragDrop?: boolean;
   refreshKey?: number;
   headerExtra?: ReactNode;
+  queryParams?: Partial<ArticleListQuery>;
 }
 
 type BasicCellParams = {
@@ -113,6 +117,7 @@ export function ArticleList({
   enableDragDrop = false,
   refreshKey = 0,
   headerExtra,
+  queryParams,
 }: Readonly<ArticleListProps>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getArticleTemplateConfig(templateCode || "DEFAULT");
@@ -137,18 +142,34 @@ export function ArticleList({
     loadList,
   } = useArticle();
 
-  useEffect(() => {
-    const query: any = {
-      page,
+  const buildQuery = (nextPage: number, nextKeyword: string) => {
+    const query: ArticleListQuery = {
+      page: nextPage,
       menuKey,
+      ...(queryParams || {}),
       searchType: searchType || undefined,
-      keyword: keyword.trim() || undefined,
+      keyword: nextKeyword.trim() || undefined,
     };
+
     if (templateCode) {
       query.templateCode = templateCode;
     }
-    loadList(query);
-  }, [page, menuKey, templateCode, searchType, keyword, loadList, refreshKey]);
+
+    return query;
+  };
+
+  useEffect(() => {
+    loadList(buildQuery(page, keyword));
+  }, [
+    page,
+    menuKey,
+    templateCode,
+    searchType,
+    keyword,
+    loadList,
+    refreshKey,
+    queryParams,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -163,13 +184,7 @@ export function ArticleList({
     const trimmed = inputKeyword.trim();
     setKeyword(trimmed);
     setPage(0);
-    loadList({
-      page: 0,
-      menuKey,
-      templateCode: templateCode || undefined,
-      searchType: searchType || undefined,
-      keyword: trimmed || undefined,
-    });
+    loadList(buildQuery(0, trimmed));
   };
 
   const viewMode = list.viewMode || "grid";
@@ -189,7 +204,7 @@ export function ArticleList({
         return (
           <ErrorMessage
             message={listError}
-            onRetry={() => loadList({ page, menuKey, templateCode })}
+            onRetry={() => loadList(buildQuery(page, keyword))}
           />
         );
       }
@@ -223,25 +238,21 @@ export function ArticleList({
             </div>
             <div className="flex flex-wrap gap-2">
               {list.excelDownload && onExcelDownload && (
-                <button
+                <ActionButton
                   id="btn_excel_download"
-                  className="inline-flex items-center bg-green-600 text-white rounded-md px-4 py-2.5 text-sm font-semibold hover:bg-green-700 transition-colors"
+                  action="excel"
                   onClick={onExcelDownload}
-                >
-                  <span className="material-icons text-sm mr-1">
-                    table_chart
-                  </span>
-                  엑셀 다운로드
-                </button>
+                />
               )}
               {list.buttons?.write?.visible !== false && (
-                <Link
-                  id={list.buttons?.write?.id || "btn_write"}
-                  className="inline-flex items-center bg-brand-primary !text-white rounded-md px-4 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] transition-colors"
-                  to={`${basePath}/write`}
-                >
-                  {list.buttons?.write?.label || "글쓰기"}
-                </Link>
+                <Button asChild>
+                  <Link
+                    id={list.buttons?.write?.id || "btn_write"}
+                    to={`${basePath}/write`}
+                  >
+                    {list.buttons?.write?.label || "글쓰기"}
+                  </Link>
+                </Button>
               )}
             </div>
           </div>
@@ -251,7 +262,7 @@ export function ArticleList({
           {listError && (
             <ErrorMessage
               message={listError}
-              onRetry={() => loadList({ page, menuKey, templateCode })}
+              onRetry={() => loadList(buildQuery(page, keyword))}
             />
           )}
 
@@ -268,14 +279,15 @@ export function ArticleList({
 
           <div className="flex gap-1.5 justify-center pt-4">
             {Array.from({ length: totalPages > 0 ? totalPages : 1 }, (_, p) => (
-              <button
+              <Button
                 key={p}
                 type="button"
-                className={`w-9 h-9 rounded-md text-sm font-medium transition-colors ${p === page ? "bg-brand-primary text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
+                variant={p === page ? "default" : "ghost"}
+                className="h-9 w-9 p-0"
                 onClick={() => setPage(p)}
               >
                 {p + 1}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -305,13 +317,13 @@ export function ArticleList({
                   value={inputKeyword}
                   onChange={(e) => setInputKeyword(e.target.value)}
                 />
-                <button
+                <ActionButton
                   id={list.buttons?.search?.id || "btn_search"}
-                  className="shrink-0 bg-brand-primary text-white rounded-md px-4 py-2.5 text-sm hover:bg-[#4e5caf] transition-colors"
+                  action="search"
                   type="submit"
-                >
-                  {list.buttons?.search?.label || "검색"}
-                </button>
+                  loading={listLoading}
+                  className="shrink-0 min-w-0"
+                />
               </div>
             </form>
           )}
@@ -356,9 +368,7 @@ export function ArticleList({
         return (
           <div className="flex items-center gap-1 py-0.5">
             {post.depth > 0 && (
-              <span className="material-icons shrink-0" style={iconStyle}>
-                subdirectory_arrow_right
-              </span>
+              <CornerDownRight className="h-4 w-4 shrink-0" style={iconStyle} />
             )}
             {post.isSecret ? (
               <button
@@ -366,12 +376,10 @@ export function ArticleList({
                 className="border-0 bg-transparent p-0 text-left text-brand-dark hover:text-brand-primary hover:underline inline-flex items-center gap-1"
                 onClick={() => {
                   if (onSecretClick) onSecretClick(post.articleId);
-                  else alert("비밀글입니다.");
+                  else toast.info("비밀글입니다.");
                 }}
               >
-                <span className="material-icons shrink-0" style={iconStyle}>
-                  lock
-                </span>
+                <Lock className="h-4 w-4 shrink-0" style={iconStyle} />
                 {post.title}
                 {post.commentCount > 0 && (
                   <span className="text-[13px] text-red-500">
@@ -379,13 +387,11 @@ export function ArticleList({
                   </span>
                 )}
                 {(post.fileCount ?? 0) > 0 && (
-                  <span
-                    className="material-icons shrink-0"
+                  <Paperclip
+                    className="h-4 w-4 shrink-0"
                     style={iconStyle}
-                    title="첨부파일 있음"
-                  >
-                    attach_file
-                  </span>
+                    title="체부파일 있음"
+                  />
                 )}
               </button>
             ) : (
@@ -400,13 +406,11 @@ export function ArticleList({
                   </span>
                 )}
                 {(post.fileCount ?? 0) > 0 && (
-                  <span
-                    className="material-icons shrink-0"
+                  <Paperclip
+                    className="h-4 w-4 shrink-0"
                     style={iconStyle}
-                    title="첨부파일 있음"
-                  >
-                    attach_file
-                  </span>
+                    title="체부파일 있음"
+                  />
                 )}
               </Link>
             )}
@@ -474,12 +478,50 @@ export function ArticleList({
   if (hideColumns.includes("author"))
     allColumns = allColumns.filter((col) => col.field !== "authorId");
 
-  if (listLoading) return <LoadingSpinner text="게시물을 불러오는 중..." />;
+  if (listLoading) {
+    const skeletonCols = 3 + middleColumns.length;
+    return (
+      <section className="space-y-5">
+        <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <div className="overflow-x-auto rounded-md border border-slate-200">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr>
+                  {Array.from({ length: skeletonCols }).map((_, i) => (
+                    <th key={i} className="px-3 py-3">
+                      <Skeleton className="h-4 w-full" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: list.pageSize ?? 10 }).map((_, i) => (
+                  <tr key={i} className="border-b border-slate-100">
+                    {Array.from({ length: skeletonCols }).map((_, j) => (
+                      <td key={j} className="px-3 py-3">
+                        <Skeleton className="h-4 w-full" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    );
+  }
   if (listError)
     return (
       <ErrorMessage
         message={listError}
-        onRetry={() => loadList({ page, menuKey, templateCode })}
+        onRetry={() => loadList(buildQuery(page, keyword))}
         className="m-4"
       />
     );
@@ -501,23 +543,22 @@ export function ArticleList({
           </div>
           <div className="flex flex-wrap gap-2">
             {list.excelDownload && onExcelDownload && (
-              <button
+              <ActionButton
                 id={btn.excel?.id || "btn_excel_download"}
-                className="inline-flex items-center bg-green-600 text-white rounded-md px-4 py-2.5 text-sm font-semibold hover:bg-green-700 transition-colors"
+                action="excel"
+                label={btn.excel?.label}
                 onClick={onExcelDownload}
-              >
-                <span className="material-icons text-sm mr-1">table_chart</span>
-                {btn.excel?.label || "엑셀 다운로드"}
-              </button>
+              />
             )}
             {btn.write?.visible !== false && (
-              <Link
-                id={btn.write?.id || "btn_write"}
-                className="inline-flex items-center bg-brand-primary !text-white rounded-md px-4 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] transition-colors"
-                to={`${basePath}/write`}
-              >
-                {btn.write?.label || "글쓰기"}
-              </Link>
+              <Button asChild>
+                <Link
+                  id={btn.write?.id || "btn_write"}
+                  to={`${basePath}/write`}
+                >
+                  {btn.write?.label || "글쓰기"}
+                </Link>
+              </Button>
             )}
           </div>
         </div>
@@ -592,26 +633,25 @@ export function ArticleList({
 
         <div className="sm:hidden flex justify-end">
           {btn.write?.visible !== false && (
-            <Link
-              id={btn.write?.id || "btn_write"}
-              className="inline-flex items-center bg-brand-primary !text-white rounded-md px-4 py-2.5 text-sm font-semibold hover:bg-[#4e5caf] transition-colors"
-              to={`${basePath}/write`}
-            >
-              {btn.write?.label || "글쓰기"}
-            </Link>
+            <Button asChild>
+              <Link id={btn.write?.id || "btn_write"} to={`${basePath}/write`}>
+                {btn.write?.label || "글쓰기"}
+              </Link>
+            </Button>
           )}
         </div>
 
         <div className="flex gap-1.5 justify-center">
           {Array.from({ length: totalPages > 0 ? totalPages : 1 }, (_, p) => (
-            <button
+            <Button
               key={p}
               type="button"
-              className={`w-9 h-9 rounded-md text-sm font-medium transition-colors ${p === page ? "bg-brand-primary text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
+              variant={p === page ? "default" : "ghost"}
+              className="h-9 w-9 p-0"
               onClick={() => setPage(p)}
             >
               {p + 1}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -638,13 +678,13 @@ export function ArticleList({
                 value={inputKeyword}
                 onChange={(e) => setInputKeyword(e.target.value)}
               />
-              <button
+              <ActionButton
                 id={btn.search?.id || "btn_search"}
-                className="shrink-0 bg-brand-primary text-white rounded-md px-4 py-2.5 text-sm hover:bg-[#4e5caf] transition-colors"
+                action="search"
                 type="submit"
-              >
-                {btn.search?.label || "검색"}
-              </button>
+                loading={listLoading}
+                className="shrink-0 min-w-0"
+              />
             </div>
           </form>
         )}

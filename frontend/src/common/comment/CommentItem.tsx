@@ -1,4 +1,13 @@
 import { FormEvent, useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Lock,
+  ThumbsDown,
+  ThumbsUp,
+  User,
+} from "lucide-react";
+import { Input, Textarea } from "../../common/ui";
 import { commentApi } from "./CommentApi";
 import type {
   CommentItem as CommentDto,
@@ -116,11 +125,7 @@ function CommentBody({
             ? String(comment.insDt).replace("T", " ").slice(0, 16)
             : ""}
         </span>
-        {isSecret && (
-          <span className="material-icons text-[14px] text-slate-400">
-            lock
-          </span>
-        )}
+        {isSecret && <Lock className="h-[14px] w-[14px] text-slate-400" />}
         {isSpoiler && !spoilerVisible && (
           <span className="text-[11px] text-amber-500 font-medium bg-amber-50 px-1.5 py-0.5 rounded">
             스포일러
@@ -194,9 +199,7 @@ function CommentBody({
               : "text-slate-400 hover:text-slate-700"
           }`}
         >
-          <span className="material-icons text-[18px]">
-            {currentVote === "like" ? "thumb_up" : "thumb_up_off_alt"}
-          </span>
+          <ThumbsUp className="h-[18px] w-[18px]" />
           {(comment.likes ?? 0) > 0 && <span>{comment.likes}</span>}
         </button>
 
@@ -209,9 +212,7 @@ function CommentBody({
               : "text-slate-400 hover:text-slate-700"
           }`}
         >
-          <span className="material-icons text-[18px]">
-            {currentVote === "dislike" ? "thumb_down" : "thumb_down_off_alt"}
-          </span>
+          <ThumbsDown className="h-[18px] w-[18px]" />
         </button>
 
         {isSpoiler && spoilerVisible && (
@@ -237,8 +238,8 @@ function CommentBody({
 
       {showReplyForm && (
         <form onSubmit={handleReplySubmit} className="mt-3 bg-white">
-          <textarea
-            className="w-full border-b border-slate-200 bg-transparent px-0 py-1.5 text-sm focus:outline-none focus:border-slate-500 resize-none min-h-[48px]"
+          <Textarea
+            className="w-full border-b border-slate-200 bg-transparent px-0 py-1.5 text-sm focus:outline-none focus:border-slate-500 resize-none min-h-[48px] rounded-none shadow-none"
             placeholder="답글 추가..."
             value={replyForm.content}
             onChange={(e) =>
@@ -247,8 +248,8 @@ function CommentBody({
             rows={2}
           />
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-            <input
-              className="border border-slate-200 rounded-md px-2 py-1 w-[90px] text-xs"
+            <Input
+              className="w-[90px] h-7 text-xs px-2"
               type="text"
               placeholder="작성자"
               value={replyForm.writer}
@@ -256,8 +257,8 @@ function CommentBody({
                 setReplyForm((prev) => ({ ...prev, writer: e.target.value }))
               }
             />
-            <input
-              className="border border-slate-200 rounded-md px-2 py-1 w-[90px] text-xs"
+            <Input
+              className="w-[90px] h-7 text-xs px-2"
               type="password"
               placeholder="비밀번호"
               value={replyForm.password}
@@ -326,7 +327,7 @@ export default function CommentItem({
           <div
             className={`${avatarSize} rounded-full bg-slate-200 flex items-center justify-center shrink-0 z-10`}
           >
-            <span className="material-icons text-slate-400">person</span>
+            <User className="h-5 w-5 text-slate-400" />
           </div>
           {/* 부모 아바타 하단 세로선 */}
           {hasReplies && (
@@ -372,7 +373,7 @@ export default function CommentItem({
                 className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand-primary hover:bg-slate-100 border-0 bg-transparent rounded-full py-1 px-2 -ml-2 transition-colors z-10"
               >
                 <span>{`답글 ${replies.length}개`}</span>
-                <span className="material-icons text-[18px]">expand_more</span>
+                <ChevronDown className="h-[18px] w-[18px]" />
               </button>
             </div>
           )}
@@ -438,9 +439,7 @@ export default function CommentItem({
                   className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand-primary hover:bg-slate-100 border-0 bg-transparent rounded-full py-1 px-2 -ml-2 transition-colors z-10 bg-white"
                 >
                   <span>답글 숨기기</span>
-                  <span className="material-icons text-[18px]">
-                    expand_less
-                  </span>
+                  <ChevronUp className="h-[18px] w-[18px]" />
                 </button>
               </div>
             </div>

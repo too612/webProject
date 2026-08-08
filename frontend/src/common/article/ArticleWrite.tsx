@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useArticle } from "./ArticleHook";
 import { attachmentApi, useAttachment } from "../../common/attachment";
 import { getArticleTemplateConfig } from "./config";
@@ -118,23 +119,23 @@ export function ArticleWrite({
     const finalTemplateCode = isBanner ? bannerType : config.templateCode;
 
     if (!form.title) {
-      alert("제목을 입력해주세요.");
+      toast.warning("제목을 입력해주세요.");
       return;
     }
     if (config.write.features.useAuthor && !form.author) {
-      alert("작성자를 입력해주세요.");
+      toast.warning("작성자를 입력해주세요.");
       return;
     }
     if (config.write.features.usePassword && !form.password) {
-      alert("비밀번호를 입력해주세요.");
+      toast.warning("비밀번호를 입력해주세요.");
       return;
     }
     if (form.password && form.password.length < 4) {
-      alert("비밀번호는 4자 이상이어야 합니다.");
+      toast.warning("비밀번호는 4자 이상이어야 합니다.");
       return;
     }
     if (form.password !== form.confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+      toast.warning("비밀번호가 일치하지 않습니다.");
       return;
     }
 
@@ -178,11 +179,11 @@ export function ArticleWrite({
         );
       }
 
-      alert(isEdit ? "수정 완료" : "등록 완료");
+      toast.success(isEdit ? "수정 완료" : "등록 완료");
       navigate(basePath);
     } catch (error) {
       console.error("저장 실패:", error);
-      alert("저장 중 오류가 발생했습니다.");
+      toast.error("저장 중 오류가 발생했습니다.");
     }
   };
 

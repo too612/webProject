@@ -1,38 +1,67 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from 'react';
-import { EditorContent, useEditor } from '@tiptap/react';
-import { mergeAttributes, ResizableNodeView } from '@tiptap/core';
-import { NodeSelection } from '@tiptap/pm/state';
-import StarterKit from '@tiptap/starter-kit';
-import TextAlign from '@tiptap/extension-text-align';
-import Underline from '@tiptap/extension-underline';
-import Placeholder from '@tiptap/extension-placeholder';
-import { TextStyle } from '@tiptap/extension-text-style';
-import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
-import Highlight from '@tiptap/extension-highlight';
-import Color from '@tiptap/extension-color';
-import { Table } from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableHeader from '@tiptap/extension-table-header';
-import TableCell from '@tiptap/extension-table-cell';
-import Subscript from '@tiptap/extension-subscript';
-import Superscript from '@tiptap/extension-superscript';
-import type { EditorProps } from './editorModel';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
+import { toast } from "sonner";
+import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
+  Bold,
+  Braces,
+  Code,
+  Highlighter,
+  Italic,
+  List,
+  ListOrdered,
+  Quote,
+  Redo,
+  RemoveFormatting,
+  Strikethrough,
+  Subscript as SubscriptIcon,
+  Superscript as SuperscriptIcon,
+  Underline as UnderlineIcon,
+  Undo,
+} from "lucide-react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import { mergeAttributes, ResizableNodeView } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
+import StarterKit from "@tiptap/starter-kit";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import Placeholder from "@tiptap/extension-placeholder";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import Highlight from "@tiptap/extension-highlight";
+import Color from "@tiptap/extension-color";
+import { Table } from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableHeader from "@tiptap/extension-table-header";
+import TableCell from "@tiptap/extension-table-cell";
+import Subscript from "@tiptap/extension-subscript";
+import Superscript from "@tiptap/extension-superscript";
+import type { EditorProps } from "./editorModel";
 
 const IMAGE_ALIGN_OPTIONS = [
-  { value: 'left', label: '왼쪽' },
-  { value: 'center', label: '가운데' },
-  { value: 'right', label: '오른쪽' },
+  { value: "left", label: "왼쪽" },
+  { value: "center", label: "가운데" },
+  { value: "right", label: "오른쪽" },
 ] as const;
 
 const IMAGE_SIZE_OPTIONS = [
-  { value: 240, label: '240px' },
-  { value: 360, label: '360px' },
-  { value: 480, label: '480px' },
-  { value: 640, label: '640px' },
+  { value: 240, label: "240px" },
+  { value: 360, label: "360px" },
+  { value: 480, label: "480px" },
+  { value: 640, label: "640px" },
 ] as const;
 
-type ImageAlign = 'left' | 'center' | 'right';
+type ImageAlign = "left" | "center" | "right";
 
 type EditorImageAttrs = {
   src?: string;
@@ -47,47 +76,49 @@ const hasHtmlTag = (value: string) => /<\/?[a-z][\s\S]*>/i.test(value.trim());
 
 const escapeHtml = (value: string) =>
   value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 const normalizeEditorContent = (value: string) => {
-  const normalized = (value || '').replace(/\r\n?/g, '\n');
+  const normalized = (value || "").replace(/\r\n?/g, "\n");
   if (!normalized) {
-    return '';
+    return "";
   }
 
   if (hasHtmlTag(normalized)) {
     return normalized;
   }
 
-  return `<p>${escapeHtml(normalized).replace(/\n/g, '<br />')}</p>`;
+  return `<p>${escapeHtml(normalized).replace(/\n/g, "<br />")}</p>`;
 };
 
-const getImagePosFromSelection = (editorInstance: NonNullable<ReturnType<typeof useEditor>>) => {
+const getImagePosFromSelection = (
+  editorInstance: NonNullable<ReturnType<typeof useEditor>>,
+) => {
   const { selection, doc } = editorInstance.state;
   const { from, to } = selection;
 
   const selectedNode = (selection as NodeSelection).node;
-  if (selectedNode?.type?.name === 'image') {
+  if (selectedNode?.type?.name === "image") {
     return from;
   }
 
   const nodeAtFrom = doc.nodeAt(from);
-  if (nodeAtFrom?.type.name === 'image') {
+  if (nodeAtFrom?.type.name === "image") {
     return from;
   }
 
   const nodeBeforeFrom = doc.nodeAt(from - 1);
-  if (nodeBeforeFrom?.type.name === 'image') {
+  if (nodeBeforeFrom?.type.name === "image") {
     return from - 1;
   }
 
   let foundPos: number | null = null;
   doc.nodesBetween(from, to, (node, pos) => {
-    if (node.type.name === 'image') {
+    if (node.type.name === "image") {
       foundPos = pos;
       return false;
     }
@@ -98,60 +129,70 @@ const getImagePosFromSelection = (editorInstance: NonNullable<ReturnType<typeof 
 };
 
 const resolveImageAlign = (align?: string): ImageAlign => {
-  if (align === 'left' || align === 'right') {
+  if (align === "left" || align === "right") {
     return align;
   }
-  return 'center';
+  return "center";
 };
 
-const IMAGE_ALIGN_CLASS_PREFIX = 'editor-image-align-';
+const IMAGE_ALIGN_CLASS_PREFIX = "editor-image-align-";
 
-const resolveImageAlignClass = (align: ImageAlign) => `${IMAGE_ALIGN_CLASS_PREFIX}${align}`;
+const resolveImageAlignClass = (align: ImageAlign) =>
+  `${IMAGE_ALIGN_CLASS_PREFIX}${align}`;
 
-const normalizeImageClassName = (className: string | undefined, align: ImageAlign) => {
-  const classTokens = new Set((className || '').split(/\s+/).filter(Boolean));
+const normalizeImageClassName = (
+  className: string | undefined,
+  align: ImageAlign,
+) => {
+  const classTokens = new Set((className || "").split(/\s+/).filter(Boolean));
   classTokens.forEach((token) => {
     if (token.startsWith(IMAGE_ALIGN_CLASS_PREFIX)) {
       classTokens.delete(token);
     }
   });
   classTokens.add(resolveImageAlignClass(align));
-  return Array.from(classTokens).join(' ');
+  return Array.from(classTokens).join(" ");
 };
 
-const resolveAlignFromClassName = (className?: string | null): ImageAlign | null => {
+const resolveAlignFromClassName = (
+  className?: string | null,
+): ImageAlign | null => {
   if (!className) {
     return null;
   }
 
-  if (className.includes(resolveImageAlignClass('left'))) {
-    return 'left';
+  if (className.includes(resolveImageAlignClass("left"))) {
+    return "left";
   }
-  if (className.includes(resolveImageAlignClass('right'))) {
-    return 'right';
+  if (className.includes(resolveImageAlignClass("right"))) {
+    return "right";
   }
-  if (className.includes(resolveImageAlignClass('center'))) {
-    return 'center';
+  if (className.includes(resolveImageAlignClass("center"))) {
+    return "center";
   }
 
   return null;
 };
 
-const resolveImageAlignFromElement = (element: HTMLImageElement): ImageAlign => {
+const resolveImageAlignFromElement = (
+  element: HTMLImageElement,
+): ImageAlign => {
   const dataAlign = element.dataset.imageAlign;
-  if (dataAlign === 'left' || dataAlign === 'center' || dataAlign === 'right') {
+  if (dataAlign === "left" || dataAlign === "center" || dataAlign === "right") {
     return dataAlign;
   }
 
-  const classAlign = resolveAlignFromClassName(element.getAttribute('class'));
+  const classAlign = resolveAlignFromClassName(element.getAttribute("class"));
   if (classAlign) {
     return classAlign;
   }
 
-  return 'center';
+  return "center";
 };
 
-const resolveImageWidthFromElement = (element: HTMLImageElement): number | null => {
+const resolveImageWidthFromElement = (
+  element: HTMLImageElement,
+): number | null => {
   const dataWidth = element.dataset.imageWidth;
   if (dataWidth) {
     const parsedDataWidth = Number(dataWidth);
@@ -160,7 +201,7 @@ const resolveImageWidthFromElement = (element: HTMLImageElement): number | null 
     }
   }
 
-  const attrWidth = element.getAttribute('width');
+  const attrWidth = element.getAttribute("width");
   if (attrWidth) {
     const parsedAttrWidth = Number(attrWidth);
     if (Number.isFinite(parsedAttrWidth)) {
@@ -171,42 +212,66 @@ const resolveImageWidthFromElement = (element: HTMLImageElement): number | null 
   return null;
 };
 
-const buildImageStyle = ({ align, width, height }: { align: ImageAlign; width?: number | null; height?: number | null }) => {
+const buildImageStyle = ({
+  align,
+  width,
+  height,
+}: {
+  align: ImageAlign;
+  width?: number | null;
+  height?: number | null;
+}) => {
   const styleParts = [
-    width ? `width: ${width}px` : 'width: auto',
-    height ? `height: ${height}px` : 'height: auto',
-    'display: block',
-    align === 'center'
-      ? 'margin-left: auto; margin-right: auto'
-      : align === 'right'
-        ? 'margin-left: auto; margin-right: 0'
-        : 'margin-left: 0; margin-right: auto',
-    'max-width: 100%',
+    width ? `width: ${width}px` : "width: auto",
+    height ? `height: ${height}px` : "height: auto",
+    "display: block",
+    align === "center"
+      ? "margin-left: auto; margin-right: auto"
+      : align === "right"
+        ? "margin-left: auto; margin-right: 0"
+        : "margin-left: 0; margin-right: auto",
+    "max-width: 100%",
   ];
 
-  return styleParts.join('; ');
+  return styleParts.join("; ");
 };
 
-const applyImageContainerAlign = (element: HTMLImageElement, align: ImageAlign) => {
+const applyImageContainerAlign = (
+  element: HTMLImageElement,
+  align: ImageAlign,
+) => {
   const wrapper =
-    (element.closest('[data-resize-container][data-node="image"]') as HTMLElement | null) ||
-    (element.closest('[data-node-view-wrapper]') as HTMLElement | null) ||
-    (element.closest('[data-resize-wrapper]') as HTMLElement | null) ||
+    (element.closest(
+      '[data-resize-container][data-node="image"]',
+    ) as HTMLElement | null) ||
+    (element.closest("[data-node-view-wrapper]") as HTMLElement | null) ||
+    (element.closest("[data-resize-wrapper]") as HTMLElement | null) ||
     element.parentElement;
 
   if (!wrapper) {
     return;
   }
 
-  wrapper.style.setProperty('display', 'block', 'important');
-  wrapper.style.setProperty('width', 'fit-content', 'important');
-  wrapper.style.setProperty('max-width', '100%', 'important');
-  wrapper.style.setProperty('text-align', 'initial', 'important');
-  wrapper.style.setProperty('margin-left', align === 'right' || align === 'center' ? 'auto' : '0', 'important');
-  wrapper.style.setProperty('margin-right', align === 'left' || align === 'center' ? 'auto' : '0', 'important');
+  wrapper.style.setProperty("display", "block", "important");
+  wrapper.style.setProperty("width", "fit-content", "important");
+  wrapper.style.setProperty("max-width", "100%", "important");
+  wrapper.style.setProperty("text-align", "initial", "important");
+  wrapper.style.setProperty(
+    "margin-left",
+    align === "right" || align === "center" ? "auto" : "0",
+    "important",
+  );
+  wrapper.style.setProperty(
+    "margin-right",
+    align === "left" || align === "center" ? "auto" : "0",
+    "important",
+  );
 };
 
-const applyImageDomAttributes = (element: HTMLImageElement, attrs: EditorImageAttrs) => {
+const applyImageDomAttributes = (
+  element: HTMLImageElement,
+  attrs: EditorImageAttrs,
+) => {
   const align = resolveImageAlign(attrs.align);
 
   if (attrs.src) {
@@ -215,40 +280,45 @@ const applyImageDomAttributes = (element: HTMLImageElement, attrs: EditorImageAt
   if (attrs.alt) {
     element.alt = attrs.alt;
   } else {
-    element.removeAttribute('alt');
+    element.removeAttribute("alt");
   }
   if (attrs.title) {
     element.title = attrs.title;
   } else {
-    element.removeAttribute('title');
+    element.removeAttribute("title");
   }
 
-  element.setAttribute('draggable', 'true');
+  element.setAttribute("draggable", "true");
   element.dataset.imageAlign = align;
-  const classTokens = new Set((element.getAttribute('class') || '').split(/\s+/).filter(Boolean));
+  const classTokens = new Set(
+    (element.getAttribute("class") || "").split(/\s+/).filter(Boolean),
+  );
   classTokens.forEach((className) => {
     if (className.startsWith(IMAGE_ALIGN_CLASS_PREFIX)) {
       classTokens.delete(className);
     }
   });
   classTokens.add(resolveImageAlignClass(align));
-  element.setAttribute('class', Array.from(classTokens).join(' '));
+  element.setAttribute("class", Array.from(classTokens).join(" "));
 
   if (attrs.width) {
-    element.setAttribute('width', String(attrs.width));
+    element.setAttribute("width", String(attrs.width));
     element.dataset.imageWidth = String(attrs.width);
   } else {
-    element.removeAttribute('width');
+    element.removeAttribute("width");
     delete element.dataset.imageWidth;
   }
 
   if (attrs.height) {
-    element.setAttribute('height', String(attrs.height));
+    element.setAttribute("height", String(attrs.height));
   } else {
-    element.removeAttribute('height');
+    element.removeAttribute("height");
   }
 
-  element.setAttribute('style', buildImageStyle({ align, width: attrs.width, height: attrs.height }));
+  element.setAttribute(
+    "style",
+    buildImageStyle({ align, width: attrs.width, height: attrs.height }),
+  );
   applyImageContainerAlign(element, align);
 };
 
@@ -257,25 +327,30 @@ const EditorImage = Image.extend({
     return {
       ...this.parent?.(),
       align: {
-        default: 'center',
+        default: "center",
         parseHTML: (element) => {
           const htmlElement = element as HTMLElement;
-          const classBasedAlign = resolveAlignFromClassName(htmlElement.getAttribute('class'));
+          const classBasedAlign = resolveAlignFromClassName(
+            htmlElement.getAttribute("class"),
+          );
 
           return (
             htmlElement.dataset.imageAlign ||
             classBasedAlign ||
-            (htmlElement.style.marginLeft === 'auto' && htmlElement.style.marginRight === 'auto'
-              ? 'center'
-              : htmlElement.style.marginLeft === 'auto'
-                ? 'right'
-                : 'left')
+            (htmlElement.style.marginLeft === "auto" &&
+            htmlElement.style.marginRight === "auto"
+              ? "center"
+              : htmlElement.style.marginLeft === "auto"
+                ? "right"
+                : "left")
           );
         },
         renderHTML: (attributes) => {
-          const align = resolveImageAlign(attributes.align as string | undefined);
+          const align = resolveImageAlign(
+            attributes.align as string | undefined,
+          );
           return {
-            'data-image-align': align,
+            "data-image-align": align,
             class: resolveImageAlignClass(align),
           };
         },
@@ -284,7 +359,7 @@ const EditorImage = Image.extend({
         default: null,
         parseHTML: (element) => {
           const htmlElement = element as HTMLElement;
-          const attrWidth = htmlElement.getAttribute('width');
+          const attrWidth = htmlElement.getAttribute("width");
           if (attrWidth) {
             const parsedAttrWidth = Number(attrWidth);
             if (Number.isFinite(parsedAttrWidth)) {
@@ -297,19 +372,22 @@ const EditorImage = Image.extend({
             return Number(dataWidth);
           }
 
-          const parsedWidth = Number.parseInt(htmlElement.style.width.replace('px', ''), 10);
+          const parsedWidth = Number.parseInt(
+            htmlElement.style.width.replace("px", ""),
+            10,
+          );
           return Number.isFinite(parsedWidth) ? parsedWidth : null;
         },
         renderHTML: (attributes) => {
           const width = attributes.width as number | null | undefined;
-          return width ? { width, 'data-image-width': String(width) } : {};
+          return width ? { width, "data-image-width": String(width) } : {};
         },
       },
       height: {
         default: null,
         parseHTML: (element) => {
           const htmlElement = element as HTMLElement;
-          const attrHeight = htmlElement.getAttribute('height');
+          const attrHeight = htmlElement.getAttribute("height");
           if (attrHeight) {
             const parsedAttrHeight = Number(attrHeight);
             if (Number.isFinite(parsedAttrHeight)) {
@@ -318,7 +396,10 @@ const EditorImage = Image.extend({
           }
 
           const styleHeight = htmlElement.style.height;
-          const parsedStyleHeight = Number.parseInt(styleHeight.replace('px', ''), 10);
+          const parsedStyleHeight = Number.parseInt(
+            styleHeight.replace("px", ""),
+            10,
+          );
           return Number.isFinite(parsedStyleHeight) ? parsedStyleHeight : null;
         },
         renderHTML: (attributes) => {
@@ -333,7 +414,7 @@ const EditorImage = Image.extend({
     const align = resolveImageAlign(attributes.align);
     const normalizedClassName = normalizeImageClassName(
       (HTMLAttributes as { class?: string }).class,
-      align
+      align,
     );
     const {
       style: _style,
@@ -342,23 +423,34 @@ const EditorImage = Image.extend({
     } = HTMLAttributes as Record<string, unknown>;
 
     return [
-      'img',
-      mergeAttributes({ draggable: 'true' }, sanitizedAttributes, {
+      "img",
+      mergeAttributes({ draggable: "true" }, sanitizedAttributes, {
         class: normalizedClassName,
-        style: buildImageStyle({ align, width: attributes.width, height: attributes.height }),
+        style: buildImageStyle({
+          align,
+          width: attributes.width,
+          height: attributes.height,
+        }),
       }),
     ];
   },
   addNodeView() {
-    if (!this.options.resize || !this.options.resize.enabled || typeof document === 'undefined') {
+    if (
+      !this.options.resize ||
+      !this.options.resize.enabled ||
+      typeof document === "undefined"
+    ) {
       return null;
     }
 
-    const { directions, minWidth, minHeight, alwaysPreserveAspectRatio } = this.options.resize;
+    const { directions, minWidth, minHeight, alwaysPreserveAspectRatio } =
+      this.options.resize;
 
     return ({ node, getPos, editor }) => {
-      const element = document.createElement('img');
-      let currentAlign = resolveImageAlign((node.attrs as EditorImageAttrs).align);
+      const element = document.createElement("img");
+      let currentAlign = resolveImageAlign(
+        (node.attrs as EditorImageAttrs).align,
+      );
 
       applyImageDomAttributes(element, node.attrs as EditorImageAttrs);
 
@@ -368,7 +460,10 @@ const EditorImage = Image.extend({
         node,
         getPos,
         onResize: (width, height) => {
-          element.setAttribute('style', buildImageStyle({ align: currentAlign, width, height }));
+          element.setAttribute(
+            "style",
+            buildImageStyle({ align: currentAlign, width, height }),
+          );
         },
         onCommit: (width, height) => {
           const pos = getPos();
@@ -391,7 +486,10 @@ const EditorImage = Image.extend({
           }
 
           currentAlign = resolveImageAlign(updatedNode.attrs.align);
-          applyImageDomAttributes(element, updatedNode.attrs as EditorImageAttrs);
+          applyImageDomAttributes(
+            element,
+            updatedNode.attrs as EditorImageAttrs,
+          );
           requestAnimationFrame(() => {
             applyImageContainerAlign(element, currentAlign);
           });
@@ -408,20 +506,20 @@ const EditorImage = Image.extend({
       });
 
       const dom = nodeView.dom as HTMLElement;
-      dom.style.visibility = 'hidden';
-      dom.style.pointerEvents = 'none';
+      dom.style.visibility = "hidden";
+      dom.style.pointerEvents = "none";
 
       const revealAndAlign = () => {
-        dom.style.visibility = '';
-        dom.style.pointerEvents = '';
+        dom.style.visibility = "";
+        dom.style.pointerEvents = "";
         applyImageContainerAlign(element, currentAlign);
       };
 
       if (element.complete) {
         revealAndAlign();
       } else {
-        element.addEventListener('load', revealAndAlign, { once: true });
-        element.addEventListener('error', revealAndAlign, { once: true });
+        element.addEventListener("load", revealAndAlign, { once: true });
+        element.addEventListener("error", revealAndAlign, { once: true });
       }
 
       requestAnimationFrame(() => {
@@ -436,50 +534,51 @@ const EditorImage = Image.extend({
 export default function Editor({
   value,
   onChange,
-  placeholder = '내용을 입력해 주세요.',
+  placeholder = "내용을 입력해 주세요.",
   disabled = false,
   toolbar,
   onImageUpload, // ★ 추가: 이미지 업로드 콜백
 }: EditorProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const lastEmittedHtmlRef = useRef<string>('');
+  const lastEmittedHtmlRef = useRef<string>("");
   const selectedImagePosRef = useRef<number | null>(null);
   const lastSelectedImageElementRef = useRef<HTMLImageElement | null>(null);
-  const [hasTrackedImageSelection, setHasTrackedImageSelection] = useState(false);
+  const [hasTrackedImageSelection, setHasTrackedImageSelection] =
+    useState(false);
 
   const enabledTools = useMemo(
     () =>
       new Set(
         toolbar ?? [
-          'heading',
-          'bold',
-          'italic',
-          'strike',
-          'underline',
-          'subscript',
-          'superscript',
-          'fontSize',
-          'textColor',
-          'highlight',
-          'alignLeft',
-          'alignCenter',
-          'alignRight',
-          'alignJustify',
-          'bulletList',
-          'orderedList',
-          'blockquote',
-          'code',
-          'codeBlock',
-          'horizontalRule',
-          'link',
-          'image',
-          'table',
-          'clearFormat',
-          'undo',
-          'redo',
-        ]
+          "heading",
+          "bold",
+          "italic",
+          "strike",
+          "underline",
+          "subscript",
+          "superscript",
+          "fontSize",
+          "textColor",
+          "highlight",
+          "alignLeft",
+          "alignCenter",
+          "alignRight",
+          "alignJustify",
+          "bulletList",
+          "orderedList",
+          "blockquote",
+          "code",
+          "codeBlock",
+          "horizontalRule",
+          "link",
+          "image",
+          "table",
+          "clearFormat",
+          "undo",
+          "redo",
+        ],
       ),
-    [toolbar]
+    [toolbar],
   );
 
   const editor = useEditor({
@@ -494,13 +593,22 @@ export default function Editor({
       Link.configure({
         openOnClick: false,
         autolink: true,
-        defaultProtocol: 'https',
+        defaultProtocol: "https",
       }),
       EditorImage.configure({
         allowBase64: true,
         resize: {
           enabled: true,
-          directions: ['top-left', 'top', 'top-right', 'left', 'right', 'bottom-left', 'bottom', 'bottom-right'],
+          directions: [
+            "top-left",
+            "top",
+            "top-right",
+            "left",
+            "right",
+            "bottom-left",
+            "bottom",
+            "bottom-right",
+          ],
           minWidth: 120,
           minHeight: 120,
           alwaysPreserveAspectRatio: true,
@@ -513,7 +621,7 @@ export default function Editor({
       TableHeader,
       TableCell,
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ["heading", "paragraph"],
       }),
       Placeholder.configure({
         placeholder,
@@ -528,7 +636,7 @@ export default function Editor({
     },
     onSelectionUpdate: ({ editor: currentEditor }) => {
       const imagePos = getImagePosFromSelection(currentEditor);
-      if (typeof imagePos === 'number') {
+      if (typeof imagePos === "number") {
         selectedImagePosRef.current = imagePos;
         setHasTrackedImageSelection(true);
         return;
@@ -543,7 +651,7 @@ export default function Editor({
       return;
     }
 
-    const incoming = normalizeEditorContent(value || '');
+    const incoming = normalizeEditorContent(value || "");
     if (incoming === lastEmittedHtmlRef.current) {
       return;
     }
@@ -554,9 +662,12 @@ export default function Editor({
 
       requestAnimationFrame(() => {
         const root = editor.view.dom as HTMLElement;
-        root.querySelectorAll('img').forEach((imageNode) => {
+        root.querySelectorAll("img").forEach((imageNode) => {
           const imageElement = imageNode as HTMLImageElement;
-          applyImageContainerAlign(imageElement, resolveImageAlignFromElement(imageElement));
+          applyImageContainerAlign(
+            imageElement,
+            resolveImageAlignFromElement(imageElement),
+          );
         });
       });
     }
@@ -571,7 +682,11 @@ export default function Editor({
       const pos = editor.view.posAtDOM(element, 0);
       const doc = editor.state.doc;
       for (const p of [pos, pos - 1, pos + 1]) {
-        if (p >= 0 && p <= doc.content.size && doc.nodeAt(p)?.type.name === 'image') {
+        if (
+          p >= 0 &&
+          p <= doc.content.size &&
+          doc.nodeAt(p)?.type.name === "image"
+        ) {
           return p;
         }
       }
@@ -587,9 +702,13 @@ export default function Editor({
 
     // 1. 저장된 ref (selection/click 이벤트에서 설정)
     const refPos = selectedImagePosRef.current;
-    if (typeof refPos === 'number') {
+    if (typeof refPos === "number") {
       for (const p of [refPos, refPos - 1, refPos + 1]) {
-        if (p >= 0 && p <= doc.content.size && doc.nodeAt(p)?.type.name === 'image') {
+        if (
+          p >= 0 &&
+          p <= doc.content.size &&
+          doc.nodeAt(p)?.type.name === "image"
+        ) {
           return p;
         }
       }
@@ -597,14 +716,15 @@ export default function Editor({
 
     // 2. ProseMirror 현재 selection
     const selPos = getImagePosFromSelection(editor);
-    if (typeof selPos === 'number') return selPos;
+    if (typeof selPos === "number") return selPos;
 
     // 3. 마지막으로 클릭한 DOM 요소에서 역추적
     const lastEl = lastSelectedImageElementRef.current;
     if (lastEl && editor.view.dom.contains(lastEl)) {
       const container =
-        (lastEl.closest('[data-resize-container][data-node="image"]') as HTMLElement | null) ??
-        lastEl;
+        (lastEl.closest(
+          '[data-resize-container][data-node="image"]',
+        ) as HTMLElement | null) ?? lastEl;
       const domPos = resolveImagePosFromDom(container);
       if (domPos !== null) return domPos;
     }
@@ -613,7 +733,7 @@ export default function Editor({
     let found: number | null = null;
     let count = 0;
     doc.descendants((node, pos) => {
-      if (node.type.name === 'image') {
+      if (node.type.name === "image") {
         found = pos;
         count += 1;
       }
@@ -631,21 +751,23 @@ export default function Editor({
 
     const markDragging = (event: Event) => {
       const target = event.target as HTMLElement | null;
-      if (!target || target.tagName !== 'IMG') {
+      if (!target || target.tagName !== "IMG") {
         return;
       }
-      target.setAttribute('data-dragging-image', 'true');
+      target.setAttribute("data-dragging-image", "true");
     };
 
     const clearDragging = () => {
-      root.querySelectorAll('img[data-dragging-image="true"]').forEach((node) => {
-        node.removeAttribute('data-dragging-image');
-      });
+      root
+        .querySelectorAll('img[data-dragging-image="true"]')
+        .forEach((node) => {
+          node.removeAttribute("data-dragging-image");
+        });
     };
 
-    root.addEventListener('dragstart', markDragging, true);
-    root.addEventListener('dragend', clearDragging, true);
-    root.addEventListener('drop', clearDragging, true);
+    root.addEventListener("dragstart", markDragging, true);
+    root.addEventListener("dragend", clearDragging, true);
+    root.addEventListener("drop", clearDragging, true);
 
     const trackImageSelection = (event: Event) => {
       const target = event.target as HTMLElement | null;
@@ -654,9 +776,11 @@ export default function Editor({
       }
 
       const imageElement =
-        target.tagName === 'IMG'
+        target.tagName === "IMG"
           ? (target as HTMLImageElement)
-          : (target.closest('[data-resize-container][data-node="image"]')?.querySelector('img') as HTMLImageElement | null);
+          : (target
+              .closest('[data-resize-container][data-node="image"]')
+              ?.querySelector("img") as HTMLImageElement | null);
 
       if (!imageElement) {
         return;
@@ -664,21 +788,21 @@ export default function Editor({
 
       lastSelectedImageElementRef.current = imageElement;
       const pos = resolveImagePosFromDom(imageElement);
-      if (typeof pos === 'number') {
+      if (typeof pos === "number") {
         selectedImagePosRef.current = pos;
         setHasTrackedImageSelection(true);
       }
     };
 
-    root.addEventListener('pointerdown', trackImageSelection, true);
-    root.addEventListener('click', trackImageSelection, true);
+    root.addEventListener("pointerdown", trackImageSelection, true);
+    root.addEventListener("click", trackImageSelection, true);
 
     return () => {
-      root.removeEventListener('dragstart', markDragging, true);
-      root.removeEventListener('dragend', clearDragging, true);
-      root.removeEventListener('drop', clearDragging, true);
-      root.removeEventListener('pointerdown', trackImageSelection, true);
-      root.removeEventListener('click', trackImageSelection, true);
+      root.removeEventListener("dragstart", markDragging, true);
+      root.removeEventListener("dragend", clearDragging, true);
+      root.removeEventListener("drop", clearDragging, true);
+      root.removeEventListener("pointerdown", trackImageSelection, true);
+      root.removeEventListener("click", trackImageSelection, true);
     };
   }, [editor]);
 
@@ -687,7 +811,7 @@ export default function Editor({
   }
 
   const setFontSize = (fontSize: string) => {
-    editor.chain().focus().setMark('textStyle', { fontSize }).run();
+    editor.chain().focus().setMark("textStyle", { fontSize }).run();
   };
 
   const setTextColor = (color: string) => {
@@ -695,8 +819,11 @@ export default function Editor({
   };
 
   const toggleLink = () => {
-    const previousUrl = editor.getAttributes('link').href as string | undefined;
-    const nextUrl = window.prompt('링크 URL을 입력해 주세요.', previousUrl || 'https://');
+    const previousUrl = editor.getAttributes("link").href as string | undefined;
+    const nextUrl = window.prompt(
+      "링크 URL을 입력해 주세요.",
+      previousUrl || "https://",
+    );
 
     if (nextUrl === null) {
       return;
@@ -708,11 +835,16 @@ export default function Editor({
       return;
     }
 
-    editor.chain().focus().extendMarkRange('link').setLink({ href: trimmed }).run();
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: trimmed })
+      .run();
   };
 
   const addImageByUrl = () => {
-    const src = window.prompt('이미지 URL을 입력해 주세요.', 'https://');
+    const src = window.prompt("이미지 URL을 입력해 주세요.", "https://");
     if (!src) {
       return;
     }
@@ -720,7 +852,7 @@ export default function Editor({
       .chain()
       .focus()
       .setImage({ src: src.trim(), width: 640 })
-      .updateAttributes('image', { align: 'center' })
+      .updateAttributes("image", { align: "center" })
       .run();
   };
 
@@ -737,13 +869,13 @@ export default function Editor({
           .chain()
           .focus()
           .setImage({ src: imageUrl, alt: file.name, width: 640 })
-          .updateAttributes('image', { align: 'center' })
+          .updateAttributes("image", { align: "center" })
           .run();
       } catch (error) {
-        console.error('이미지 업로드 실패:', error);
-        alert('이미지 업로드 중 오류가 발생했습니다.');
+        console.error("이미지 업로드 실패:", error);
+        toast.error("이미지 업로드 중 오류가 발생했습니다.");
       }
-      event.target.value = '';
+      event.target.value = "";
       return;
     }
 
@@ -751,77 +883,99 @@ export default function Editor({
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result;
-      if (typeof result === 'string') {
+      if (typeof result === "string") {
         editor
           .chain()
           .focus()
           .setImage({ src: result, alt: file.name, width: 640 })
-          .updateAttributes('image', { align: 'center' })
+          .updateAttributes("image", { align: "center" })
           .run();
       }
     };
     reader.readAsDataURL(file);
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const clearFormatting = () => {
     editor.chain().focus().clearNodes().unsetAllMarks().run();
   };
 
-  const setImageAlign = (align: 'left' | 'center' | 'right') => {
+  const setImageAlign = (align: "left" | "center" | "right") => {
     const pos = findImagePosForUpdate();
     if (pos === null) return;
-    editor.chain().setNodeSelection(pos).updateAttributes('image', { align }).run();
+    editor
+      .chain()
+      .setNodeSelection(pos)
+      .updateAttributes("image", { align })
+      .run();
     selectedImagePosRef.current = pos;
   };
 
   const setImageWidth = (width: number) => {
     const pos = findImagePosForUpdate();
     if (pos === null) return;
-    editor.chain().setNodeSelection(pos).updateAttributes('image', { width }).run();
+    editor
+      .chain()
+      .setNodeSelection(pos)
+      .updateAttributes("image", { width })
+      .run();
     selectedImagePosRef.current = pos;
   };
 
   const selectedImagePos = findImagePosForUpdate();
   const selectedImageNode =
-    typeof selectedImagePos === 'number' ? editor.state.doc.nodeAt(selectedImagePos) : null;
+    typeof selectedImagePos === "number"
+      ? editor.state.doc.nodeAt(selectedImagePos)
+      : null;
   const selectedImageAttributes =
-    selectedImageNode?.type.name === 'image' ? (selectedImageNode.attrs as EditorImageAttrs) : null;
+    selectedImageNode?.type.name === "image"
+      ? (selectedImageNode.attrs as EditorImageAttrs)
+      : null;
   const selectedImageElement = lastSelectedImageElementRef.current;
   const selectedImageElementInEditor =
-    selectedImageElement && editor.view.dom.contains(selectedImageElement) ? selectedImageElement : null;
+    selectedImageElement && editor.view.dom.contains(selectedImageElement)
+      ? selectedImageElement
+      : null;
   const selectedImageAlign = selectedImageElementInEditor
     ? resolveImageAlignFromElement(selectedImageElementInEditor)
     : resolveImageAlign(selectedImageAttributes?.align);
   const selectedImageWidth = selectedImageElementInEditor
-    ? resolveImageWidthFromElement(selectedImageElementInEditor) ?? (selectedImageAttributes?.width || 640)
+    ? (resolveImageWidthFromElement(selectedImageElementInEditor) ??
+      (selectedImageAttributes?.width || 640))
     : selectedImageAttributes?.width || 640;
   const hasSelectedImage =
     Boolean(selectedImageAttributes) ||
     hasTrackedImageSelection ||
-    Boolean(lastSelectedImageElementRef.current && editor.view.dom.contains(lastSelectedImageElementRef.current));
+    Boolean(
+      lastSelectedImageElementRef.current &&
+      editor.view.dom.contains(lastSelectedImageElementRef.current),
+    );
 
   const toolbarButtonClass = (isActive = false) =>
-    `h-8 w-8 inline-flex items-center justify-center border border-slate-300 transition-colors ${isActive ? 'bg-slate-200 text-slate-900' : 'bg-white text-slate-700 hover:bg-slate-100'}`;
+    `h-8 w-8 inline-flex items-center justify-center border border-slate-300 transition-colors ${isActive ? "bg-slate-200 text-slate-900" : "bg-white text-slate-700 hover:bg-slate-100"}`;
 
   const handleInsertAction = (action: string) => {
     switch (action) {
-      case 'link':
+      case "link":
         toggleLink();
         break;
-      case 'imageUrl':
+      case "imageUrl":
         addImageByUrl();
         break;
-      case 'imageFile':
+      case "imageFile":
         fileInputRef.current?.click();
         break;
-      case 'table':
-        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+      case "table":
+        editor
+          .chain()
+          .focus()
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+          .run();
         break;
-      case 'tableDelete':
+      case "tableDelete":
         editor.chain().focus().deleteTable().run();
         break;
-      case 'horizontalRule':
+      case "horizontalRule":
         editor.chain().focus().setHorizontalRule().run();
         break;
       default:
@@ -853,248 +1007,336 @@ export default function Editor({
     </button>
   );
 
-  const ToolbarDivider = () => <span className="mx-1 h-5 w-px bg-slate-200" aria-hidden="true" />;
+  const ToolbarDivider = () => (
+    <span className="mx-1 h-5 w-px bg-slate-200" aria-hidden="true" />
+  );
 
   return (
     <div className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm">
       <div className="border-b border-slate-200 bg-slate-50 px-2 py-2">
         <div className="flex flex-wrap items-center gap-1 py-1">
-        {enabledTools.has('heading') && (
-          <select
-            className="h-8 min-w-[110px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
-            value={
-              editor.isActive('heading', { level: 1 })
-                ? 'h1'
-                : editor.isActive('heading', { level: 2 })
-                  ? 'h2'
-                  : editor.isActive('heading', { level: 3 })
-                    ? 'h3'
-                    : 'p'
-            }
-            onChange={(event) => {
-              const type = event.target.value;
-              if (type === 'p') {
-                editor.chain().focus().setParagraph().run();
-                return;
+          {enabledTools.has("heading") && (
+            <select
+              className="h-8 min-w-[110px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
+              value={
+                editor.isActive("heading", { level: 1 })
+                  ? "h1"
+                  : editor.isActive("heading", { level: 2 })
+                    ? "h2"
+                    : editor.isActive("heading", { level: 3 })
+                      ? "h3"
+                      : "p"
               }
-              const level = Number(type.replace('h', '')) as 1 | 2 | 3;
-              editor.chain().focus().toggleHeading({ level }).run();
-            }}
-            disabled={disabled}
-            title="문단 스타일"
-          >
-            <option value="p">본문</option>
-            <option value="h1">제목 1</option>
-            <option value="h2">제목 2</option>
-            <option value="h3">제목 3</option>
-          </select>
-        )}
+              onChange={(event) => {
+                const type = event.target.value;
+                if (type === "p") {
+                  editor.chain().focus().setParagraph().run();
+                  return;
+                }
+                const level = Number(type.replace("h", "")) as 1 | 2 | 3;
+                editor.chain().focus().toggleHeading({ level }).run();
+              }}
+              disabled={disabled}
+              title="문단 스타일"
+            >
+              <option value="p">본문</option>
+              <option value="h1">제목 1</option>
+              <option value="h2">제목 2</option>
+              <option value="h3">제목 3</option>
+            </select>
+          )}
 
-        {enabledTools.has('fontSize') && (
-          <select
-            className="h-8 min-w-[92px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
-            value={editor.getAttributes('textStyle').fontSize || '16px'}
-            onChange={(event) => setFontSize(event.target.value)}
-            disabled={disabled}
-            title="글자 크기"
-          >
-            <option value="14px">14px</option>
-            <option value="16px">16px</option>
-            <option value="18px">18px</option>
-            <option value="24px">24px</option>
-          </select>
-        )}
+          {enabledTools.has("fontSize") && (
+            <select
+              className="h-8 min-w-[92px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
+              value={editor.getAttributes("textStyle").fontSize || "16px"}
+              onChange={(event) => setFontSize(event.target.value)}
+              disabled={disabled}
+              title="글자 크기"
+            >
+              <option value="14px">14px</option>
+              <option value="16px">16px</option>
+              <option value="18px">18px</option>
+              <option value="24px">24px</option>
+            </select>
+          )}
 
-        <ToolbarDivider />
+          <ToolbarDivider />
 
-        {enabledTools.has('bold') && (
-          <IconButton title="굵게" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
-            <span className="material-icons text-base">format_bold</span>
-          </IconButton>
-        )}
-        {enabledTools.has('italic') && (
-          <IconButton title="기울임" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
-            <span className="material-icons text-base">format_italic</span>
-          </IconButton>
-        )}
-        {enabledTools.has('underline') && (
-          <IconButton title="밑줄" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}>
-            <span className="material-icons text-base">format_underlined</span>
-          </IconButton>
-        )}
-        {enabledTools.has('strike') && (
-          <IconButton title="취소선" active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()}>
-            <span className="material-icons text-base">format_strikethrough</span>
-          </IconButton>
-        )}
-        {enabledTools.has('subscript') && (
-          <IconButton title="아래첨자" active={editor.isActive('subscript')} onClick={() => editor.chain().focus().toggleSubscript().run()}>
-            <span className="material-icons text-base">subscript</span>
-          </IconButton>
-        )}
-        {enabledTools.has('superscript') && (
-          <IconButton title="위첨자" active={editor.isActive('superscript')} onClick={() => editor.chain().focus().toggleSuperscript().run()}>
-            <span className="material-icons text-base">superscript</span>
-          </IconButton>
-        )}
-        {enabledTools.has('textColor') && (
-          <input
-            type="color"
-            className="h-8 w-8 rounded-sm border border-slate-300 bg-white"
-            value={editor.getAttributes('textStyle').color || '#000000'}
-            onChange={(event) => setTextColor(event.target.value)}
-            disabled={disabled}
-            title="글자 색상"
-          />
-        )}
-        {enabledTools.has('highlight') && (
-          <IconButton title="형광펜" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()}>
-            <span className="material-icons text-base">highlight</span>
-          </IconButton>
-        )}
+          {enabledTools.has("bold") && (
+            <IconButton
+              title="굵게"
+              active={editor.isActive("bold")}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+            >
+              <Bold className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("italic") && (
+            <IconButton
+              title="기울임"
+              active={editor.isActive("italic")}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+            >
+              <Italic className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("underline") && (
+            <IconButton
+              title="밑줄"
+              active={editor.isActive("underline")}
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+            >
+              <UnderlineIcon className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("strike") && (
+            <IconButton
+              title="취소선"
+              active={editor.isActive("strike")}
+              onClick={() => editor.chain().focus().toggleStrike().run()}
+            >
+              <Strikethrough className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("subscript") && (
+            <IconButton
+              title="아래첨자"
+              active={editor.isActive("subscript")}
+              onClick={() => editor.chain().focus().toggleSubscript().run()}
+            >
+              <SubscriptIcon className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("superscript") && (
+            <IconButton
+              title="위첨자"
+              active={editor.isActive("superscript")}
+              onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            >
+              <SuperscriptIcon className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("textColor") && (
+            <input
+              type="color"
+              className="h-8 w-8 rounded-sm border border-slate-300 bg-white"
+              value={editor.getAttributes("textStyle").color || "#000000"}
+              onChange={(event) => setTextColor(event.target.value)}
+              disabled={disabled}
+              title="글자 색상"
+            />
+          )}
+          {enabledTools.has("highlight") && (
+            <IconButton
+              title="형광펜"
+              active={editor.isActive("highlight")}
+              onClick={() => editor.chain().focus().toggleHighlight().run()}
+            >
+              <Highlighter className="h-4 w-4" />
+            </IconButton>
+          )}
 
-        {(enabledTools.has('clearFormat') || enabledTools.has('undo') || enabledTools.has('redo')) && <ToolbarDivider />}
+          {(enabledTools.has("clearFormat") ||
+            enabledTools.has("undo") ||
+            enabledTools.has("redo")) && <ToolbarDivider />}
 
-        {enabledTools.has('clearFormat') && (
-          <IconButton title="서식 초기화" onClick={clearFormatting}>
-            <span className="material-icons text-base">format_clear</span>
-          </IconButton>
-        )}
-        {enabledTools.has('undo') && (
-          <IconButton
-            title="실행 취소"
-            onClick={() => editor.chain().focus().undo().run()}
-            disabled={disabled || !editor.can().chain().focus().undo().run()}
-          >
-            <span className="material-icons text-base">undo</span>
-          </IconButton>
-        )}
-        {enabledTools.has('redo') && (
-          <IconButton
-            title="다시 실행"
-            onClick={() => editor.chain().focus().redo().run()}
-            disabled={disabled || !editor.can().chain().focus().redo().run()}
-          >
-            <span className="material-icons text-base">redo</span>
-          </IconButton>
-        )}
+          {enabledTools.has("clearFormat") && (
+            <IconButton title="서식 초기화" onClick={clearFormatting}>
+              <RemoveFormatting className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("undo") && (
+            <IconButton
+              title="실행 취소"
+              onClick={() => editor.chain().focus().undo().run()}
+              disabled={disabled || !editor.can().chain().focus().undo().run()}
+            >
+              <Undo className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("redo") && (
+            <IconButton
+              title="다시 실행"
+              onClick={() => editor.chain().focus().redo().run()}
+              disabled={disabled || !editor.can().chain().focus().redo().run()}
+            >
+              <Redo className="h-4 w-4" />
+            </IconButton>
+          )}
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-1 border-t border-slate-200 pt-2">
-        <ToolbarDivider />
+          <ToolbarDivider />
 
-        {enabledTools.has('alignLeft') && (
-          <IconButton title="좌측 정렬" active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()}>
-            <span className="material-icons text-base">format_align_left</span>
-          </IconButton>
-        )}
-        {enabledTools.has('alignCenter') && (
-          <IconButton title="가운데 정렬" active={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()}>
-            <span className="material-icons text-base">format_align_center</span>
-          </IconButton>
-        )}
-        {enabledTools.has('alignRight') && (
-          <IconButton title="우측 정렬" active={editor.isActive({ textAlign: 'right' })} onClick={() => editor.chain().focus().setTextAlign('right').run()}>
-            <span className="material-icons text-base">format_align_right</span>
-          </IconButton>
-        )}
-        {enabledTools.has('alignJustify') && (
-          <IconButton title="양쪽 정렬" active={editor.isActive({ textAlign: 'justify' })} onClick={() => editor.chain().focus().setTextAlign('justify').run()}>
-            <span className="material-icons text-base">format_align_justify</span>
-          </IconButton>
-        )}
-
-        <ToolbarDivider />
-
-        {enabledTools.has('bulletList') && (
-          <IconButton title="글머리 목록" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-            <span className="material-icons text-base">format_list_bulleted</span>
-          </IconButton>
-        )}
-        {enabledTools.has('orderedList') && (
-          <IconButton title="번호 목록" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-            <span className="material-icons text-base">format_list_numbered</span>
-          </IconButton>
-        )}
-        {enabledTools.has('blockquote') && (
-          <IconButton title="인용" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-            <span className="material-icons text-base">format_quote</span>
-          </IconButton>
-        )}
-        {enabledTools.has('code') && (
-          <IconButton title="인라인 코드" active={editor.isActive('code')} onClick={() => editor.chain().focus().toggleCode().run()}>
-            <span className="material-icons text-base">code</span>
-          </IconButton>
-        )}
-        {enabledTools.has('codeBlock') && (
-          <IconButton title="코드 블록" active={editor.isActive('codeBlock')} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>
-            <span className="material-icons text-base">data_object</span>
-          </IconButton>
-        )}
-
-        <ToolbarDivider />
-
-        {(enabledTools.has('link') || enabledTools.has('image') || enabledTools.has('table') || enabledTools.has('horizontalRule')) && (
-          <select
-            className="h-8 min-w-[108px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
-            defaultValue=""
-            onChange={(event) => {
-              const action = event.target.value;
-              handleInsertAction(action);
-              event.target.value = '';
-            }}
-            disabled={disabled}
-            title="삽입 메뉴"
-          >
-            <option value="">삽입</option>
-            {enabledTools.has('link') && <option value="link">링크</option>}
-            {enabledTools.has('image') && <option value="imageUrl">이미지 URL</option>}
-            {enabledTools.has('image') && <option value="imageFile">이미지 파일</option>}
-            {enabledTools.has('table') && <option value="table">표 추가</option>}
-            {enabledTools.has('table') && <option value="tableDelete">표 삭제</option>}
-            {enabledTools.has('horizontalRule') && <option value="horizontalRule">구분선</option>}
-          </select>
-        )}
-
-        {enabledTools.has('image') && (
-          <>
-            <select
-              className="h-8 min-w-[102px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
-              value={hasSelectedImage ? selectedImageAlign : 'center'}
-              onChange={(event) => setImageAlign(event.target.value as 'left' | 'center' | 'right')}
-              disabled={disabled || !hasSelectedImage}
-              title="이미지 정렬"
+          {enabledTools.has("alignLeft") && (
+            <IconButton
+              title="좌측 정렬"
+              active={editor.isActive({ textAlign: "left" })}
+              onClick={() => editor.chain().focus().setTextAlign("left").run()}
             >
-              {IMAGE_ALIGN_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  이미지 {option.label}
-                </option>
-              ))}
-            </select>
-            <select
-              className="h-8 min-w-[92px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
-              value={hasSelectedImage ? selectedImageWidth : 640}
-              onChange={(event) => setImageWidth(Number(event.target.value))}
-              disabled={disabled || !hasSelectedImage}
-              title="이미지 크기"
+              <AlignLeft className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("alignCenter") && (
+            <IconButton
+              title="가운데 정렬"
+              active={editor.isActive({ textAlign: "center" })}
+              onClick={() =>
+                editor.chain().focus().setTextAlign("center").run()
+              }
             >
-              {IMAGE_SIZE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <AlignCenter className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("alignRight") && (
+            <IconButton
+              title="우측 정렬"
+              active={editor.isActive({ textAlign: "right" })}
+              onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            >
+              <AlignRight className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("alignJustify") && (
+            <IconButton
+              title="양쪽 정렬"
+              active={editor.isActive({ textAlign: "justify" })}
+              onClick={() =>
+                editor.chain().focus().setTextAlign("justify").run()
+              }
+            >
+              <AlignJustify className="h-4 w-4" />
+            </IconButton>
+          )}
+
+          <ToolbarDivider />
+
+          {enabledTools.has("bulletList") && (
+            <IconButton
+              title="글머리 목록"
+              active={editor.isActive("bulletList")}
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+            >
+              <List className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("orderedList") && (
+            <IconButton
+              title="번호 목록"
+              active={editor.isActive("orderedList")}
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            >
+              <ListOrdered className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("blockquote") && (
+            <IconButton
+              title="인용"
+              active={editor.isActive("blockquote")}
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            >
+              <Quote className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("code") && (
+            <IconButton
+              title="인라인 코드"
+              active={editor.isActive("code")}
+              onClick={() => editor.chain().focus().toggleCode().run()}
+            >
+              <Code className="h-4 w-4" />
+            </IconButton>
+          )}
+          {enabledTools.has("codeBlock") && (
+            <IconButton
+              title="코드 블록"
+              active={editor.isActive("codeBlock")}
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            >
+              <Braces className="h-4 w-4" />
+            </IconButton>
+          )}
+
+          <ToolbarDivider />
+
+          {(enabledTools.has("link") ||
+            enabledTools.has("image") ||
+            enabledTools.has("table") ||
+            enabledTools.has("horizontalRule")) && (
+            <select
+              className="h-8 min-w-[108px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
+              defaultValue=""
+              onChange={(event) => {
+                const action = event.target.value;
+                handleInsertAction(action);
+                event.target.value = "";
+              }}
+              disabled={disabled}
+              title="삽입 메뉴"
+            >
+              <option value="">삽입</option>
+              {enabledTools.has("link") && <option value="link">링크</option>}
+              {enabledTools.has("image") && (
+                <option value="imageUrl">이미지 URL</option>
+              )}
+              {enabledTools.has("image") && (
+                <option value="imageFile">이미지 파일</option>
+              )}
+              {enabledTools.has("table") && (
+                <option value="table">표 추가</option>
+              )}
+              {enabledTools.has("table") && (
+                <option value="tableDelete">표 삭제</option>
+              )}
+              {enabledTools.has("horizontalRule") && (
+                <option value="horizontalRule">구분선</option>
+              )}
             </select>
-          </>
-        )}
+          )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={addImageByFile}
-        />
+          {enabledTools.has("image") && (
+            <>
+              <select
+                className="h-8 min-w-[102px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
+                value={hasSelectedImage ? selectedImageAlign : "center"}
+                onChange={(event) =>
+                  setImageAlign(
+                    event.target.value as "left" | "center" | "right",
+                  )
+                }
+                disabled={disabled || !hasSelectedImage}
+                title="이미지 정렬"
+              >
+                {IMAGE_ALIGN_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    이미지 {option.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="h-8 min-w-[92px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
+                value={hasSelectedImage ? selectedImageWidth : 640}
+                onChange={(event) => setImageWidth(Number(event.target.value))}
+                disabled={disabled || !hasSelectedImage}
+                title="이미지 크기"
+              >
+                {IMAGE_SIZE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
 
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={addImageByFile}
+          />
         </div>
       </div>
 

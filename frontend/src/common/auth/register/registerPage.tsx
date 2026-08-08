@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker as MuiDatePicker } from "@mui/x-date-pickers/DatePicker";
-import { ko } from "date-fns/locale";
+import { Alert, AlertDescription, Input } from "../../common/ui";
 import { useRegister } from "./registerHook";
 
 export default function RegisterPage() {
@@ -72,11 +69,11 @@ export default function RegisterPage() {
         </div>
 
         {message && (
-          <div
-            className={`text-sm rounded-md px-4 py-3 ${messageType === "success" ? "text-green-700 bg-green-50 border border-green-200" : "text-red-600 bg-red-50 border border-red-200"}`}
+          <Alert
+            variant={messageType === "success" ? "success" : "destructive"}
           >
-            {message}
-          </div>
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
         )}
 
         <form className="space-y-6" onSubmit={onSubmit}>
@@ -93,9 +90,8 @@ export default function RegisterPage() {
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-start">
                 <div className="space-y-1.5">
-                  <input
+                  <Input
                     id="username"
-                    className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                     value={username}
                     onChange={(event) => {
                       onUsernameChange(event.target.value);
@@ -133,9 +129,8 @@ export default function RegisterPage() {
               >
                 비밀번호<span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 id="password"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -162,9 +157,8 @@ export default function RegisterPage() {
               >
                 비밀번호 확인<span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 id="passwordConfirm"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 type="password"
                 value={passwordConfirm}
                 onChange={(event) => setPasswordConfirm(event.target.value)}
@@ -194,9 +188,8 @@ export default function RegisterPage() {
               >
                 이름<span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 id="userName"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 value={userName}
                 onChange={(event) => setUserName(event.target.value)}
                 placeholder="이름을 입력하세요"
@@ -213,9 +206,8 @@ export default function RegisterPage() {
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-start">
                 <div className="space-y-1.5">
-                  <input
+                  <Input
                     id="email"
-                    className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                     type="email"
                     value={email}
                     onChange={(event) => {
@@ -251,9 +243,8 @@ export default function RegisterPage() {
               >
                 휴대폰 번호<span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 id="phone"
-                className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                 type="tel"
                 value={phone}
                 onChange={(event) =>
@@ -276,34 +267,12 @@ export default function RegisterPage() {
                 >
                   생년월일
                 </label>
-                <LocalizationProvider
-                  dateAdapter={AdapterDateFns}
-                  adapterLocale={ko}
-                >
-                  <MuiDatePicker
-                    value={birthDate ? new Date(birthDate) : null}
-                    onChange={(date) =>
-                      setBirthDate(date ? date.toISOString().split("T")[0] : "")
-                    }
-                    format="yyyy-MM-dd"
-                    slotProps={{
-                      textField: {
-                        id: "birthDate",
-                        size: "small",
-                        fullWidth: true,
-                        sx: {
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: "6px",
-                            fontSize: "0.875rem",
-                            backgroundColor: "#fff",
-                            "& fieldset": { borderColor: "#e2e8f0" },
-                          },
-                          "& .MuiInputBase-input": { padding: "10px 12px" },
-                        },
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
+                <Input
+                  id="birthDate"
+                  type="date"
+                  value={birthDate ?? ""}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                />
               </div>
 
               <div className="space-y-1.5">
@@ -340,11 +309,11 @@ export default function RegisterPage() {
                   >
                     우편번호
                   </label>
-                  <input
+                  <Input
                     id="postalCode"
-                    className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm bg-slate-50 text-slate-700"
                     value={postalCode}
                     placeholder="우편번호 검색"
+                    className="bg-muted"
                     readOnly
                   />
                 </div>
@@ -364,11 +333,11 @@ export default function RegisterPage() {
                 >
                   기본 주소
                 </label>
-                <input
+                <Input
                   id="addressLine1"
-                  className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm bg-slate-50 text-slate-700"
                   value={addressLine1}
                   placeholder="주소 검색으로 입력됩니다"
+                  className="bg-muted"
                   readOnly
                 />
               </div>
@@ -380,9 +349,8 @@ export default function RegisterPage() {
                 >
                   상세 주소
                 </label>
-                <input
+                <Input
                   id="addressLine2"
-                  className="w-full border border-slate-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
                   value={addressLine2}
                   onChange={(event) => setAddressLine2(event.target.value)}
                   placeholder="동/호수 등 상세 주소를 입력하세요"

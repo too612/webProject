@@ -46,6 +46,7 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import "../../styles/gridTheme.css";
+import { RefreshCw } from "lucide-react";
 import type { GridProps } from "./gridModel";
 import { useCallback, useEffect, useRef } from "react";
 
@@ -196,7 +197,7 @@ export default function grid(props: GridProps) {
       loadingComponent || (
         <div className="flex items-center justify-center h-60 border border-slate-200 rounded-md bg-slate-50">
           <div className="flex items-center gap-2 text-slate-400">
-            <span className="material-icons animate-spin">sync</span>
+            <RefreshCw className="h-4 w-4 animate-spin" />
             <span className="text-sm">불러오는 중...</span>
           </div>
         </div>

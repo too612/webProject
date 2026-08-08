@@ -1,8 +1,6 @@
 // React 라이브러리에서 컴포넌트의 상태와 생명주기를 관리하는 핵심 기능들을 가져옵니다.
-import {
-  useEffect, // 컴포넌트가 화면에 나타나거나 사라질 때, 혹은 특정 값이 바뀔 때 실행할 동작을 등록하는 기능입니다.
-  useState, // 컴포넌트 내부에서 유지되고 변경되는 동적인 데이터(상태)를 생성하고 관리하는 기능입니다.
-} from "react";
+import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 // TypeScript 환경에서 컴포넌트 태그에 직접 적용할 인라인 스타일 객체의 타입을 가져옵니다.
 import type {
@@ -501,16 +499,16 @@ export default function Header() {
                         aria-label={isOpen ? "대분류 접기" : "대분류 펼치기"}
                       >
                         <span
-                          className="submenu-toggle-icon submenu-toggle-icon-down material-icons"
+                          className="submenu-toggle-icon submenu-toggle-icon-down"
                           aria-hidden="true"
                         >
-                          expand_more
+                          <ChevronDown className="h-4 w-4" />
                         </span>
                         <span
-                          className="submenu-toggle-icon submenu-toggle-icon-up material-icons"
+                          className="submenu-toggle-icon submenu-toggle-icon-up"
                           aria-hidden="true"
                         >
-                          expand_less
+                          <ChevronUp className="h-4 w-4" />
                         </span>
                       </button>
                     )}
