@@ -142,22 +142,22 @@ export function ImageLightbox({
     setDragStartX(null);
   };
 
-  const handleContentClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      {/* 백드롭 클릭 시 닫기 — 네이티브 버튼으로 접근성 확보 */}
+      <button
+        type="button"
+        aria-label="이미지 뷰어 닫기"
+        className="absolute inset-0 z-0 cursor-default"
+        onClick={onClose}
+      />
       <div
         ref={containerRef}
-        className="relative w-full max-w-5xl max-h-[82vh] bg-black/40 rounded-xl shadow-2xl flex flex-col items-center justify-center overflow-hidden"
-        onClick={handleContentClick}
+        className="relative z-10 w-full max-w-5xl max-h-[82vh] bg-black/40 rounded-xl shadow-2xl flex flex-col items-center justify-center overflow-hidden"
       >
         {/* 닫기 버튼 */}
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
@@ -171,6 +171,7 @@ export function ImageLightbox({
 
         {/* 좌/우 이동 버튼 */}
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             goPrev();
@@ -182,6 +183,7 @@ export function ImageLightbox({
         </button>
 
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             goNext();

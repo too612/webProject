@@ -19,7 +19,9 @@ const WORSHIP_TYPE_LABEL_MAP: Record<string, string> = {
 
 function resolveWorshipTypeLabel(value: unknown): string {
   if (!value) return "-";
-  return WORSHIP_TYPE_LABEL_MAP[String(value)] ?? String(value);
+  if (typeof value !== "string" && typeof value !== "number") return "-";
+  const label = WORSHIP_TYPE_LABEL_MAP[String(value)];
+  return label ?? String(value);
 }
 
 // ★ 예배구분 컬럼 (공통 ArticleList의 '번호'와 '제목' 사이에 삽입됨)

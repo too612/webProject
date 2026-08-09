@@ -27,6 +27,62 @@ const LazyEditor = lazy(() => import("../../../common/editor/editor"));
 const buildDownloadUrl = (fileId: string | number) =>
   `/api/common/files/${fileId}/download`;
 
+function PastorProfileView({
+  isSingleImageMode,
+  viewImageSrc,
+  introduction,
+  chiefName,
+}: Readonly<{
+  isSingleImageMode: boolean;
+  viewImageSrc: string | null;
+  introduction: string;
+  chiefName?: string;
+}>) {
+  return (
+    <>
+      {isSingleImageMode ? (
+        <div className="rounded-none border border-slate-100 bg-slate-50/70 p-5 md:p-6">
+          {viewImageSrc ? (
+            <img
+              src={viewImageSrc}
+              alt="목회자 소개 이미지"
+              className="w-full h-auto max-h-[720px] rounded-none border border-slate-200 bg-white object-contain shadow-sm"
+            />
+          ) : (
+            <div className="w-full min-h-56 rounded-none border border-dashed border-slate-300 bg-white text-slate-500 text-sm flex items-center justify-center">
+              등록된 단일 소개 이미지가 없습니다.
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 items-start rounded-none border border-slate-100 bg-slate-50/70 p-5 md:p-6">
+          <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+            <EditorViewer
+              value={introduction}
+              emptyText="담임목사 소개문이 아직 등록되지 않았습니다."
+            />
+          </div>
+          <div className="shrink-0 flex justify-center md:justify-end">
+            {viewImageSrc ? (
+              <img
+                src={viewImageSrc}
+                alt={
+                  chiefName ? `담임목사 ${chiefName}` : "담임목사 이미지"
+                }
+                className="w-56 h-auto rounded-none border border-slate-200 bg-white object-cover shadow-sm"
+              />
+            ) : (
+              <div className="w-56 min-h-56 rounded-none border border-dashed border-slate-300 bg-white text-slate-500 text-sm flex items-center justify-center">
+                등록된 목사 이미지가 없습니다.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 /****************************************************************************************************
  * component method (state, hook 초기화)
  ****************************************************************************************************/
@@ -56,11 +112,12 @@ export default function PastorPage() {
     profile?.fileList && profile.fileList.length > 0
       ? buildDownloadUrl(profile.fileList[0].fileId)
       : null;
+  const previewImageSrc =
+    profileImageAttachment.existingFiles.length > 0
+      ? buildDownloadUrl(profileImageAttachment.existingFiles[0].fileId)
+      : null;
   const viewImageSrc = isEditMode
-    ? (newImagePreviewUrl ??
-      (profileImageAttachment.existingFiles.length > 0
-        ? buildDownloadUrl(profileImageAttachment.existingFiles[0].fileId)
-        : null))
+    ? newImagePreviewUrl ?? previewImageSrc
     : persistedImageSrc;
 
   /****************************************************************************************************
@@ -283,49 +340,12 @@ export default function PastorPage() {
         )}
 
         {!isEditMode && (
-          <>
-            {isSingleImageMode ? (
-              <div className="rounded-none border border-slate-100 bg-slate-50/70 p-5 md:p-6">
-                {viewImageSrc ? (
-                  <img
-                    src={viewImageSrc}
-                    alt="목회자 소개 이미지"
-                    className="w-full h-auto max-h-[720px] rounded-none border border-slate-200 bg-white object-contain shadow-sm"
-                  />
-                ) : (
-                  <div className="w-full min-h-56 rounded-none border border-dashed border-slate-300 bg-white text-slate-500 text-sm flex items-center justify-center">
-                    등록된 단일 소개 이미지가 없습니다.
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-6 items-start rounded-none border border-slate-100 bg-slate-50/70 p-5 md:p-6">
-                <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
-                  <EditorViewer
-                    value={profile?.introduction ?? ""}
-                    emptyText="담임목사 소개문이 아직 등록되지 않았습니다."
-                  />
-                </div>
-                <div className="shrink-0 flex justify-center md:justify-end">
-                  {viewImageSrc ? (
-                    <img
-                      src={viewImageSrc}
-                      alt={
-                        profile?.chiefName
-                          ? `담임목사 ${profile.chiefName}`
-                          : "담임목사 이미지"
-                      }
-                      className="w-56 h-auto rounded-none border border-slate-200 bg-white object-cover shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-56 min-h-56 rounded-none border border-dashed border-slate-300 bg-white text-slate-500 text-sm flex items-center justify-center">
-                      등록된 목사 이미지가 없습니다.
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </>
+          <PastorProfileView
+            isSingleImageMode={isSingleImageMode}
+            viewImageSrc={viewImageSrc}
+            introduction={profile?.introduction ?? ""}
+            chiefName={profile?.chiefName}
+          />
         )}
 
         {isEditMode && (
@@ -341,9 +361,11 @@ export default function PastorPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <label
+                  htmlFor="displayModeSingle"
                   className={`flex items-start gap-3 rounded-md border bg-white px-4 py-3 cursor-pointer transition-colors ${selectedDisplayMode === "single-image" ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-slate-300"}`}
                 >
                   <input
+                    id="displayModeSingle"
                     type="radio"
                     name="displayMode"
                     value="single-image"
@@ -364,9 +386,11 @@ export default function PastorPage() {
                   </span>
                 </label>
                 <label
+                  htmlFor="displayModeSplit"
                   className={`flex items-start gap-3 rounded-md border bg-white px-4 py-3 cursor-pointer transition-colors ${selectedDisplayMode === "split-editor-image" ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-slate-300"}`}
                 >
                   <input
+                    id="displayModeSplit"
                     type="radio"
                     name="displayMode"
                     value="split-editor-image"

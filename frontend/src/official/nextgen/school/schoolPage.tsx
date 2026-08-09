@@ -1,8 +1,7 @@
 import { ArticleList } from "../../../common/article";
 import { Link } from "react-router-dom";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { DEFAULT_SCHOOL_PAGE_CONTENT } from "./schoolModel";
-import { PageTitle } from "../../../common/ui";
 
 export default function SchoolPromoPage() {
   const content = DEFAULT_SCHOOL_PAGE_CONTENT;

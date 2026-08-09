@@ -1,8 +1,7 @@
 import { ArticleList } from "../../../common/article";
 import { Link } from "react-router-dom";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { DEFAULT_YOUTH_CONTENT } from "./youthModel";
-import { PageTitle } from "../../../common/ui";
 
 export default function YouthPage() {
   const content = DEFAULT_YOUTH_CONTENT;

@@ -53,21 +53,26 @@ export default function EventCalendarPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
                   불러오는 중...
                 </td>
               </tr>
-            ) : events.length === 0 ? (
+            )}
+            {!loading && events.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
                   등록된 행사가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && events.length !== 0 && (
               events.map((eventItem, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr
+                  key={`${eventItem.eventDate}-${index}`}
+                  className="hover:bg-gray-50"
+                >
                   <td className="px-4 py-3 text-gray-500 text-center">{index + 1}</td>
                   <td className="px-4 py-3 text-gray-700">{String(eventItem.title ?? '-')}</td>
                   <td className="px-4 py-3 text-gray-700">{String(eventItem.eventDate ?? '-')}</td>

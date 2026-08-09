@@ -24,7 +24,43 @@ export default function UserManagerPage() {
 
   const getCellValue = (row: SystemUserManagerRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
+  };
+
+  const renderCell = (
+    row: SystemUserManagerRow,
+    col: (typeof SYSTEM_USER_MANAGER_COLUMNS)[number],
+  ) => {
+    if (col.key === "actions") {
+      return (
+        <>
+          <Button variant="outline" size="sm">
+            수정
+          </Button>
+          <Button variant="destructive" size="sm">
+            삭제
+          </Button>
+        </>
+      );
+    }
+
+    if (col.key === "status") {
+      return (
+        <Badge
+          variant={
+            String(row.status ?? "") === "활성" ? "success" : "secondary"
+          }
+        >
+          {getCellValue(row, "status")}
+        </Badge>
+      );
+    }
+
+    return getCellValue(row, String(col.key));
   };
 
   return (
@@ -70,7 +106,7 @@ export default function UserManagerPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SYSTEM_USER_MANAGER_COLUMNS.length + 1}
@@ -79,7 +115,8 @@ export default function UserManagerPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SYSTEM_USER_MANAGER_COLUMNS.length + 1}
@@ -88,9 +125,10 @@ export default function UserManagerPage() {
                   데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${page}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>
@@ -99,28 +137,7 @@ export default function UserManagerPage() {
                       key={String(col.key)}
                       className="px-4 py-3 text-gray-700"
                     >
-                      {col.key === "actions" ? (
-                        <>
-                          <Button variant="outline" size="sm">
-                            수정
-                          </Button>
-                          <Button variant="destructive" size="sm">
-                            삭제
-                          </Button>
-                        </>
-                      ) : col.key === "status" ? (
-                        <Badge
-                          variant={
-                            String(row.status ?? "") === "활성"
-                              ? "success"
-                              : "secondary"
-                          }
-                        >
-                          {getCellValue(row, "status")}
-                        </Badge>
-                      ) : (
-                        getCellValue(row, String(col.key))
-                      )}
+                      {renderCell(row, col)}
                     </td>
                   ))}
                 </tr>

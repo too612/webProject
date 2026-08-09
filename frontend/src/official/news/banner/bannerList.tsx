@@ -108,7 +108,7 @@ export default function BannerList() {
                       onChange={() => handleFilterChange("POPUP")}
                     />
                     <span className="inline-block w-2 h-2 rounded-full bg-purple-500" />
-                    팝업
+                    <span>팝업</span>
                   </label>
                   <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
                     <input
@@ -119,7 +119,7 @@ export default function BannerList() {
                       onChange={() => handleFilterChange("SLIDE")}
                     />
                     <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
-                    슬라이드
+                    <span>슬라이드</span>
                   </label>
                 </div>
               </div>

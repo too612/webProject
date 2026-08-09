@@ -19,7 +19,11 @@ export default function SermonArchivePage() {
 
   const getCellValue = (row: SermonArchiveRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
   };
 
   return (
@@ -69,7 +73,7 @@ export default function SermonArchivePage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SERMON_ARCHIVE_COLUMNS.length + 1}
@@ -78,7 +82,8 @@ export default function SermonArchivePage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SERMON_ARCHIVE_COLUMNS.length + 1}
@@ -87,9 +92,10 @@ export default function SermonArchivePage() {
                   조회된 내역이 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="transition-colors hover:bg-gray-50">
+                <tr key={`${page}-${idx}`} className="transition-colors hover:bg-gray-50">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>

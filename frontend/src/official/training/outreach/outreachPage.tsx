@@ -1,10 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { useOutreachContent } from "./outreachHook";
 import { DEFAULT_OUTREACH_CONTENT } from "./outreachModel";
-import { PageTitle } from "../../../common/ui";
 
 export default function OutreachPage() {
   const { outreachContent, loading, error, loadOutreachContent } =

@@ -23,21 +23,23 @@ export default function StatsOfferingPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td colSpan={STATS_OFFERING_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">
                   데이터를 불러오는 중…
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            )}
+            {!loading && rows.length === 0 && (
               <tr>
                 <td colSpan={STATS_OFFERING_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">
                   헌금 통계 데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && rows.length !== 0 && (
               rows.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={`${row.month}-${index}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-700">{row.month}</td>
                   <td className="px-4 py-3 text-gray-700">{row.tithe.toLocaleString()}원</td>
                   <td className="px-4 py-3 text-gray-700">{row.mission.toLocaleString()}원</td>

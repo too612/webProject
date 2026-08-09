@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { usePeopleContent } from "./peopleHook";
 import { DEFAULT_PEOPLE_CONTENT } from "./peopleModel";
-import { PageTitle } from "../../../common/ui";
 import type { LeaderCard } from "./peopleModel";
 
 /****************************************************************************************************

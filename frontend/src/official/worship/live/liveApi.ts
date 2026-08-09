@@ -1,7 +1,7 @@
-﻿﻿import client from '../../../common/api/api.client';
+import client from '../../../common/api/api.client';
 import type { ApiResponse } from '../../../common/api/api.types';
 import { getApiErrorMessage } from '../../../common/api/apiError';
-import type { LiveItem } from './liveModel';
+import type { LiveItem, LiveStreamStatus } from './liveModel';
 
 export const liveApi = {
   async getLiveItems(category: string): Promise<LiveItem[]> {
@@ -11,6 +11,15 @@ export const liveApi = {
       return response.data.data ?? [];
     } catch (error) {
       throw new Error(getApiErrorMessage(error, '요청 처리 중 오류가 발생했습니다.'));
+    }
+  },
+
+  async getLiveStreamStatus(): Promise<LiveStreamStatus> {
+    try {
+      const response = await client.get<ApiResponse<LiveStreamStatus>>('/official/worship/live/stream');
+      return response.data.data ?? { live: false, available: false };
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, '라이브 방송 상태를 확인하지 못했습니다.'));
     }
   },
 };

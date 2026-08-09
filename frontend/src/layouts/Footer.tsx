@@ -84,7 +84,7 @@ export default function Footer() {
       {privacyOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setPrivacyOpen(false)}>
           <div className="relative bg-white max-w-3xl w-full max-h-[80vh] overflow-y-auto p-8" onClick={function(e) { e.stopPropagation(); }}>
-            <button onClick={() => setPrivacyOpen(false)} className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-sm font-bold">X</button>
+            <button type="button" onClick={() => setPrivacyOpen(false)} className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-sm font-bold">X</button>
             <h2 className="text-lg font-bold mb-4">개인정보 처리방침</h2>
             <div className="text-sm text-gray-700 space-y-4 leading-relaxed">
               <p>&#39;대전청소년위캔센터&#39;(이하 &#39;대전청소년위캔센터&#39;)은 개인정보 보호법 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 하기 위하여 다음과 같이 개인정보 처리지침을 수립 &#183; 공개합니다.</p>

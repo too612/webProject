@@ -19,7 +19,34 @@ export default function ConfigMenuPage() {
 
   const getCellValue = (row: SystemConfigMenuRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
+  };
+
+  const renderCell = (
+    row: SystemConfigMenuRow,
+    col: (typeof SYSTEM_CONFIG_MENU_COLUMNS)[number],
+  ) => {
+    if (col.key === "actions") {
+      return (
+        <Button variant="outline" size="sm">
+          권한 설정
+        </Button>
+      );
+    }
+
+    if (col.key === "menuId") {
+      return <code>{getCellValue(row, "menuId")}</code>;
+    }
+
+    if (col.key === "level") {
+      return `LV.${getCellValue(row, "level")}`;
+    }
+
+    return getCellValue(row, String(col.key));
   };
 
   return (
@@ -53,7 +80,7 @@ export default function ConfigMenuPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SYSTEM_CONFIG_MENU_COLUMNS.length + 1}
@@ -62,7 +89,8 @@ export default function ConfigMenuPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SYSTEM_CONFIG_MENU_COLUMNS.length + 1}
@@ -71,9 +99,10 @@ export default function ConfigMenuPage() {
                   데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${page}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>
@@ -82,17 +111,7 @@ export default function ConfigMenuPage() {
                       key={String(col.key)}
                       className="px-4 py-3 text-gray-700"
                     >
-                      {col.key === "actions" ? (
-                        <Button variant="outline" size="sm">
-                          권한 설정
-                        </Button>
-                      ) : col.key === "menuId" ? (
-                        <code>{getCellValue(row, "menuId")}</code>
-                      ) : col.key === "level" ? (
-                        `LV.${getCellValue(row, "level")}`
-                      ) : (
-                        getCellValue(row, String(col.key))
-                      )}
+                      {renderCell(row, col)}
                     </td>
                   ))}
                 </tr>

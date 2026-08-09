@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { useMissionContent } from "./missionHook";
 import { DEFAULT_MISSION_CONTENT } from "./missionModel";
-import { PageTitle } from "../../../common/ui";
 
 export default function MissionPage() {
   const { missionContent, loading, error, loadMissionContent } =

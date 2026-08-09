@@ -11,7 +11,10 @@ interface CommentSectionProps {
   refId: string | number;
 }
 
-export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
+export default function CommentSection({
+  pgmId,
+  refId,
+}: Readonly<CommentSectionProps>) {
   const {
     comments,
     loading,
@@ -182,7 +185,7 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
                 }))
               }
             />
-            비밀글
+            <span>비밀글</span>
           </label>
           {/* ★ 스포일러 체크박스 추가 */}
           <label
@@ -200,7 +203,7 @@ export default function CommentSection({ pgmId, refId }: CommentSectionProps) {
                 }))
               }
             />
-            스포일러
+            <span>스포일러</span>
           </label>
           <Button
             type="submit"

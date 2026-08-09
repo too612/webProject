@@ -9,7 +9,7 @@ type MainLayoutProps = {
   showChatbot?: boolean;
 };
 
-export default function MainLayout({ showChatbot = true }: MainLayoutProps) {
+export default function MainLayout({ showChatbot = true }: Readonly<MainLayoutProps>) {
   useMenu();
 
   return (

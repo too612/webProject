@@ -13,7 +13,11 @@ function getRiskClassName(risk: string): string {
 
 function getCellValue(row: CommunityWorldHealthDiseaseRow, key: string): string {
     const value = row[key];
-    return value === null || value === undefined ? '-' : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
 }
 
 export default function WorldHealthPage() {
@@ -51,7 +55,7 @@ export default function WorldHealthPage() {
                         <p className="col-span-full text-center text-sm text-gray-400 py-8">데이터가 없습니다.</p>
                     ) : (
                         filteredItems.map((item, index) => (
-                            <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2" key={index}>
+                            <article className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2" key={`${item.name}-${index}`}>
                                 <h3 className="font-semibold text-brand-dark">{getCellValue(item, 'name')}</h3>
                                 <p className="text-sm text-gray-600 leading-relaxed">{getCellValue(item, 'desc')}</p>
                                 <span

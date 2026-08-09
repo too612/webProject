@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.official.worship.live.dto.LiveDto;
+import com.main.app.official.worship.live.dto.LiveStreamStatusDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,5 +27,11 @@ public class LiveController {
             @RequestParam(required = false, defaultValue = "sunday_day") String category) {
         log.info("[LiveController] 온라인 예배 목록 조회 요청 수신");
         return ApiResponse.ok(liveService.getLiveItems(category));
+    }
+
+    @GetMapping("/stream")
+    public ApiResponse<LiveStreamStatusDto> getLiveStreamStatus() {
+        log.info("[LiveController] 실시간 라이브 방송 상태 조회 요청 수신");
+        return ApiResponse.ok(liveService.getLiveStreamStatus());
     }
 }

@@ -298,9 +298,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <span className="block text-sm font-medium text-gray-700">
                 주소
-              </label>
+              </span>
               <div className="flex items-end gap-2">
                 <div className="space-y-1.5 flex-1">
                   <label
@@ -415,8 +415,7 @@ export default function RegisterPage() {
                     onChange={(event) => setAgreePrivacy(event.target.checked)}
                   />
                   <span>
-                    개인정보 수집 및 이용 동의 (필수)
-                    <span className="text-red-500">*</span>
+                    개인정보 수집 및 이용 동의 (필수)<span className="text-red-500">*</span>
                   </span>
                 </label>
                 <div className="text-xs text-gray-600 leading-relaxed bg-slate-50 border border-slate-200 rounded p-2.5 max-h-24 overflow-y-auto">

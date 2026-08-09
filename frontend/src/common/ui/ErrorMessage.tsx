@@ -24,6 +24,7 @@ export function ErrorMessage({
         <span className="flex-1">{message}</span>
         {onRetry && (
           <button
+            type="button"
             onClick={onRetry}
             className="text-destructive underline hover:no-underline font-medium text-xs"
           >

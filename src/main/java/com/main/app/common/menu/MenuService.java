@@ -19,6 +19,7 @@ public class MenuService {
 
     private final MenuMapper menuMapper;
 
+    @SuppressWarnings("null")
     public List<MenuDto> getHierarchicalMenus(String systemType) {
         List<MenuDto> allMenus = menuMapper.getMenuList(systemType);
         if (allMenus == null || allMenus.isEmpty()) {

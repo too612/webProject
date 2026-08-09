@@ -18,7 +18,7 @@ export function ActionToolbar({
   onSave,
   onDelete,
   onExcel,
-}: ActionToolbarProps) {
+}: Readonly<ActionToolbarProps>) {
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap gap-2">

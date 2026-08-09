@@ -16,7 +16,39 @@ export default function UserRolePage() {
 
   const getCellValue = (row: SystemUserRoleRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
+  };
+
+  const renderCell = (
+    row: SystemUserRoleRow,
+    col: (typeof SYSTEM_USER_ROLE_COLUMNS)[number],
+  ) => {
+    if (col.key === "actions") {
+      return (
+        <>
+          <Button variant="outline" size="sm">
+            권한 설정
+          </Button>
+          <Button variant="outline" size="sm">
+            수정
+          </Button>
+        </>
+      );
+    }
+
+    if (col.key === "roleId") {
+      return <code>{getCellValue(row, "roleId")}</code>;
+    }
+
+    if (col.key === "userCount") {
+      return `${getCellValue(row, "userCount")}명`;
+    }
+
+    return getCellValue(row, String(col.key));
   };
 
   return (
@@ -50,7 +82,7 @@ export default function UserRolePage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SYSTEM_USER_ROLE_COLUMNS.length + 1}
@@ -59,7 +91,8 @@ export default function UserRolePage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SYSTEM_USER_ROLE_COLUMNS.length + 1}
@@ -68,9 +101,10 @@ export default function UserRolePage() {
                   데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${page}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>
@@ -79,22 +113,7 @@ export default function UserRolePage() {
                       key={String(col.key)}
                       className="px-4 py-3 text-gray-700"
                     >
-                      {col.key === "actions" ? (
-                        <>
-                          <Button variant="outline" size="sm">
-                            권한 설정
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            수정
-                          </Button>
-                        </>
-                      ) : col.key === "roleId" ? (
-                        <code>{getCellValue(row, "roleId")}</code>
-                      ) : col.key === "userCount" ? (
-                        `${getCellValue(row, "userCount")}명`
-                      ) : (
-                        getCellValue(row, String(col.key))
-                      )}
+                      {renderCell(row, col)}
                     </td>
                   ))}
                 </tr>

@@ -22,21 +22,23 @@ export default function StatsMinistryPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td colSpan={STATS_MINISTRY_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">
                   데이터를 불러오는 중…
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            )}
+            {!loading && rows.length === 0 && (
               <tr>
                 <td colSpan={STATS_MINISTRY_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">
                   사역 통계 데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && rows.length !== 0 && (
               rows.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={`${row.ministryName}-${index}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-700">{row.ministryName}</td>
                   <td className="px-4 py-3 text-gray-700">{row.memberCount}명</td>
                   <td className="px-4 py-3 text-gray-700">{row.activityCount}회</td>

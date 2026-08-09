@@ -1,4 +1,4 @@
-﻿﻿﻿/**
+/**
  * File Name   : Attachment
  * Description : 공통 파일첨부 컴포넌트
  * -----------------------------------------------------------------------------
@@ -63,6 +63,20 @@ type UploadEntry = {
 let _uidSeq = 0;
 const nextUid = () => `upload-${++_uidSeq}`;
 
+function getUploadBadgeLabel(status: UploadStatus): string {
+  if (status === "error") return "실패";
+  if (status === "success") return "완료";
+  return "업로드중";
+}
+
+function getUploadBadgeColor(
+  status: UploadStatus,
+): "gray" | "green" | "blue" | "red" {
+  if (status === "error") return "red";
+  if (status === "success") return "green";
+  return "blue";
+}
+
 const EXT_MIME: Record<string, string> = {
   pdf: "application/pdf",
   doc: "application/msword",
@@ -93,7 +107,8 @@ function toAcceptObj(accept?: string): Record<string, string[]> | undefined {
       if (item.startsWith(".")) {
         const mime =
           EXT_MIME[item.slice(1).toLowerCase()] ?? "application/octet-stream";
-        (result[mime] ??= []).push(item);
+        result[mime] ??= [];
+        result[mime].push(item);
       } else {
         result[item] ??= [];
       }
@@ -109,7 +124,7 @@ function FileRow({
   badgeColor,
   actions,
   subContent,
-}: {
+}: Readonly<{
   icon: LucideIcon;
   name: string;
   size?: string;
@@ -117,7 +132,7 @@ function FileRow({
   badgeColor: "gray" | "green" | "blue" | "red";
   actions?: React.ReactNode;
   subContent?: React.ReactNode;
-}) {
+}>) {
   const badgeCls: Record<string, string> = {
     gray: "bg-slate-100 text-slate-500",
     green: "bg-emerald-100 text-emerald-700",
@@ -130,15 +145,13 @@ function FileRow({
     blue: "border-blue-200 bg-blue-50/40",
     red: "border-red-200 bg-red-50/40",
   };
-
-  const iconColorCls =
-    badgeColor === "gray"
-      ? "text-slate-400"
-      : badgeColor === "green"
-        ? "text-emerald-500"
-        : badgeColor === "blue"
-          ? "text-blue-400"
-          : "text-red-400";
+  const iconColorClsMap: Record<string, string> = {
+    gray: "text-slate-400",
+    green: "text-emerald-500",
+    blue: "text-blue-400",
+    red: "text-red-400",
+  };
+  const iconColorCls = iconColorClsMap[badgeColor] ?? "text-slate-400";
   const Icon = icon;
 
   return (
@@ -288,40 +301,40 @@ export default function Attachment({
           status: "uploading",
         }));
         setUploading((prev) => [...prev, ...entries]);
+        const updateUploadProgress = (uid: string, pct: number) => {
+          setUploading((prev) =>
+            prev.map((u) => (u.uid === uid ? { ...u, progress: pct } : u)),
+          );
+        };
+        const markUploadSuccess = (uid: string) => {
+          setUploading((prev) =>
+            prev.map((u) =>
+              u.uid === uid ? { ...u, progress: 100, status: "success" } : u,
+            ),
+          );
+        };
+        const markUploadError = (uid: string, message: string) => {
+          setUploading((prev) =>
+            prev.map((u) =>
+              u.uid === uid ? { ...u, status: "error", error: message } : u,
+            ),
+          );
+        };
+        const removeUpload = (uid: string) => {
+          setUploading((prev) => prev.filter((u) => u.uid !== uid));
+        };
         await Promise.allSettled(
           entries.map(async (entry) => {
             try {
               const result = await onUploadFile(entry.file, (pct) =>
-                setUploading((prev) =>
-                  prev.map((u) =>
-                    u.uid === entry.uid ? { ...u, progress: pct } : u,
-                  ),
-                ),
+                updateUploadProgress(entry.uid, pct),
               );
-              setUploading((prev) =>
-                prev.map((u) =>
-                  u.uid === entry.uid
-                    ? { ...u, progress: 100, status: "success" }
-                    : u,
-                ),
-              );
+              markUploadSuccess(entry.uid);
               onUploaded?.(result);
-              setTimeout(
-                () =>
-                  setUploading((prev) =>
-                    prev.filter((u) => u.uid !== entry.uid),
-                  ),
-                2000,
-              );
+              setTimeout(() => removeUpload(entry.uid), 2000);
             } catch (err) {
               const msg = err instanceof Error ? err.message : "업로드 실패";
-              setUploading((prev) =>
-                prev.map((u) =>
-                  u.uid === entry.uid
-                    ? { ...u, status: "error", error: msg }
-                    : u,
-                ),
-              );
+              markUploadError(entry.uid, msg);
             }
           }),
         );
@@ -519,7 +532,7 @@ export default function Attachment({
 
           {newFiles.map((file, index) => (
             <FileRow
-              key={`new-${index}`}
+              key={`${file.name}-${file.size}-${file.lastModified}`}
               icon={fileIcon(file.name)}
               name={file.name}
               size={formatSize(file.size)}
@@ -544,20 +557,8 @@ export default function Attachment({
               icon={fileIcon(u.file.name)}
               name={u.file.name}
               size={formatSize(u.file.size)}
-              badge={
-                u.status === "error"
-                  ? "실패"
-                  : u.status === "success"
-                    ? "완료"
-                    : "업로드중"
-              }
-              badgeColor={
-                u.status === "error"
-                  ? "red"
-                  : u.status === "success"
-                    ? "green"
-                    : "blue"
-              }
+              badge={getUploadBadgeLabel(u.status)}
+              badgeColor={getUploadBadgeColor(u.status)}
               actions={
                 <>
                   {u.status === "uploading" && (

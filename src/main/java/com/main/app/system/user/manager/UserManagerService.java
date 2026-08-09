@@ -11,8 +11,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserManagerService {
 
-    private final UserManagerMapper userManagerMapper;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getUserList(int page, int size, String keyword) {
         return Map.of(

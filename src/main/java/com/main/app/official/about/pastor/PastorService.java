@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.attachment.AttachmentService;
 import com.main.app.common.attachment.dto.AttachmentDto;
-import com.main.app.common.util.ClientIpUtil;
 import com.main.app.official.about.pastor.dto.PastorDto;
 import com.main.app.official.about.pastor.dto.PastorRequest;
 

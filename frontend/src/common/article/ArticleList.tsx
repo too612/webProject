@@ -148,7 +148,7 @@ export function ArticleList({
     const query: ArticleListQuery = {
       page: nextPage,
       menuKey,
-      ...(queryParams || {}),
+      ...queryParams,
       searchType: searchType || undefined,
       keyword: nextKeyword.trim() || undefined,
     };
@@ -474,6 +474,15 @@ export function ArticleList({
 
   if (listLoading) {
     const skeletonCols = 3 + middleColumns.length;
+    // 스켈레톤은 정적 placeholder이므로 인덱스 대신 고정 문자열 키를 사용한다.
+    const columnKeys = Array.from(
+      { length: skeletonCols },
+      (_, i) => `skeleton-column-${i}`,
+    );
+    const rowKeys = Array.from(
+      { length: list.pageSize ?? 10 },
+      (_, i) => `skeleton-row-${i}`,
+    );
     return (
       <section className="space-y-5">
         <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
@@ -487,18 +496,18 @@ export function ArticleList({
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {Array.from({ length: skeletonCols }).map((_, i) => (
-                    <th key={i} className="px-3 py-3">
+                  {columnKeys.map((columnKey) => (
+                    <th key={columnKey} className="px-3 py-3">
                       <Skeleton className="h-4 w-full" />
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: list.pageSize ?? 10 }).map((_, i) => (
-                  <tr key={i} className="border-b border-slate-100">
-                    {Array.from({ length: skeletonCols }).map((_, j) => (
-                      <td key={j} className="px-3 py-3">
+                {rowKeys.map((rowKey) => (
+                  <tr key={rowKey} className="border-b border-slate-100">
+                    {columnKeys.map((columnKey) => (
+                      <td key={columnKey} className="px-3 py-3">
                         <Skeleton className="h-4 w-full" />
                       </td>
                     ))}

@@ -14,6 +14,12 @@ import {
   PageTitle,
 } from "../../../common/ui";
 
+function resolveBannerTypeLabel(templateCode: string | undefined): string {
+  if (templateCode === "POPUP") return "팝업";
+  if (templateCode === "SLIDE") return "슬라이드";
+  return "-";
+}
+
 export default function BannerView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -60,11 +66,12 @@ export default function BannerView() {
   const meta = getMeta();
 
   // 이미지 URL
+  const firstFileUrl = article.firstFileId
+    ? `/api/common/files/${article.firstFileId}/download`
+    : null;
   const imageUrl = article.thumbnailFileId
     ? `/api/common/files/${article.thumbnailFileId}/download`
-    : article.firstFileId
-      ? `/api/common/files/${article.firstFileId}/download`
-      : null;
+    : firstFileUrl;
 
   const isPopup = article.templateCode === "POPUP";
   const isSlide = article.templateCode === "SLIDE";
@@ -168,7 +175,7 @@ export default function BannerView() {
               유형
             </dt>
             <dd className="text-[15px] font-semibold text-slate-800">
-              {isPopup ? "팝업" : isSlide ? "슬라이드" : "-"}
+              {resolveBannerTypeLabel(article.templateCode)}
             </dd>
           </div>
           <div className="rounded-md border border-slate-200 bg-white px-4 py-3 flex flex-col gap-1">

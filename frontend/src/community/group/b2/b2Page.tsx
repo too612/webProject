@@ -6,7 +6,11 @@ export default function GroupB2Page() {
 
     const getCellValue = (row: CommunityGroupB2Row, key: string): string => {
         const value = row[key];
-        return value === null || value === undefined ? '' : String(value);
+        if (value === null || value === undefined) return "-";
+
+        if (typeof value !== "string" && typeof value !== "number") return "-";
+
+        return String(value);
     };
 
     return (
@@ -57,7 +61,7 @@ export default function GroupB2Page() {
                             {items.length === 0 ? (
                                 <tr><td colSpan={COMMUNITY_GROUP_B2_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">데이터가 없습니다.</td></tr>
                             ) : items.map((row, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
+                                <tr key={`${row.name}-${index}`} className="hover:bg-gray-50">
                                     {COMMUNITY_GROUP_B2_COLUMNS.map((column) => (
                                         <td key={String(column.key)} className="px-4 py-3 text-gray-700">{getCellValue(row, String(column.key))}</td>
                                     ))}

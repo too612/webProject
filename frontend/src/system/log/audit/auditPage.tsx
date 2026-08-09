@@ -19,7 +19,34 @@ export default function LogAuditPage() {
 
   const getCellValue = (row: SystemLogAuditRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
+  };
+
+  const renderCell = (
+    row: SystemLogAuditRow,
+    col: (typeof SYSTEM_LOG_AUDIT_COLUMNS)[number],
+  ) => {
+    if (col.key === "userId") {
+      return <code>{getCellValue(row, "userId")}</code>;
+    }
+
+    if (col.key === "result") {
+      return (
+        <Badge
+          variant={
+            getCellValue(row, "result") === "성공" ? "success" : "destructive"
+          }
+        >
+          {getCellValue(row, "result")}
+        </Badge>
+      );
+    }
+
+    return getCellValue(row, String(col.key));
   };
 
   return (
@@ -63,7 +90,7 @@ export default function LogAuditPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SYSTEM_LOG_AUDIT_COLUMNS.length + 1}
@@ -72,7 +99,8 @@ export default function LogAuditPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SYSTEM_LOG_AUDIT_COLUMNS.length + 1}
@@ -81,9 +109,10 @@ export default function LogAuditPage() {
                   데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${page}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>
@@ -92,21 +121,7 @@ export default function LogAuditPage() {
                       key={String(col.key)}
                       className="px-4 py-3 text-gray-700"
                     >
-                      {col.key === "userId" ? (
-                        <code>{getCellValue(row, "userId")}</code>
-                      ) : col.key === "result" ? (
-                        <Badge
-                          variant={
-                            getCellValue(row, "result") === "성공"
-                              ? "success"
-                              : "destructive"
-                          }
-                        >
-                          {getCellValue(row, "result")}
-                        </Badge>
-                      ) : (
-                        getCellValue(row, String(col.key))
-                      )}
+                      {renderCell(row, col)}
                     </td>
                   ))}
                 </tr>

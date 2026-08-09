@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { useServiceGroupContent } from "./serviceGroupHook";
 import { DEFAULT_SERVICE_GROUP_CONTENT } from "./serviceGroupModel";
-import { PageTitle } from "../../../common/ui";
 
 const IMAGE_FALLBACK_BY_DEPT_CODE: Record<string, string> = {
   D000003: "/img/official/training/servicegroup/servicegroup_01.png",

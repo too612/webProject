@@ -11,8 +11,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserRoleService {
 
-    private final UserRoleMapper userRoleMapper;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getRoleList(int page, int size) {
         return Map.of(

@@ -34,6 +34,7 @@ public class CommentController {
     }
 
     @PostMapping("/vote")
+    @SuppressWarnings("unchecked")
     public ApiResponse<Map<String, Object>> vote(
             @RequestBody Map<String, String> payload,
             HttpSession session) {

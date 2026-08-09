@@ -52,7 +52,7 @@ export default function WorldChristianPage() {
                         <p className="col-span-full text-center text-sm text-gray-400 py-8">검색 결과가 없습니다.</p>
                     ) : (
                         items.map((item, index) => (
-                            <article className="bg-white rounded-panel shadow-panel border border-gray-100 overflow-hidden" key={index}>
+                            <article className="bg-white rounded-panel shadow-panel border border-gray-100 overflow-hidden" key={`${item.title}-${index}`}>
                                 <div className="bg-brand-primary/10 h-24 flex items-center justify-center px-4">
                                     <span className="bg-brand-primary text-white text-xs font-medium px-2.5 py-1 rounded-full">
                                         {String(item.badge ?? '-')}

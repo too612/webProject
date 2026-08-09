@@ -29,6 +29,7 @@ public class GlobalControllerAdvice {
      * getHierarchicalMenus() 호출을 한 번으로 최적화했습니다.
      */
     @ModelAttribute
+    @SuppressWarnings("null")
     public void addCommonAttributes(Model model, HttpServletRequest request, HttpSession session) {
         // 세션 정보를 모델에 추가
         Object userId = session.getAttribute("userId");

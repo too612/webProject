@@ -11,8 +11,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SystemLogService {
 
-    private final SystemLogMapper systemLogMapper;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getSystemLogList(int page, int size, String keyword) {
         return Map.of(

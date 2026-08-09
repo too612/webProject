@@ -11,8 +11,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuditLogService {
 
-    private final AuditLogMapper auditLogMapper;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getAuditLogList(int page, int size, String keyword) {
         return Map.of(

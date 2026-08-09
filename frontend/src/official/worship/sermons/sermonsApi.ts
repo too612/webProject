@@ -41,6 +41,7 @@ type BoardListQuery = {
 
 function appendIfPresent(formData: FormData, key: string, value: unknown) {
   if (value === undefined || value === null) return;
+  if (typeof value !== "string" && typeof value !== "number") return;
   formData.append(key, String(value));
 }
 

@@ -23,21 +23,23 @@ export default function StatsAttendancePage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {loading ? (
-                            <tr>
+                        {loading && (
+                          <tr>
                                 <td colSpan={STATS_ATTENDANCE_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">
                                     데이터를 불러오는 중…
                                 </td>
                             </tr>
-                        ) : rows.length === 0 ? (
-                            <tr>
+                        )}
+                        {!loading && rows.length === 0 && (
+                          <tr>
                                 <td colSpan={STATS_ATTENDANCE_COLUMNS.length} className="px-4 py-8 text-center text-gray-400">
                                     출석 통계 데이터가 없습니다.
                                 </td>
                             </tr>
-                        ) : (
-                            rows.map((row, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
+                        )}
+                        {!loading && rows.length !== 0 && (
+                          rows.map((row, index) => (
+                                <tr key={`${row.date}-${index}`} className="hover:bg-gray-50">
                                     <td className="px-4 py-3 text-gray-700">{row.date}</td>
                                     <td className="px-4 py-3 text-gray-700">{row.total}</td>
                                     <td className="px-4 py-3 text-gray-700">{row.present}</td>

@@ -10,9 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/official/worship/sermons")
@@ -22,6 +20,7 @@ public class SermonController {
 
     private final ArticleController articleController;
 
+    @Deprecated
     @GetMapping
     public ApiResponse<Page<ArticleDto>> list(
             @RequestParam(defaultValue = "0") int page,
@@ -33,18 +32,21 @@ public class SermonController {
         return articleController.list("SERMON", null, page, size, searchType, keyword, null, null, sortField, sortOrder);
     }
 
+    @Deprecated
     @GetMapping("/view")
     public ApiResponse<ArticleDto> view(@RequestParam("rqstNo") Long articleId,
                                         @RequestParam(required = false) String password) {
         return articleController.view(articleId, password);
     }
 
+    @Deprecated
     @PostMapping("/check-password")
     public ApiResponse<Boolean> checkPassword(@RequestParam("rqstNo") Long articleId,
                                               @RequestParam("password") String password) {
         return articleController.verifyPassword(articleId, password);
     }
 
+    @Deprecated
     @PostMapping("/write")
     public ApiResponse<ArticleDto> write(@RequestPart("request") SermonRequest legacyRequest,
                                          @RequestPart(value = "files", required = false) List<MultipartFile> files) {
@@ -53,6 +55,7 @@ public class SermonController {
         return articleController.create(newRequest, files);
     }
 
+    @Deprecated
     @PostMapping("/update")
     public ApiResponse<ArticleDto> update(@RequestPart("request") SermonRequest legacyRequest,
                                           @RequestPart(value = "files", required = false) List<MultipartFile> files) {
@@ -61,6 +64,7 @@ public class SermonController {
         return articleController.update(newRequest.getArticleId(), newRequest, files);
     }
 
+    @Deprecated
     @PostMapping("/delete")
     public ApiResponse<Void> delete(@RequestParam("rqstNo") Long articleId) {
         return articleController.delete(articleId);

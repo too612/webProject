@@ -36,6 +36,7 @@ declare global {
 
 export default function LocationPage() {
   const mapRef = useRef<HTMLDivElement>(null);
+  const markerRef = useRef<any>(null);
   const { locationInfo, loading, error, loadLocationInfo } = useLocationInfo();
   const { corpInfo } = useCorpInfo();
   const clientId = "g3nwx8qc5o";
@@ -48,13 +49,7 @@ export default function LocationPage() {
 
   // 네이버 지도 초기화 로직
   const initMap = useCallback(() => {
-    if (
-      !mapRef.current ||
-      !locationInfo ||
-      !locationInfo.lat ||
-      !locationInfo.lng
-    )
-      return;
+    if (!mapRef.current || !locationInfo?.lat || !locationInfo?.lng) return;
 
     const mapOptions = {
       center: new window.naver.maps.LatLng(locationInfo.lat, locationInfo.lng),
@@ -69,8 +64,8 @@ export default function LocationPage() {
 
     const map = new window.naver.maps.Map(mapRef.current, mapOptions);
 
-    // 마커 추가
-    new window.naver.maps.Marker({
+    // 마커 추가 (map에 자동 등록되는 사이드 이펙트를 유지하되, 나중에 제거할 수 있도록 참조 보관)
+    markerRef.current = new window.naver.maps.Marker({
       position: new window.naver.maps.LatLng(
         locationInfo.lat,
         locationInfo.lng,
@@ -92,7 +87,7 @@ export default function LocationPage() {
 
   // 네이버 지도 SDK 동적 로드
   useEffect(() => {
-    if (window.naver && window.naver.maps) {
+    if (window.naver?.maps) {
       initMap();
     } else {
       const script = document.createElement("script");
@@ -141,6 +136,7 @@ export default function LocationPage() {
             >
               <div className="absolute bottom-4 right-4 flex gap-2">
                 <button
+                  type="button"
                   onClick={initMap}
                   className="bg-white/90 backdrop-blur shadow-sm border border-slate-200 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-white transition-colors flex items-center gap-1 z-[100]"
                 >
@@ -158,6 +154,7 @@ export default function LocationPage() {
                       {locationInfo.title}
                     </h4>
                     <button
+                      type="button"
                       onClick={() => handleCopyAddress(fullAddress)}
                       className="text-xs font-semibold text-brand-primary hover:text-brand-dark transition-colors flex items-center gap-1"
                     >

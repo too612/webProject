@@ -10,7 +10,7 @@ type HistoryRange = {
 };
 
 const toYearNumber = (value: string): number | null => {
-  const yearText = value.replace(/[^0-9]/g, "").slice(0, 4);
+  const yearText = value.replace(/\D/g, "").slice(0, 4);
   const year = Number(yearText);
   return Number.isFinite(year) && year > 0 ? year : null;
 };

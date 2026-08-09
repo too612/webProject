@@ -32,7 +32,7 @@ export function CommonFields({
                 setForm((prev) => ({ ...prev, secret: e.target.checked }))
               }
             />
-            비밀글로 등록
+            <span>비밀글로 등록</span>
           </label>
         </div>
       )}

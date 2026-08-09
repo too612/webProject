@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
 import { useCellGroupContent } from "./cellGroupHook";
 import { DEFAULT_CELL_GROUP_CONTENT } from "./cellGroupModel";
-import { PageTitle } from "../../../common/ui";
 
 const IMAGE_FALLBACK_BY_CELL_CODE: Record<string, string> = {
   D000009: "/img/official/training/cellgroup/cellgroup_m01.png",

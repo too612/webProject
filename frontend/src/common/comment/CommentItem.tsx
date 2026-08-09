@@ -31,6 +31,12 @@ const MAX_COMMENT_DEPTH = 3;
 /* ──────────────────────────────────────────────
  * 단일 댓글 본문
  * ────────────────────────────────────────────── */
+const DEPTH_STYLES = [
+  { size: "w-8 h-8 text-[18px]", boxWidth: "w-8", axis: "16px", padding: "44px" },
+  { size: "w-7 h-7 text-[15px]", boxWidth: "w-7", axis: "14px", padding: "40px" },
+  { size: "w-6 h-6 text-[13px]", boxWidth: "w-6", axis: "12px", padding: "36px" },
+];
+
 function CommentBody({
   comment,
   depth,
@@ -40,7 +46,7 @@ function CommentBody({
   voteMap,
   showReplyForm,
   setShowReplyForm,
-}: {
+}: Readonly<{
   comment: CommentDto;
   depth: number;
   onVote: (id: number | string, action: "like" | "dislike") => void;
@@ -52,7 +58,7 @@ function CommentBody({
   voteMap: Record<string, string | undefined>;
   showReplyForm: boolean;
   setShowReplyForm: (v: boolean) => void;
-}) {
+}>) {
   const [spoilerVisible, setSpoilerVisible] = useState(false);
   const [showSecretForm, setShowSecretForm] = useState(false);
   const [secretPassword, setSecretPassword] = useState("");
@@ -113,31 +119,12 @@ function CommentBody({
     }));
   };
 
-  return (
-    // [보정] 본문 전체를 하얀색 레이어로 감싸 위로 튀는 선을 가림
-    <div className="relative z-10 bg-white">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-[13px] font-semibold text-slate-800">
-          {comment.writer ?? "익명"}
-        </span>
-        <span className="text-[12px] text-slate-400">
-          {comment.insDt
-            ? String(comment.insDt).replace("T", " ").slice(0, 16)
-            : ""}
-        </span>
-        {isSecret && <Lock className="h-[14px] w-[14px] text-slate-400" />}
-        {isSpoiler && !spoilerVisible && (
-          <span className="text-[11px] text-amber-500 font-medium bg-amber-50 px-1.5 py-0.5 rounded">
-            스포일러
-          </span>
-        )}
-      </div>
-
-      {isSecret && !secretUnlocked ? (
+  const renderContent = () => {
+    if (isSecret && !secretUnlocked) {
+      return (
         <div>
           <p className="text-[13px] text-slate-400 italic mb-1.5">
-            비밀댓글입니다.
-            <button
+            비밀댓글입니다.<button
               type="button"
               className="ml-2 text-[12px] text-brand-primary underline bg-transparent border-0 cursor-pointer"
               onClick={() => {
@@ -174,20 +161,52 @@ function CommentBody({
             </form>
           )}
         </div>
-      ) : isSpoiler && !spoilerVisible ? (
-        <p
-          className="text-[13px] text-slate-700 blur-[5px] select-none cursor-pointer mb-1.5"
+      );
+    }
+
+    if (isSpoiler && !spoilerVisible) {
+      return (
+        <button
+          type="button"
+          className="block w-full text-left text-[13px] text-slate-700 blur-[5px] select-none cursor-pointer mb-1.5 border-0 bg-transparent p-0"
           onClick={() => setSpoilerVisible(true)}
+          aria-expanded={!spoilerVisible}
           title="클릭하면 내용을 볼 수 있습니다"
         >
           {comment.content ?? ""}
-        </p>
-      ) : (
-        <p className="text-[13px] text-slate-700 leading-relaxed mb-1.5 whitespace-pre-wrap">
-          {" "}
-          {comment.content ?? ""}
-        </p>
-      )}
+        </button>
+      );
+    }
+
+    return (
+      <p className="text-[13px] text-slate-700 leading-relaxed mb-1.5 whitespace-pre-wrap">
+        {" "}
+        {comment.content ?? ""}
+      </p>
+    );
+  };
+
+  return (
+    // [보정] 본문 전체를 하얀색 레이어로 감싸 위로 튀는 선을 가림
+    <div className="relative z-10 bg-white">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-[13px] font-semibold text-slate-800">
+          {comment.writer ?? "익명"}
+        </span>
+        <span className="text-[12px] text-slate-400">
+          {comment.insDt
+            ? String(comment.insDt).replace("T", " ").slice(0, 16)
+            : ""}
+        </span>
+        {isSecret && <Lock className="h-[14px] w-[14px] text-slate-400" />}
+        {isSpoiler && !spoilerVisible && (
+          <span className="text-[11px] text-amber-500 font-medium bg-amber-50 px-1.5 py-0.5 rounded">
+            스포일러
+          </span>
+        )}
+      </div>
+
+      {renderContent()}
 
       <div className="flex items-center gap-3 mt-1">
         <button
@@ -299,23 +318,18 @@ export default function CommentItem({
   onSubmitReply,
   commentLoading,
   voteMap,
-}: CommentItemProps) {
+}: Readonly<CommentItemProps>) {
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
 
   const replies = comment.replies ?? [];
   const hasReplies = replies.length > 0;
 
-  const avatarSize =
-    depth === 0
-      ? "w-8 h-8 text-[18px]"
-      : depth === 1
-        ? "w-7 h-7 text-[15px]"
-        : "w-6 h-6 text-[13px]";
-  const avatarBoxWidth = depth === 0 ? "w-8" : depth === 1 ? "w-7" : "w-6";
-
-  const axisLeftStyle = depth === 0 ? "16px" : depth === 1 ? "14px" : "12px";
-  const paddingLeftStyle = depth === 0 ? "44px" : depth === 1 ? "40px" : "36px";
+  const ds = DEPTH_STYLES[Math.min(depth, DEPTH_STYLES.length - 1)];
+  const avatarSize = ds.size;
+  const avatarBoxWidth = ds.boxWidth;
+  const axisLeftStyle = ds.axis;
+  const paddingLeftStyle = ds.padding;
 
   return (
     <div className="relative flex flex-col w-full">

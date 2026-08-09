@@ -1,6 +1,5 @@
 package com.main.app.official.about.people;
 
-import com.main.app.official.about.people.dto.PeopleDto;
 import com.main.app.official.about.people.dto.PeopleMemberRowDto;
 import com.main.app.official.about.people.dto.PeopleRequest;
 import org.apache.ibatis.annotations.Mapper;

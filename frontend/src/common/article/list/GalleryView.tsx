@@ -17,6 +17,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+const CONTENT_IMG_SRC_REGEX = /<img[^>]+src=["']([^"']+)["']/;
+
 interface GalleryViewProps {
   items: ArticleItem[];
   config: ArticleTemplateConfig;
@@ -103,10 +105,12 @@ function SortableCard({
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div className="rounded-lg overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-        <div
-          className={`${aspectRatioClass} relative overflow-hidden bg-slate-100 cursor-grab active:cursor-grabbing`}
+        <button
+          type="button"
+          className={`${aspectRatioClass} relative overflow-hidden bg-slate-100 cursor-grab active:cursor-grabbing w-full text-left`}
           {...listeners}
           onClick={() => onItemClick(item, allItems)}
+          aria-label={item.title}
         >
           {thumbnailUrl ? (
             <img
@@ -125,13 +129,10 @@ function SortableCard({
               #{index + 1}
             </div>
           )}
-        </div>
+        </button>
         <div className="p-3">
           <div className="flex items-center justify-between">
-            <h3
-              className="text-sm font-medium text-slate-800 truncate flex-1 mr-2 cursor-pointer"
-              onClick={() => onItemClick(item, allItems)}
-            >
+            <h3 className="text-sm font-medium text-slate-800 truncate flex-1 mr-2">
               {item.title}
             </h3>
             <div className="flex items-center gap-1 shrink-0">
@@ -278,8 +279,8 @@ export function GalleryView({
     }
     // ★ 본문 HTML에서 첫 번째 이미지 추출
     if (cardConfig.imageField === "firstImageFromContent" && item.contentHtml) {
-      const match = item.contentHtml.match(/<img[^>]+src=["']([^"']+)["']/);
-      if (match && match[1]) {
+      const match = CONTENT_IMG_SRC_REGEX.exec(item.contentHtml);
+      if (match?.[1]) {
         return match[1];
       }
     }

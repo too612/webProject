@@ -50,6 +50,7 @@ export default function NotificationsPage() {
                 <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
               </div>
               <button
+                type="button"
                 role="switch"
                 aria-checked={settings[item.key]}
                 onClick={() => handleToggle(item.key)}

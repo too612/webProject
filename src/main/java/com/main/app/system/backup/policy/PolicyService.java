@@ -11,8 +11,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PolicyService {
 
-    private final PolicyMapper policyMapper;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getPolicyList(int page, int size) {
         return Map.of(

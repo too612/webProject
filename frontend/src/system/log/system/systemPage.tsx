@@ -22,7 +22,11 @@ export default function LogSystemPage() {
 
   const getCellValue = (row: SystemLogSystemRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
   };
 
   return (
@@ -68,7 +72,7 @@ export default function LogSystemPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SYSTEM_LOG_SYSTEM_COLUMNS.length + 1}
@@ -77,7 +81,8 @@ export default function LogSystemPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SYSTEM_LOG_SYSTEM_COLUMNS.length + 1}
@@ -86,9 +91,10 @@ export default function LogSystemPage() {
                   데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${page}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>

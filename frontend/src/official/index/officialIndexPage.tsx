@@ -7,11 +7,13 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  CloudMoon,
   Heart,
   Images,
   MapPin,
   Megaphone,
   Moon,
+  MoonStar,
   PlaySquare,
   Smile,
   Sun,
@@ -25,6 +27,7 @@ import { useOfficialIndexData } from "./officialIndexHook";
 import type { BannerItem, GalleryItem } from "./officialIndexModel";
 import client from "../../common/api/api.client";
 import type { ApiResponse } from "../../common/api/api.types";
+import LiveBanner from "../worship/live/LiveBanner";
 
 const QUICK_MENUS: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/worship/sermons", icon: Tv, label: "주일설교" },
@@ -37,8 +40,9 @@ const QUICK_MENUS: { to: string; icon: LucideIcon; label: string }[] = [
 
 const WORSHIP_SCHEDULE: { icon: LucideIcon; title: string; time: string }[] = [
   { icon: Sunrise, title: "새벽예배", time: "매일 오전 5:00" },
-  { icon: Sun, title: "주일낙예배", time: "주일 오전 11:00" },
-  { icon: Moon, title: "주일저녁예배", time: "주일 오후 7:00" },
+  { icon: Sun, title: "주일낮예배", time: "주일 오전 11:00" },
+  { icon: CloudMoon, title: "주일저녁예배", time: "주일 오후 7:00" },
+  { icon: MoonStar, title: "수요예배", time: "수요일 오후 7:30" },
   { icon: Moon, title: "금요심야예배", time: "금요일 오후 9:30" },
 ];
 
@@ -64,7 +68,7 @@ function imgUrl(raw: unknown, fb: string): string {
 }
 function S(v: unknown): string {
   if (v == null) return "";
-  if (typeof v === "object") return "";
+  if (typeof v !== "string" && typeof v !== "number") return "";
   return String(v);
 }
 function firstImg(html: unknown): string {
@@ -157,6 +161,7 @@ function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-3 sm:p-4">
       <div className="relative w-full sm:w-auto max-w-[420px] sm:max-w-none border-2 border-white/30 pt-10 bg-white/5">
         <button
+          type="button"
           onClick={function () {
             dismissAll("close");
           }}
@@ -190,6 +195,7 @@ function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
                 </a>
                 <div className="flex border-t border-gray-100 text-xs">
                   <button
+                    type="button"
                     onClick={function () {
                       dismissOne(origIdx, "today");
                     }}
@@ -199,6 +205,7 @@ function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
                   </button>
                   <div className="w-px bg-gray-100" />
                   <button
+                    type="button"
                     onClick={function () {
                       dismissOne(origIdx, "close");
                     }}
@@ -309,12 +316,16 @@ export default function OfficialIndexPage() {
           </div>
         )}
         {sLen > 0 && (
-          <div
+          <section
             className="relative h-[260px] md:h-[320px] lg:h-[360px] w-full select-none"
             style={{ touchAction: "pan-y" }}
-            role="region"
-            aria-roledescription="carousel"
             aria-label="슬라이드 배너"
+            aria-roledescription="carousel"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowLeft") prev();
+              if (e.key === "ArrowRight") next();
+            }}
             onMouseDown={onMD}
             onMouseMove={onMM}
             onMouseUp={function () {
@@ -362,12 +373,14 @@ export default function OfficialIndexPage() {
               );
             })}
             <button
+              type="button"
               onClick={prev}
               className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55 z-10"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
+              type="button"
               onClick={next}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55 z-10"
             >
@@ -382,6 +395,7 @@ export default function OfficialIndexPage() {
                 {slides.map(function (b, i) {
                   return (
                     <button
+                      type="button"
                       key={b.id}
                       role="tab"
                       aria-selected={i === current}
@@ -398,7 +412,7 @@ export default function OfficialIndexPage() {
                 })}
               </div>
             )}
-          </div>
+          </section>
         )}
       </section>
 
@@ -475,6 +489,8 @@ export default function OfficialIndexPage() {
       {/* Sermons from worship/live */}
       <section className="py-14 bg-white">
         <div className="container mx-auto px-6 space-y-6">
+          {/* 실시간 방송 중일 때만 노출되는 라이브 배너 */}
+          <LiveBanner />
           <SecH
             icon={Tv}
             title="주일설교"
@@ -533,7 +549,7 @@ export default function OfficialIndexPage() {
       </section>
 
       {/* Gallery */}
-      <section className="py-14 bg-white">
+      <section className="py-14 bg-slate-50">
         <div className="container mx-auto px-6 space-y-6">
           <SecH
             icon={Images}
@@ -596,7 +612,7 @@ export default function OfficialIndexPage() {
       </section>
 
       {/* Worship Time */}
-      <section className="py-14 bg-brand-primary/[0.05]">
+      <section className="py-14 bg-white">
         <div className="container mx-auto px-6 space-y-6">
           <SecH
             icon={Calendar}
@@ -611,7 +627,7 @@ export default function OfficialIndexPage() {
               </Link>
             }
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {WORSHIP_SCHEDULE.map(function (w) {
               return (
                 <div
@@ -638,7 +654,7 @@ export default function OfficialIndexPage() {
       </section>
 
       {/* Notice & Bulletin */}
-      <section className="py-14 bg-white">
+      <section className="py-14 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">

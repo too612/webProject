@@ -11,8 +11,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MenuService {
 
-    private final MenuMapper menuMapper;
-
     @Transactional(readOnly = true)
     public Map<String, Object> getMenuList(int page, int size) {
         return Map.of(

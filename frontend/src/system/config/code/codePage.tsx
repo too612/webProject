@@ -22,7 +22,35 @@ export default function ConfigCodePage() {
 
   const getCellValue = (row: SystemConfigCodeRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
+  };
+
+  const renderCell = (
+    row: SystemConfigCodeRow,
+    col: (typeof SYSTEM_CONFIG_CODE_COLUMNS)[number],
+  ) => {
+    if (col.key === "actions") {
+      return (
+        <>
+          <Button variant="outline" size="sm">
+            수정
+          </Button>
+          <Button variant="destructive" size="sm">
+            삭제
+          </Button>
+        </>
+      );
+    }
+
+    if (col.key === "groupCode" || col.key === "codeValue") {
+      return <code>{getCellValue(row, String(col.key))}</code>;
+    }
+
+    return getCellValue(row, String(col.key));
   };
 
   return (
@@ -66,7 +94,7 @@ export default function ConfigCodePage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={SYSTEM_CONFIG_CODE_COLUMNS.length + 1}
@@ -75,7 +103,8 @@ export default function ConfigCodePage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={SYSTEM_CONFIG_CODE_COLUMNS.length + 1}
@@ -84,9 +113,10 @@ export default function ConfigCodePage() {
                   데이터가 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${page}-${idx}`} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 text-center text-gray-400">
                     {page * 10 + idx + 1}
                   </td>
@@ -95,20 +125,7 @@ export default function ConfigCodePage() {
                       key={String(col.key)}
                       className="px-4 py-3 text-gray-700"
                     >
-                      {col.key === "actions" ? (
-                        <>
-                          <Button variant="outline" size="sm">
-                            수정
-                          </Button>
-                          <Button variant="destructive" size="sm">
-                            삭제
-                          </Button>
-                        </>
-                      ) : col.key === "groupCode" || col.key === "codeValue" ? (
-                        <code>{getCellValue(row, String(col.key))}</code>
-                      ) : (
-                        getCellValue(row, String(col.key))
-                      )}
+                      {renderCell(row, col)}
                     </td>
                   ))}
                 </tr>

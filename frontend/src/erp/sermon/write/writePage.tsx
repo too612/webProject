@@ -36,8 +36,14 @@ export default function SermonWritePage() {
       )}
       <form className="space-y-4 max-w-xl" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">설교 제목</label>
+          <label
+            htmlFor="sermon-title"
+            className="text-sm font-medium text-gray-700"
+          >
+            설교 제목
+          </label>
           <input
+            id="sermon-title"
             name="title"
             value={form.title}
             onChange={handleChange}
@@ -46,8 +52,14 @@ export default function SermonWritePage() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">설교자</label>
+          <label
+            htmlFor="sermon-preacher"
+            className="text-sm font-medium text-gray-700"
+          >
+            설교자
+          </label>
           <input
+            id="sermon-preacher"
             name="preacher"
             value={form.preacher}
             onChange={handleChange}
@@ -56,8 +68,14 @@ export default function SermonWritePage() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">본문</label>
+          <label
+            htmlFor="sermon-scripture"
+            className="text-sm font-medium text-gray-700"
+          >
+            본문
+          </label>
           <input
+            id="sermon-scripture"
             name="scripture"
             value={form.scripture}
             onChange={handleChange}
@@ -65,8 +83,14 @@ export default function SermonWritePage() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">설교일</label>
+          <label
+            htmlFor="sermon-date"
+            className="text-sm font-medium text-gray-700"
+          >
+            설교일
+          </label>
           <input
+            id="sermon-date"
             type="date"
             name="sermonDate"
             value={form.sermonDate}
@@ -76,8 +100,14 @@ export default function SermonWritePage() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">내용</label>
+          <label
+            htmlFor="sermon-content"
+            className="text-sm font-medium text-gray-700"
+          >
+            내용
+          </label>
           <textarea
+            id="sermon-content"
             name="content"
             value={form.content}
             onChange={handleChange}

@@ -22,7 +22,11 @@ export default function SaintPrayPage() {
 
   const getCellValue = (row: CommunitySaintPrayRow, key: string): string => {
     const value = row[key];
-    return value === null || value === undefined ? "-" : String(value);
+    if (value === null || value === undefined) return "-";
+
+    if (typeof value !== "string" && typeof value !== "number") return "-";
+
+    return String(value);
   };
 
   return (
@@ -66,7 +70,7 @@ export default function SaintPrayPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr>
                 <td
                   colSpan={COMMUNITY_SAINT_PRAY_COLUMNS.length + 1}
@@ -75,7 +79,8 @@ export default function SaintPrayPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr>
                 <td
                   colSpan={COMMUNITY_SAINT_PRAY_COLUMNS.length + 1}
@@ -84,9 +89,10 @@ export default function SaintPrayPage() {
                   등록된 항목이 없습니다.
                 </td>
               </tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={`${page}-${index}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-500">
                     {totalElements - page * 10 - index}
                   </td>

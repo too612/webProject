@@ -37,7 +37,7 @@ export default function BulletinList() {
     setLightboxState({
       isOpen: true,
       items: allItems,
-      initialIndex: index >= 0 ? index : 0,
+      initialIndex: Math.max(index, 0),
     });
   };
 

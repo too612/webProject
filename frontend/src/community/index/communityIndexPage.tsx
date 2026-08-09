@@ -70,6 +70,20 @@ export default function CommunityIndexPage() {
     },
   ];
 
+  const recentPosts =
+    indexData.recentPosts.length > 0
+      ? indexData.recentPosts
+      : [
+          {
+            id: "",
+            category: "안내",
+            title: "등록된 게시글이 없습니다.",
+            author: "-",
+            date: "-",
+            views: 0,
+          },
+        ];
+
   return (
     <div className="space-y-0">
       <section className="relative bg-brand-dark text-white py-20 flex items-center justify-center">
@@ -145,19 +159,7 @@ export default function CommunityIndexPage() {
                 불러오는 중...
               </div>
             ) : (
-              (indexData.recentPosts.length > 0
-                ? indexData.recentPosts
-                : [
-                    {
-                      id: "",
-                      category: "안내",
-                      title: "등록된 게시글이 없습니다.",
-                      author: "-",
-                      date: "-",
-                      views: 0,
-                    },
-                  ]
-              ).map((post) => (
+              recentPosts.map((post) => (
                 <article
                   className="bg-white rounded-panel shadow-panel border border-gray-100 p-5 space-y-2"
                   key={post.id || post.title}

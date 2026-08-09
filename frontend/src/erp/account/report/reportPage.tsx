@@ -78,7 +78,10 @@ export default function AccountReportPage() {
                   </tr>
                 ) : (
                   data.items.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
+                    <tr
+                      key={`${row.transDate}-${idx}`}
+                      className="hover:bg-gray-50"
+                    >
                       <td className="px-4 py-3 text-gray-700">{String(row.category ?? '-')}</td>
                       <td className="px-4 py-3 text-gray-700">{String(row.transType ?? '-')}</td>
                       <td className="px-4 py-3 text-gray-700">{Number(row.amount ?? 0).toLocaleString()}원</td>

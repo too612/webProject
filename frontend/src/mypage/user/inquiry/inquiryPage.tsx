@@ -23,11 +23,13 @@ export default function InquiryPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {loading && (
               <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">불러오는 중...</td></tr>
-            ) : items.length === 0 ? (
+            )}
+            {!loading && items.length === 0 && (
               <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">문의 내역이 없습니다.</td></tr>
-            ) : (
+            )}
+            {!loading && items.length !== 0 && (
               items.map((inquiry) => (
                 <tr key={inquiry.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-700">{inquiry.title}</td>

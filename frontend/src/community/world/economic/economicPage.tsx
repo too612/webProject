@@ -54,7 +54,7 @@ export default function WorldEconomicPage() {
                                     </tr>
                                 ) : (
                                     rows.map((row, index) => (
-                                        <tr key={index} className="hover:bg-gray-50">
+                                        <tr key={`${row.sector}-${index}`} className="hover:bg-gray-50">
                                             <td className="px-4 py-3 text-gray-700">{String(row.sector ?? '-')}</td>
                                             <td className="px-4 py-3 text-gray-700">{String(row.keyword ?? '-')}</td>
                                             <td className="px-4 py-3 text-gray-700">{String(row.trend ?? '-')}</td>

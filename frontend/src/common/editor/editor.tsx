@@ -212,6 +212,21 @@ const resolveImageWidthFromElement = (
   return null;
 };
 
+const resolveImageAlignMargin = (align: ImageAlign): string => {
+  if (align === "center") return "margin-left: auto; margin-right: auto";
+  if (align === "right") return "margin-left: auto; margin-right: 0";
+  return "margin-left: 0; margin-right: auto";
+};
+
+const resolveAlignFromMargins = (
+  marginLeft: string,
+  marginRight: string,
+): string => {
+  if (marginLeft === "auto" && marginRight === "auto") return "center";
+  if (marginLeft === "auto") return "right";
+  return "left";
+};
+
 const buildImageStyle = ({
   align,
   width,
@@ -225,11 +240,7 @@ const buildImageStyle = ({
     width ? `width: ${width}px` : "width: auto",
     height ? `height: ${height}px` : "height: auto",
     "display: block",
-    align === "center"
-      ? "margin-left: auto; margin-right: auto"
-      : align === "right"
-        ? "margin-left: auto; margin-right: 0"
-        : "margin-left: 0; margin-right: auto",
+    resolveImageAlignMargin(align),
     "max-width: 100%",
   ];
 
@@ -337,12 +348,10 @@ const EditorImage = Image.extend({
           return (
             htmlElement.dataset.imageAlign ||
             classBasedAlign ||
-            (htmlElement.style.marginLeft === "auto" &&
-            htmlElement.style.marginRight === "auto"
-              ? "center"
-              : htmlElement.style.marginLeft === "auto"
-                ? "right"
-                : "left")
+            resolveAlignFromMargins(
+              htmlElement.style.marginLeft,
+              htmlElement.style.marginRight,
+            )
           );
         },
         renderHTML: (attributes) => {
@@ -1007,6 +1016,13 @@ export default function Editor({
     </button>
   );
 
+  const resolveHeadingValue = (): string => {
+    if (editor.isActive("heading", { level: 1 })) return "h1";
+    if (editor.isActive("heading", { level: 2 })) return "h2";
+    if (editor.isActive("heading", { level: 3 })) return "h3";
+    return "p";
+  };
+
   const ToolbarDivider = () => (
     <span className="mx-1 h-5 w-px bg-slate-200" aria-hidden="true" />
   );
@@ -1018,15 +1034,7 @@ export default function Editor({
           {enabledTools.has("heading") && (
             <select
               className="h-8 min-w-[110px] rounded-sm border border-slate-300 bg-white px-2 text-xs text-slate-700"
-              value={
-                editor.isActive("heading", { level: 1 })
-                  ? "h1"
-                  : editor.isActive("heading", { level: 2 })
-                    ? "h2"
-                    : editor.isActive("heading", { level: 3 })
-                      ? "h3"
-                      : "p"
-              }
+              value={resolveHeadingValue()}
               onChange={(event) => {
                 const type = event.target.value;
                 if (type === "p") {
