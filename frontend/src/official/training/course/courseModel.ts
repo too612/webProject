@@ -13,6 +13,7 @@ export type ProcessStep = {
 export type CourseContent = {
   headline: string;
   summary: string;
+  galleryImages: string[];
   steps: ProcessStep[];
 };
 
@@ -20,6 +21,13 @@ export const DEFAULT_COURSE_CONTENT: CourseContent = {
   headline: "세계비전두날개프로세스",
   summary:
     "건강한 성도, 건강한 교회를 세우기 위한 탁월한 양육 여정입니다. 회복과 훈련을 거쳐 셀리더·셀교사로 세워져 제자 재생산을 이루는 것이 목표입니다.",
+  galleryImages: [
+    "/img/official/training/course/course_01.jpg",
+    "/img/official/training/course/course_02.jpg",
+    "/img/official/training/course/course_03.jpg",
+    "/img/official/training/course/course_04.jpg",
+    "/img/official/training/course/course_05.jpg",
+  ],
   steps: [
     {
       step: 1,

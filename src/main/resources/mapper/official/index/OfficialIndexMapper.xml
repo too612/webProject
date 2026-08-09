@@ -4,7 +4,7 @@
 
     <select id="selectRecentAnnouncements" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
         SELECT CAST(post_id AS VARCHAR) AS id, title, TO_CHAR(created_at, 'YYYY.MM.DD') AS date
-        FROM common_post
+        FROM com_post
         WHERE menu_key = 'PINNABLE' AND template_code = 'PINNABLE'
           AND status = 'PUBLISHED' AND is_deleted = FALSE
         ORDER BY created_at DESC LIMIT 4
@@ -17,7 +17,7 @@
                         AND cf.is_deleted = FALSE AND cf.file_usage = 'attachment'
                       ORDER BY cf.file_id ASC LIMIT 1) AS VARCHAR) AS imageUrl,
                cp.popup_link_url AS linkUrl
-        FROM common_post cp
+        FROM com_post cp
         WHERE cp.menu_key = 'BANNER' AND cp.template_code = 'SLIDE'
           AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
         ORDER BY cp.order_no ASC LIMIT 5
@@ -33,7 +33,7 @@
                TO_CHAR(cp.popup_start_dt, 'YYYY-MM-DD HH24:MI:SS') AS startDt,
                TO_CHAR(cp.popup_end_dt, 'YYYY-MM-DD HH24:MI:SS') AS endDt,
                cp.popup_dismiss_option AS dismissOption
-        FROM common_post cp
+        FROM com_post cp
         WHERE cp.menu_key = 'BANNER' AND cp.template_code = 'POPUP'
           AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
         ORDER BY cp.order_no ASC LIMIT 5
@@ -41,7 +41,7 @@
 
     <select id="selectRecentBulletins" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
         SELECT CAST(post_id AS VARCHAR) AS id, title, TO_CHAR(created_at, 'YYYY.MM.DD') AS date
-        FROM common_post
+        FROM com_post
         WHERE menu_key = 'SINGLE_IMAGE' AND template_code = 'SINGLE_IMAGE'
           AND status = 'PUBLISHED' AND is_deleted = FALSE
         ORDER BY created_at DESC LIMIT 5
@@ -55,7 +55,7 @@
                       ORDER BY cf.file_id ASC LIMIT 1) AS VARCHAR) AS imageUrl,
                TO_CHAR(cp.created_at, 'YYYY.MM.DD') AS date,
                cp.content_html AS contentHtml
-        FROM common_post cp
+        FROM com_post cp
         WHERE cp.menu_key = 'GALLERY' AND cp.template_code = 'GALLERY'
           AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
         ORDER BY cp.created_at DESC LIMIT 6

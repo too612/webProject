@@ -1,7 +1,7 @@
--- PostgreSQL DDL: common_code
+-- PostgreSQL DDL: com_code
 -- 공통 코드 관리 테이블
 
-CREATE TABLE IF NOT EXISTS common_code (
+CREATE TABLE IF NOT EXISTS com_code (
   code                VARCHAR(7) PRIMARY KEY,
   code_name           VARCHAR(100) NOT NULL,
   parent_code         VARCHAR(7) NOT NULL,
@@ -29,84 +29,84 @@ CREATE TABLE IF NOT EXISTS common_code (
   upd_dtm             TIMESTAMPTZ,
   upd_ip              INET,
 
-  CONSTRAINT ck_common_code_format
+  CONSTRAINT ck_com_code_format
     CHECK (code ~ '^\d{3}(-\d{3})?$'),
-  CONSTRAINT ck_common_code_parent_format
+  CONSTRAINT ck_com_code_parent_format
     CHECK (parent_code = '000' OR parent_code ~ '^\d{3}(-\d{3})?$'),
-  CONSTRAINT ck_common_code_category
+  CONSTRAINT ck_com_code_category
     CHECK (category_code IS NULL OR category_code ~ '^\d{3}$'),
-  CONSTRAINT ck_common_code_use_yn
+  CONSTRAINT ck_com_code_use_yn
     CHECK (use_yn IN ('Y', 'N')),
-  CONSTRAINT ck_common_code_sort_order
+  CONSTRAINT ck_com_code_sort_order
     CHECK (sort_order >= 0),
-  CONSTRAINT ck_common_code_parent_not_self
+  CONSTRAINT ck_com_code_parent_not_self
     CHECK (code = '000' OR code <> parent_code),
-  CONSTRAINT uq_common_code_parent_name
+  CONSTRAINT uq_com_code_parent_name
     UNIQUE (parent_code, code_name),
-  CONSTRAINT fk_common_code_parent_code
-    FOREIGN KEY (parent_code) REFERENCES common_code(code)
+  CONSTRAINT fk_com_code_parent_code
+    FOREIGN KEY (parent_code) REFERENCES com_code(code)
     DEFERRABLE INITIALLY DEFERRED
 );
 
-CREATE INDEX IF NOT EXISTS ix_common_code_parent_code
-  ON common_code (parent_code, sort_order, code);
+CREATE INDEX IF NOT EXISTS ix_com_code_parent_code
+  ON com_code (parent_code, sort_order, code);
 
-CREATE INDEX IF NOT EXISTS ix_common_code_category_code
-  ON common_code (category_code, sort_order, code);
+CREATE INDEX IF NOT EXISTS ix_com_code_category_code
+  ON com_code (category_code, sort_order, code);
 
-CREATE INDEX IF NOT EXISTS ix_common_code_use_yn
-  ON common_code (use_yn, sort_order, code);
+CREATE INDEX IF NOT EXISTS ix_com_code_use_yn
+  ON com_code (use_yn, sort_order, code);
 
-CREATE INDEX IF NOT EXISTS ix_common_code_code_name
-  ON common_code (code_name);
+CREATE INDEX IF NOT EXISTS ix_com_code_code_name
+  ON com_code (code_name);
 
-COMMENT ON TABLE common_code
+COMMENT ON TABLE com_code
   IS '공통코드 테이블';
-COMMENT ON COLUMN common_code.code
+COMMENT ON COLUMN com_code.code
   IS '코드 (000 또는 000-000 형식)';
-COMMENT ON COLUMN common_code.code_name
+COMMENT ON COLUMN com_code.code_name
   IS '코드명(사용자 노출 텍스트)';
-COMMENT ON COLUMN common_code.parent_code
+COMMENT ON COLUMN com_code.parent_code
   IS '상위코드 (최상위는 000)';
-COMMENT ON COLUMN common_code.category_code
+COMMENT ON COLUMN com_code.category_code
   IS '분류코드(업무분류 000 형식)';
-COMMENT ON COLUMN common_code.extra1
+COMMENT ON COLUMN com_code.extra1
   IS '기타1';
-COMMENT ON COLUMN common_code.extra2
+COMMENT ON COLUMN com_code.extra2
   IS '기타2';
-COMMENT ON COLUMN common_code.extra3
+COMMENT ON COLUMN com_code.extra3
   IS '기타3';
-COMMENT ON COLUMN common_code.extra4
+COMMENT ON COLUMN com_code.extra4
   IS '기타4';
-COMMENT ON COLUMN common_code.extra5
+COMMENT ON COLUMN com_code.extra5
   IS '기타5';
-COMMENT ON COLUMN common_code.extra6
+COMMENT ON COLUMN com_code.extra6
   IS '기타6';
-COMMENT ON COLUMN common_code.extra7
+COMMENT ON COLUMN com_code.extra7
   IS '기타7';
-COMMENT ON COLUMN common_code.extra8
+COMMENT ON COLUMN com_code.extra8
   IS '기타8';
-COMMENT ON COLUMN common_code.extra9
+COMMENT ON COLUMN com_code.extra9
   IS '기타9';
-COMMENT ON COLUMN common_code.extra10
+COMMENT ON COLUMN com_code.extra10
   IS '기타10';
-COMMENT ON COLUMN common_code.remark
+COMMENT ON COLUMN com_code.remark
   IS '비고';
-COMMENT ON COLUMN common_code.use_yn
+COMMENT ON COLUMN com_code.use_yn
   IS '사용여부(Y/N)';
-COMMENT ON COLUMN common_code.sort_order
+COMMENT ON COLUMN com_code.sort_order
   IS '정렬순서(코드값과 무관한 표시순서)';
-COMMENT ON COLUMN common_code.reg_user
+COMMENT ON COLUMN com_code.reg_user
   IS '등록자';
-COMMENT ON COLUMN common_code.reg_dtm
+COMMENT ON COLUMN com_code.reg_dtm
   IS '등록일시';
-COMMENT ON COLUMN common_code.reg_ip
+COMMENT ON COLUMN com_code.reg_ip
   IS '등록IP';
-COMMENT ON COLUMN common_code.upd_user
+COMMENT ON COLUMN com_code.upd_user
   IS '수정자';
-COMMENT ON COLUMN common_code.upd_dtm
+COMMENT ON COLUMN com_code.upd_dtm
   IS '수정일시';
-COMMENT ON COLUMN common_code.upd_ip
+COMMENT ON COLUMN com_code.upd_ip
   IS '수정IP';
 
--- 샘플 데이터는 별도 파일 [docs/common_code_seed.sql]로 분리
+-- 샘플 데이터는 별도 파일 [docs/com_code_seed.sql]로 분리

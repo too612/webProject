@@ -4,6 +4,7 @@ import { ArticleList } from "../../../common/article";
 import { Button } from "../../../common/ui";
 import { useOutreachContent } from "./outreachHook";
 import { DEFAULT_OUTREACH_CONTENT } from "./outreachModel";
+import { PageTitle } from "../../../common/ui";
 
 export default function OutreachPage() {
   const { outreachContent, loading, error, loadOutreachContent } =
@@ -37,14 +38,7 @@ export default function OutreachPage() {
 
       {!loading && !error && (
         <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-          <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-              {content.headline}
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed max-w-3xl">
-              {content.summary}
-            </p>
-          </div>
+          <PageTitle title={content.headline} description={content.summary} />
 
           <section className="space-y-4">
             <div className="relative overflow-hidden rounded-lg border border-slate-200 min-h-[420px] md:min-h-[520px] bg-slate-900">

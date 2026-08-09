@@ -48,6 +48,8 @@ export function useLogin() {
           userId: result.userId,
           userName: result.username,
           username: result.username,
+          roles: result.roles ?? [],
+          permissions: result.permissions ?? {},
         },
         result.token ?? null,
       );

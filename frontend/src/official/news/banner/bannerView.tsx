@@ -7,7 +7,12 @@ import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { HelpCircle, Image } from "lucide-react";
 import { useArticle } from "../../../common/article";
-import { Button, LoadingSpinner, ErrorMessage } from "../../../common/ui";
+import {
+  Button,
+  LoadingSpinner,
+  ErrorMessage,
+  PageTitle,
+} from "../../../common/ui";
 
 export default function BannerView() {
   const navigate = useNavigate();
@@ -77,7 +82,10 @@ export default function BannerView() {
   return (
     <section className="space-y-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h2 className="text-xl font-bold text-brand-dark">배너 미리보기</h2>
+        <PageTitle
+          title="배너 미리보기"
+          description="메인 페이지에 노출될 배너의 미리보기입니다."
+        />
         <div className="flex gap-2">
           <Button asChild variant="outline">
             <Link to="/news/banner">무록</Link>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Alert, AlertDescription, Button, Input } from "../../common/ui";
+import { Alert, AlertDescription, Input } from "../../ui";
 import { useFindId } from "./findIdHook";
 
 export default function FindIdPage() {

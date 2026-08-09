@@ -54,11 +54,11 @@
         FROM hrm_org_dept parent_dept
         LEFT JOIN hrm_person leader
                ON parent_dept.chef_emp_no = leader.employee_no
-        LEFT JOIN common_code grade_code
+        LEFT JOIN com_code grade_code
                ON leader.grade_code = grade_code.code
               AND grade_code.parent_code = '102'
               AND grade_code.use_yn = 'Y'
-        LEFT JOIN common_code position_code
+        LEFT JOIN com_code position_code
                ON leader.position_code = position_code.code
               AND position_code.parent_code = '103'
               AND position_code.use_yn = 'Y'
@@ -88,11 +88,11 @@
           ON child.parent_dept_key = parent.dept_key
         LEFT JOIN hrm_person leader
                ON child.chef_emp_no = leader.employee_no
-        LEFT JOIN common_code leader_grade
+        LEFT JOIN com_code leader_grade
                ON leader.grade_code = leader_grade.code
               AND leader_grade.parent_code = '102'
               AND leader_grade.use_yn = 'Y'
-        LEFT JOIN common_code leader_position
+        LEFT JOIN com_code leader_position
                ON leader.position_code = leader_position.code
               AND leader_position.parent_code = '103'
               AND leader_position.use_yn = 'Y'
@@ -115,11 +115,11 @@
         FROM hrm_person person
         JOIN hrm_org_dept dept
           ON person.dept_cd = dept.dept_cd
-        LEFT JOIN common_code member_grade
+        LEFT JOIN com_code member_grade
                ON person.grade_code = member_grade.code
               AND member_grade.parent_code = '102'
               AND member_grade.use_yn = 'Y'
-        LEFT JOIN common_code member_position
+        LEFT JOIN com_code member_position
                ON person.position_code = member_position.code
               AND member_position.parent_code = '103'
               AND member_position.use_yn = 'Y'

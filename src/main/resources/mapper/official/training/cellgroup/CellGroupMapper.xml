@@ -86,11 +86,11 @@
         FROM hrm_person person
         JOIN hrm_org_dept dept
           ON person.dept_cd = dept.dept_cd
-        LEFT JOIN common_code grade_code
+        LEFT JOIN com_code grade_code
                ON person.grade_code = grade_code.code
               AND grade_code.parent_code = '102'
               AND grade_code.use_yn = 'Y'
-        LEFT JOIN common_code position_code
+        LEFT JOIN com_code position_code
                ON person.position_code = position_code.code
               AND position_code.parent_code = '103'
               AND position_code.use_yn = 'Y'

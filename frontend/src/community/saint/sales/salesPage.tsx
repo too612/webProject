@@ -3,7 +3,7 @@ import {
   type CommunitySaintSalesRow,
 } from "./salesModel";
 import { useCommunitySaintSalesPage } from "./salesHook";
-import { ActionButton } from "../../../common/ui";
+import { ActionButton, Input } from "../../../common/ui";
 
 export default function SaintSalesPage() {
   const {

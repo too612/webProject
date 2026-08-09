@@ -3,7 +3,7 @@ import {
   type CommunityFacilitiesPrayerRow,
 } from "./prayerModel";
 import { useCommunityFacilitiesPrayerPage } from "./prayerHook";
-import { ActionButton } from "../../../common/ui";
+import { ActionButton, Input } from "../../../common/ui";
 
 export default function FacilitiesPrayerPage() {
   const {

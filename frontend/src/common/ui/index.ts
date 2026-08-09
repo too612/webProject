@@ -7,6 +7,8 @@ export { RouteProgress } from "./route-progress";
 /* ─── 액션 버튼 시스템 ───────────────────────────────────── */
 export { Button, buttonVariants } from "./button";
 export type { ButtonProps } from "./button";
+export { PageTitle, pageTitleVariants } from "./title";
+export type { PageTitleProps } from "./title";
 export { LoadingButton } from "./loading-button";
 export { ActionButton } from "./action-button";
 export { ActionToolbar } from "./action-toolbar";

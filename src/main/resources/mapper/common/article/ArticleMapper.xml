@@ -59,7 +59,7 @@
             (SELECT file_id FROM com_file
              WHERE pgm_id='post' AND ref_id=CAST(post_id AS VARCHAR) AND is_deleted=FALSE AND file_usage='attachment'
              ORDER BY ins_dt ASC LIMIT 1) AS first_file_id
-        FROM common_post
+        FROM com_post
         WHERE is_deleted = FALSE
         <if test="menuKey != null and menuKey != ''">
             AND menu_key = #{menuKey}
@@ -102,7 +102,7 @@
          ============================================================ -->
     <select id="countList" parameterType="map" resultType="long">
         SELECT COUNT(*)
-        FROM common_post
+        FROM com_post
         WHERE is_deleted = FALSE
         <if test="menuKey != null and menuKey != ''">
             AND menu_key = #{menuKey}
@@ -144,7 +144,7 @@
             is_popup, popup_start_dt, popup_end_dt, popup_link_url, thumbnail_file_id,
             popup_dismiss_option,
             created_at, updated_at
-        FROM common_post
+        FROM com_post
         WHERE post_id = #{articleId} AND is_deleted = FALSE
     </select>
 
@@ -152,7 +152,7 @@
          UPDATE VIEW COUNT
          ============================================================ -->
     <update id="updateViewCount">
-        UPDATE common_post
+        UPDATE com_post
         SET view_count = COALESCE(view_count, 0) + 1
         WHERE post_id = #{articleId} AND is_deleted = FALSE
     </update>
@@ -161,7 +161,7 @@
          INSERT
          ============================================================ -->
     <insert id="insert" parameterType="com.main.app.common.article.dto.ArticleRequest" useGeneratedKeys="true" keyProperty="articleId">
-        INSERT INTO common_post (
+        INSERT INTO com_post (
             title, content_html, content_text, author_id,
             menu_key, template_code, parent_id, group_id, depth, order_no,
             is_secret, password_hash, status, metadata,
@@ -185,7 +185,7 @@
          UPDATE
          ============================================================ -->
     <update id="update" parameterType="com.main.app.common.article.dto.ArticleRequest">
-        UPDATE common_post
+        UPDATE com_post
         SET
             title = #{title},
             content_html = #{cont},
@@ -213,7 +213,7 @@
          UPDATE REPLY ORDER
          ============================================================ -->
     <update id="updateReplyOrder" parameterType="map">
-        UPDATE common_post
+        UPDATE com_post
         SET order_no = order_no + 1
         WHERE group_id = #{groupId}
           AND order_no >= #{orderNo}
@@ -224,7 +224,7 @@
          UPDATE GROUP ID
          ============================================================ -->
     <update id="updateGroupId">
-        UPDATE common_post
+        UPDATE com_post
         SET group_id = #{articleId}
         WHERE post_id = #{articleId} AND is_deleted = FALSE
     </update>
@@ -233,7 +233,7 @@
          SOFT DELETE
          ============================================================ -->
     <update id="softDelete">
-        UPDATE common_post
+        UPDATE com_post
         SET is_deleted = TRUE, deleted_at = NOW(), updated_at = NOW()
         WHERE post_id = #{articleId}
     </update>
@@ -243,16 +243,16 @@
          ============================================================ -->
     <select id="selectPrevId" resultType="java.lang.Long">
         SELECT post_id
-        FROM common_post
+        FROM com_post
         WHERE is_deleted = FALSE
           AND menu_key = #{menuKey}
           AND template_code = #{templateCode}
         <if test="sortField != null and sortField != ''">
             <![CDATA[
             AND (
-                ${sortField} < (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                ${sortField} < (SELECT ${sortField} FROM com_post WHERE post_id = #{articleId})
                 OR (
-                    ${sortField} = (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                    ${sortField} = (SELECT ${sortField} FROM com_post WHERE post_id = #{articleId})
                     AND post_id < #{articleId}
                 )
             )
@@ -264,16 +264,16 @@
 
     <select id="selectNextId" resultType="java.lang.Long">
         SELECT post_id
-        FROM common_post
+        FROM com_post
         WHERE is_deleted = FALSE
           AND menu_key = #{menuKey}
           AND template_code = #{templateCode}
         <if test="sortField != null and sortField != ''">
             <![CDATA[
             AND (
-                ${sortField} > (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                ${sortField} > (SELECT ${sortField} FROM com_post WHERE post_id = #{articleId})
                 OR (
-                    ${sortField} = (SELECT ${sortField} FROM common_post WHERE post_id = #{articleId})
+                    ${sortField} = (SELECT ${sortField} FROM com_post WHERE post_id = #{articleId})
                     AND post_id > #{articleId}
                 )
             )
@@ -296,7 +296,7 @@
             is_popup, popup_start_dt, popup_end_dt, popup_link_url, thumbnail_file_id,
             popup_dismiss_option,
             created_at, updated_at
-        FROM common_post
+        FROM com_post
         WHERE is_deleted = FALSE
           AND menu_key = 'BANNER'
           AND template_code = #{templateCode}
@@ -317,7 +317,7 @@
          슬라이드 순서 변경
          ============================================================ -->
     <update id="updateOrderNo">
-        UPDATE common_post
+        UPDATE com_post
         SET order_no = #{orderNo}, updated_at = NOW()
         WHERE post_id = #{articleId}
           AND is_deleted = FALSE
@@ -327,7 +327,7 @@
          ★ 썸네일 업데이트 (추가)
          ============================================================ -->
     <update id="updateThumbnail">
-        UPDATE common_post
+        UPDATE com_post
         SET thumbnail_file_id = #{fileId}, updated_at = NOW()
         WHERE post_id = #{articleId}
           AND is_deleted = FALSE

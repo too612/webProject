@@ -238,10 +238,14 @@ public class UserService {
         String rawPassword = password != null ? password : "";
 
         if (normalizedUserId == null || normalizedUserId.isEmpty() || rawPassword.isEmpty()) {
+            log.debug("로그인 입력값 누락: userId={}, passwordEmpty={}", normalizedUserId, rawPassword.isEmpty());
             return null;
         }
 
         UserDto user = userMapper.selectUserByUserId(normalizedUserId);
+        log.debug("로그인 사용자 조회: userId={}, userFound={}, status={}, storedPasswordPresent={}",
+                normalizedUserId, user != null, user != null ? user.getStatus() : null,
+                user != null && user.getPassword() != null && !user.getPassword().isBlank());
 
         if (user == null) {
             return null;
@@ -277,6 +281,9 @@ public class UserService {
                 userMapper.updatePassword(normalizedUserId, encodedPassword);
             }
         }
+
+        log.debug("로그인 비밀번호 비교 결과: userId={}, passwordMatched={}, storedPasswordType={}",
+                normalizedUserId, passwordMatched, storedPassword != null && storedPassword.startsWith("$2") ? "bcrypt" : "plainOrOther");
 
         if (!passwordMatched) {
             // 로그인 실패 횟수 증가

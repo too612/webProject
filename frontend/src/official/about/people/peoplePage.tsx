@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "../../../common/ui";
 import { usePeopleContent } from "./peopleHook";
 import { DEFAULT_PEOPLE_CONTENT } from "./peopleModel";
+import { PageTitle } from "../../../common/ui";
 import type { LeaderCard } from "./peopleModel";
 
 /****************************************************************************************************
@@ -106,14 +107,7 @@ export default function PeoplePage() {
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-            {content.headline}
-          </h2>
-          <p className="text-sm text-gray-600 leading-relaxed max-w-3xl">
-            {content.summary}
-          </p>
-        </div>
+        <PageTitle title={content.headline} description={content.summary} />
 
         {loading && (
           <div className="text-sm text-slate-500 py-4 text-center">

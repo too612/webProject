@@ -3,7 +3,7 @@ import {
   type CommunityGroupManagerRow,
 } from "./managerModel";
 import { useCommunityGroupManagerPage } from "./managerHook";
-import { ActionButton } from "../../../common/ui";
+import { ActionButton, Input } from "../../../common/ui";
 
 export default function GroupManagerPage() {
   const {

@@ -21,19 +21,19 @@
             COALESCE(hp.extra_attributes ->> 'role', cp.code_name, cg.code_name) AS dutyName,
             hp.hire_date AS hireDate
         FROM hrm_person hp
-        LEFT JOIN common_code cg
+        LEFT JOIN com_code cg
                ON hp.grade_code = cg.code
               AND cg.parent_code = '102'
               AND cg.use_yn = 'Y'
-        LEFT JOIN common_code cp
+        LEFT JOIN com_code cp
                ON hp.position_code = cp.code
               AND cp.parent_code = '103'
               AND cp.use_yn = 'Y'
-        LEFT JOIN common_code ce
+        LEFT JOIN com_code ce
                ON hp.employment_type_code = ce.code
               AND ce.parent_code = '104'
               AND ce.use_yn = 'Y'
-        LEFT JOIN common_code cs
+        LEFT JOIN com_code cs
                ON hp.service_status_code = cs.code
               AND cs.parent_code = '101'
               AND cs.use_yn = 'Y'

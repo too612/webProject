@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useLocationInfo } from "./useLocationInfo";
 import { useCorpInfo } from "../../../common/corp/corpHook";
+import { DEFAULT_LOCATION_PAGE_CONTENT } from "./LocationModel";
+import { PageTitle } from "../../../common/ui";
 
 // 네이버 지도 SDK 타입 선언
 declare global {
@@ -27,9 +29,6 @@ declare global {
 /****************************************************************************************************
  * config/constant method (상수, 타입가드, 값 보정 유틸)
  ****************************************************************************************************/
-
-const PAGE_DESCRIPTION =
-  "교회 위치와 교통 안내를 확인하세요. 하나님이 기뻐하시는 다사랑교회입니다.";
 
 /****************************************************************************************************
  * component method (state, hook 초기화)
@@ -115,14 +114,10 @@ export default function LocationPage() {
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-            오시는 길
-          </h2>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {PAGE_DESCRIPTION}
-          </p>
-        </div>
+        <PageTitle
+          title={DEFAULT_LOCATION_PAGE_CONTENT.headline}
+          description={DEFAULT_LOCATION_PAGE_CONTENT.summary}
+        />
 
         {loading && (
           <div className="text-sm text-slate-500 py-10 text-center">
@@ -221,8 +216,7 @@ export default function LocationPage() {
                       <Bus className="h-4 w-4" /> 버스 이용 시
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      오산역/오산터미널에서 7번, 8번 버스 탑승 후 '오산초등학교'
-                      하차 (도보 3분)
+                      {DEFAULT_LOCATION_PAGE_CONTENT.traffic.bus}
                     </p>
                   </div>
                   <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
@@ -230,7 +224,7 @@ export default function LocationPage() {
                       <Train className="h-4 w-4" /> 지하철 이용 시
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      1호선 오산역 1번 출구에서 택시 이용 시 약 5분 소요
+                      {DEFAULT_LOCATION_PAGE_CONTENT.traffic.subway}
                     </p>
                   </div>
                   <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
@@ -238,7 +232,7 @@ export default function LocationPage() {
                       <ParkingSquare className="h-4 w-4" /> 주차 안내
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                      교회 건물 내 지하 주차장 및 인근 공영 주차장 이용 가능
+                      {DEFAULT_LOCATION_PAGE_CONTENT.traffic.parking}
                     </p>
                   </div>
                 </div>

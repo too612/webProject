@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Alert, AlertDescription, Input } from "../../common/ui";
+import { Alert, AlertDescription, Input } from "../../ui";
 import { useRegister } from "./registerHook";
 
 export default function RegisterPage() {

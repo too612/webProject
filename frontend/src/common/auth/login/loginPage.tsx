@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Alert, AlertDescription, Input } from "../../common/ui";
+import { Alert, AlertDescription, Input } from "../../ui";
 import { useLogin } from "./loginHook";
 
 export default function LoginPage() {

@@ -1,6 +1,6 @@
 테이블 정보
 
-CREATE TABLE public.sys_menu_mgt (
+CREATE TABLE public.sys_menu (
 	menu_id varchar NOT NULL,
 	menu_nm varchar NOT NULL,
 	up_menu_id varchar NULL,
@@ -9,7 +9,7 @@ CREATE TABLE public.sys_menu_mgt (
 	"level" varchar NULL,
 	menu_image_path varchar NULL
 );
-CREATE INDEX sys_menu_mgt_menu_id_idx ON public.sys_menu_mgt USING btree (menu_id);
+CREATE INDEX sys_menu_menu_id_idx ON public.sys_menu USING btree (menu_id);
 
 
 데이터 정보

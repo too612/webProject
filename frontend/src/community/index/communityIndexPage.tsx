@@ -10,7 +10,6 @@ import {
   Heart,
   Images,
   Megaphone,
-  MessageSquare,
   PartyPopper,
   User,
   Users,

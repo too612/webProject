@@ -7,15 +7,20 @@
 import { useEffect, useCallback, useState } from "react";
 import { Info } from "lucide-react";
 import { useLiveItems } from "./liveHook";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
+import {
+  LIVE_CHANNEL_URL,
+  LIVE_PAGE_DESCRIPTION,
+  LIVE_PAGE_TITLE,
+  LIVE_STREAM_EMBED_URL,
+  LIVE_STREAM_TITLE,
+  LIVE_TAB_LABELS,
+} from "./liveModel";
 import type { LiveTab } from "./liveModel";
 
 /****************************************************************************************************
  * config/constant method (상수, 타입가드, 값 보정 유틸)
  ****************************************************************************************************/
-
-const PAGE_DESCRIPTION =
-  "유튜브 채널에서 예배 영상과 실시간 예배를 시청하실 수 있습니다.";
 
 /****************************************************************************************************
  * component method (state, hook 초기화)
@@ -43,7 +48,7 @@ export default function LivePage() {
 
   // 렌더링 성능 최적화를 위해 useCallback을 적용한 유튜브 채널 이동 핸들러
   const handleMoveToChannel = useCallback(() => {
-    window.open("https://www.youtube.com/@dsr87450", "_blank", "noreferrer");
+    window.open(LIVE_CHANNEL_URL, "_blank", "noreferrer");
   }, []);
 
   /****************************************************************************************************
@@ -54,15 +59,11 @@ export default function LivePage() {
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
         {/* 헤더 섹션: 정돈된 레이아웃 및 우측 디자인 통일 버튼 배치 */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-l-4 border-brand-primary pl-4 md:pl-5 gap-4">
-          <div className="space-y-1">
-            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-              온라인 예배
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {PAGE_DESCRIPTION}
-            </p>
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <PageTitle
+            title={LIVE_PAGE_TITLE}
+            description={LIVE_PAGE_DESCRIPTION}
+          />
 
           {/* 요청하신 편집 버튼 디자인 체계와 일치하는 채널 바로가기 버튼 */}
           <Button
@@ -89,28 +90,28 @@ export default function LivePage() {
               type="button"
               onClick={() => setTab("sunday_day")}
             >
-              주일낮예배
+              {LIVE_TAB_LABELS.sunday_day}
             </button>
             <button
               className={`px-6 py-3 text-sm font-semibold transition-colors ${tab === "sunday_evening" ? "border-b-2 border-brand-primary text-brand-primary -mb-px" : "text-slate-500 hover:text-slate-800"}`}
               type="button"
               onClick={() => setTab("sunday_evening")}
             >
-              주일저녁예배
+              {LIVE_TAB_LABELS.sunday_evening}
             </button>
             <button
               className={`px-6 py-3 text-sm font-semibold transition-colors ${tab === "friday" ? "border-b-2 border-brand-primary text-brand-primary -mb-px" : "text-slate-500 hover:text-slate-800"}`}
               type="button"
               onClick={() => setTab("friday")}
             >
-              금요심야기도회
+              {LIVE_TAB_LABELS.friday}
             </button>
             <button
               className={`px-6 py-3 text-sm font-semibold transition-colors ${tab === "live" ? "border-b-2 border-brand-primary text-brand-primary -mb-px" : "text-slate-500 hover:text-slate-800"}`}
               type="button"
               onClick={() => setTab("live")}
             >
-              실시간
+              {LIVE_TAB_LABELS.live}
             </button>
           </div>
 
@@ -180,8 +181,8 @@ export default function LivePage() {
               <div className="w-full aspect-video rounded-md overflow-hidden bg-slate-100 border border-slate-200">
                 <iframe
                   className="w-full h-full"
-                  title="다사랑교회 TV 실시간 예배"
-                  src="https://www.youtube.com/embed/live_stream?channel=UCkGtpE-xZYg4X6HWTEnH89w"
+                  title={LIVE_STREAM_TITLE}
+                  src={LIVE_STREAM_EMBED_URL}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />

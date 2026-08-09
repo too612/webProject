@@ -7,13 +7,15 @@
 import { useEffect, useMemo } from "react";
 import { Info, MapPin } from "lucide-react";
 import { useWorshipTimeItems } from "./worshipTimeHook";
+import {
+  WORSHIP_TIME_PAGE_DESCRIPTION,
+  WORSHIP_TIME_PAGE_TITLE,
+} from "./worshipTimeModel";
+import { PageTitle } from "../../../common/ui";
 
 /****************************************************************************************************
  * config/constant method (상수, 타입가드, 값 보정 유틸)
  ****************************************************************************************************/
-
-const PAGE_DESCRIPTION =
-  "하나님께 드리는 거룩한 예배와 모임의 시간을 안내드립니다.";
 
 /****************************************************************************************************
  * component method (state, hook 초기화)
@@ -50,14 +52,10 @@ export default function WorshipTimePage() {
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-8">
         {/* 헤더 섹션: pastorPage 스타일 적용 */}
-        <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-            예배시간
-          </h2>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {PAGE_DESCRIPTION}
-          </p>
-        </div>
+        <PageTitle
+          title={WORSHIP_TIME_PAGE_TITLE}
+          description={WORSHIP_TIME_PAGE_DESCRIPTION}
+        />
 
         {error && (
           <div className="rounded-none bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">

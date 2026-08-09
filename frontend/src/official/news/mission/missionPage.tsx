@@ -4,6 +4,7 @@ import { ArticleList } from "../../../common/article";
 import { Button } from "../../../common/ui";
 import { useMissionContent } from "./missionHook";
 import { DEFAULT_MISSION_CONTENT } from "./missionModel";
+import { PageTitle } from "../../../common/ui";
 
 export default function MissionPage() {
   const { missionContent, loading, error, loadMissionContent } =
@@ -54,14 +55,7 @@ export default function MissionPage() {
 
       {!loading && !error && (
         <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-          <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-              {content.headline}
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed max-w-3xl">
-              {content.summary}
-            </p>
-          </div>
+          <PageTitle title={content.headline} description={content.summary} />
 
           <div>
             <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">

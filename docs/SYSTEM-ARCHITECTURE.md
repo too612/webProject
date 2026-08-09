@@ -6,11 +6,11 @@
 
 ## 1. 프로젝트 개요
 
-| 항목 | 내용 |
-|------|------|
-| 백엔드 | Spring Boot (Java), MyBatis, Gradle |
-| 프런트엔드 | React + TypeScript (Vite), Tailwind CSS |
-| 라우팅 기준 | DB `erp_menu_seed.sql`의 메뉴 경로를 최우선 기준으로 사용 |
+| 항목        | 내용                                                                          |
+| ----------- | ----------------------------------------------------------------------------- |
+| 백엔드      | Spring Boot (Java), MyBatis, Gradle                                           |
+| 프런트엔드  | React + TypeScript (Vite), Tailwind CSS v4, shadcn/ui(Radix UI), Lucide React |
+| 라우팅 기준 | DB `erp_menu_seed.sql`의 메뉴 경로를 최우선 기준으로 사용                     |
 
 ---
 
@@ -18,14 +18,14 @@
 
 백엔드(`src/main/java/com/main/app/`)와 프런트엔드(`frontend/src/`)는 **동일한 대분류 도메인**으로 구성된다.
 
-| 도메인 | 설명 |
-|--------|------|
-| `official` | 공식 교회 정보 (소개, 예배, 소식, 사역부서, 지원) |
-| `community` | 공동체 (소그룹, 시설, 성도, 세계선교) |
-| `erp` | 업무관리 (인사, 설교, 회계, 훈련, 사역, 행사, 시설, 소통, 관리자, 통계) |
-| `mypage` | 마이페이지 (프로필, 비밀번호, 활동, 문의, 알림, 탈퇴) |
-| `system` | 시스템 관리 (사용자, 설정, 로그, 백업) |
-| `common` | 인프라·공통 레이어 (인증, 메뉴, 기관정보, API 기반, 챗봇 등) |
+| 도메인      | 설명                                                                    |
+| ----------- | ----------------------------------------------------------------------- |
+| `official`  | 공식 교회 정보 (소개, 예배, 소식, 사역부서, 지원)                       |
+| `community` | 공동체 (소그룹, 시설, 성도, 세계선교)                                   |
+| `erp`       | 업무관리 (인사, 설교, 회계, 훈련, 사역, 행사, 시설, 소통, 관리자, 통계) |
+| `mypage`    | 마이페이지 (프로필, 비밀번호, 활동, 문의, 알림, 탈퇴)                   |
+| `system`    | 시스템 관리 (사용자, 설정, 로그, 백업)                                  |
+| `common`    | 인프라·공통 레이어 (인증, 메뉴, 기관정보, API 기반, 챗봇 등)            |
 
 ---
 
@@ -129,11 +129,11 @@ src/main/resources/mapper/
 
 **엔드포인트**
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| GET | `/api/official/about/pastor` | 목록 조회 |
-| POST | `/api/official/about/pastor` | 등록 |
-| PUT | `/api/official/about/pastor/{id}` | 수정 |
+| 메서드 | 경로                                                    | 설명        |
+| ------ | ------------------------------------------------------- | ----------- |
+| GET    | `/api/official/about/pastor`                            | 목록 조회   |
+| POST   | `/api/official/about/pastor`                            | 등록        |
+| PUT    | `/api/official/about/pastor/{id}`                       | 수정        |
 | DELETE | `/api/official/about/pastor/{id}?updatedBy=&updatedIp=` | 소프트 삭제 |
 
 **Service 규칙**
@@ -198,6 +198,7 @@ frontend/src/
 │   ├── editor/                 # 리치텍스트 에디터 (editor / editorViewer / editorHook / editorApi / editorModel)
 │   ├── attachment/             # 파일첨부 공통 모듈 (attachment / attachmentHook / attachmentApi / attachmentModel)
 │   ├── grid/                   # DataGrid 공통 모듈 (grid / gridModel / gridHook) - AG Grid 기반
+│   ├── ui/                     # 공통 UI 레이어 (shadcn 기반 버튼/입력/다이얼로그/토스트/탭 등)
 │   ├── lib/                    # 범용 유틸
 │   └── menu/                   # 메뉴 도메인 (menuApi / menuHook / menuModel / menuStore / menu.types)
 ├── official/
@@ -209,7 +210,19 @@ frontend/src/
 
 ### 4-2. 기능 단위(feature) 파일 구성 규칙
 
-각 기능 폴더는 아래 6파일 체계를 기본 세트로 가진다.
+신규 Front 기능은 `FRONT-FULLSTACK-SPEC.md` 2.4 기준으로 아래 두 방식 중 하나를 선택한다.
+
+**Page 방식 (4파일 세트)**
+
+```
+{domain}/{feature}/
+├── {feature}Page.tsx   # 단일 화면(조회/수정/작성 전환)
+├── {feature}Hook.ts    # 도메인 상태·유스케이스 흐름
+├── {feature}Api.ts     # HTTP 호출 캡슐화
+└── {feature}Model.ts   # 타입·상수 계약 정의
+```
+
+**List/View/Write 방식 (6파일 세트)**
 
 ```
 {domain}/{feature}/
@@ -221,18 +234,24 @@ frontend/src/
 └── {feature}Model.ts   # 타입·상수 계약 정의
 ```
 
-기준 구현체: `frontend/src/official/about/pastor/`
+**선택 기준**
+
+- Page 방식: 단일 페이지 내에서 조회/수정/작성 모드가 탭·모달로 전환되는 기능
+- List/View/Write 방식: 목록/상세/작성이 URL 경로로 명확히 분리되는 기능
+- 공통 원칙: 두 방식 모두 `Hook`, `Api`, `Model`은 반드시 분리
+
+기준 구현체: `frontend/src/official/about/pastor/` (Page 성격), `frontend/src/official/worship/sermons/` (List/View/Write)
 
 ### 4-3. 각 파일 역할 및 금지 사항
 
-| 파일 | 역할 | 금지 |
-|------|------|------|
-| `*List.tsx` | 화면 렌더링, 이벤트 처리, 입력 상태 관리, Hook 호출 | HTTP 직접 호출, 엔드포인트 하드코딩 |
-| `*View.tsx` | 상세 화면 렌더링, 댓글/첨부파일 표시 | HTTP 직접 호출 |
-| `*Write.tsx` | 작성/수정 폼 렌더링, 에디터/첨부파일 연동 | HTTP 직접 호출 |
-| `*Hook.ts` | 도메인 상태(`loading/error/data`) 보유, Api 오케스트레이션 | JSX 반환 |
-| `*Api.ts` | HTTP 호출 캡슐화, 에러 메시지 표준화, 응답 타입 계약 | UI 상태 처리 |
-| `*Model.ts` | 타입·상수 계약 정의 | API 호출, 상태 로직 |
+| 파일         | 역할                                                       | 금지                                |
+| ------------ | ---------------------------------------------------------- | ----------------------------------- |
+| `*List.tsx`  | 화면 렌더링, 이벤트 처리, 입력 상태 관리, Hook 호출        | HTTP 직접 호출, 엔드포인트 하드코딩 |
+| `*View.tsx`  | 상세 화면 렌더링, 댓글/첨부파일 표시                       | HTTP 직접 호출                      |
+| `*Write.tsx` | 작성/수정 폼 렌더링, 에디터/첨부파일 연동                  | HTTP 직접 호출                      |
+| `*Hook.ts`   | 도메인 상태(`loading/error/data`) 보유, Api 오케스트레이션 | JSX 반환                            |
+| `*Api.ts`    | HTTP 호출 캡슐화, 에러 메시지 표준화, 응답 타입 계약       | UI 상태 처리                        |
+| `*Model.ts`  | 타입·상수 계약 정의                                        | API 호출, 상태 로직                 |
 
 ### 4-4. 레이아웃 계층 구조
 
@@ -254,11 +273,20 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 - **editor**: `common/editor/`이 단일 소스. Tiptap v2 기반 리치텍스트 에디터. `onImageUpload` Props로 이미지 서버 업로드 지원 (Base64 fallback 포함).
 - **attachment**: `common/attachment/`이 단일 소스. react-dropzone 기반 파일첨부 공통 모듈. 업로드 실행은 도메인 Api에서 담당하고, UI·상태 관리만 공통 모듈에서 제공한다.
 - **grid**: `common/grid/`이 단일 소스. AG Grid 기반 DataGrid 공통 모듈. 4가지 운영 모드(basic / server / infinite / client) 지원.
+- **ui**: `common/ui/`가 단일 UI 공급 레이어. 버튼/입력/다이얼로그/토스트/탭/배지/프로그레스 등 반복 UI는 이 경로를 우선 사용한다.
 
 ### 4-6. 라우팅 가드 위치
 
 - `ProtectedRoute.tsx`는 `router/` 폴더에 위치한다 (라우팅 가드 책임).
 - 인증 관련 페이지 라우트는 `router/AuthRoutes.tsx`로 분리한다.
+
+### 4-7. UI 아키텍처 원칙 (현행)
+
+- 레이아웃/간격/반응형 배치는 Tailwind 유틸리티로 구성한다.
+- 재사용 인터랙션 UI(버튼, 입력, 모달, 드롭다운, 탭, 토스트)는 `common/ui/` 컴포넌트를 우선 사용한다.
+- 아이콘은 `lucide-react`를 기본으로 사용하고, 신규 화면에 Material Icons 의존을 추가하지 않는다.
+- 사용자 피드백은 `sonner` 기반 toast와 `route-progress`, `skeleton`, `loading-button` 패턴을 기본으로 사용한다.
+- `select`/날짜 입력은 모바일 UX를 고려해 네이티브 컨트롤 전략을 허용한다.
 
 ---
 
@@ -268,14 +296,14 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 /api/{domain}/{subdomain}/{feature}
 ```
 
-| 도메인 | 경로 |
-|--------|------|
-| official/about | `/api/official/about/pastor` |
-| official/news | `/api/official/news/announcement` |
-| community/group | `/api/community/group` |
-| erp/humen | `/api/erp/humen/district` |
-| mypage/user | `/api/mypage/user/profile` |
-| system/user | `/api/system/user` |
+| 도메인          | 경로                              |
+| --------------- | --------------------------------- |
+| official/about  | `/api/official/about/pastor`      |
+| official/news   | `/api/official/news/announcement` |
+| community/group | `/api/community/group`            |
+| erp/humen       | `/api/erp/humen/district`         |
+| mypage/user     | `/api/mypage/user/profile`        |
+| system/user     | `/api/system/user`                |
 
 - 경로는 DB 메뉴 경로(`erp_menu_seed.sql`)를 기준으로 확정한다.
 - 프런트엔드 라우트 경로와 백엔드 API 경로는 도메인 단위에서 동일한 계층 구조를 유지한다.
@@ -284,18 +312,19 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 
 ## 6. 현재 구현 상태
 
-| 도메인 | 백엔드 | 프런트엔드 | 비고 |
-|--------|--------|------------|------|
-| `common` | 완료 | 완료 | auth/menu/chatbot/editor/attachment/grid 응집 완료 |
-| `official/about` | 완료 | 완료 | pastor 기준 패턴 확정 · 프로필 이미지 첨부파일 모듈 연결 |
-| `official/worship` | 완료 | 완료 | time / live / sermons (sermons List/View/Write 분할 완료) |
-| `official/news` | 완료 | 완료 | notice / bulletin / gallery / mission / nextsteps |
-| `official/training` | 완료 | 완료 | course / servicegroup / cellgroup / outreach |
-| `official/nextgen` | 완료 | 완료 | school / youth |
-| `mypage` | 완료 | 완료 | user 6개 메뉴 |
-| `system` | 완료 | 완료 | user / config / log / backup |
-| `community` | 완료 | 완료 | group / facilities / saint / world |
-| `erp` | **진행 예정** | **진행 예정** | humen / sermon / account / training / ministry / event / facility / comm / admin / stats |
+| 도메인              | 백엔드 | 프런트엔드 | 비고                                                                                     |
+| ------------------- | ------ | ---------- | ---------------------------------------------------------------------------------------- |
+| `common`            | 완료   | 완료       | auth/menu/chatbot/editor/attachment/grid 응집 완료                                       |
+| `official/about`    | 완료   | 완료       | pastor 기준 패턴 확정 · 프로필 이미지 첨부파일 모듈 연결                                 |
+| `official/worship`  | 완료   | 완료       | time / live / sermons (sermons List/View/Write 분할 완료)                                |
+| `official/news`     | 완료   | 완료       | notice / bulletin / gallery / mission / nextsteps                                        |
+| `official/training` | 완료   | 완료       | course / servicegroup / cellgroup / outreach                                             |
+| `official/nextgen`  | 완료   | 완료       | school / youth                                                                           |
+| `mypage`            | 완료   | 완료       | user 6개 메뉴                                                                            |
+| `system`            | 완료   | 완료       | user / config / log / backup                                                             |
+| `community`         | 완료   | 완료       | group / facilities / saint / world                                                       |
+| `erp`               | 완료   | 완료       | humen / sermon / account / training / ministry / event / facility / comm / admin / stats |
+| `공통 UI 표준화`    | 완료   | 완료       | official 기준 도입 후 community / erp / system / mypage까지 공통 UI 패턴 적용            |
 
 ---
 
@@ -314,13 +343,16 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 
 ### 프런트엔드
 
-- [ ] `{domain}/{feature}/` 하위에 List / View / Write / Hook / Api / Model 6파일 세트 생성
+- [ ] `FRONT-FULLSTACK-SPEC.md` 2.4 기준으로 Page(4파일) 또는 List/View/Write(6파일) 구조를 먼저 결정
+- [ ] 선택한 구조에 맞게 `Page` 또는 `List/View/Write` + `Hook/Api/Model` 파일 세트 생성
 - [ ] `*Api.ts`에 HTTP 호출 캡슐화 (엔드포인트 하드코딩 금지)
 - [ ] `*List.tsx` / `*View.tsx` / `*Write.tsx`에서 HTTP 직접 호출 금지
+- [ ] `*Page.tsx` 사용 시에도 HTTP 직접 호출 금지
 - [ ] `*Hook.ts`에서 JSX 반환 금지
 - [ ] 신규 라우트를 해당 도메인 `*Routes.tsx`에 등록
 - [ ] 메뉴 연결은 `common/menu/menuModel.ts` 상수 또는 DB 메뉴 경로 기준
 - [ ] 도메인 전용 Layout 클래스 생성 금지 (MainLayout + SubmenuLayout 조합 사용)
+- [ ] 반복 UI는 `common/ui/` 우선 사용, 레이아웃은 Tailwind 유틸리티 우선 사용
 - [ ] 빌드 통과 확인 (`npm run build`)
 
 ---
@@ -348,22 +380,22 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 
 ### 9-2. 도메인별 권장 강도
 
-| 도메인 | 화면 성격 | Hero 강도 | 권장 방식 |
-|--------|-----------|-----------|-----------|
-| `official` | 대외 소개/브랜딩 | 높음 | 메뉴별 대표 이미지 + 짧은 카피 + CTA 1~2개 |
-| `community` | 소식/활동 전달 | 중간 | 이미지 또는 아이콘형 Hero, 정보 카드와 연계 |
-| `mypage` | 개인 작업 중심 | 낮음 | 얇은 타이틀 바 또는 미니 배너 |
-| `system` | 운영/설정 중심 | 없음~낮음 | Hero 제거, 제목/설명 1줄만 유지 |
-| `erp` | 업무 처리/입력 중심 | 없음 | Hero 제거, 필터/테이블/폼 가시성 최우선 |
+| 도메인      | 화면 성격           | Hero 강도 | 권장 방식                                   |
+| ----------- | ------------------- | --------- | ------------------------------------------- |
+| `official`  | 대외 소개/브랜딩    | 높음      | 메뉴별 대표 이미지 + 짧은 카피 + CTA 1~2개  |
+| `community` | 소식/활동 전달      | 중간      | 이미지 또는 아이콘형 Hero, 정보 카드와 연계 |
+| `mypage`    | 개인 작업 중심      | 낮음      | 얇은 타이틀 바 또는 미니 배너               |
+| `system`    | 운영/설정 중심      | 없음~낮음 | Hero 제거, 제목/설명 1줄만 유지             |
+| `erp`       | 업무 처리/입력 중심 | 없음      | Hero 제거, 필터/테이블/폼 가시성 최우선     |
 
 ### 9-3. 화면 레벨별 적용 기준
 
-| 화면 레벨 | 권장 | 이유 |
-|-----------|------|------|
-| 메인/랜딩 | Hero 사용 | 첫 인상, 브랜드 톤, 빠른 진입 CTA 제공 |
-| 섹션 인덱스 | 축소 Hero 사용 | 맥락 제공은 유지하되 콘텐츠 노출 우선 |
-| 목록/검색/폼 | Hero 미사용 | 세로 공간 확보, 작업 효율, 스캔 속도 개선 |
-| 상세 조회 | 필요 시 미니 Hero | 커버 이미지가 의미 있을 때만 제한적 사용 |
+| 화면 레벨    | 권장              | 이유                                      |
+| ------------ | ----------------- | ----------------------------------------- |
+| 메인/랜딩    | Hero 사용         | 첫 인상, 브랜드 톤, 빠른 진입 CTA 제공    |
+| 섹션 인덱스  | 축소 Hero 사용    | 맥락 제공은 유지하되 콘텐츠 노출 우선     |
+| 목록/검색/폼 | Hero 미사용       | 세로 공간 확보, 작업 효율, 스캔 속도 개선 |
+| 상세 조회    | 필요 시 미니 Hero | 커버 이미지가 의미 있을 때만 제한적 사용  |
 
 ### 9-4. Hero를 사용할 때의 디자인 기준
 
@@ -391,20 +423,20 @@ MainLayout ← 전역 뼈대 (Header / Sidebar / Footer / Chatbot 포함)
 
 아래 표는 "이미지 유무와 무관하게" 동작하는 기본 운영안이다. 이미지가 없으면 기본 그라데이션 Hero로 자동 폴백한다.
 
-| 도메인 | 메뉴군(예시 경로) | Hero 노출 | 이미지 파일 규칙(권장) | 문구 톤 |
-|--------|-------------------|-----------|----------------------|---------|
-| `official` | `/about/*` | 노출 | `public/img/hero/official-about.webp` | 소개/비전 중심 |
-| `official` | `/worship/*` | 노출 | `public/img/hero/official-worship.webp` | 예배/설교 중심 |
-| `official` | `/nextgen/*` | 노출 | `public/img/hero/official-nextgen.webp` | 다음세대 중심 |
-| `official` | `/training/*` | 노출 | `public/img/hero/official-training.webp` | 양육/훈련 중심 |
-| `official` | `/news/*` | 노출 | `public/img/hero/official-news.webp` | 소식/공지 중심 |
-| `community` | `/community/group/*` | 노출 | `public/img/hero/community-group.webp` | 모임/공동체 중심 |
-| `community` | `/community/facilities/*` | 노출 | `public/img/hero/community-facilities.webp` | 시설/이용 중심 |
-| `community` | `/community/saint/*` | 노출 | `public/img/hero/community-saint.webp` | 지원/돌봄 중심 |
-| `community` | `/community/world/*` | 노출 | `public/img/hero/community-world.webp` | 콘텐츠/읽기 중심 |
-| `mypage` | `/mypage/*` | 축소 노출 | 선택(없어도 무방) | 개인 관리 중심 |
-| `system` | `/system/*` | 기본 비노출 | 사용 안 함 | 운영/설정 중심 |
-| `erp` | `/erp/*` | 비노출 | 사용 안 함 | 업무 처리 중심 |
+| 도메인      | 메뉴군(예시 경로)         | Hero 노출   | 이미지 파일 규칙(권장)                      | 문구 톤          |
+| ----------- | ------------------------- | ----------- | ------------------------------------------- | ---------------- |
+| `official`  | `/about/*`                | 노출        | `public/img/hero/official-about.webp`       | 소개/비전 중심   |
+| `official`  | `/worship/*`              | 노출        | `public/img/hero/official-worship.webp`     | 예배/설교 중심   |
+| `official`  | `/nextgen/*`              | 노출        | `public/img/hero/official-nextgen.webp`     | 다음세대 중심    |
+| `official`  | `/training/*`             | 노출        | `public/img/hero/official-training.webp`    | 양육/훈련 중심   |
+| `official`  | `/news/*`                 | 노출        | `public/img/hero/official-news.webp`        | 소식/공지 중심   |
+| `community` | `/community/group/*`      | 노출        | `public/img/hero/community-group.webp`      | 모임/공동체 중심 |
+| `community` | `/community/facilities/*` | 노출        | `public/img/hero/community-facilities.webp` | 시설/이용 중심   |
+| `community` | `/community/saint/*`      | 노출        | `public/img/hero/community-saint.webp`      | 지원/돌봄 중심   |
+| `community` | `/community/world/*`      | 노출        | `public/img/hero/community-world.webp`      | 콘텐츠/읽기 중심 |
+| `mypage`    | `/mypage/*`               | 축소 노출   | 선택(없어도 무방)                           | 개인 관리 중심   |
+| `system`    | `/system/*`               | 기본 비노출 | 사용 안 함                                  | 운영/설정 중심   |
+| `erp`       | `/erp/*`                  | 비노출      | 사용 안 함                                  | 업무 처리 중심   |
 
 ### 9-8. 에셋이 없는 경우 운영 규칙
 
@@ -459,33 +491,33 @@ data/
 
 **백엔드** (`com.main.app.common.attachment`)
 
-| 파일 | 역할 |
-|------|------|
+| 파일                        | 역할                                                               |
+| --------------------------- | ------------------------------------------------------------------ |
 | `AttachmentController.java` | `/api/common/files` 엔드포인트 (upload / list / download / delete) |
-| `AttachmentService.java` | 업로드·다운로드·삭제 유스케이스 |
-| `AttachmentMapper.java` | MyBatis Mapper 인터페이스 |
-| `AttachmentMapper.xml` | `com_file` CRUD SQL (`mapper/common/attachment/`) |
-| `AttachmentDto.java` | 파일 메타데이터 DTO |
-| `FileUploadUtil.java` | UUID 저장명 생성·디스크 저장 유틸 (`common/util/`) |
+| `AttachmentService.java`    | 업로드·다운로드·삭제 유스케이스                                    |
+| `AttachmentMapper.java`     | MyBatis Mapper 인터페이스                                          |
+| `AttachmentMapper.xml`      | `com_file` CRUD SQL (`mapper/common/attachment/`)                  |
+| `AttachmentDto.java`        | 파일 메타데이터 DTO                                                |
+| `FileUploadUtil.java`       | UUID 저장명 생성·디스크 저장 유틸 (`common/util/`)                 |
 
 **프런트엔드** (`common/attachment/`)
 
-| 파일 | 역할 |
-|------|------|
-| `attachment.tsx` | UI 컴포넌트 (드래그존·파일 목록·진행률·상태 표시) |
-| `attachmentHook.ts` | `useAttachment` — existingFiles / newFiles / deletedFileIds 상태 관리 |
-| `attachmentApi.ts` | upload / remove / buildDownloadUrl stub |
-| `attachmentModel.ts` | `AttachmentFile`, `AttachmentProps`, `AttachmentState` 타입 정의 |
-| `index.ts` | public export |
+| 파일                 | 역할                                                                  |
+| -------------------- | --------------------------------------------------------------------- |
+| `attachment.tsx`     | UI 컴포넌트 (드래그존·파일 목록·진행률·상태 표시)                     |
+| `attachmentHook.ts`  | `useAttachment` — existingFiles / newFiles / deletedFileIds 상태 관리 |
+| `attachmentApi.ts`   | upload / remove / buildDownloadUrl stub                               |
+| `attachmentModel.ts` | `AttachmentFile`, `AttachmentProps`, `AttachmentState` 타입 정의      |
+| `index.ts`           | public export                                                         |
 
 **공통 API 엔드포인트**
 
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| POST | `/api/common/files/upload` | 파일 업로드 (multipart) |
-| GET | `/api/common/files?pgmId=&refId=` | 파일 목록 조회 |
-| GET | `/api/common/files/{fileId}/download` | 파일 다운로드 |
-| DELETE | `/api/common/files/{fileId}` | 파일 삭제 |
+| 메서드 | 경로                                  | 설명                    |
+| ------ | ------------------------------------- | ----------------------- |
+| POST   | `/api/common/files/upload`            | 파일 업로드 (multipart) |
+| GET    | `/api/common/files?pgmId=&refId=`     | 파일 목록 조회          |
+| GET    | `/api/common/files/{fileId}/download` | 파일 다운로드           |
+| DELETE | `/api/common/files/{fileId}`          | 파일 삭제               |
 
 ### 10-4. 운영/배포 체크
 
@@ -497,21 +529,21 @@ data/
 
 현재 `com_file` 기본 컬럼(`org_file_nm`, `stored_file_nm`, `file_size`, `file_path`)은 유지하되, 아래 컬럼을 추가해 경로 규칙과 운영 메타데이터를 명확히 관리한다.
 
-| 컬럼명 | 타입 | 필수 | 설명 |
-|--------|------|------|------|
-| `file_category` | `varchar(50)` | Y | `{구분}` 값 (`photo`, `board` 등) |
-| `menu_key` | `varchar(100)` | Y | `{메뉴명}` 값 (`pastor` 등) |
-| `path_year` | `char(4)` | Y | `{연도}` 값 (`yyyy`) |
-| `path_mmdd` | `char(4)` | Y | `{월일}` 값 (`MMdd`) |
-| `relative_dir` | `varchar(300)` | Y | `data/{구분}/{연도}/{월일}/{메뉴명}` |
-| `relative_path` | `varchar(500)` | Y | `relative_dir + '/' + stored_file_nm` |
-| `file_ext` | `varchar(20)` | Y | 파일 확장자 (`webp`, `jpg`, `pdf` 등) |
-| `mime_type` | `varchar(120)` | N | MIME 타입 (`image/webp` 등) |
-| `uploader_id` | `varchar(100)` | N | 업로더 식별자 |
-| `uploader_ip` | `varchar(64)` | N | 업로더 IP |
-| `is_deleted` | `boolean` | Y | 소프트 삭제 여부 |
-| `del_dt` | `timestamp` | N | 삭제 시각 |
-| **`file_usage`** | `varchar(20)` | Y | **파일 용도 구분 ('editor' / 'attachment')** |
+| 컬럼명           | 타입           | 필수 | 설명                                         |
+| ---------------- | -------------- | ---- | -------------------------------------------- |
+| `file_category`  | `varchar(50)`  | Y    | `{구분}` 값 (`photo`, `board` 등)            |
+| `menu_key`       | `varchar(100)` | Y    | `{메뉴명}` 값 (`pastor` 등)                  |
+| `path_year`      | `char(4)`      | Y    | `{연도}` 값 (`yyyy`)                         |
+| `path_mmdd`      | `char(4)`      | Y    | `{월일}` 값 (`MMdd`)                         |
+| `relative_dir`   | `varchar(300)` | Y    | `data/{구분}/{연도}/{월일}/{메뉴명}`         |
+| `relative_path`  | `varchar(500)` | Y    | `relative_dir + '/' + stored_file_nm`        |
+| `file_ext`       | `varchar(20)`  | Y    | 파일 확장자 (`webp`, `jpg`, `pdf` 등)        |
+| `mime_type`      | `varchar(120)` | N    | MIME 타입 (`image/webp` 등)                  |
+| `uploader_id`    | `varchar(100)` | N    | 업로더 식별자                                |
+| `uploader_ip`    | `varchar(64)`  | N    | 업로더 IP                                    |
+| `is_deleted`     | `boolean`      | Y    | 소프트 삭제 여부                             |
+| `del_dt`         | `timestamp`    | N    | 삭제 시각                                    |
+| **`file_usage`** | `varchar(20)`  | Y    | **파일 용도 구분 ('editor' / 'attachment')** |
 
 추가 권장 인덱스
 
@@ -536,17 +568,17 @@ data/
 
 ### 11-2. 주요 기능
 
-| 기능 | 설명 |
-|------|------|
-| **텍스트 스타일** | 굵게, 기울임, 밑줄, 취소선, 위/아래첨자, 글자색, 형광펜 |
-| **정렬** | 좌/중/우/양쪽 정렬 |
-| **목록** | 글머리/번호 목록 |
-| **인용/코드** | 인용 블록, 인라인 코드, 코드 블록 |
-| **링크** | URL 삽입/수정/제거 |
-| **이미지** | URL 삽입, 파일 업로드 (Base64 또는 서버 업로드) |
-| **이미지 정렬/크기** | 좌/중/우 정렬, 드래그 리사이징 (비율 유지) |
-| **표** | 표 삽입/삭제 |
-| **구분선** | 수평선 삽입 |
+| 기능                 | 설명                                                    |
+| -------------------- | ------------------------------------------------------- |
+| **텍스트 스타일**    | 굵게, 기울임, 밑줄, 취소선, 위/아래첨자, 글자색, 형광펜 |
+| **정렬**             | 좌/중/우/양쪽 정렬                                      |
+| **목록**             | 글머리/번호 목록                                        |
+| **인용/코드**        | 인용 블록, 인라인 코드, 코드 블록                       |
+| **링크**             | URL 삽입/수정/제거                                      |
+| **이미지**           | URL 삽입, 파일 업로드 (Base64 또는 서버 업로드)         |
+| **이미지 정렬/크기** | 좌/중/우 정렬, 드래그 리사이징 (비율 유지)              |
+| **표**               | 표 삽입/삭제                                            |
+| **구분선**           | 수평선 삽입                                             |
 
 ### 11-3. 이미지 업로드 방식
 
@@ -565,27 +597,27 @@ data/
 
 ### 12-2. 4가지 운영 모드
 
-| 모드 | 설명 | 사용처 |
-|------|------|--------|
-| `basic` | 게시판용. 정렬/필터 비활성화 | 공지사항, 설교, Q&A 등 |
-| `server` | ERP 목록용. 헤더 클릭 시 서버 API 호출 | 회원 목록, 거래 내역 등 |
-| `infinite` | 대용량 데이터 무한 스크롤 | 전체 거래 내역, 시스템 로그 등 |
-| `client` | 소량 데이터 완전 제어 (클라이언트 정렬/필터) | 코드 관리, 설정 화면 등 |
+| 모드       | 설명                                         | 사용처                         |
+| ---------- | -------------------------------------------- | ------------------------------ |
+| `basic`    | 게시판용. 정렬/필터 비활성화                 | 공지사항, 설교, Q&A 등         |
+| `server`   | ERP 목록용. 헤더 클릭 시 서버 API 호출       | 회원 목록, 거래 내역 등        |
+| `infinite` | 대용량 데이터 무한 스크롤                    | 전체 거래 내역, 시스템 로그 등 |
+| `client`   | 소량 데이터 완전 제어 (클라이언트 정렬/필터) | 코드 관리, 설정 화면 등        |
 
 ### 12-3. 주요 Props
 
-| Props | 타입 | 기본값 | 설명 |
-|-------|------|--------|------|
-| `mode` | `'basic' \| 'server' \| 'infinite' \| 'client'` | `'basic'` | 운영 모드 선택 |
-| `columns` | `ColDef[]` | 필수 | AG Grid 컬럼 정의 |
-| `rows` | `any[]` | 필수 | 표시할 데이터 |
-| `rowHeight` | `number` | `44` | 행 높이 (px) |
-| `defaultColDef` | `ColDef` | `{ sortable: true, filter: true }` | 기본 컬럼 속성 |
-| `onSortChanged` | `(sortModel) => void` | - | 정렬 변경 콜백 (server 모드) |
-| `onFilterChanged` | `(filterModel) => void` | - | 필터 변경 콜백 (server 모드) |
-| `onLoadData` | `(params) => Promise<{ rows, totalCount }>` | - | 무한 스크롤 데이터 로드 콜백 (infinite 모드) |
-| `saveState` | `boolean` | `false` | 컬럼 상태를 localStorage에 저장 |
-| `stateKey` | `string` | - | 상태 저장 고유 키 (saveState=true 필수) |
+| Props             | 타입                                            | 기본값                             | 설명                                         |
+| ----------------- | ----------------------------------------------- | ---------------------------------- | -------------------------------------------- |
+| `mode`            | `'basic' \| 'server' \| 'infinite' \| 'client'` | `'basic'`                          | 운영 모드 선택                               |
+| `columns`         | `ColDef[]`                                      | 필수                               | AG Grid 컬럼 정의                            |
+| `rows`            | `any[]`                                         | 필수                               | 표시할 데이터                                |
+| `rowHeight`       | `number`                                        | `44`                               | 행 높이 (px)                                 |
+| `defaultColDef`   | `ColDef`                                        | `{ sortable: true, filter: true }` | 기본 컬럼 속성                               |
+| `onSortChanged`   | `(sortModel) => void`                           | -                                  | 정렬 변경 콜백 (server 모드)                 |
+| `onFilterChanged` | `(filterModel) => void`                         | -                                  | 필터 변경 콜백 (server 모드)                 |
+| `onLoadData`      | `(params) => Promise<{ rows, totalCount }>`     | -                                  | 무한 스크롤 데이터 로드 콜백 (infinite 모드) |
+| `saveState`       | `boolean`                                       | `false`                            | 컬럼 상태를 localStorage에 저장              |
+| `stateKey`        | `string`                                        | -                                  | 상태 저장 고유 키 (saveState=true 필수)      |
 
 ### 12-4. 디자인 통합
 
@@ -605,49 +637,49 @@ data/
 
 ### 13-2. 구현 완료 기능
 
-| 기능 | 상태 |
-|------|:----:|
-| 드래그앤드롭 드롭존 | ✅ 완료 |
+| 기능                   |  상태   |
+| ---------------------- | :-----: |
+| 드래그앤드롭 드롭존    | ✅ 완료 |
 | 파일 추가(클릭·드래그) | ✅ 완료 |
-| 기존 파일 목록 표시 | ✅ 완료 |
-| 신규 파일 목록 표시 | ✅ 완료 |
-| 개별 파일 삭제 | ✅ 완료 |
-| 용량 표시 | ✅ 완료 |
+| 기존 파일 목록 표시    | ✅ 완료 |
+| 신규 파일 목록 표시    | ✅ 완료 |
+| 개별 파일 삭제         | ✅ 완료 |
+| 용량 표시              | ✅ 완료 |
 | maxFiles / accept 제한 | ✅ 완료 |
-| readOnly 모드 | ✅ 완료 |
+| readOnly 모드          | ✅ 완료 |
 
 ### 13-3. 구현 예정 기능 (Phase 2)
 
-| 기능 | 비고 |
-|------|------|
+| 기능                                   | 비고                              |
+| -------------------------------------- | --------------------------------- |
 | 클라우드형 드롭존 UI (아이콘·안내문구) | react-dropzone `useDropzone` 연결 |
-| 확장자별 아이콘 | MIME 타입 → 아이콘 매핑 |
-| 업로드 진행률 바 | axios `onUploadProgress` |
-| 업로드 성공/실패 상태 표시 | 파일 항목별 상태값 |
-| 파일 전체 일괄 다운로드 | zip 생성 또는 개별 순차 다운 |
-| 개별 파일 재시도 | 실패 파일 상태 관리 |
-| 업로드 취소 | `AbortController` |
+| 확장자별 아이콘                        | MIME 타입 → 아이콘 매핑           |
+| 업로드 진행률 바                       | axios `onUploadProgress`          |
+| 업로드 성공/실패 상태 표시             | 파일 항목별 상태값                |
+| 파일 전체 일괄 다운로드                | zip 생성 또는 개별 순차 다운      |
+| 개별 파일 재시도                       | 실패 파일 상태 관리               |
+| 업로드 취소                            | `AbortController`                 |
 
 ### 13-4. 장기 확장 고려 사항 (Phase 3+)
 
 아래 기능은 현재 미구현이나 아키텍처 결정 시 고려 대상이다.
 
-| 기능 | 참조 오픈소스 | 필요 시 접근 방법 |
-|------|--------------|------------------|
-| **Tus 이어받기 업로드** | Uppy `tus` plugin | `tus-js-client` 별도 설치 (~3KB) |
-| **AWS S3 직접 업로드** | Uppy `aws-s3` plugin | Presigned URL + axios PUT |
-| **S3 Multipart 분할 업로드** | Uppy `aws-s3-multipart` | S3 Multipart API 직접 호출 |
-| **Google Drive 연동** | Uppy `google-drive` plugin | Google Picker API 직접 연동 |
-| **웹캠 촬영 업로드** | Uppy `webcam` plugin | `MediaDevices.getUserMedia()` |
-| **이미지 미리보기 썸네일** | FilePond ImagePreview | Canvas API or URL.createObjectURL |
-| **이미지 압축·리사이즈** | FilePond ImageResize | `browser-image-compression` |
+| 기능                         | 참조 오픈소스              | 필요 시 접근 방법                 |
+| ---------------------------- | -------------------------- | --------------------------------- |
+| **Tus 이어받기 업로드**      | Uppy `tus` plugin          | `tus-js-client` 별도 설치 (~3KB)  |
+| **AWS S3 직접 업로드**       | Uppy `aws-s3` plugin       | Presigned URL + axios PUT         |
+| **S3 Multipart 분할 업로드** | Uppy `aws-s3-multipart`    | S3 Multipart API 직접 호출        |
+| **Google Drive 연동**        | Uppy `google-drive` plugin | Google Picker API 직접 연동       |
+| **웹캠 촬영 업로드**         | Uppy `webcam` plugin       | `MediaDevices.getUserMedia()`     |
+| **이미지 미리보기 썸네일**   | FilePond ImagePreview      | Canvas API or URL.createObjectURL |
+| **이미지 압축·리사이즈**     | FilePond ImageResize       | `browser-image-compression`       |
 
 > 위 기능이 필요해질 경우 **기존 `attachment.tsx` 인터페이스를 유지한 채** 내부 구현만 교체하거나 플러그인을 추가하는 방식으로 확장한다. 외부 사용 API(`AttachmentProps`, `useAttachment`)는 변경하지 않는다.
 
 ### 13-5. 사용처 연결 현황
 
-| 도메인 | 용도 | 연결 상태 |
-|--------|------|-----------|
-| `official/about/pastor` | 담임목사 프로필 이미지 | ✅ 완료 |
-| `official/worship/sermons` | 게시글 첨부파일 | ✅ 완료 |
-| 기타 게시판 (announcement 등) | 게시글 첨부파일 | ⏳ 진행 예정 |
+| 도메인                        | 용도                   | 연결 상태    |
+| ----------------------------- | ---------------------- | ------------ |
+| `official/about/pastor`       | 담임목사 프로필 이미지 | ✅ 완료      |
+| `official/worship/sermons`    | 게시글 첨부파일        | ✅ 완료      |
+| 기타 게시판 (announcement 등) | 게시글 첨부파일        | ⏳ 진행 예정 |

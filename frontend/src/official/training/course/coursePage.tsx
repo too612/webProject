@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCourseContent } from "./courseHook";
 import { DEFAULT_COURSE_CONTENT } from "./courseModel";
-
-const COURSE_GALLERY_IMAGES = [
-  "/img/official/training/course/course_01.jpg",
-  "/img/official/training/course/course_02.jpg",
-  "/img/official/training/course/course_03.jpg",
-  "/img/official/training/course/course_04.jpg",
-  "/img/official/training/course/course_05.jpg",
-];
+import { PageTitle } from "../../../common/ui";
 
 export default function CoursePage() {
   const { courseContent, loading, error, loadCourseContent } =
@@ -83,14 +76,7 @@ export default function CoursePage() {
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-          <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-            {content.headline}
-          </h2>
-          <p className="text-sm text-gray-600 leading-relaxed max-w-3xl">
-            {content.summary}
-          </p>
-        </div>
+        <PageTitle title={content.headline} description={content.summary} />
 
         {loading && (
           <div className="text-sm text-slate-500 py-4 text-center">
@@ -106,7 +92,7 @@ export default function CoursePage() {
         {!loading && !error && (
           <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-0 gap-y-3">
-              {COURSE_GALLERY_IMAGES.map((src, idx) => (
+              {content.galleryImages.map((src, idx) => (
                 <div
                   key={src}
                   className="aspect-[4/3] overflow-hidden bg-white"

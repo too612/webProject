@@ -4,6 +4,7 @@ import {
 } from "./managerModel";
 import { useSystemUserManagerPage } from "./managerHook";
 import { ActionButton, Badge, Button, Input } from "../../../common/ui";
+import { useAuthPermission } from "../../../common/auth/authPermission";
 
 export default function UserManagerPage() {
   const {
@@ -19,6 +20,7 @@ export default function UserManagerPage() {
     handlePrevPage,
     handleNextPage,
   } = useSystemUserManagerPage();
+  const { canWrite } = useAuthPermission("PROGRAM_USER");
 
   const getCellValue = (row: SystemUserManagerRow, key: string): string => {
     const value = row[key];
@@ -36,7 +38,7 @@ export default function UserManagerPage() {
             시스템 사용자 계정을 조회하고 권한 정보를 관리합니다.
           </p>
         </div>
-        <Button>계정 생성</Button>
+        <Button disabled={!canWrite}>계정 생성</Button>
       </div>
 
       <form className="flex gap-2" onSubmit={handleSearch}>

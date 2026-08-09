@@ -8,9 +8,15 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import EditorViewer from "../../../common/editor/editorViewer";
 import { Attachment, useAttachment } from "../../../common/attachment";
-import { Button } from "../../../common/ui";
+import { Button, PageTitle } from "../../../common/ui";
+import { useAuthPermission } from "../../../common/auth/authPermission";
 import { usePastorProfile } from "./pastorHook";
-import type { PastorDisplayMode, PastorRequest } from "./pastorModel";
+import {
+  DEFAULT_PASTOR_CONTENT,
+  INITIAL_PASTOR_REQUEST,
+  resolveDisplayMode,
+} from "./pastorModel";
+import type { PastorRequest } from "./pastorModel";
 
 const LazyEditor = lazy(() => import("../../../common/editor/editor"));
 
@@ -18,30 +24,8 @@ const LazyEditor = lazy(() => import("../../../common/editor/editor"));
  * config/constant method (상수, 타입가드, 값 보정 유틸)
  ****************************************************************************************************/
 
-const DEFAULT_DISPLAY_MODE: PastorDisplayMode = "split-editor-image";
-
-const isDisplayMode = (value?: string): value is PastorDisplayMode => {
-  return value === "single-image" || value === "split-editor-image";
-};
-
-const resolveDisplayMode = (value?: string): PastorDisplayMode => {
-  return isDisplayMode(value) ? value : DEFAULT_DISPLAY_MODE;
-};
-
 const buildDownloadUrl = (fileId: string | number) =>
   `/api/common/files/${fileId}/download`;
-
-const INITIAL_FORM: PastorRequest = {
-  corpName: "기관정보",
-  businessRegistrationNumber: "-",
-  chiefName: "담임목사",
-  displayMode: DEFAULT_DISPLAY_MODE,
-  introduction: "",
-  updatedBy: "system",
-};
-
-const INTRO_DESCRIPTION =
-  "말씀과 섬김으로 공동체를 이끄는 담임목사 소개와 사역 방향을 안내합니다.";
 
 /****************************************************************************************************
  * component method (state, hook 초기화)
@@ -51,13 +35,20 @@ export default function PastorPage() {
   const { profile, loading, error, loadProfile, saveProfile, removeProfile } =
     usePastorProfile();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [form, setForm] = useState<PastorRequest>(INITIAL_FORM);
+  const [form, setForm] = useState<PastorRequest>(INITIAL_PASTOR_REQUEST);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
-  const latestIntroductionRef = useRef<string>(INITIAL_FORM.introduction ?? "");
+  const latestIntroductionRef = useRef<string>(
+    INITIAL_PASTOR_REQUEST.introduction ?? "",
+  );
   const profileImageAttachment = useAttachment();
   const [newImagePreviewUrl, setNewImagePreviewUrl] = useState<string | null>(
     null,
   );
+  const { hasAction } = useAuthPermission("PROGRAM_HOME");
+  const canEdit = hasAction("edit");
+  const canSave = hasAction("save");
+  const canCancel = hasAction("cancel");
+  const canDeleteAction = hasAction("delete");
 
   const selectedDisplayMode = resolveDisplayMode(form.displayMode);
   const isSingleImageMode = selectedDisplayMode === "single-image";
@@ -82,7 +73,7 @@ export default function PastorPage() {
 
   useEffect(() => {
     if (!profile) {
-      setForm(INITIAL_FORM);
+      setForm(INITIAL_PASTOR_REQUEST);
       profileImageAttachment.reset();
       return;
     }
@@ -91,8 +82,8 @@ export default function PastorPage() {
       corpName: profile.corpName ?? "기관정보",
       businessRegistrationNumber:
         profile.businessRegistrationNumber ??
-        INITIAL_FORM.businessRegistrationNumber,
-      chiefName: profile.chiefName ?? INITIAL_FORM.chiefName,
+        INITIAL_PASTOR_REQUEST.businessRegistrationNumber,
+      chiefName: profile.chiefName ?? INITIAL_PASTOR_REQUEST.chiefName,
       displayMode: resolveDisplayMode(profile.displayMode),
       phoneNumber: profile.phoneNumber ?? "",
       postalCode: profile.postalCode ?? "",
@@ -126,14 +117,14 @@ export default function PastorPage() {
   const validateForm = (payload: PastorRequest): string | null => {
     // 편집 UI에서 노출하지 않는 필드는 기본값으로 유지하고, 현재 노출 필드만 저장한다.
     if (!payload.corpName?.trim()) {
-      payload.corpName = INITIAL_FORM.corpName;
+      payload.corpName = INITIAL_PASTOR_REQUEST.corpName;
     }
     if (!payload.chiefName?.trim()) {
-      payload.chiefName = INITIAL_FORM.chiefName;
+      payload.chiefName = INITIAL_PASTOR_REQUEST.chiefName;
     }
     if (!payload.businessRegistrationNumber?.trim()) {
       payload.businessRegistrationNumber =
-        INITIAL_FORM.businessRegistrationNumber;
+        INITIAL_PASTOR_REQUEST.businessRegistrationNumber;
     }
     return null;
   };
@@ -162,8 +153,8 @@ export default function PastorPage() {
         corpName: profile.corpName ?? "기관정보",
         businessRegistrationNumber:
           profile.businessRegistrationNumber ??
-          INITIAL_FORM.businessRegistrationNumber,
-        chiefName: profile.chiefName ?? INITIAL_FORM.chiefName,
+          INITIAL_PASTOR_REQUEST.businessRegistrationNumber,
+        chiefName: profile.chiefName ?? INITIAL_PASTOR_REQUEST.chiefName,
         displayMode: resolveDisplayMode(profile.displayMode),
         phoneNumber: profile.phoneNumber ?? "",
         postalCode: profile.postalCode ?? "",
@@ -173,7 +164,7 @@ export default function PastorPage() {
         updatedBy: "system",
       });
     } else {
-      setForm(INITIAL_FORM);
+      setForm(INITIAL_PASTOR_REQUEST);
       profileImageAttachment.reset();
     }
   };
@@ -226,7 +217,7 @@ export default function PastorPage() {
     try {
       await removeProfile();
       setIsEditMode(false);
-      setForm(INITIAL_FORM);
+      setForm(INITIAL_PASTOR_REQUEST);
       setActionMessage("담임목사 정보를 삭제했습니다.");
     } catch {
       // usePastorProfile.error에서 메시지를 보여준다.
@@ -241,33 +232,39 @@ export default function PastorPage() {
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-              목회자소개
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {INTRO_DESCRIPTION}
-            </p>
-          </div>
+          <PageTitle
+            title={DEFAULT_PASTOR_CONTENT.headline}
+            description={DEFAULT_PASTOR_CONTENT.summary}
+          />
           <div className="flex items-center gap-2">
-            {!isEditMode && <Button onClick={handleEditStart}>편집</Button>}
+            {!isEditMode && canEdit && (
+              <Button data-action="edit" onClick={handleEditStart}>
+                편집
+              </Button>
+            )}
             {isEditMode && (
               <>
-                <Button onClick={handleSave} disabled={loading}>
+                <Button
+                  data-action="save"
+                  onClick={handleSave}
+                  disabled={loading || !canSave}
+                >
                   저장
                 </Button>
                 <Button
+                  data-action="cancel"
                   variant="outline"
                   onClick={handleEditCancel}
-                  disabled={loading}
+                  disabled={loading || !canCancel}
                 >
                   취소
                 </Button>
                 {profile?.corpId && (
                   <Button
+                    data-action="delete"
                     variant="destructive"
                     onClick={handleDelete}
-                    disabled={loading}
+                    disabled={loading || !canDeleteAction}
                   >
                     삭제
                   </Button>

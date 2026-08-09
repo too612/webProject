@@ -315,7 +315,7 @@
 
     <!-- 사용자 약관 동의 이력 저장 -->
     <insert id="insertUserTermsConsent" parameterType="com.main.app.common.auth.dto.UserTermsConsentDto">
-        INSERT INTO user_terms_consents (
+        INSERT INTO user_terms_consent (
             user_seq
           , terms_type
           , terms_version

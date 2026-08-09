@@ -1,7 +1,7 @@
--- PostgreSQL seed: common_code
--- common_code.sql 의 샘플 데이터 전용 파일
+-- PostgreSQL seed: com_code
+-- com_code.sql 의 샘플 데이터 전용 파일
 
-INSERT INTO common_code (
+INSERT INTO com_code (
   code, code_name, parent_code, category_code, remark, use_yn, sort_order,
   reg_user, reg_dtm, reg_ip, upd_user, upd_dtm, upd_ip
 ) VALUES

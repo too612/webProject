@@ -44,10 +44,12 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthMailService authMailService;
+    private final PermissionService permissionService;
 
-    public AuthController(UserService userService, AuthMailService authMailService) {
+    public AuthController(UserService userService, AuthMailService authMailService, PermissionService permissionService) {
         this.userService = userService;
         this.authMailService = authMailService;
+        this.permissionService = permissionService;
     }
 
     @PostMapping("/login")
@@ -76,6 +78,8 @@ public class AuthController {
         payload.put(PAYLOAD_USER_ID_KEY, user.getUserId());
         payload.put(PAYLOAD_USERNAME_KEY, user.getUserName() == null ? user.getUserId() : user.getUserName());
         payload.put("token", null);
+        payload.put("roles", permissionService.getUserRoleIds(user.getUserId()));
+        payload.put("permissions", permissionService.getEffectivePermissions(user.getUserId()).get("permissions"));
 
         return ResponseEntity.ok(ApiResponse.ok(payload, "로그인되었습니다."));
     }
@@ -344,6 +348,8 @@ public class AuthController {
         payload.put(PAYLOAD_USERNAME_KEY, user.getUserName());
         payload.put("email", user.getEmail());
         payload.put("status", user.getStatus());
+        payload.put("roles", permissionService.getUserRoleIds(user.getUserId()));
+        payload.put("permissions", permissionService.getEffectivePermissions(user.getUserId()).get("permissions"));
         return ResponseEntity.ok(ApiResponse.ok(payload));
     }
 

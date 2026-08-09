@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Calendar, Eye, List, User } from "lucide-react";
@@ -23,6 +23,10 @@ interface ArticleViewProps {
   basePath: string;
   menuKey?: string;
   templateCode?: string;
+  headerContent?: ReactNode;
+  actionContent?: ReactNode;
+  hideDefaultHeader?: boolean;
+  hideDefaultActions?: boolean;
 }
 
 function normalizeDate(value: unknown): string {
@@ -68,6 +72,10 @@ export function ArticleView({
   basePath,
   menuKey,
   templateCode,
+  headerContent,
+  actionContent,
+  hideDefaultHeader = false,
+  hideDefaultActions = false,
 }: Readonly<ArticleViewProps>) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -334,32 +342,42 @@ export function ArticleView({
   const commentCount = article.commentCount ?? 0;
   const fileList = article.fileList ?? [];
   const showPrevNext = viewConfig?.showPrevNext ?? false;
+  const shouldRenderDefaultHeader = !hideDefaultHeader && !headerContent;
+  const shouldRenderDefaultActions = !hideDefaultActions && !actionContent;
 
   return (
     <section className="space-y-5">
       <article className="bg-white rounded-none shadow-panel border border-gray-100 p-6 md:p-7">
-        <header className="pb-5 mb-5 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-brand-dark">{resolvedTitle}</h2>
-          <div className="flex items-center justify-between flex-wrap gap-2 mt-3">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <User className="h-4 w-4" />
-                {resolvedAuthor}
+        {shouldRenderDefaultHeader ? (
+          <header className="pb-5 mb-5 border-b border-gray-100">
+            <h2 className="text-xl font-bold text-brand-dark">
+              {resolvedTitle}
+            </h2>
+            <div className="flex items-center justify-between flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                  <User className="h-4 w-4" />
+                  {resolvedAuthor}
+                </div>
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  {resolvedDateTime}
+                </div>
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                  <Eye className="h-4 w-4" />
+                  {resolvedViews}회
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <Calendar className="h-4 w-4" />
-                {resolvedDateTime}
-              </div>
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                <Eye className="h-4 w-4" />
-                {resolvedViews}회
-              </div>
+              {viewConfig?.showStatusBadge !== false && (
+                <StatusBadge commentCount={commentCount} />
+              )}
             </div>
-            {viewConfig?.showStatusBadge !== false && (
-              <StatusBadge commentCount={commentCount} />
-            )}
+          </header>
+        ) : headerContent ? (
+          <div className="pb-5 mb-5 border-b border-gray-100">
+            {headerContent}
           </div>
-        </header>
+        ) : null}
 
         {viewConfig?.showMetaFields !== false && renderMetaFields()}
 
@@ -428,41 +446,47 @@ export function ArticleView({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
-          {btn.list?.visible !== false && (
-            <Button asChild>
-              <Link id={btn.list?.id || "btn_list"} to={basePath}>
-                {btn.list?.label || "목록"}
-              </Link>
-            </Button>
-          )}
-          {postId && btn.reply?.visible !== false && (
-            <Button
-              variant="secondary"
-              id={btn.reply?.id || "btn_reply"}
-              onClick={() => navigate(`${basePath}/write?parentNo=${postId}`)}
-            >
-              {btn.reply?.label || "답글 작성"}
-            </Button>
-          )}
-          {btn.edit?.visible !== false && (
-            <Button
-              variant="outline"
-              id={btn.edit?.id || "btn_edit"}
-              onClick={() => openPasswordModal("edit")}
-            >
-              {btn.edit?.label || "수정"}
-            </Button>
-          )}
-          {btn.delete?.visible !== false && (
-            <ActionButton
-              action="delete"
-              id={btn.delete?.id || "btn_delete"}
-              label={btn.delete?.label}
-              onClick={() => openPasswordModal("delete")}
-            />
-          )}
-        </div>
+        {shouldRenderDefaultActions ? (
+          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+            {btn.list?.visible !== false && (
+              <Button asChild>
+                <Link id={btn.list?.id || "btn_list"} to={basePath}>
+                  {btn.list?.label || "목록"}
+                </Link>
+              </Button>
+            )}
+            {postId && btn.reply?.visible !== false && (
+              <Button
+                variant="secondary"
+                id={btn.reply?.id || "btn_reply"}
+                onClick={() => navigate(`${basePath}/write?parentNo=${postId}`)}
+              >
+                {btn.reply?.label || "답글 작성"}
+              </Button>
+            )}
+            {btn.edit?.visible !== false && (
+              <Button
+                variant="outline"
+                id={btn.edit?.id || "btn_edit"}
+                onClick={() => openPasswordModal("edit")}
+              >
+                {btn.edit?.label || "수정"}
+              </Button>
+            )}
+            {btn.delete?.visible !== false && (
+              <ActionButton
+                action="delete"
+                id={btn.delete?.id || "btn_delete"}
+                label={btn.delete?.label}
+                onClick={() => openPasswordModal("delete")}
+              />
+            )}
+          </div>
+        ) : actionContent ? (
+          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+            {actionContent}
+          </div>
+        ) : null}
       </article>
 
       <ConfirmModal

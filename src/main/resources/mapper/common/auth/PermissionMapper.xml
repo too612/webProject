@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.auth.PermissionMapper">
+
+    <resultMap id="userPermissionResultMap" type="com.main.app.common.auth.dto.UserPermissionDto">
+        <result property="programId" column="program_id"/>
+        <result property="programName" column="program_name"/>
+        <result property="canRead" column="can_read"/>
+        <result property="canWrite" column="can_write"/>
+        <result property="canUpdate" column="can_update"/>
+        <result property="canDelete" column="can_delete"/>
+        <result property="isOpen" column="is_open"/>
+    </resultMap>
+
+    <select id="selectRoleIdsByUserId" parameterType="String" resultType="String">
+        SELECT role_id
+          FROM sys_user_role
+         WHERE user_id = #{userId}
+           AND is_active = TRUE
+    </select>
+
+    <select id="selectEffectivePermissionsByUserId" parameterType="String" resultMap="userPermissionResultMap">
+        SELECT p.program_id,
+               p.program_name,
+               rpp.can_read,
+               rpp.can_write,
+               rpp.can_update,
+               rpp.can_delete,
+               rpp.is_open
+          FROM sys_user_role ur
+          JOIN sys_role_program_permission rpp
+            ON ur.role_id = rpp.role_id
+          JOIN sys_program p
+            ON p.program_id = rpp.program_id
+         WHERE ur.user_id = #{userId}
+           AND ur.is_active = TRUE
+           AND p.is_active = TRUE
+    </select>
+</mapper>

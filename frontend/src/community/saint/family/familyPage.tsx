@@ -3,7 +3,7 @@ import {
   type CommunitySaintFamilyRow,
 } from "./familyModel";
 import { useCommunitySaintFamilyPage } from "./familyHook";
-import { ActionButton } from "../../../common/ui";
+import { ActionButton, Input } from "../../../common/ui";
 
 export default function SaintFamilyPage() {
   const {

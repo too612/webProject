@@ -68,6 +68,3 @@ export const DEFAULT_YOUTH_CONTENT: YouthPageContent = {
     { label: "비고", value: "처음 방문 시 안내 데스크로 오세요" },
   ],
 };
-
-export const YOUTH_BASE_PATH = "/nextgen/youth";
-export const YOUTH_API_BASE_PATH = "/official/nextgen/youth";

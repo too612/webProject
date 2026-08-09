@@ -3,7 +3,7 @@ import {
   type SystemConfigCodeRow,
 } from "./codeModel";
 import { useSystemConfigCodePage } from "./codeHook";
-import { ActionButton, Button, Input } from "../../../common/ui";
+import { ActionButton, Button } from "../../../common/ui";
 
 export default function ConfigCodePage() {
   const {

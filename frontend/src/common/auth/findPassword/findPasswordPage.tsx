@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, Button, Input } from "../../common/ui";
+import { Alert, AlertDescription, Input } from "../../ui";
 import { useFindPassword } from "./findPasswordHook";
 
 export default function FindPasswordPage() {

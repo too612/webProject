@@ -25,6 +25,7 @@ interface ArticleListProps {
   refreshKey?: number;
   headerExtra?: ReactNode;
   queryParams?: Partial<ArticleListQuery>;
+  hideDefaultWriteButton?: boolean;
 }
 
 type BasicCellParams = {
@@ -118,10 +119,11 @@ export function ArticleList({
   refreshKey = 0,
   headerExtra,
   queryParams,
+  hideDefaultWriteButton = false,
 }: Readonly<ArticleListProps>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getArticleTemplateConfig(templateCode || "DEFAULT");
-  const { list, title } = config;
+  const { list } = config;
 
   const initialKeyword = searchParams.get("keyword") ?? "";
   const initialSearchType =
@@ -226,16 +228,7 @@ export function ArticleList({
     return (
       <section className="space-y-5">
         <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-              <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-                {title}
-              </h2>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                게시물 수: {totalElements} | 페이지: {page + 1}/
-                {Math.max(totalPages, 1)}
-              </p>
-            </div>
+          <div className="flex items-start justify-end gap-4 flex-wrap">
             <div className="flex flex-wrap gap-2">
               {list.excelDownload && onExcelDownload && (
                 <ActionButton
@@ -244,16 +237,17 @@ export function ArticleList({
                   onClick={onExcelDownload}
                 />
               )}
-              {list.buttons?.write?.visible !== false && (
-                <Button asChild>
-                  <Link
-                    id={list.buttons?.write?.id || "btn_write"}
-                    to={`${basePath}/write`}
-                  >
-                    {list.buttons?.write?.label || "글쓰기"}
-                  </Link>
-                </Button>
-              )}
+              {!hideDefaultWriteButton &&
+                list.buttons?.write?.visible !== false && (
+                  <Button asChild>
+                    <Link
+                      id={list.buttons?.write?.id || "btn_write"}
+                      to={`${basePath}/write`}
+                    >
+                      {list.buttons?.write?.label || "글쓰기"}
+                    </Link>
+                  </Button>
+                )}
             </div>
           </div>
 
@@ -390,7 +384,7 @@ export function ArticleList({
                   <Paperclip
                     className="h-4 w-4 shrink-0"
                     style={iconStyle}
-                    title="체부파일 있음"
+                    aria-label="첨부파일 있음"
                   />
                 )}
               </button>
@@ -409,7 +403,7 @@ export function ArticleList({
                   <Paperclip
                     className="h-4 w-4 shrink-0"
                     style={iconStyle}
-                    title="체부파일 있음"
+                    aria-label="첨부파일 있음"
                   />
                 )}
               </Link>
@@ -531,16 +525,7 @@ export function ArticleList({
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="space-y-2 border-l-4 border-brand-primary pl-4 md:pl-5">
-            <h2 className="text-xl md:text-2xl font-bold text-brand-dark">
-              {title}
-            </h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              게시물 수: {totalElements} | 페이지: {page + 1}/
-              {Math.max(totalPages, 1)}
-            </p>
-          </div>
+        <div className="flex items-start justify-end gap-4 flex-wrap">
           <div className="flex flex-wrap gap-2">
             {list.excelDownload && onExcelDownload && (
               <ActionButton
@@ -550,7 +535,7 @@ export function ArticleList({
                 onClick={onExcelDownload}
               />
             )}
-            {btn.write?.visible !== false && (
+            {!hideDefaultWriteButton && btn.write?.visible !== false && (
               <Button asChild>
                 <Link
                   id={btn.write?.id || "btn_write"}
