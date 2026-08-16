@@ -31,7 +31,6 @@ export default function SermonsView() {
           </div>
         }
         hideDefaultHeader
-        hideDefaultActions
       />
     </section>
   );

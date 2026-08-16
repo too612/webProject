@@ -7,7 +7,8 @@ function okStr(v: unknown): boolean { return v === null || v === undefined || ty
 function isItem(v: unknown): boolean {
   if (!v || typeof v !== 'object') return false;
   var c = v as Record<string, unknown>;
-  return typeof c.id === 'string' && typeof c.title === 'string' && typeof c.date === 'string';
+  return typeof c.id === 'string' && typeof c.title === 'string' && typeof c.date === 'string'
+    && okStr(c.imageUrl) && okStr(c.contentHtml);
 }
 function arrOk(v: unknown, fn: (x: unknown) => boolean): boolean {
   if (v === null || v === undefined) return true;

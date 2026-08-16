@@ -5,17 +5,41 @@
  */
 
 import { useEffect, useMemo } from "react";
-import { Info, MapPin } from "lucide-react";
+import {
+  BookOpen,
+  Church,
+  HandHeart,
+  Info,
+  MapPin,
+  type LucideIcon,
+} from "lucide-react";
 import { useWorshipTimeItems } from "./worshipTimeHook";
 import {
   WORSHIP_TIME_PAGE_DESCRIPTION,
   WORSHIP_TIME_PAGE_TITLE,
+  WORSHIP_TIME_SECTIONS,
+  type WorshipTimeItem,
+  type WorshipTimeSectionKey,
 } from "./worshipTimeModel";
-import { PageTitle } from "../../../common/ui";
+import {
+  PageTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../common/ui";
 
 /****************************************************************************************************
  * config/constant method (상수, 타입가드, 값 보정 유틸)
  ****************************************************************************************************/
+
+const SECTION_ICONS: Record<WorshipTimeSectionKey, LucideIcon> = {
+  sunday: BookOpen,
+  nextgen: Church,
+  weekday: HandHeart,
+};
 
 /****************************************************************************************************
  * component method (state, hook 초기화)
@@ -36,13 +60,21 @@ export default function WorshipTimePage() {
    * logic method (업무 검증 및 값 계산)
    ****************************************************************************************************/
 
-  const schedules = useMemo(
-    () =>
-      [...items].sort(
-        (left, right) => (left.orderNo ?? 999) - (right.orderNo ?? 999),
-      ),
-    [items],
-  );
+  const sections = useMemo(() => {
+    const sorted = [...items].sort(
+      (left, right) => (left.orderNo ?? 999) - (right.orderNo ?? 999),
+    );
+    const assigned = new Set<WorshipTimeItem>();
+    return WORSHIP_TIME_SECTIONS.map((section) => {
+      const sectionItems = sorted.filter((item) => {
+        if (assigned.has(item)) return false;
+        if (!section.includes(item)) return false;
+        assigned.add(item);
+        return true;
+      });
+      return { ...section, items: sectionItems };
+    });
+  }, [items]);
 
   /****************************************************************************************************
    * render method (조회 모드 UI 렌더링)
@@ -63,38 +95,89 @@ export default function WorshipTimePage() {
           </div>
         )}
 
-        {/* 현대적인 리스트 디자인 */}
-        <div className="divide-y divide-slate-100 border-t border-slate-200">
-          {!loading && schedules.length === 0 && (
+        {items.length === 0 ? (
+          !loading && (
             <div className="py-20 text-center text-slate-400 text-sm">
               등록된 예배 시간 정보가 없습니다.
             </div>
-          )}
-          {schedules.map((item) => (
-            <div
-              key={`schedule-${item.orderNo ?? 0}-${item.title ?? ""}`}
-              className="group grid grid-cols-1 md:grid-cols-[160px_1fr] items-center py-5 md:py-6 px-2 hover:bg-slate-50/50 transition-colors"
-            >
-              <div className="text-brand-primary font-bold text-lg mb-1 md:mb-0">
-                {item.time ?? "-"}
-              </div>
-              <div className="md:pl-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
-                <div className="space-y-1 text-left">
-                  <h3 className="text-base font-semibold text-slate-800">
-                    {item.title ?? item.category ?? "예배"}
-                  </h3>
-                  <p className="text-sm text-slate-500">{item.note ?? ""}</p>
-                </div>
-                {item.location && (
-                  <div className="flex items-center gap-1 text-xs text-slate-400 shrink-0">
-                    <MapPin className="h-4 w-4" />
-                    <span>{item.location}</span>
+          )
+        ) : (
+          <div className="space-y-10">
+            {sections.map((section) => {
+              const SectionIcon = SECTION_ICONS[section.key];
+              return (
+                <div key={section.key} className="space-y-4">
+                  {/* 섹션 제목 (아이콘 상단 중앙 + 제목 하단 중앙) */}
+                  <div className="flex flex-col items-center gap-1.5 text-center">
+                    <SectionIcon className="h-10 w-10 text-brand-primary" />
+                    <h3 className="text-lg md:text-xl font-bold text-brand-dark">
+                      {section.title}
+                    </h3>
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+
+                  {/* 예배 시간 테이블 */}
+                  <div className="overflow-hidden border border-slate-200 rounded-lg">
+                    <Table>
+                      <TableHeader className="bg-slate-50">
+                        <TableRow className="border-slate-200 hover:bg-transparent">
+                          {section.headers.map((header) => (
+                            <TableHead
+                              key={header}
+                              className="text-center text-[13px] font-semibold text-brand-dark whitespace-nowrap"
+                            >
+                              {header}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {section.items.length === 0 ? (
+                          <TableRow className="border-slate-200 hover:bg-transparent">
+                            <TableCell
+                              colSpan={section.headers.length}
+                              className="h-20 text-center text-sm text-slate-400"
+                            >
+                              등록된 예배 시간 정보가 없습니다.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          section.items.map((item) => (
+                            <TableRow
+                              key={`${section.key}-${item.orderNo ?? 0}-${item.title ?? ""}`}
+                              className="border-slate-200"
+                            >
+                              {section.key === "weekday" && (
+                                <TableCell className="text-center text-sm font-medium text-brand-muted whitespace-nowrap">
+                                  {item.category ?? "-"}
+                                </TableCell>
+                              )}
+                              <TableCell className="text-center font-medium text-slate-800">
+                                {item.title ?? item.category ?? "예배"}
+                              </TableCell>
+                              <TableCell className="text-center text-sm font-semibold text-brand-dark whitespace-nowrap">
+                                {item.time ?? "-"}
+                              </TableCell>
+                              <TableCell className="text-center text-sm text-slate-600 whitespace-nowrap">
+                                {item.location ? (
+                                  <span className="inline-flex items-center gap-1">
+                                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                    {item.location}
+                                  </span>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="pt-4 border-t border-slate-100">
           <p className="text-xs text-slate-400 flex items-center gap-1">

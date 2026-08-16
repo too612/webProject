@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.news.eventcalendar.EventCalendarMapper">
+
+    <resultMap id="eventCalendarResultMap" type="com.main.app.official.news.eventcalendar.dto.EventCalendarDto">
+        <id     property="eventCalendarId" column="event_calendar_id"/>
+        <result property="title"           column="title"/>
+        <result property="content"         column="content"/>
+        <result property="updatedAt"       column="updated_at"/>
+    </resultMap>
+
+    <!-- 행사달력 단건 조회 - DB 테이블 생성 전 임시 dummy 쿼리 (dual 방식, 실제 테이블 비참조) -->
+    <select id="selectInfo" resultMap="eventCalendarResultMap">
+        SELECT
+            NULL          AS event_calendar_id,
+            '행사달력'    AS title,
+            ''            AS content,
+            NOW()         AS updated_at
+    </select>
+
+    <!-- 행사달력 등록 -->
+    <insert id="insertInfo"
+            parameterType="com.main.app.official.news.eventcalendar.dto.EventCalendarRequest"
+            useGeneratedKeys="true"
+            keyProperty="eventCalendarId">
+        INSERT INTO official_event_calendar (
+            title,
+            content,
+            is_active,
+            is_deleted,
+            created_at,
+            updated_at,
+            created_by,
+            updated_by,
+            created_ip,
+            updated_ip
+        ) VALUES (
+            #{title},
+            #{content},
+            TRUE,
+            FALSE,
+            NOW(),
+            NOW(),
+            #{createdBy},
+            #{updatedBy},
+            #{createdIp},
+            #{updatedIp}
+        )
+    </insert>
+
+    <!-- 행사달력 수정 -->
+    <update id="updateInfo"
+            parameterType="com.main.app.official.news.eventcalendar.dto.EventCalendarRequest">
+        UPDATE official_event_calendar
+        SET title      = #{title},
+            content    = #{content},
+            updated_at = NOW(),
+            updated_by = #{updatedBy},
+            updated_ip = #{updatedIp}
+        WHERE event_calendar_id = #{eventCalendarId}
+          AND is_deleted = FALSE
+    </update>
+
+    <!-- 행사달력 소프트 삭제 -->
+    <update id="softDeleteInfo">
+        UPDATE official_event_calendar
+        SET is_deleted = TRUE,
+            is_active  = FALSE,
+            updated_at = NOW(),
+            updated_by = 'system'
+        WHERE event_calendar_id = #{eventCalendarId}
+          AND is_deleted = FALSE
+    </update>
+
+</mapper>

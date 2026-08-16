@@ -815,6 +815,11 @@ li {
   font-size: 15px;
 }
 
+/* 최상단(1차) 메뉴 폰트 크기 확대 — 드롭다운 서브메뉴에는 영향 없음 */
+.nav-main > .dropdown > a {
+  font-size: 17px;
+}
+
 .nav-main.erp-menu {
   gap: 12px;
   flex-wrap: nowrap;
@@ -1285,8 +1290,8 @@ li {
    4. Footer
    ============================= */
 .footer {
-  background: #e9e9e9;
-  color: #666;
+  background: #4a4a4a;
+  color: #e6e6e6;
   padding: 40px 0 20px;
   margin-top: 60px;
 }
@@ -1355,7 +1360,7 @@ li {
   display: block;
   width: 26px;
   height: 26px;
-  opacity: 0.55;
+  opacity: 0.7;
   transition:
     opacity 0.25s ease,
     filter 0.25s ease;
@@ -1402,11 +1407,11 @@ li {
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
   margin-top: 24px;
   padding-top: 16px;
   font-size: 12px;
-  color: #7b8088;
+  color: #b8b8b8;
   text-align: center;
 }
 
@@ -1527,7 +1532,20 @@ li {
   }
   .footer-content {
     flex-direction: column;
+    align-items: center;
     text-align: center;
+  }
+  .footer-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+  }
+  .footer-info .footer-logo {
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
   }
   .footer-right {
     align-items: center;
@@ -1754,7 +1772,7 @@ li {
   font-weight: 500;
   color: white;
   transition: all 0.3s ease;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .mobile-menu-list li a:hover {
@@ -1845,7 +1863,7 @@ li.has-submenu.submenu-open > .submenu {
 .submenu li a {
   padding: 15px 25px 15px 45px; /* 들여쓰기 */
   font-weight: 400;
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -1880,7 +1898,7 @@ li.has-submenu.submenu-open > .submenu {
 .mobile-footer-top a,
 .mobile-footer-top .mobile-footer-action {
   color: white;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 500;
   transition: all 0.3s ease;
   padding: 0;
@@ -1895,7 +1913,7 @@ li.has-submenu.submenu-open > .submenu {
 
 .footer-separator {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
+  font-size: 15px;
 }
 
 .mobile-footer-select {
@@ -1912,7 +1930,7 @@ li.has-submenu.submenu-open > .submenu {
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 0;
   color: white;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;

@@ -1,4 +1,10 @@
-export type OfficialIndexItem = { id: string; title: string; date: string; };
+export type OfficialIndexItem = {
+  id: string;
+  title: string;
+  date: string;
+  imageUrl?: string;
+  contentHtml?: string;
+};
 
 export type BannerItem = {
   id: string; title: string; imageUrl: string;

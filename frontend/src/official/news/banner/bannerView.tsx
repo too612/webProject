@@ -88,28 +88,27 @@ export default function BannerView() {
 
   return (
     <section className="space-y-5">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <PageTitle
-          title="배너 미리보기"
-          description="메인 페이지에 노출될 배너의 미리보기입니다."
-        />
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to="/news/banner">무록</Link>
-          </Button>
-          <Button asChild>
-            <Link to={`/news/banner/write?rqstNo=${article.articleId}`}>
-              수정
-            </Link>
-          </Button>
-          <Button variant="destructive" onClick={handleDelete}>
-            삭제
-          </Button>
-        </div>
-      </div>
-
       {/* 미리보기 영역 */}
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <PageTitle
+            title="배너 미리보기"
+            description="메인 페이지에 노출될 배너의 미리보기입니다."
+          />
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link to="/news/banner">목록</Link>
+            </Button>
+            <Button asChild>
+              <Link to={`/news/banner/write?rqstNo=${article.articleId}`}>
+                수정
+              </Link>
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              삭제
+            </Button>
+          </div>
+        </div>
         <h3 className="text-sm font-semibold text-slate-500">
           실제 메인 페이지 노출 형태
         </h3>

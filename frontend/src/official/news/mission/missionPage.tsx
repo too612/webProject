@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
-import { Button, PageTitle } from "../../../common/ui";
+import { Button, CountryFlag, PageTitle } from "../../../common/ui";
 import { useMissionContent } from "./missionHook";
 import { DEFAULT_MISSION_CONTENT } from "./missionModel";
 
@@ -69,7 +69,11 @@ export default function MissionPage() {
                   className={`border rounded-lg bg-slate-50 p-4 space-y-2 text-left transition-colors ${selectedGroupKey === m.groupKey ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-brand-primary/30"}`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{m.countryFlag}</span>
+                    <CountryFlag
+                      code={m.countryFlag}
+                      alt={m.country}
+                      className="h-[17px] w-auto rounded-[2px] shadow-sm"
+                    />
                     <h4 className="font-bold text-brand-dark text-sm">
                       {m.country}
                     </h4>

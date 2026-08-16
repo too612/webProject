@@ -6,6 +6,7 @@ import type { GridColumnDef } from "../../common/grid";
 import { useArticle } from "./ArticleHook";
 import { getArticleTemplateConfig } from "./config";
 import { GalleryView } from "./list/GalleryView";
+import { GallerySlide } from "./list/GallerySlide";
 import { ActionButton, Button, ErrorMessage, Skeleton } from "../../common/ui";
 import type { ArticleListQuery } from "./ArticleModel";
 
@@ -26,6 +27,9 @@ interface ArticleListProps {
   headerExtra?: ReactNode;
   queryParams?: Partial<ArticleListQuery>;
   hideDefaultWriteButton?: boolean;
+  galleryVariant?: "grid" | "slide";
+  gallerySlideWidth?: string | number;
+  gallerySlideHeight?: string | number;
 }
 
 type BasicCellParams = {
@@ -120,6 +124,9 @@ export function ArticleList({
   headerExtra,
   queryParams,
   hideDefaultWriteButton = false,
+  galleryVariant = "grid",
+  gallerySlideWidth,
+  gallerySlideHeight,
 }: Readonly<ArticleListProps>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getArticleTemplateConfig(templateCode || "DEFAULT");
@@ -200,6 +207,26 @@ export function ArticleList({
       ((item: any) => {
         window.location.href = `${basePath}/view?rqstNo=${item.articleId}`;
       });
+
+    if (galleryVariant === "slide") {
+      if (listError) {
+        return (
+          <ErrorMessage
+            message={listError}
+            onRetry={() => loadList(buildQuery(page, keyword))}
+          />
+        );
+      }
+      return (
+        <GallerySlide
+          items={items}
+          loading={listLoading}
+          onItemClick={handleItemClick}
+          width={gallerySlideWidth}
+          height={gallerySlideHeight}
+        />
+      );
+    }
 
     if (embedded) {
       if (listError) {

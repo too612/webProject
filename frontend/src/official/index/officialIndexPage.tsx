@@ -1,33 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  ArrowRight,
   BookOpen,
-  Building2,
   Calendar,
   ChevronLeft,
   ChevronRight,
-  CloudMoon,
+  Clock,
   Heart,
-  Images,
   MapPin,
-  Megaphone,
   Moon,
   MoonStar,
-  PlaySquare,
-  Smile,
-  Sun,
-  Sunrise,
+  Play,
   Tv,
   UserPlus,
   X,
   type LucideIcon,
 } from "lucide-react";
 import { useOfficialIndexData } from "./officialIndexHook";
-import type { BannerItem, GalleryItem } from "./officialIndexModel";
-import client from "../../common/api/api.client";
-import type { ApiResponse } from "../../common/api/api.types";
+import type { BannerItem } from "./officialIndexModel";
+import GalleryAsymmetricGrid from "./GalleryAsymmetricGrid";
+import NewBelieverSection from "./NewBelieverSection";
+import ChurchNewsCarousel from "./ChurchNewsCarousel";
+import SaintNewsWidget from "./SaintNewsWidget";
 import LiveBanner from "../worship/live/LiveBanner";
+import { liveApi } from "../worship/live/liveApi";
 
 const QUICK_MENUS: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/worship/sermons", icon: Tv, label: "주일설교" },
@@ -38,12 +34,12 @@ const QUICK_MENUS: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/about/location", icon: MapPin, label: "오시는 길" },
 ];
 
-const WORSHIP_SCHEDULE: { icon: LucideIcon; title: string; time: string }[] = [
-  { icon: Sunrise, title: "새벽예배", time: "매일 오전 5:00" },
-  { icon: Sun, title: "주일낮예배", time: "주일 오전 11:00" },
-  { icon: CloudMoon, title: "주일저녁예배", time: "주일 오후 7:00" },
-  { icon: MoonStar, title: "수요예배", time: "수요일 오후 7:30" },
-  { icon: Moon, title: "금요심야예배", time: "금요일 오후 9:30" },
+const WORSHIP_SCHEDULE: { day: string; title: string; time: string }[] = [
+  { day: "매일", title: "새벽예배", time: "오전 5:00" },
+  { day: "주일", title: "주일낮예배", time: "오전 11:00" },
+  { day: "주일", title: "주일저녁예배", time: "오후 7:00" },
+  { day: "수요", title: "수요예배", time: "오후 7:30" },
+  { day: "금요", title: "금요심야예배", time: "오후 9:30" },
 ];
 
 const GF = [
@@ -53,13 +49,82 @@ const GF = [
   "/img/church-bg.svg",
 ];
 
-type LiveItem = {
-  videoId: string;
+type SermonTabKey = "sunday" | "sunday_evening" | "wednesday" | "friday";
+
+const SERMON_TABS: {
+  key: SermonTabKey;
+  label: string;
+  icon: LucideIcon;
+  description: string;
+  imageUrl: string;
+  category?: string;
+}[] = [
+  {
+    key: "sunday",
+    label: "주일낮설교",
+    icon: Tv,
+    description: "주일 낮 예배 설교 영상이 표시되는 영역입니다.",
+    imageUrl: "/img/official/index/sermon_01.png",
+    category: "sunday_day",
+  },
+  {
+    key: "sunday_evening",
+    label: "주일저녁설교",
+    icon: MoonStar,
+    description: "주일 저녁 예배 설교 영상이 표시되는 영역입니다.",
+    imageUrl: "/img/official/index/sermon_04.png",
+    category: "sunday_evening",
+  },
+  {
+    key: "wednesday",
+    label: "수요설교",
+    icon: Calendar,
+    description: "수요 예배 설교 영상이 표시되는 영역입니다.",
+    imageUrl: "/img/official/index/sermon_02.png",
+    category: "wednesday",
+  },
+  {
+    key: "friday",
+    label: "금요설교",
+    icon: Moon,
+    description: "금요 예배 설교 영상이 표시되는 영역입니다.",
+    imageUrl: "/img/official/index/sermon_03.png",
+    category: "friday",
+  },
+];
+
+type SermonMeta = {
+  date: string;
   title: string;
-  thumbnailUrl: string;
+  scripture: string;
+  preacher: string;
   linkUrl: string;
-  publishedAt?: string;
 };
+
+const EMPTY_SERMON_META: SermonMeta = {
+  date: "",
+  title: "",
+  scripture: "",
+  preacher: "",
+  linkUrl: "",
+};
+
+/**
+ * 설교 영상 제목을 '/' 기준으로 분리한다.
+ * 예) "2026년 8월14일(금) 금요심야기도회 / 누가 내 이웃인가? / 누가복음 10:25-37 / 김형수담임목사#다사랑교회#..."
+ * → { date: "2026년 8월14일(금) 금요심야기도회", title: "누가 내 이웃인가?", scripture: "누가복음 10:25-37", preacher: "김형수담임목사" }
+ */
+function parseSermonTitle(rawTitle: string): Omit<SermonMeta, "linkUrl"> {
+  const parts = rawTitle.split("/").map(function (s) {
+    return s.trim();
+  });
+  return {
+    date: parts[0] ?? "",
+    title: parts[1] ?? "",
+    scripture: parts[2] ?? "",
+    preacher: parts[3] ? parts[3].split("#")[0].trim() : "",
+  };
+}
 
 function imgUrl(raw: unknown, fb: string): string {
   if (!raw || typeof raw !== "string") return fb;
@@ -71,6 +136,13 @@ function S(v: unknown): string {
   if (typeof v !== "string" && typeof v !== "number") return "";
   return String(v);
 }
+function toEmbedUrl(url: string): string {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([\w-]{6,})/,
+  );
+  if (!m) return url;
+  return "https://www.youtube.com/embed/" + m[1] + "?autoplay=1";
+}
 function firstImg(html: unknown): string {
   if (!html || typeof html !== "string") return "";
   const re = /<img[^>]+src=["']([^"']+)["']/i;
@@ -78,25 +150,208 @@ function firstImg(html: unknown): string {
   return m ? m[1] : "";
 }
 
-function SecH(
-  p: Readonly<{
-    icon: LucideIcon;
-    title: string;
-    desc?: string;
-    rightExtra?: React.ReactNode;
-  }>,
-) {
-  const Icon = p.icon;
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-xl font-bold text-brand-dark">
-          <Icon className="h-5 w-5 text-brand-primary" />
-          {p.title}
-        </h2>
-        {p.rightExtra}
+/* ============================================================
+   SermonTabSection — 방송설교 세그먼트 탭 섹션
+   - 상단 세그먼트 컨트롤 4개(주일낮설교 | 주일저녁설교 | 수요설교 | 금요설교)
+   - 하단 메인 영상에 탭별 이미지 + 최신 설교 텍스트 오버레이, 클릭 시 모달 재생
+   - 주일/수요/금요 최신 영상 1개씩 조회 → 제목을 '/' 기준으로 분리하여 표시
+   ============================================================ */
+function SermonTabSection() {
+  const [tab, setTab] = useState<SermonTabKey>("sunday");
+  const [playerUrl, setPlayerUrl] = useState<string | null>(null);
+  const [sermonMeta, setSermonMeta] = useState<Record<SermonTabKey, SermonMeta>>({
+    sunday: EMPTY_SERMON_META,
+    sunday_evening: EMPTY_SERMON_META,
+    wednesday: EMPTY_SERMON_META,
+    friday: EMPTY_SERMON_META,
+  });
+
+  const activeTab =
+    SERMON_TABS.find(function (t) {
+      return t.key === tab;
+    }) ?? SERMON_TABS[0];
+
+  // 주일/수요/금요 예배의 가장 최근 영상 1개씩을 조회해 제목을 '/' 기준으로 파싱한다.
+  useEffect(function () {
+    let cancelled = false;
+
+    SERMON_TABS.forEach(function (t) {
+      if (!t.category) return;
+      liveApi
+        .getLiveItems(t.category)
+        .then(function (items) {
+          if (cancelled) return;
+          const latest = items && items[0] ? items[0] : null;
+          if (latest && latest.title) {
+            const title = latest.title;
+            const linkUrl = latest.linkUrl ?? "";
+            setSermonMeta(function (prev) {
+              return {
+                ...prev,
+                [t.key]: { ...parseSermonTitle(title), linkUrl },
+              };
+            });
+          }
+        })
+        .catch(function () {
+          // 조회 실패 시 이미지만 노출 (텍스트 오버레이 없음)
+        });
+    });
+
+    return function () {
+      cancelled = true;
+    };
+  }, []);
+
+  const activeMeta = sermonMeta[activeTab.key];
+
+  // 메인 영상 공통 스타일 (세그먼트 컨트롤 하단, 16:9)
+  const mainBoxClass =
+    "relative block aspect-video w-full overflow-hidden border border-slate-200";
+
+  // 이미지 위 텍스트 오버레이 (LEFT 5% / TOP 10%)
+  const overlayContent =
+    activeMeta && (activeMeta.title || activeMeta.scripture || activeMeta.preacher) ? (
+      <div className="absolute left-[5%] top-[10%] px-3 py-2.5 text-left text-brand-dark drop-shadow-sm sm:px-5 sm:py-4">
+        {/* 라벨: 주일설교메시지 / 수요설교메시지 / 금요설교메시지 */}
+        <p className="whitespace-nowrap text-[10px] font-semibold text-brand-primary sm:text-xs">
+          {activeTab.label}메시지
+        </p>
+        {/* 설교 제목 (1.5배 확대) */}
+        {activeMeta.title && (
+          <p className="mt-1 text-[21px] font-bold leading-snug sm:text-[27px]">
+            {activeMeta.title}
+          </p>
+        )}
+        {/* 성경본문 / 설교자 */}
+        {(activeMeta.scripture || activeMeta.preacher) && (
+          <div className="mt-2 space-y-0.5 border-t border-brand-primary/30 pt-1.5 sm:mt-4 sm:pt-2">
+            {activeMeta.scripture && (
+              <p className="text-[10px] text-brand-muted sm:text-sm">
+                {activeMeta.scripture}
+              </p>
+            )}
+            {activeMeta.preacher && (
+              <p className="text-[10px] text-brand-muted sm:text-sm">
+                {activeMeta.preacher}
+              </p>
+            )}
+          </div>
+        )}
       </div>
-      {p.desc && <p className="text-sm text-gray-500">{p.desc}</p>}
+    ) : null;
+
+  // 메인 네모 내부 콘텐츠 (이미지 + 오버레이)
+  const mainBoxContent = (
+    <>
+      <img
+        src={activeTab.imageUrl}
+        alt={activeTab.label}
+        className="h-full w-full object-contain"
+        onError={function (e) {
+          e.currentTarget.src = "/img/church-bg.svg";
+        }}
+      />
+      {overlayContent}
+      {/* 유튜브 재생 버튼 오버레이 */}
+      <span className="absolute inset-0 flex items-center justify-center">
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm">
+          <Play className="h-7 w-7 translate-x-0.5" fill="currentColor" />
+        </span>
+      </span>
+    </>
+  );
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      {/* 세그먼트 컨트롤 탭 (PC·모바일 공통 상단 배치) */}
+      <div
+        className="flex w-full gap-1 rounded-lg bg-slate-100 p-1"
+        role="tablist"
+        aria-label="방송설교 탭"
+      >
+        {SERMON_TABS.map(function (t) {
+          const selected = tab === t.key;
+          const Icon = t.icon;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              onClick={function () {
+                setTab(t.key);
+              }}
+              className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
+                selected
+                  ? "bg-white text-brand-primary shadow-sm"
+                  : "text-slate-500 hover:text-brand-dark"
+              }`}
+            >
+              <Icon className="hidden h-4 w-4 sm:block" />
+              <span className="whitespace-nowrap">{t.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 큰 메인 영상 — 클릭 시 모달 플레이어(라이트박스)로 재생 */}
+      <div className="relative min-w-0">
+        {activeMeta.linkUrl ? (
+          <button
+            type="button"
+            onClick={function () {
+              setPlayerUrl(toEmbedUrl(activeMeta.linkUrl));
+            }}
+            className={mainBoxClass}
+            aria-label={(activeMeta.title || activeTab.label) + " 영상 재생"}
+          >
+            {mainBoxContent}
+          </button>
+        ) : (
+          <div className={mainBoxClass}>{mainBoxContent}</div>
+        )}
+      </div>
+
+      {/* 유튜브 모달 플레이어 (라이트박스) */}
+      {playerUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={function () {
+            setPlayerUrl(null);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="설교 영상 플레이어"
+        >
+          <div
+            className="relative w-full max-w-4xl bg-black shadow-2xl"
+            onClick={function (e) {
+              e.stopPropagation();
+            }}
+          >
+            <button
+              type="button"
+              onClick={function () {
+                setPlayerUrl(null);
+              }}
+              className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+              aria-label="닫기"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="aspect-video w-full">
+              <iframe
+                src={playerUrl}
+                title="설교 영상"
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -190,7 +445,7 @@ function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
                   <img
                     src={imgUrl(p.imageUrl, "/img/church-bg.svg")}
                     alt={S(p.title)}
-                    className="w-full aspect-[3/4] object-cover"
+                    className="w-full aspect-[3/4] object-contain"
                   />
                 </a>
                 <div className="flex border-t border-gray-100 text-xs">
@@ -225,14 +480,12 @@ function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
 
 export default function OfficialIndexPage() {
   const { indexData, loadIndexData } = useOfficialIndexData();
+  const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const slides = Array.isArray(indexData.slideBanners)
     ? indexData.slideBanners
     : [];
   const sLen = slides.length;
-
-  // worship/live 주일낮예배 데이터
-  const [sermons, setSermons] = useState<LiveItem[]>([]);
 
   useEffect(
     function () {
@@ -240,17 +493,6 @@ export default function OfficialIndexPage() {
     },
     [loadIndexData],
   );
-
-  useEffect(function () {
-    client
-      .get<ApiResponse<LiveItem[]>>("/official/worship/live", {
-        params: { category: "sunday_day" },
-      })
-      .then(function (r) {
-        setSermons(Array.isArray(r.data.data) ? r.data.data : []);
-      })
-      .catch(function () {});
-  }, []);
 
   useEffect(
     function () {
@@ -309,7 +551,7 @@ export default function OfficialIndexPage() {
       <PopupLayer popups={indexData.popupBanners} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden min-h-[260px] md:min-h-[320px] lg:min-h-[360px] bg-[#0f1c3f]">
+      <section className="relative overflow-hidden min-h-[260px] md:min-h-[360px] lg:min-h-[480px] bg-[#0f1c3f]">
         {sLen === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-white/60 text-sm">
             등록된 슬라이드 배너가 없습니다.
@@ -317,7 +559,7 @@ export default function OfficialIndexPage() {
         )}
         {sLen > 0 && (
           <section
-            className="relative h-[260px] md:h-[320px] lg:h-[360px] w-full select-none"
+            className="relative h-[260px] md:h-[360px] lg:h-[480px] w-full select-none"
             style={{ touchAction: "pan-y" }}
             aria-label="슬라이드 배너"
             aria-roledescription="carousel"
@@ -353,18 +595,14 @@ export default function OfficialIndexPage() {
                   <img
                     src={imgUrl(b.imageUrl, "/img/church-bg.svg")}
                     alt={S(b.title)}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute bottom-16 left-6 right-6 md:left-10 md:right-10">
-                    <p className="text-white text-lg md:text-2xl font-bold drop-shadow-lg line-clamp-2">
-                      {S(b.title)}
-                    </p>
-                  </div>
+                  {/* 하단 그라데이션 마스크 (버튼 가독성) */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                   <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
                     <Link
                       to={"/news/banner/view?rqstNo=" + S(b.id)}
-                      className="inline-block px-6 py-2 border-2 border-white/70 text-white text-base hover:bg-white/20 transition-colors"
+                      className="inline-block border-2 border-white/70 px-6 py-2 text-base text-white transition-colors hover:bg-white/20"
                     >
                       자세히보기
                     </Link>
@@ -375,20 +613,20 @@ export default function OfficialIndexPage() {
             <button
               type="button"
               onClick={prev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55 z-10"
+              className="absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center sm:flex"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-20 w-20 text-white drop-shadow-md" strokeWidth={2.5} />
             </button>
             <button
               type="button"
               onClick={next}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55 z-10"
+              className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center sm:flex"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-20 w-20 text-white drop-shadow-md" strokeWidth={2.5} />
             </button>
             {sLen > 1 && (
               <div
-                className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10"
+                className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2"
                 role="tablist"
                 aria-label="슬라이드 인디케이터"
               >
@@ -404,8 +642,10 @@ export default function OfficialIndexPage() {
                         setCurrent(i);
                       }}
                       className={
-                        "h-2.5 rounded-full " +
-                        (i === current ? "bg-white w-6" : "bg-white/50 w-2.5")
+                        "h-2.5 w-6 rounded-[3px] border transition-colors " +
+                        (i === current
+                          ? "border-white bg-white"
+                          : "border-white/70 bg-transparent hover:bg-white/30")
                       }
                     />
                   );
@@ -416,26 +656,34 @@ export default function OfficialIndexPage() {
         )}
       </section>
 
+      {/* 실시간 방송 중일 때만 노출되는 라이브 배너 (퀵메뉴 상단) */}
+      <LiveBanner />
+
       {/* Quick Menu */}
-      <section className="bg-white py-8 border-b border-gray-100">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <section className="bg-white py-10 border-b border-gray-100">
+        <div className="container mx-auto px-6 space-y-8">
+          <div className="space-y-2 text-center">
+            <p className="text-xs font-semibold tracking-[0.3em] text-gray-400">
+              OSAN DASARANG CHURCH
+            </p>
+            <h2 className="text-2xl font-bold text-brand-dark lg:text-3xl">오산 다사랑교회</h2>
+            <p className="font-semibold text-brand-dark">
+              예배와 찬양이 중심이 된 교회입니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-6 sm:gap-8 lg:grid-cols-6">
             {QUICK_MENUS.map(function (m) {
+              const Icon = m.icon;
               return (
                 <Link
                   to={m.to}
                   key={m.label}
-                  className="flex items-center gap-3 p-4 border border-slate-200 hover:border-brand-primary/30 hover:bg-brand-primary/[0.03] transition-colors group"
+                  className="group flex flex-col items-center gap-2.5 text-center"
                 >
-                  <div className="w-11 h-11 rounded-full bg-brand-primary/10 flex items-center justify-center group-hover:bg-brand-primary transition-colors shrink-0">
-                    {(() => {
-                      const Icon = m.icon;
-                      return (
-                        <Icon className="h-5 w-5 text-brand-primary group-hover:text-white" />
-                      );
-                    })()}
-                  </div>
-                  <span className="text-sm text-gray-700 font-semibold">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary transition-colors group-hover:bg-brand-primary group-hover:text-white">
+                    <Icon className="h-7 w-7" />
+                  </span>
+                  <span className="text-sm font-semibold text-gray-700 group-hover:text-brand-primary">
                     {m.label}
                   </span>
                 </Link>
@@ -445,268 +693,92 @@ export default function OfficialIndexPage() {
         </div>
       </section>
 
-      {/* Intro */}
-      <section className="py-14 bg-slate-50">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div className="bg-white shadow-panel border border-gray-100 p-7 space-y-3">
-              <div className="flex items-center gap-2 text-brand-primary">
-                <Smile className="h-5 w-5" />
-                <h3 className="font-bold text-brand-dark text-lg">환영인사</h3>
-              </div>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                다사랑교회는 두날개로 날아오르는 건강한 교회입니다. 교회는 예수
-                그리스도를 나의 주, 나의 하나님으로 고백하는 성도들의
-                모임입니다.
-              </p>
-              <Link
-                to="/about/pastor"
-                className="text-sm text-brand-primary hover:underline inline-flex items-center gap-1 font-medium"
-              >
-                자세히 보기 <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="bg-brand-primary text-white shadow-panel p-7 space-y-3">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                <h3 className="font-bold text-lg">교회 소개</h3>
-              </div>
-              <p className="text-sm text-white/85 leading-relaxed">
-                세상에서 가장 건강한 교회, 세상에서 가장 아름답고 행복한 교회에
-                오신 여러분을 환영합니다.
-              </p>
-              <Link
-                to="/about/pastor"
-                className="text-sm text-white/90 hover:text-white hover:underline inline-flex items-center gap-1 font-medium"
-              >
-                자세히 보기 <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 새가족 안내 6단계 프로세스 (상당교회 '처음오셨나요?' 벤치마킹) */}
+      <NewBelieverSection />
 
-      {/* Sermons from worship/live */}
-      <section className="py-14 bg-white">
+      {/* 방송설교 탭 섹션 + 교회소개 (참고이미지 BROADCAST 구조) */}
+      <section className="py-7 bg-white">
         <div className="container mx-auto px-6 space-y-6">
-          {/* 실시간 방송 중일 때만 노출되는 라이브 배너 */}
-          <LiveBanner />
-          <SecH
-            icon={Tv}
-            title="주일설교"
-            desc="주일낮예배 설교 영상을 확인하세요."
-            rightExtra={
-              <Link
-                to="/worship/live"
-                className="text-s text-brand-primary hover:underline"
-              >
-                + 더보기
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {(sermons.length > 0
-              ? sermons.slice(0, 5)
-              : ([
-                  {
-                    videoId: "",
-                    title: "설교 준비 중",
-                    thumbnailUrl: "",
-                    linkUrl: "",
-                  },
-                ] as LiveItem[])
-            ).map(function (item, i) {
-              return (
-                <a
-                  key={item.videoId || i}
-                  href={item.linkUrl || "/worship/live"}
-                  target={item.linkUrl ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  className="group bg-white border border-slate-200 overflow-hidden hover:border-brand-primary/30 hover:shadow-md transition-all"
-                >
-                  <div className="relative bg-slate-100 aspect-video flex items-center justify-center">
-                    {item.thumbnailUrl ? (
-                      <img
-                        src={item.thumbnailUrl}
-                        alt={S(item.title)}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <PlaySquare className="h-8 w-8 text-slate-300 group-hover:text-brand-primary/70 transition-colors" />
-                    )}
-                  </div>
-                  <div className="p-4 space-y-1.5">
-                    <h4 className="text-sm font-semibold text-brand-dark line-clamp-2">
-                      {S(item.title)}
-                    </h4>
-                  </div>
-                </a>
-              );
-            })}
+          {/* 환영합니다 섹션 헤더 (가운데 정렬) */}
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold text-brand-dark lg:text-3xl">
+              환영합니다
+            </h2>
+            <p className="text-base text-gray-500">
+              다사랑교회에 오신 모든 분들을 주님의 이름으로 진심으로 환영합니다.
+            </p>
           </div>
-        </div>
-      </section>
-
-      {/* Gallery */}
-      <section className="py-14 bg-slate-50">
-        <div className="container mx-auto px-6 space-y-6">
-          <SecH
-            icon={Images}
-            title="다사랑앨범"
-            desc="최근 앨범을 확인해 보세요."
-            rightExtra={
-              <Link
-                to="/news/gallery"
-                className="text-s text-brand-primary hover:underline"
-              >
-                + 더보기
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {(indexData.recentGalleries.length > 0
-              ? indexData.recentGalleries
-              : [
-                  {
-                    id: "m1",
-                    title: "앨범 준비 중",
-                    date: "",
-                    imageUrl: "",
-                  } as GalleryItem,
-                ]
-            ).map(function (item, i) {
-              return (
-                <Link
-                  key={S(item.id) || i}
-                  to={
-                    item.id
-                      ? "/news/gallery/view?rqstNo=" + S(item.id)
-                      : "/news/gallery"
-                  }
-                  className="group overflow-hidden border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <img
-                    src={imgUrl(
-                      item.imageUrl || firstImg(item.contentHtml),
-                      GF[i % GF.length],
-                    )}
-                    alt={S(item.title)}
-                    className="aspect-video w-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="space-y-1.5 p-4">
-                    <p className="text-xs font-medium text-brand-primary">
-                      최근 앨범
-                    </p>
-                    <h3 className="text-sm font-semibold text-brand-dark line-clamp-2">
-                      {S(item.title)}
-                    </h3>
-                    <p className="text-xs text-gray-400">{S(item.date)}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Worship Time */}
-      <section className="py-14 bg-white">
-        <div className="container mx-auto px-6 space-y-6">
-          <SecH
-            icon={Calendar}
-            title="예배 시간 안내"
-            desc="처음 오시는 분도 쉽게 확인할 수 있도록 안내합니다."
-            rightExtra={
-              <Link
-                to="/worship/time"
-                className="text-s text-brand-primary hover:underline"
-              >
-                + 더보기
-              </Link>
-            }
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {WORSHIP_SCHEDULE.map(function (w) {
-              return (
-                <div
-                  key={w.title}
-                  className="bg-white shadow-panel border border-gray-100 p-5 text-center space-y-2"
-                >
-                  <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center mx-auto">
-                    {(() => {
-                      const Icon = w.icon;
-                      return <Icon className="h-5 w-5 text-brand-primary" />;
-                    })()}
-                  </div>
-                  <h4 className="font-semibold text-brand-dark text-sm">
-                    {w.title}
-                  </h4>
-                  <p className="text-brand-primary font-medium text-sm">
-                    {w.time}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Notice & Bulletin */}
-      <section className="py-14 bg-slate-50">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <SermonTabSection />
+            {/* 예배시간 안내 */}
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-bold text-brand-dark text-lg">
-                  <Megaphone className="h-4 w-4 text-brand-primary" />
-                  공지사항
+                  <Clock className="h-4 w-4 text-brand-primary" />
+                  예배시간
                 </h3>
                 <Link
-                  to="/news/notice"
-                  className="text-s text-brand-primary hover:underline"
+                  to="/worship/time"
+                  className="text-base font-bold text-brand-primary hover:underline"
                 >
                   + 더보기
                 </Link>
               </div>
-              <div className="bg-white border border-slate-200 p-5 max-h-[240px] overflow-y-auto">
-                <ul className="divide-y divide-gray-100">
-                  {(indexData.recentAnnouncements.length > 0
-                    ? indexData.recentAnnouncements
-                    : [
-                        {
-                          id: "",
-                          title: "등록된 공지사항이 없습니다.",
-                          date: "",
-                        },
-                      ]
-                  ).map(function (n, i) {
-                    return (
-                      <li
-                        key={S(n.id) || i}
-                        className="py-2.5 flex items-center justify-between gap-4"
-                      >
-                        <Link
-                          to={
-                            n.id
-                              ? "/news/notice/view?rqstNo=" + S(n.id)
-                              : "/news/notice"
-                          }
-                          className="text-sm text-gray-700 hover:text-brand-primary truncate"
-                        >
-                          {S(n.title)}
-                        </Link>
-                        <span className="text-xs text-gray-400 shrink-0">
-                          {S(n.date)}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+              <ul className="flex flex-1 flex-col divide-y divide-slate-200 border border-slate-200 px-4">
+                {WORSHIP_SCHEDULE.map(function (w) {
+                  return (
+                    <li
+                      key={w.title}
+                      className="flex flex-1 items-center gap-3 py-3.5"
+                    >
+                      <span className="w-11 shrink-0 rounded bg-brand-primary/10 px-1.5 py-1 text-center text-[11px] font-bold text-brand-primary">
+                        {w.day}
+                      </span>
+                      <span className="shrink-0 text-sm font-semibold text-slate-800">
+                        {w.title}
+                      </span>
+                      <span className="mx-1 flex-1 border-b border-slate-300" />
+                      <span className="shrink-0 text-sm text-slate-500">
+                        {w.time}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <div className="space-y-3">
+          </div>
+        </div>
+      </section>
+
+      {/* 공지사항 카드 그리드 */}
+      <ChurchNewsCarousel
+        items={indexData.recentAnnouncements.map(function (n) {
+          const img = n.imageUrl
+            ? imgUrl(n.imageUrl, "")
+            : firstImg(n.contentHtml);
+          return {
+            id: n.id,
+            title: n.title,
+            date: n.date,
+            imageUrl: img || undefined,
+          };
+        })}
+      />
+
+      {/* 교회소식 (주보 + 성도소식) */}
+      <section className="py-14 bg-slate-50">
+        <div className="container mx-auto space-y-8 px-6">
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold text-brand-dark lg:text-3xl">
+              교회소식
+            </h2>
+            <p className="text-base text-gray-500">
+              다사랑교회의 주요소식을 전합니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 items-start gap-4 lg:gap-8">
+            {/* 주보 */}
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-bold text-brand-dark text-lg">
                   <BookOpen className="h-4 w-4 text-brand-primary" />
@@ -714,12 +786,12 @@ export default function OfficialIndexPage() {
                 </h3>
                 <Link
                   to="/news/bulletin"
-                  className="text-s text-brand-primary hover:underline"
+                  className="text-base font-bold text-brand-primary hover:underline"
                 >
                   + 더보기
                 </Link>
               </div>
-              <div className="bg-white border border-slate-200 p-5 max-h-[240px] overflow-y-auto">
+              <div className="bg-white border border-slate-200 p-4 flex-1 min-h-0 overflow-y-auto">
                 <ul className="divide-y divide-gray-100">
                   {(indexData.recentBulletins.length > 0
                     ? indexData.recentBulletins
@@ -749,7 +821,47 @@ export default function OfficialIndexPage() {
                 </ul>
               </div>
             </div>
+
+            {/* 성도소식 */}
+            <SaintNewsWidget />
           </div>
+        </div>
+      </section>
+
+      {/* 다사랑앨범 */}
+      <section className="bg-white py-14">
+        <div className="container mx-auto space-y-8 px-6">
+          <div className="relative space-y-2 text-center">
+            <h2 className="text-2xl font-bold text-brand-dark lg:text-3xl">
+              다사랑앨범
+            </h2>
+            <p className="text-base text-gray-500">
+              다사랑교회의 주요 활동소식을 전합니다.
+            </p>
+            <Link
+              to="/news/gallery"
+              className="absolute right-0 top-1 text-base font-bold text-brand-primary hover:underline"
+            >
+              + 더보기
+            </Link>
+          </div>
+          <GalleryAsymmetricGrid
+            items={indexData.recentGalleries.map(function (g, i) {
+              return {
+                id: S(g.id),
+                title: S(g.title),
+                imageUrl: imgUrl(
+                  g.imageUrl || firstImg(g.contentHtml),
+                  GF[i % GF.length],
+                ),
+                date: S(g.date),
+              };
+            })}
+            onItemClick={function (item) {
+              navigate("/news/gallery/view?rqstNo=" + S(item.id));
+            }}
+            emptyText="앨범 준비 중"
+          />
         </div>
       </section>
     </>

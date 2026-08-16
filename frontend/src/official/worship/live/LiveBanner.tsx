@@ -57,7 +57,7 @@ export default function LiveBanner() {
       className="
         flex w-full flex-col items-center justify-center gap-1
         bg-white
-        px-3 py-2
+        px-3 py-3
         text-center
         focus-visible:outline-none
         focus-visible:ring-2
@@ -66,27 +66,27 @@ export default function LiveBanner() {
       "
     >
       {/* 첫 번째 줄 */}
-      <div className="flex items-center justify-center gap-1.5 whitespace-nowrap sm:gap-2">
+      <div className="flex items-center justify-center gap-2 whitespace-nowrap sm:gap-3">
         {/* 빨간 점 (점멸) */}
-        <span className="relative flex h-2.5 w-2.5">
+        <span className="relative flex h-[15px] w-[15px]">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF2D55] opacity-70"></span>
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#FF2D55]"></span>
+          <span className="relative inline-flex h-[15px] w-[15px] rounded-full bg-[#FF2D55]"></span>
         </span>
 
         {/* LIVE 배지 */}
-        <span className="inline-flex items-center rounded bg-[#FF2D55] px-2 py-0.5 text-xs font-bold text-white">
+        <span className="inline-flex items-center rounded bg-[#FF2D55] px-3 py-1 text-lg font-bold text-white">
           LIVE
         </span>
 
         {/* 메인 문구 */}
-        <span className="text-sm font-bold text-gray-900 sm:text-base">
+        <span className="text-xl font-bold text-gray-900 sm:text-2xl">
           지금은 방송 중입니다
         </span>
 
         {/* 원형 + 채워진 삼각형 재생 아이콘 */}
         <svg
-          width="20"
-          height="20"
+          width="30"
+          height="30"
           viewBox="0 0 24 24"
           aria-hidden="true"
           className="shrink-0"
@@ -107,7 +107,7 @@ export default function LiveBanner() {
       </div>
 
       {/* 두 번째 줄 */}
-      <p className="text-xs text-gray-500">클릭하여 실시간 예배 시청하기</p>
+      <p className="text-lg text-gray-500">클릭하여 실시간 예배 시청하기</p>
     </a>
   );
 }

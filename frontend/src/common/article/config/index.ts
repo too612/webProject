@@ -6,7 +6,6 @@ export * from "./templates/ArticleSingleImage";
 export * from "./templates/ArticlePopup";
 export * from "./templates/ArticleSlide";
 export * from "./templates/ArticleSchoolGallery";
-export * from "./templates/ArticleOutreachGallery";
 export * from "./templates/ArticleYouthGallery";
 export * from "./templates/ArticleMissionGallery";
 // ★ ./banner import 제거 (banner는 config 하위가 아님)

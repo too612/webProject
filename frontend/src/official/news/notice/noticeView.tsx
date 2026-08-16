@@ -33,7 +33,6 @@ export default function NoticeView() {
           </div>
         }
         hideDefaultHeader
-        hideDefaultActions
       />
     </section>
   );

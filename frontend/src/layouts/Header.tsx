@@ -238,9 +238,11 @@ export default function Header() {
     { value: "https://youtube.com", label: "유튜브 채널" },
   ];
 
-  // 패밀리 사이트 선택지 한글 글자 수들 중 가장 길이가 긴 자릿수(Math.max)를 측정한 뒤, 우측 화살표 여백분인 8글자 크기를 합산해 셀렉트 박스의 동적 가로폭 규격을 ch 단위로 도출해 냅니다.
+  // 패밀리 사이트 셀렉트 박스의 동적 가로폭 규격을 ch 단위로 산출합니다.
+  // 최장 옵션 글자 수에 우측 화살표 여백분을 합산하되, 폰트 크기 확대 시 박스가 과대해져
+  // 하단 링크(로그인/로그아웃 등)와 겹치지 않도록 여백 버퍼를 기존 8ch에서 4ch로 조정했습니다.
   const familySiteSelectWidthCh =
-    Math.max(...familySiteOptions.map((option) => option.label.length)) + 8;
+    Math.max(...familySiteOptions.map((option) => option.label.length)) + 4;
 
   // 최종 가공 작업과 상태 데이터 준비가 끝났으므로 화면에 구조화된 컴포넌트 마크업(JSX) 레이아웃을 뿌려줍니다.
   return (

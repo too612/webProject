@@ -142,6 +142,7 @@ export {
 
 /* ─── 데이터 표시 ────────────────────────────────────────── */
 export { Badge, badgeVariants } from "./badge";
+export { CountryFlag } from "./CountryFlag";
 export type { BadgeProps } from "./badge";
 export { Alert, AlertDescription, AlertTitle } from "./alert";
 export { Avatar, AvatarFallback, AvatarImage } from "./avatar";

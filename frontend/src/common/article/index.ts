@@ -1,4 +1,5 @@
 export { ArticleList } from "./ArticleList";
+export { GallerySlide } from "./list/GallerySlide";
 export { ArticleView } from "./ArticleView";
 export { ArticleWrite } from "./ArticleWrite";
 export { useArticle } from "./ArticleHook";

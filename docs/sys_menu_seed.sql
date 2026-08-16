@@ -72,7 +72,8 @@ M_MAIN_05_01	공지사항	M_MAIN_05	/news/notice	1	2
 M_MAIN_05_02	주보	M_MAIN_05	/news/bulletin	2	2	
 M_MAIN_05_03	다사랑앨범	M_MAIN_05	/news/gallery	3	2	
 M_MAIN_05_04	선교지소식	M_MAIN_05	/news/mission	4	2	
-M_MAIN_05_05	새가족안내	M_MAIN_05	/news/nextsteps	5	2	
+M_MAIN_05_05	새가족안내	M_MAIN_05	/news/nextsteps	5	2
+M_MAIN_05_06	행사달력	M_MAIN_05	/news/eventcalendar	6	2	
 M_MYPAGE	MYPAGE		/mypage	1	0	
 M_MYPAGE_01	마이페이지	M_MYPAGE	/mypage/user/profile	1	1	
 M_MYPAGE_01_01	내 정보 관리	M_MYPAGE_01	/mypage/user/profile	1	2	

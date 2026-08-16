@@ -253,7 +253,6 @@ import { ARTICLE_SINGLE_IMAGE_CONFIG } from "./templates/ArticleSingleImage";
 import { ARTICLE_POPUP_CONFIG } from "./templates/ArticlePopup";
 import { ARTICLE_SLIDE_CONFIG } from "./templates/ArticleSlide";
 import { ARTICLE_SCHOOL_GALLERY_CONFIG } from "./templates/ArticleSchoolGallery";
-import { ARTICLE_OUTREACH_GALLERY_CONFIG } from "./templates/ArticleOutreachGallery";
 import { ARTICLE_YOUTH_GALLERY_CONFIG } from "./templates/ArticleYouthGallery";
 import { ARTICLE_MISSION_GALLERY_CONFIG } from "./templates/ArticleMissionGallery";
 
@@ -265,7 +264,6 @@ const CONFIG_REGISTRY: Record<string, ArticleTemplateConfig> = {
   POPUP: ARTICLE_POPUP_CONFIG,
   SLIDE: ARTICLE_SLIDE_CONFIG,
   SCHOOL_GALLERY: ARTICLE_SCHOOL_GALLERY_CONFIG,
-  OUTREACH_GALLERY: ARTICLE_OUTREACH_GALLERY_CONFIG,
   YOUTH_GALLERY: ARTICLE_YOUTH_GALLERY_CONFIG,
   MISSION_GALLERY: ARTICLE_MISSION_GALLERY_CONFIG,
 };

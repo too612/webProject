@@ -6,7 +6,7 @@ import type { OutreachContent } from './outreachModel';
 function isOutreachItem(value: unknown): value is OutreachContent['activities'][number] {
   if (!value || typeof value !== 'object') return false;
   const c = value as Partial<OutreachContent['activities'][number]>;
-  return typeof c.title === 'string' && typeof c.description === 'string';
+  return typeof c.title === 'string' && typeof c.countryCode === 'string';
 }
 
 function isOutreachContent(value: unknown): value is OutreachContent {

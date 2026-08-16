@@ -70,12 +70,6 @@ const BannerWrite = lazy(() => import("../official/news/banner/bannerWrite"));
 const OutreachPage = lazy(
   () => import("../official/training/outreach/outreachPage"),
 );
-const OutreachView = lazy(
-  () => import("../official/training/outreach/outreachView"),
-);
-const OutreachWrite = lazy(
-  () => import("../official/training/outreach/outreachWrite"),
-);
 const MissionPage = lazy(() => import("../official/news/mission/missionPage"));
 const MissionView = lazy(() => import("../official/news/mission/missionView"));
 const MissionWrite = lazy(
@@ -83,6 +77,9 @@ const MissionWrite = lazy(
 );
 const NextstepsPage = lazy(
   () => import("../official/news/nextsteps/nextstepsPage"),
+);
+const EventCalendarPage = lazy(
+  () => import("../official/news/eventcalendar/eventcalendarPage"),
 );
 const LocationPage = lazy(
   () => import("../official/about/location/locationPage"),
@@ -124,8 +121,6 @@ export const officialRoutes: RouteObject[] = [
           { path: "course", element: <CoursePage /> },
           { path: "servicegroup", element: <ServiceGroupPage /> },
           { path: "outreach", element: <OutreachPage /> },
-          { path: "outreach/view", element: <OutreachView /> },
-          { path: "outreach/write", element: <OutreachWrite /> },
         ],
       },
       {
@@ -167,6 +162,7 @@ export const officialRoutes: RouteObject[] = [
           { path: "mission/view", element: <MissionView /> },
           { path: "mission/write", element: <MissionWrite /> },
           { path: "nextsteps", element: <NextstepsPage /> },
+          { path: "eventcalendar", element: <EventCalendarPage /> },
         ],
       },
     ],

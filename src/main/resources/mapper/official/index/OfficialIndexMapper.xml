@@ -3,7 +3,9 @@
 <mapper namespace="com.main.app.official.index.OfficialIndexMapper">
 
     <select id="selectRecentAnnouncements" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">
-        SELECT CAST(post_id AS VARCHAR) AS id, title, TO_CHAR(created_at, 'YYYY.MM.DD') AS date
+        SELECT CAST(post_id AS VARCHAR) AS id, title, TO_CHAR(created_at, 'YYYY.MM.DD') AS date,
+               CAST(thumbnail_file_id AS VARCHAR) AS imageUrl,
+               content_html AS contentHtml
         FROM com_post
         WHERE menu_key = 'PINNABLE' AND template_code = 'PINNABLE'
           AND status = 'PUBLISHED' AND is_deleted = FALSE
@@ -58,7 +60,7 @@
         FROM com_post cp
         WHERE cp.menu_key = 'GALLERY' AND cp.template_code = 'GALLERY'
           AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
-        ORDER BY cp.created_at DESC LIMIT 6
+        ORDER BY cp.created_at DESC LIMIT 15
     </select>
 
 </mapper>

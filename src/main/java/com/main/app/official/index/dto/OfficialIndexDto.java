@@ -16,6 +16,8 @@ public class OfficialIndexDto {
         private String id;
         private String title;
         private String date;
+        private String imageUrl;
+        private String contentHtml;
     }
 
     @Data
