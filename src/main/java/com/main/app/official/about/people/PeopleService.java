@@ -1,6 +1,8 @@
 package com.main.app.official.about.people;
 
 import com.main.app.official.about.people.dto.PeopleDto;
+import com.main.app.official.about.people.dto.PeopleCareerRowDto;
+import com.main.app.official.about.people.dto.PeopleEducationRowDto;
 import com.main.app.official.about.people.dto.PeopleMemberRowDto;
 import com.main.app.official.about.people.dto.PeopleRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class PeopleService {
     @Transactional(readOnly = true)
     public PeopleDto getPeople() {
         List<PeopleMemberRowDto> rows = peopleMapper.selectPeopleMembers();
+        rows.removeIf(row -> "원로목사".equals(row.getGradeName()));
 
         PeopleDto response = new PeopleDto();
         response.setHeadline("섬기는 사람들");
@@ -31,7 +34,6 @@ public class PeopleService {
             emptyPastor.setName("등록된 구성원이 없습니다.");
             emptyPastor.setTitle("-");
             emptyPastor.setGreeting("표시할 인사 데이터가 없습니다.");
-            emptyPastor.setBiography("인사정보 등록 후 자동으로 반영됩니다.");
             response.setPastor(emptyPastor);
             response.setLeaders(new ArrayList<>());
             return response;
@@ -47,7 +49,7 @@ public class PeopleService {
                 pastorRow.getAiSummary(),
                 firstNonBlank(pastorRow.getPositionName(), "섬기는 분") + "으로 함께 섬기고 있습니다."
         ));
-        pastor.setBiography(buildBiography(pastorRow));
+        applyDetails(pastor, pastorRow);
         pastor.setImageUrl(normalizeImageUrl(firstNonBlank(pastorRow.getProfilePhotoUrl(), pastorRow.getPhotoUrl())));
         response.setPastor(pastor);
 
@@ -65,8 +67,8 @@ public class PeopleService {
                     row.getAiSummary(),
                     firstNonBlank(row.getServiceStatusName(), "재직") + " 상태로 섬기고 있습니다."
             ));
-            card.setBiography(buildBiography(row));
-                card.setImageUrl(normalizeImageUrl(firstNonBlank(row.getProfilePhotoUrl(), row.getPhotoUrl())));
+            applyDetails(card, row);
+            card.setImageUrl(normalizeImageUrl(firstNonBlank(row.getProfilePhotoUrl(), row.getPhotoUrl())));
             leaders.add(card);
         }
         response.setLeaders(leaders);
@@ -99,7 +101,8 @@ public class PeopleService {
 
     private int findMainPastorIndex(List<PeopleMemberRowDto> rows) {
         for (int i = 0; i < rows.size(); i++) {
-            if ("102-010".equals(rows.get(i).getGradeCode())) {
+            if (rows.get(i).getGradeName() != null
+                    && rows.get(i).getGradeName().contains("담임목사")) {
                 return i;
             }
         }
@@ -112,25 +115,52 @@ public class PeopleService {
         return positionName + " / " + dept;
     }
 
-    private String buildBiography(PeopleMemberRowDto row) {
-        List<String> parts = new ArrayList<>();
-        if (isNotBlank(row.getDeptName()) || isNotBlank(row.getDutyName())) {
-            parts.add(firstNonBlank(row.getDeptName(), "부서 미정") + " " + firstNonBlank(row.getDutyName(), "직책 미정"));
-        }
-        if (isNotBlank(row.getEmploymentTypeName())) {
-            parts.add("고용형태: " + row.getEmploymentTypeName());
-        }
-        if (isNotBlank(row.getServiceStatusName())) {
-            parts.add("재직구분: " + row.getServiceStatusName());
-        }
-        if (row.getHireDate() != null) {
-            parts.add("입사일: " + row.getHireDate().format(DATE_FORMATTER));
-        }
+    private void applyDetails(PeopleDto.PastorProfile profile, PeopleMemberRowDto row) {
+        profile.setEducations(mapEducations(row.getEmployeeNo()));
+        profile.setCareers(mapCareers(row.getEmployeeNo()));
+    }
 
-        if (parts.isEmpty()) {
-            return "등록된 소개 정보가 없습니다.";
+    private void applyDetails(PeopleDto.LeaderCard profile, PeopleMemberRowDto row) {
+        profile.setEducations(mapEducations(row.getEmployeeNo()));
+        profile.setCareers(mapCareers(row.getEmployeeNo()));
+    }
+
+    private List<PeopleDto.Education> mapEducations(String employeeNo) {
+        List<PeopleEducationRowDto> rows = peopleMapper.selectPeopleEducations(employeeNo);
+        List<PeopleDto.Education> educations = new ArrayList<>();
+        for (PeopleEducationRowDto row : rows) {
+            PeopleDto.Education education = new PeopleDto.Education();
+            education.setSchoolTypeName(firstNonBlank(row.getSchoolTypeName(), "학교"));
+            education.setSchoolName(row.getSchoolName());
+            education.setDegreeName(row.getDegreeName());
+            education.setMajor(row.getMajor());
+            education.setGraduationStatusName(row.getGraduationStatusName());
+            education.setAdmissionDate(formatDate(row.getAdmissionDate()));
+            education.setGraduationDate(formatDate(row.getGraduationDate()));
+            education.setFinalEducation(row.isFinalEducation());
+            educations.add(education);
         }
-        return String.join(" | ", parts);
+        return educations;
+    }
+
+    private List<PeopleDto.Career> mapCareers(String employeeNo) {
+        List<PeopleCareerRowDto> rows = peopleMapper.selectPeopleCareers(employeeNo);
+        List<PeopleDto.Career> careers = new ArrayList<>();
+        for (PeopleCareerRowDto row : rows) {
+            PeopleDto.Career career = new PeopleDto.Career();
+            career.setCompanyName(row.getCompanyName());
+            career.setHireDate(formatDate(row.getHireDate()));
+            career.setRetireDate(formatDate(row.getRetireDate()));
+            career.setEmploymentTypeName(row.getEmploymentTypeName());
+            career.setJobTitle(row.getJobTitle());
+            career.setJobResponsibility(row.getJobResponsibility());
+            careers.add(career);
+        }
+        return careers;
+    }
+
+    private String formatDate(java.time.LocalDate date) {
+        return date == null ? null : date.format(DATE_FORMATTER);
     }
 
     private String firstNonBlank(String value, String defaultValue) {

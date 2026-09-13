@@ -47,6 +47,52 @@
             hp.employee_no
     </select>
 
+    <select id="selectPeopleEducations" resultType="com.main.app.official.about.people.dto.PeopleEducationRowDto">
+        SELECT
+            COALESCE(cst.code_name, he.school_type_code) AS schoolTypeName,
+            he.school_name AS schoolName,
+            COALESCE(cd.code_name, he.degree_code) AS degreeName,
+            he.major AS major,
+            COALESCE(cgs.code_name, he.graduation_status_code) AS graduationStatusName,
+            he.admission_date AS admissionDate,
+            he.graduation_date AS graduationDate,
+            he.is_final_education AS finalEducation
+        FROM hrm_education he
+        LEFT JOIN com_code cst
+               ON he.school_type_code = cst.code
+              AND cst.parent_code = '110'
+              AND cst.use_yn = 'Y'
+        LEFT JOIN com_code cgs
+               ON he.graduation_status_code = cgs.code
+              AND cgs.parent_code = '120'
+              AND cgs.use_yn = 'Y'
+        LEFT JOIN com_code cd
+               ON he.degree_code = cd.code
+              AND cd.parent_code = '130'
+              AND cd.use_yn = 'Y'
+        WHERE he.employee_no = #{employeeNo}
+          AND he.del_yn = 'N'
+        ORDER BY he.admission_date NULLS LAST, he.graduation_date NULLS LAST
+    </select>
+
+    <select id="selectPeopleCareers" resultType="com.main.app.official.about.people.dto.PeopleCareerRowDto">
+        SELECT
+            hc.company_name AS companyName,
+            hc.hire_date AS hireDate,
+            hc.retire_date AS retireDate,
+            COALESCE(ce.code_name, hc.employment_type_code) AS employmentTypeName,
+            hc.job_title AS jobTitle,
+            hc.job_responsibility AS jobResponsibility
+        FROM hrm_career hc
+        LEFT JOIN com_code ce
+               ON hc.employment_type_code = ce.code
+              AND ce.parent_code = '104'
+              AND ce.use_yn = 'Y'
+        WHERE hc.employee_no = #{employeeNo}
+          AND hc.del_yn = 'N'
+        ORDER BY hc.hire_date DESC, hc.career_key
+    </select>
+
     <insert id="insertPeople" parameterType="com.main.app.official.about.people.dto.PeopleRequest">
         SELECT 1
     </insert>

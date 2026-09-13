@@ -16,8 +16,9 @@ public class PeopleDto {
         private String name;
         private String title;
         private String greeting;
-        private String biography;
         private String imageUrl;
+        private List<Education> educations = new ArrayList<>();
+        private List<Career> careers = new ArrayList<>();
     }
 
     @Data
@@ -26,7 +27,30 @@ public class PeopleDto {
         private String role;
         private String ministry;
         private String intro;
-        private String biography;
         private String imageUrl;
+        private List<Education> educations = new ArrayList<>();
+        private List<Career> careers = new ArrayList<>();
+    }
+
+    @Data
+    public static class Education {
+        private String schoolTypeName;
+        private String schoolName;
+        private String degreeName;
+        private String major;
+        private String graduationStatusName;
+        private String admissionDate;
+        private String graduationDate;
+        private boolean finalEducation;
+    }
+
+    @Data
+    public static class Career {
+        private String companyName;
+        private String hireDate;
+        private String retireDate;
+        private String employmentTypeName;
+        private String jobTitle;
+        private String jobResponsibility;
     }
 }

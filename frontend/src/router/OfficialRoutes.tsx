@@ -11,8 +11,15 @@ const OfficialIndexPage = lazy(
   () => import("../official/index/officialIndexPage"),
 );
 const PastorPage = lazy(() => import("../official/about/pastor/pastorPage"));
-const PeoplePage = lazy(() => import("../official/about/people/peoplePage"));
-const HistoryPage = lazy(() => import("../official/about/history/historyPage"));
+const PeoplePageView = lazy(
+  () => import("../official/about/people/peoplePageView"),
+);
+const HistoryPageView = lazy(
+  () => import("../official/about/history/historyPageView"),
+);
+const HistoryPageWrite = lazy(
+  () => import("../official/about/history/historyPageWrite"),
+);
 const CellGroupPage = lazy(
   () => import("../official/training/cellgroup/cellGroupPage"),
 );
@@ -100,8 +107,9 @@ export const officialRoutes: RouteObject[] = [
         element: <SubmenuLayout />,
         children: [
           { path: "pastor", element: <PastorPage /> },
-          { path: "people", element: <PeoplePage /> },
-          { path: "history", element: <HistoryPage /> },
+          { path: "people", element: <PeoplePageView /> },
+          { path: "history", element: <HistoryPageView /> },
+          { path: "history/write", element: <HistoryPageWrite /> },
           { path: "location", element: <LocationPage /> },
         ],
       },
