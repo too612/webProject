@@ -9,4 +9,8 @@ import java.util.List;
 public interface TimeMapper {
 
     List<TimeDto> selectTimeItems();
+
+    int deleteAllItems();
+
+    int insertItem(TimeDto item);
 }

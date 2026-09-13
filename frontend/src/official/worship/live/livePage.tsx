@@ -9,10 +9,10 @@ import { Info, RefreshCw } from "lucide-react";
 import { useLiveItems } from "./liveHook";
 import { liveApi } from "./liveApi";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import {
   LIVE_CHANNEL_URL,
-  LIVE_PAGE_DESCRIPTION,
-  LIVE_PAGE_TITLE,
   LIVE_STREAM_EMBED_URL,
   LIVE_STREAM_TITLE,
   LIVE_TAB_LABELS,
@@ -28,13 +28,16 @@ import type { LiveStreamStatus, LiveTab } from "./liveModel";
  ****************************************************************************************************/
 
 export default function LivePage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const [tab, setTab] = useState<LiveTab>("sunday_day");
 
   // 영상 목록(items)과 로딩 상태를 추가로 가져옵니다.
   const { items, loading, error, loadLiveItems } = useLiveItems();
 
   // 실시간 탭의 라이브 방송 상태 (null = 아직 조회 전)
-  const [streamStatus, setStreamStatus] = useState<LiveStreamStatus | null>(null);
+  const [streamStatus, setStreamStatus] = useState<LiveStreamStatus | null>(
+    null,
+  );
   const [streamLoading, setStreamLoading] = useState(false);
 
   /****************************************************************************************************
@@ -90,8 +93,10 @@ export default function LivePage() {
         {/* 헤더 섹션: 정돈된 레이아웃 및 우측 디자인 통일 버튼 배치 */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <PageTitle
-            title={LIVE_PAGE_TITLE}
-            description={LIVE_PAGE_DESCRIPTION}
+            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+            description={
+              getCurrentMenuPageContent(currentMenu, menuLoading).summary
+            }
           />
 
           {/* 요청하신 편집 버튼 디자인 체계와 일치하는 채널 바로가기 버튼 */}
@@ -274,8 +279,8 @@ export default function LivePage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <p className="text-xs text-slate-400 flex items-center gap-1">
                   <Info className="h-4 w-4" />
-                  방송이 시작되면 실시간 영상이 자동으로 표시됩니다. 방송 종료 후에는
-                  예배 영상 탭에서 다시 보실 수 있습니다.
+                  방송이 시작되면 실시간 영상이 자동으로 표시됩니다. 방송 종료
+                  후에는 예배 영상 탭에서 다시 보실 수 있습니다.
                 </p>
               </div>
             </div>

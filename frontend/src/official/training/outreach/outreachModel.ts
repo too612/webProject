@@ -7,6 +7,18 @@ export type OutreachActivity = {
   sentYear: number;
 };
 
+export type MissionaryApiResponse = {
+  employeeNo: string;
+  name: string;
+  country: string;
+  countryCode: string;
+  dispatchDate?: string;
+  dispatchedDate?: string;
+  assignmentContent: string;
+  groupKey?: string;
+  personKey?: string;
+};
+
 export type OutreachContent = {
   headline: string;
   summary: string;
@@ -40,38 +52,5 @@ export const DEFAULT_OUTREACH_CONTENT: OutreachContent = {
   offeringSectionTitle: "선교헌금 안내",
   offeringSectionDescription:
     "선교헌금은 매월 현지 사역과 파송 선교사를 후원하는 데 사용되며, 매년 사역 보고를 통해 투명하게 공유됩니다.",
-  activities: [
-    {
-      title: "마닐라",
-      country: "필리핀",
-      countryCode: "PH",
-      organization: "마닐라 지역아동센터",
-      missionaryName: "김OO 이OO 선교사",
-      sentYear: 2015,
-    },
-    {
-      title: "프놈펜",
-      country: "캄보디아",
-      countryCode: "KH",
-      organization: "프놈펜 교회협력단",
-      missionaryName: "박OO 최OO 선교사",
-      sentYear: 2017,
-    },
-    {
-      title: "울란바토르",
-      country: "몽골",
-      countryCode: "MN",
-      organization: "목회자 훈련원",
-      missionaryName: "정OO 선교사",
-      sentYear: 2018,
-    },
-    {
-      title: "메단",
-      country: "인도네시아",
-      countryCode: "ID",
-      organization: "메단 의료선교팀",
-      missionaryName: "강OO 윤OO 선교사",
-      sentYear: 2019,
-    },
-  ],
+  activities: [],
 };

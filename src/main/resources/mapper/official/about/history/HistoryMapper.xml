@@ -4,24 +4,45 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.about.history.HistoryMapper">
 
-    <!-- TODO: History 전용 테이블 확정 후 SQL 교체 -->
-    <select id="selectHistory" resultType="com.main.app.official.about.history.dto.HistoryDto">
+    <!-- 연혁 연도 목록 조회 (최신순) -->
+    <select id="selectHistoryYears" resultType="com.main.app.official.about.history.dto.HistoryYearDto">
         SELECT
-            1::BIGINT AS id,
-            'History' AS title,
-            'History content template' AS content
+            history_id AS historyId,
+            year_label AS yearLabel
+        FROM com_history
+        WHERE use_yn = 'Y'
+        ORDER BY year_no DESC, sort_order ASC
     </select>
 
-    <insert id="insertHistory" parameterType="com.main.app.official.about.history.dto.HistoryRequest">
-        SELECT 1
+    <!-- 연혁 이벤트 전체 조회 (연도 최신순 → 이벤트 정렬순) -->
+    <select id="selectHistoryEvents" resultType="com.main.app.official.about.history.dto.HistoryEventDto">
+        SELECT
+            e.history_id AS historyId,
+            e.event_date AS eventDate,
+            e.description,
+            CAST(e.images AS TEXT) AS images
+        FROM com_history_event e
+        INNER JOIN com_history h ON h.history_id = e.history_id AND h.use_yn = 'Y'
+        WHERE e.use_yn = 'Y'
+        ORDER BY h.year_no DESC, e.sort_order ASC
+    </select>
+
+    <!-- 연도/이벤트 전체 삭제 (이벤트는 FK ON DELETE CASCADE) -->
+    <delete id="deleteAllYears">
+        DELETE FROM com_history
+    </delete>
+
+    <insert id="insertYear" parameterType="com.main.app.official.about.history.dto.HistoryYearDto"
+            useGeneratedKeys="true" keyProperty="historyId">
+        INSERT INTO com_history (year_label, year_no, use_yn, sort_order)
+        VALUES (#{yearLabel}, #{yearNo}, 'Y', #{sortOrder})
     </insert>
 
-    <update id="updateHistory">
-        SELECT 1
-    </update>
-
-    <update id="deleteHistory">
-        SELECT 1
-    </update>
+    <insert id="insertEvent">
+        INSERT INTO com_history_event (history_id, event_date, description, images, use_yn, sort_order)
+        VALUES (#{historyId}, #{eventDate}, #{description}, CAST(#{imagesJson} AS JSONB), 'Y', #{sortOrder})
+    </insert>
 
 </mapper>
+
+

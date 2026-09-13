@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import Breadcrumb from './Breadcrumb';
-import { useMenu } from '../common/menu/menuHook';
-import Sidebar from './Sidebar';
-import { resolveHeroConfig } from './heroConfig';
+import { useEffect, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import Breadcrumb from "./Breadcrumb";
+import { useMenu } from "../common/menu/menuHook";
+import Sidebar from "./Sidebar";
+import { resolveHeroConfig } from "./heroConfig";
 
 export default function SubmenuLayout() {
   const location = useLocation();
   const { currentTopMenu, currentSubMenus } = useMenu();
   const [isHeroImageAvailable, setIsHeroImageAvailable] = useState(true);
 
-  const heroConfig = resolveHeroConfig(location.pathname, currentTopMenu?.menuName ?? '');
+  const heroConfig = resolveHeroConfig(location.pathname, currentTopMenu);
 
   useEffect(() => {
     setIsHeroImageAvailable(true);
@@ -19,7 +19,9 @@ export default function SubmenuLayout() {
   return (
     <>
       {currentTopMenu && heroConfig.enabled && (
-        <section className={`hero${heroConfig.compact ? ' hero--compact' : ''}`}>
+        <section
+          className={`hero${heroConfig.compact ? " hero--compact" : ""}`}
+        >
           {heroConfig.imageUrl && isHeroImageAvailable && (
             <img
               src={heroConfig.imageUrl}

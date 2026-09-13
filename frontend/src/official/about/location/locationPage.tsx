@@ -18,6 +18,8 @@ import { useLocationInfo } from "./useLocationInfo";
 import { useCorpInfo } from "../../../common/corp/corpHook";
 import { DEFAULT_LOCATION_PAGE_CONTENT } from "./LocationModel";
 import { PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 
 // 네이버 지도 SDK 타입 선언
 declare global {
@@ -35,6 +37,7 @@ declare global {
  ****************************************************************************************************/
 
 export default function LocationPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const mapRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<any>(null);
   const { locationInfo, loading, error, loadLocationInfo } = useLocationInfo();
@@ -46,6 +49,7 @@ export default function LocationPage() {
     ? `(${corpInfo.postalCode}) ${corpInfo.addressLine1} ${corpInfo.addressLine2}`
     : "";
   const phoneNumber = corpInfo?.phoneNumber ?? "-";
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   // 네이버 지도 초기화 로직
   const initMap = useCallback(() => {
@@ -110,8 +114,8 @@ export default function LocationPage() {
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
         <PageTitle
-          title={DEFAULT_LOCATION_PAGE_CONTENT.headline}
-          description={DEFAULT_LOCATION_PAGE_CONTENT.summary}
+          title={pageContent.headline}
+          description={pageContent.summary}
         />
 
         {loading && (

@@ -1,4 +1,5 @@
 export type WorshipTimeItem = {
+  timeId?: number;
   category?: string;
   title?: string;
   time?: string;
@@ -6,6 +7,8 @@ export type WorshipTimeItem = {
   location?: string;
   orderNo?: number;
 };
+
+export type WorshipTimeRequest = WorshipTimeItem[];
 
 
 export const WORSHIP_TIME_PAGE_TITLE = '예배시간';

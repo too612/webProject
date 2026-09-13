@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { useCourseContent } from "./courseHook";
 import { DEFAULT_COURSE_CONTENT } from "./courseModel";
 import { PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 
 export default function CoursePage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const { courseContent, loading, error, loadCourseContent } =
     useCourseContent();
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
@@ -76,7 +79,12 @@ export default function CoursePage() {
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <PageTitle title={content.headline} description={content.summary} />
+        <PageTitle
+          title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+          description={
+            getCurrentMenuPageContent(currentMenu, menuLoading).summary
+          }
+        />
 
         {loading && (
           <div className="text-sm text-slate-500 py-4 text-center">

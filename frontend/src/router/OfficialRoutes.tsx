@@ -61,6 +61,9 @@ const BulletinView = lazy(
 const BulletinWrite = lazy(
   () => import("../official/news/bulletin/bulletinWrite"),
 );
+const MemberList = lazy(() => import("../official/news/member/memberList"));
+const MemberView = lazy(() => import("../official/news/member/memberView"));
+const MemberWrite = lazy(() => import("../official/news/member/memberWrite"));
 
 // ★ 배너 관리 (List/View/Write 분리)
 const BannerList = lazy(() => import("../official/news/banner/bannerList"));
@@ -154,6 +157,9 @@ export const officialRoutes: RouteObject[] = [
           { path: "bulletin", element: <BulletinList /> },
           { path: "bulletin/view", element: <BulletinView /> },
           { path: "bulletin/write", element: <BulletinWrite /> },
+          { path: "member", element: <MemberList /> },
+          { path: "member/view", element: <MemberView /> },
+          { path: "member/write", element: <MemberWrite /> },
           // ★ 배너 관리
           { path: "banner", element: <BannerList /> },
           { path: "banner/view", element: <BannerView /> },

@@ -8,15 +8,19 @@
 import { ArticleList } from "../../../common/article";
 import { Link } from "react-router-dom";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 
 export default function GalleryList() {
+  const { currentMenu, loading: menuLoading } = useMenu();
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <PageTitle
-            title="다사랑 앨범"
-            description="교회 활동과 모임의 사진을 한눈에 볼 수 있습니다."
+            title={pageContent.headline}
+            description={pageContent.summary}
           />
           <Button asChild>
             <Link to="/news/gallery/write">앨범 등록</Link>

@@ -10,8 +10,12 @@ import { articleApi } from "../../../common/article/ArticleApi";
 import type { ArticleItem } from "../../../common/article/ArticleModel";
 import { useArticle } from "../../../common/article/ArticleHook";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 
 export default function BannerList() {
+  const { currentMenu, loading: menuLoading } = useMenu();
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
   const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
   const { loadList, page, searchType, keyword } = useArticle();
@@ -75,8 +79,8 @@ export default function BannerList() {
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <PageTitle
-            title="배너 관리"
-            description="메인 화면에 노출되는 배너를 관리합니다."
+            title={pageContent.headline}
+            description={pageContent.summary}
           />
           <Button asChild>
             <Link to={`/news/banner/write?type=${filterType}`}>배너등록</Link>

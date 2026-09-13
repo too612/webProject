@@ -1,33 +1,49 @@
 /**
  * File Name   : eventcalendarPage
- * Description : 행사달력 조회 화면
+ * Description : 교회 행사달력 조회/등록/수정/삭제 화면
  * -----------------------------------------------------------------------------
- * React 단일 컴포넌트 기준으로 초기화, 라이프사이클, 로직, 렌더링 섹션을 구분한다.
- * 레이아웃 기준: official/about/pastorPage (제목 섹션 + 콘텐츠 섹션)
+ * common/ui/calendar(EventCalendar)를 활용해 구분값(주일학교/청년부/장년부/교회)
+ * 별로 색상 구분되는 행사 일정을 월/주/일/목록 뷰로 제공한다.
  */
 
-import { useEffect } from "react";
 import { PageTitle } from "../../../common/ui";
-import { useEventCalendarInfo } from "./eventcalendarHook";
-import { DEFAULT_EVENT_CALENDAR_CONTENT } from "./eventcalendarModel";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { EventCalendar } from "../../../common/ui/calendar";
+import type { EventFormValues } from "../../../common/ui/calendar";
+import { useEventCalendar } from "./eventcalendarHook";
+import {
+  toCalendarCategories,
+  toCalendarEvents,
+  toChurchEventRequest,
+} from "./eventcalendarModel";
 
 /****************************************************************************************************
  * component method (state, hook 초기화)
  ****************************************************************************************************/
 
 export default function EventCalendarPage() {
-  const { eventCalendar, loading, error, loadInfo } = useEventCalendarInfo();
+  const { currentMenu, loading: menuLoading } = useMenu();
+  const { events, categories, loading, error, saveEvent, removeEvent } =
+    useEventCalendar();
+
+  const calendarEvents = toCalendarEvents(events);
+  const calendarCategories = toCalendarCategories(categories);
 
   /****************************************************************************************************
-   * initial/lifecycle method (onload 및 데이터 동기화)
+   * logic method (달력 컴포넌트 콜백과 API 연동)
    ****************************************************************************************************/
 
-  useEffect(() => {
-    loadInfo();
-  }, [loadInfo]);
+  async function handleSave(values: EventFormValues) {
+    await saveEvent(toChurchEventRequest(values));
+  }
+
+  async function handleDelete(eventId: string) {
+    await removeEvent(eventId);
+  }
 
   /****************************************************************************************************
-   * render method (제목 섹션 / 콘텐츠 섹션 UI 렌더링)
+   * render method (제목 섹션 / 달력 섹션 UI 렌더링)
    ****************************************************************************************************/
 
   return (
@@ -35,24 +51,30 @@ export default function EventCalendarPage() {
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <header className="space-y-6">
           <PageTitle
-            title={DEFAULT_EVENT_CALENDAR_CONTENT.headline}
-            description={DEFAULT_EVENT_CALENDAR_CONTENT.summary}
+            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+            description={
+              getCurrentMenuPageContent(currentMenu, menuLoading).summary
+            }
           />
         </header>
 
-        <article className="rounded-none border border-slate-100 bg-slate-50/70 p-5 md:p-6">
-          {loading ? (
-            <p className="text-sm text-slate-500">
-              행사달력을 불러오는 중입니다...
-            </p>
-          ) : error ? (
-            <p className="text-sm text-red-500">{error}</p>
-          ) : (
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-              {eventCalendar?.content || "등록된 행사 일정이 없습니다."}
-            </p>
-          )}
-        </article>
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
+        {loading && events.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            행사달력을 불러오는 중입니다...
+          </p>
+        ) : (
+          <div className="h-[640px]">
+            <EventCalendar
+              categories={calendarCategories}
+              events={calendarEvents}
+              onCreateEvent={handleSave}
+              onUpdateEvent={handleSave}
+              onDeleteEvent={handleDelete}
+            />
+          </div>
+        )}
       </div>
     </section>
   );

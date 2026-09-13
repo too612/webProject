@@ -7,6 +7,18 @@ export type MissionarySummary = {
   description: string;
 };
 
+export type MissionaryApiResponse = {
+  employeeNo: string;
+  name: string;
+  country: string;
+  countryCode: string;
+  dispatchDate?: string;
+  dispatchedDate?: string;
+  assignmentContent: string;
+  groupKey?: string;
+  personKey?: string;
+};
+
 export type PrayerLetter = {
   id: number;
   title: string;
@@ -28,40 +40,7 @@ export const DEFAULT_MISSION_CONTENT: MissionContent = {
   headline: "선교지소식",
   summary:
     "다사랑교회가 후원하고 파송한 선교사님들의 소중한 이야기입니다. 기도와 후원으로 함께 동역해 주세요.",
-  missionaries: [
-    {
-      groupKey: "group-a",
-      country: "필리핀",
-      countryFlag: "PH",
-      missionaryName: "김OO 이OO 선교사",
-      sentYear: 2015,
-      description: "마닐라 인근 지역아동센터 운영 및 교회 개척 사역",
-    },
-    {
-      groupKey: "group-b",
-      country: "캄보디아",
-      countryFlag: "KH",
-      missionaryName: "박OO 최OO 선교사",
-      sentYear: 2017,
-      description: "프놈펜 인근 오지 마을 교회 개척 및 우물 지원 사역",
-    },
-    {
-      groupKey: "group-c",
-      country: "몽골",
-      countryFlag: "MN",
-      missionaryName: "정OO 선교사",
-      sentYear: 2018,
-      description: "울란바토르 목회자 훈련원 운영 및 아동 교육 사역",
-    },
-    {
-      groupKey: "group-d",
-      country: "인도네시아",
-      countryFlag: "ID",
-      missionaryName: "강OO 윤OO 선교사",
-      sentYear: 2019,
-      description: "메단 지역 의료선교 및 현지인 교회 협력 사역",
-    },
-  ],
+  missionaries: [],
   letters: [
     {
       id: 1,

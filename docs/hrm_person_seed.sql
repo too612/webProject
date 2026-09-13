@@ -255,3 +255,45 @@ SELECT
   jsonb_build_object('dept_cd', s.dept_cd, 'dept_name', CASE WHEN s.dept_cd = 'D000019' THEN '청A1' ELSE '청A2' END, 'role', s.role_name)
 FROM saint_seed s
 ON CONFLICT (employee_no) DO NOTHING;
+
+-- 5) 선교사 5명 (전도팀 D000004)
+WITH missionary_seed AS (
+  SELECT * FROM (VALUES
+    ('000098','조성민','Sungmin Cho',NULL,'D000004','전도팀','102-060','104-010','101-010',DATE '1975-02-18','M',DATE '2011-03-01',NULL::DATE,NULL::DATE,'선교사', '{"tags":["missionary","evangelism"]}'::jsonb),
+    ('000099','배은혜','Eunhye Bae',NULL,'D000004','전도팀','102-060','104-010','101-010',DATE '1979-06-24','F',DATE '2013-05-01',NULL::DATE,NULL::DATE,'선교사', '{"tags":["missionary","evangelism"]}'::jsonb),
+    ('000100','문태영','Taeyoung Moon',NULL,'D000004','전도팀','102-060','104-010','101-010',DATE '1981-09-08','M',DATE '2015-02-01',NULL::DATE,NULL::DATE,'선교사', '{"tags":["missionary","evangelism"]}'::jsonb),
+    ('000101','서정인','Jungin Seo',NULL,'D000004','전도팀','102-060','104-010','101-010',DATE '1984-11-30','F',DATE '2017-09-01',NULL::DATE,NULL::DATE,'선교사', '{"tags":["missionary","evangelism"]}'::jsonb),
+    ('000102','노진혁','Jinhyuk Noh',NULL,'D000004','전도팀','102-060','104-010','101-010',DATE '1988-03-03','M',DATE '2020-03-01',NULL::DATE,NULL::DATE,'선교사', '{"tags":["missionary","evangelism"]}'::jsonb)
+  ) AS t(employee_no, name_ko, name_en, name_hanja, dept_cd, dept_name, grade_code, employment_type_code, service_status_code, birth_date, gender_code, hire_date, retire_date, promotion_date, role_name, ai_payload)
+)
+INSERT INTO hrm_person (
+  employee_no, name_ko, name_en, name_hanja, dept_cd, grade_code, position_code, employment_type_code, service_status_code,
+  rrn_hash_sha256, postal_code, address_line1, address_line2, birth_date, gender_code, hire_date, retire_date, promotion_date,
+  photo_url, profile_photo_url, reg_user, reg_dtm, reg_ip, upd_user, upd_dtm, upd_ip, ai_profile, extra_attributes
+)
+SELECT
+  s.employee_no,
+  s.name_ko,
+  s.name_en,
+  s.name_hanja,
+  s.dept_cd,
+  s.grade_code,
+  NULL,
+  s.employment_type_code,
+  s.service_status_code,
+  encode(digest(s.employee_no || s.name_ko, 'sha256'), 'hex'),
+  NULL,
+  NULL,
+  NULL,
+  s.birth_date,
+  s.gender_code,
+  s.hire_date,
+  s.retire_date,
+  s.promotion_date,
+  'data/humen/' || s.employee_no || '.png',
+  'data/humen/' || s.employee_no || '_profile.png',
+  'SYSTEM', NOW(), '127.0.0.1'::inet, 'SYSTEM', NOW(), '127.0.0.1'::inet,
+  jsonb_build_object('summary', s.role_name || ' 샘플', 'role', s.role_name, 'dept_cd', s.dept_cd, 'dept_name', s.dept_name) || s.ai_payload,
+  jsonb_build_object('dept_cd', s.dept_cd, 'dept_name', s.dept_name, 'role', s.role_name)
+FROM missionary_seed s
+ON CONFLICT (employee_no) DO NOTHING;

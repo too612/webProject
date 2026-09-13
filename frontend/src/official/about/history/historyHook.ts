@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { historyApi } from './historyApi';
-import type { HistoryContent } from './historyModel';
+import type { HistoryContent, HistoryRequest } from './historyModel';
 
 export function useHistoryContent() {
   const [historyContent, setHistoryContent] = useState<HistoryContent | null>(null);
@@ -21,10 +21,54 @@ export function useHistoryContent() {
     }
   }, []);
 
+  const hasExistingData = Boolean(
+    historyContent && historyContent.timeline.length > 0,
+  );
+
+  const saveHistoryContent = useCallback(
+    async (request: HistoryRequest): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (hasExistingData) {
+          await historyApi.setUpdate(request);
+        } else {
+          await historyApi.setCreate(request);
+        }
+        const refreshed = await historyApi.getHistoryContent();
+        setHistoryContent(refreshed);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : '저장 중 오류가 발생했습니다.';
+        setError(message);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [hasExistingData],
+  );
+
+  const removeHistoryContent = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      await historyApi.delRemove();
+      setHistoryContent(null);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : '삭제 중 오류가 발생했습니다.';
+      setError(message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     historyContent,
     loading,
     error,
     loadHistoryContent,
+    saveHistoryContent,
+    removeHistoryContent,
   };
 }

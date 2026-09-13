@@ -5,23 +5,24 @@
 
 import client from "../../../common/api/api.client";
 import type { ApiResponse } from "../../../common/api/api.types";
-import type {
-  EventCalendar,
-  EventCalendarRequest,
-} from "./eventcalendarModel";
 import { getApiErrorMessage } from "../../../common/api/apiError";
+import type {
+  ChurchEvent,
+  ChurchEventCategory,
+  ChurchEventRequest,
+} from "./eventcalendarModel";
 
 /****************************************************************************************************
  * api method (조회, 등록, 수정, 삭제)
  ****************************************************************************************************/
 
 export const eventCalendarApi = {
-  async getInfo(): Promise<EventCalendar | null> {
+  async getList(): Promise<ChurchEvent[]> {
     try {
-      const response = await client.get<ApiResponse<EventCalendar>>(
-        "/official/news/eventcalendar/getInfo",
+      const response = await client.get<ApiResponse<ChurchEvent[]>>(
+        "/official/news/eventcalendar/getList",
       );
-      return response.data.data ?? null;
+      return response.data.data ?? [];
     } catch (error) {
       throw new Error(
         getApiErrorMessage(error, "요청 처리 중 오류가 발생했습니다."),
@@ -29,7 +30,20 @@ export const eventCalendarApi = {
     }
   },
 
-  async setCreate(request: EventCalendarRequest): Promise<void> {
+  async getCategoryList(): Promise<ChurchEventCategory[]> {
+    try {
+      const response = await client.get<ApiResponse<ChurchEventCategory[]>>(
+        "/official/news/eventcalendar/getCategoryList",
+      );
+      return response.data.data ?? [];
+    } catch (error) {
+      throw new Error(
+        getApiErrorMessage(error, "요청 처리 중 오류가 발생했습니다."),
+      );
+    }
+  },
+
+  async setCreate(request: ChurchEventRequest): Promise<void> {
     try {
       await client.post<ApiResponse<void>>(
         "/official/news/eventcalendar/setCreate",
@@ -42,13 +56,10 @@ export const eventCalendarApi = {
     }
   },
 
-  async setUpdate(
-    eventCalendarId: number,
-    request: EventCalendarRequest,
-  ): Promise<void> {
+  async setUpdate(eventKey: string, request: ChurchEventRequest): Promise<void> {
     try {
       await client.put<ApiResponse<void>>(
-        `/official/news/eventcalendar/setUpdate/${eventCalendarId}`,
+        `/official/news/eventcalendar/setUpdate/${eventKey}`,
         request,
       );
     } catch (error) {
@@ -58,10 +69,10 @@ export const eventCalendarApi = {
     }
   },
 
-  async delRemove(eventCalendarId: number): Promise<void> {
+  async delRemove(eventKey: string): Promise<void> {
     try {
       await client.delete<ApiResponse<void>>(
-        `/official/news/eventcalendar/delRemove/${eventCalendarId}`,
+        `/official/news/eventcalendar/delRemove/${eventKey}`,
       );
     } catch (error) {
       throw new Error(

@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Check, Copy, ExternalLink, Landmark } from "lucide-react";
 import { Badge, Button, CountryFlag, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { useOutreachContent } from "./outreachHook";
 import {
   DEFAULT_OUTREACH_CONTENT,
@@ -8,6 +10,7 @@ import {
 } from "./outreachModel";
 
 export default function OutreachPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const { outreachContent, loading, error, loadOutreachContent } =
     useOutreachContent();
 
@@ -69,7 +72,12 @@ export default function OutreachPage() {
 
       {!loading && !error && (
         <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-          <PageTitle title={content.headline} description={content.summary} />
+          <PageTitle
+            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+            description={
+              getCurrentMenuPageContent(currentMenu, menuLoading).summary
+            }
+          />
 
           <section>
             <div className="relative overflow-hidden border border-slate-200 min-h-[380px] md:min-h-[460px] bg-slate-100">
@@ -88,12 +96,14 @@ export default function OutreachPage() {
                   {bannerTitleParts[1]}
                 </h3>
                 <p className="mt-4 text-slate-700 text-sm md:text-base leading-loose max-w-2xl">
-                  {content.bannerDescription.split("\n").map((line, index, arr) => (
-                    <Fragment key={index}>
-                      {line}
-                      {index < arr.length - 1 ? <br /> : null}
-                    </Fragment>
-                  ))}
+                  {content.bannerDescription
+                    .split("\n")
+                    .map((line, index, arr) => (
+                      <Fragment key={index}>
+                        {line}
+                        {index < arr.length - 1 ? <br /> : null}
+                      </Fragment>
+                    ))}
                 </p>
               </div>
             </div>
@@ -112,7 +122,7 @@ export default function OutreachPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {activities.map((activity) => (
                 <article
-                  key={activity.title}
+                  key={activity.countryCode || activity.title}
                   className="border border-slate-200 bg-white p-3 md:p-4 shadow-panel transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                 >
                   <div className="flex items-center gap-3">
@@ -132,7 +142,9 @@ export default function OutreachPage() {
                       {activity.missionaryName}
                     </p>
                     <p className="mt-0.5 text-[11px] text-slate-400">
-                      {activity.sentYear > 0 ? `파송 ${activity.sentYear}년` : ""}
+                      {activity.sentYear > 0
+                        ? `파송 ${activity.sentYear}년`
+                        : ""}
                     </p>
                     {activity.organization && (
                       <span className="mt-2 inline-flex items-center rounded-full bg-brand-primary/10 px-2.5 py-1 text-[11px] font-semibold text-brand-primary">

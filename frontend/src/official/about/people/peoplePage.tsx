@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { usePeopleContent } from "./peopleHook";
 import { DEFAULT_PEOPLE_CONTENT } from "./peopleModel";
 import type { LeaderCard } from "./peopleModel";
@@ -10,6 +12,7 @@ import type { LeaderCard } from "./peopleModel";
  ****************************************************************************************************/
 
 export default function PeoplePage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const { peopleContent, loading, error, loadPeopleContent } =
     usePeopleContent();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -26,6 +29,7 @@ export default function PeoplePage() {
     ? { ...DEFAULT_PEOPLE_CONTENT, ...peopleContent }
     : DEFAULT_PEOPLE_CONTENT;
   const { pastor, leaders } = content;
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   useEffect(() => {
     if (loading || error || selectedKey) {
@@ -106,7 +110,10 @@ export default function PeoplePage() {
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <PageTitle title={content.headline} description={content.summary} />
+        <PageTitle
+          title={pageContent.headline}
+          description={pageContent.summary}
+        />
 
         {loading && (
           <div className="text-sm text-slate-500 py-4 text-center">

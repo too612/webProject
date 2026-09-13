@@ -1,0 +1,101 @@
+import type { ArticleTemplateConfig } from "../templateConfig";
+import { MEMBER_EVENT_TYPE_OPTIONS } from "../../../../official/news/member/memberModel";
+
+export const ARTICLE_MEMBER_NEWS_CONFIG: ArticleTemplateConfig = {
+  menuKey: "MEMBER_NEWS",
+  templateCode: "MEMBER_NEWS",
+  title: "성도소식",
+  description: "성도들의 기쁜 소식과 위로의 소식을 함께 나눕니다.",
+  list: {
+    viewMode: "grid",
+    pagination: true,
+    pageSize: 10,
+    searchable: true,
+    searchFields: [
+      { value: "title", label: "제목" },
+      { value: "author", label: "작성자" },
+      { value: "content", label: "내용" },
+    ],
+    sortable: true,
+    defaultSortField: "created_at",
+    defaultSortOrder: "DESC",
+    hideColumns: [],
+    excelDownload: false,
+    defaultSearchType: "title",
+    defaultFilters: {},
+    buttons: {
+      write: { id: "btn_write", label: "글쓰기", visible: true },
+      search: { id: "btn_search", label: "검색", visible: true },
+      excel: {
+        id: "btn_excel_download",
+        label: "엑셀 다운로드",
+        visible: false,
+      },
+    },
+  },
+  view: {
+    showPrevNext: true,
+    showLike: false,
+    showReport: false,
+    showShare: false,
+    showComment: true,
+    commentSort: "latest",
+    showMetaFields: true,
+    showStatusBadge: true,
+    metaLayout: "card",
+    buttons: {
+      list: { id: "btn_list", label: "목록", visible: true },
+      reply: { id: "btn_reply", label: "답글 작성", visible: true },
+      edit: { id: "btn_edit", label: "수정", visible: true },
+      delete: { id: "btn_delete", label: "삭제", visible: true },
+    },
+    comment: {
+      show: true,
+      sort: "latest",
+      allowSecret: true,
+      allowSpoiler: false,
+      requireLogin: false,
+    },
+    secret: { enabled: true, requirePassword: true },
+  },
+  write: {
+    extraFields: [
+      {
+        key: "eventType",
+        label: "선교구분",
+        type: "select",
+        layout: "half",
+        options: [...MEMBER_EVENT_TYPE_OPTIONS],
+        required: true,
+        defaultValue: MEMBER_EVENT_TYPE_OPTIONS[0].value,
+      },
+    ],
+    features: {
+      useEditor: true,
+      useAttachment: "multiple",
+      useComment: true,
+      useSecret: true,
+      useAuthor: true,
+      usePassword: true,
+      useCategory: false,
+    },
+    attachmentLimits: {
+      maxFiles: 5,
+      maxFileSize: 20 * 1024 * 1024,
+      allowedExtensions: [
+        "jpg",
+        "jpeg",
+        "png",
+        "gif",
+        "pdf",
+        "doc",
+        "docx",
+        "hwp",
+      ],
+    },
+    buttons: {
+      save: { id: "btn_save", label: "저장하기", visible: true },
+      cancel: { id: "btn_cancel", label: "취소", visible: true },
+    },
+  },
+};

@@ -3,6 +3,8 @@ import { Calendar, Scroll, Sparkles, Target, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { DEFAULT_SCHOOL_PAGE_CONTENT } from "./schoolModel";
 
 const SCHOOL_GALLERY_BASE = "/nextgen/school";
@@ -137,12 +139,17 @@ function YoutubeIcon({ className }: Readonly<{ className?: string }>) {
 }
 
 export default function SchoolPromoPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const content = DEFAULT_SCHOOL_PAGE_CONTENT;
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   return (
     <article className="border border-slate-200 bg-white shadow-panel overflow-hidden">
       <header className="p-6">
-        <PageTitle title={content.headline} description={content.summary} />
+        <PageTitle
+          title={pageContent.headline}
+          description={pageContent.summary}
+        />
       </header>
 
       {/* 참고1: 부서 소개 + 활동 갤러리 슬라이드 */}
@@ -194,12 +201,12 @@ export default function SchoolPromoPage() {
           </div>
 
           <div className="flex min-w-0 flex-col">
-              <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-6 py-3">
-                <h3 className="text-lg font-bold text-brand-dark">활동 갤러리</h3>
-                <Button asChild size="sm">
-                  <Link to={SCHOOL_GALLERY_BASE + "/write"}>글 등록</Link>
-                </Button>
-              </div>
+            <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-6 py-3">
+              <h3 className="text-lg font-bold text-brand-dark">활동 갤러리</h3>
+              <Button asChild size="sm">
+                <Link to={SCHOOL_GALLERY_BASE + "/write"}>글 등록</Link>
+              </Button>
+            </div>
             <div className="relative min-h-[200px] flex-1">
               <ArticleList
                 menuKey="SCHOOL_GALLERY"

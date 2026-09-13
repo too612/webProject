@@ -6,8 +6,14 @@ import java.time.OffsetDateTime;
 
 @Data
 public class EventCalendarDto {
-    private Long eventCalendarId;
+    private String eventKey;
+    private String categoryCd;
+    private String categoryName;
     private String title;
-    private String content;
-    private OffsetDateTime updatedAt;
+    private String description;
+    private OffsetDateTime startDtm;
+    private OffsetDateTime endDtm;
+    private String allDayYn;
+    private String locationNm;
+    private String colorCd;
 }

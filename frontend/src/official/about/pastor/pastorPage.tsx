@@ -10,12 +10,9 @@ import EditorViewer from "../../../common/editor/editorViewer";
 import { Attachment, useAttachment } from "../../../common/attachment";
 import { Button, PageTitle } from "../../../common/ui";
 import { useAuthPermission } from "../../../common/auth/authPermission";
+import { useMenu } from "../../../common/menu/menuHook";
 import { usePastorProfile } from "./pastorHook";
-import {
-  DEFAULT_PASTOR_CONTENT,
-  INITIAL_PASTOR_REQUEST,
-  resolveDisplayMode,
-} from "./pastorModel";
+import { INITIAL_PASTOR_REQUEST, resolveDisplayMode } from "./pastorModel";
 import type { PastorRequest } from "./pastorModel";
 
 const LazyEditor = lazy(() => import("../../../common/editor/editor"));
@@ -66,9 +63,7 @@ function PastorProfileView({
             {viewImageSrc ? (
               <img
                 src={viewImageSrc}
-                alt={
-                  chiefName ? `담임목사 ${chiefName}` : "담임목사 이미지"
-                }
+                alt={chiefName ? `담임목사 ${chiefName}` : "담임목사 이미지"}
                 className="w-56 h-auto rounded-none border border-slate-200 bg-white object-cover shadow-sm"
               />
             ) : (
@@ -88,6 +83,7 @@ function PastorProfileView({
  ****************************************************************************************************/
 
 export default function PastorPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const { profile, loading, error, loadProfile, saveProfile, removeProfile } =
     usePastorProfile();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -105,6 +101,14 @@ export default function PastorPage() {
   const canSave = hasAction("save");
   const canCancel = hasAction("cancel");
   const canDeleteAction = hasAction("delete");
+  const pastorContent = {
+    headline: menuLoading
+      ? "페이지 정보를 불러오는 중"
+      : (currentMenu?.menuName ?? ""),
+    summary: menuLoading
+      ? "페이지 설명을 불러오는 중"
+      : (currentMenu?.menuSummary ?? null),
+  };
 
   const selectedDisplayMode = resolveDisplayMode(form.displayMode);
   const isSingleImageMode = selectedDisplayMode === "single-image";
@@ -117,7 +121,7 @@ export default function PastorPage() {
       ? buildDownloadUrl(profileImageAttachment.existingFiles[0].fileId)
       : null;
   const viewImageSrc = isEditMode
-    ? newImagePreviewUrl ?? previewImageSrc
+    ? (newImagePreviewUrl ?? previewImageSrc)
     : persistedImageSrc;
 
   /****************************************************************************************************
@@ -290,8 +294,8 @@ export default function PastorPage() {
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <PageTitle
-            title={DEFAULT_PASTOR_CONTENT.headline}
-            description={DEFAULT_PASTOR_CONTENT.summary}
+            title={pastorContent.headline}
+            description={pastorContent.summary}
           />
           <div className="flex items-center gap-2">
             {!isEditMode && canEdit && (

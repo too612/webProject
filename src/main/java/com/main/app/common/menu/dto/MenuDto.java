@@ -6,6 +6,8 @@ import java.util.List;
 public class MenuDto {
     private String menuId;
     private String menuName;
+    private String menuSummary;
+    private String menuImagePath;
     private String menuUrl;
     private String parentId;
     private String path;
@@ -28,6 +30,22 @@ public class MenuDto {
 
     public void setMenuName(String menuName) {
         this.menuName = menuName;
+    }
+
+    public String getMenuSummary() {
+        return menuSummary;
+    }
+
+    public void setMenuSummary(String menuSummary) {
+        this.menuSummary = menuSummary;
+    }
+
+    public String getMenuImagePath() {
+        return menuImagePath;
+    }
+
+    public void setMenuImagePath(String menuImagePath) {
+        this.menuImagePath = menuImagePath;
     }
 
     public String getMenuUrl() {

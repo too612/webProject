@@ -13,8 +13,12 @@ import { ImageLightbox } from "../../../common/article/ImageLightbox";
 import type { ArticleItem } from "../../../common/article/ArticleModel";
 import { articleApi } from "../../../common/article/ArticleApi";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 
 export default function BulletinList() {
+  const { currentMenu, loading: menuLoading } = useMenu();
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
   const navigate = useNavigate();
 
   // 레이어 팝업 상태
@@ -63,8 +67,8 @@ export default function BulletinList() {
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <PageTitle
-            title="주보"
-            description="주간 예배 안내와 주보 내용을 한눈에 확인합니다."
+            title={pageContent.headline}
+            description={pageContent.summary}
           />
           <Button asChild>
             <Link to="/news/bulletin/write">주보 등록</Link>

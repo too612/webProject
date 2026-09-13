@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.chatbot.ChatbotMapper">
+
+    <select id="selectEnabledKnowledge" resultType="com.main.app.common.chatbot.dto.ChatbotKnowledgeDto">
+        SELECT
+            knowledge_id AS knowledgeId,
+            intent_code AS intentCode,
+            keywords,
+            answer_template AS answerTemplate,
+            priority,
+            menu_path AS menuPath,
+            suggestions
+        FROM com_chat_knowledge
+        WHERE use_yn = 'Y'
+        ORDER BY priority ASC, sort_order ASC
+    </select>
+
+</mapper>

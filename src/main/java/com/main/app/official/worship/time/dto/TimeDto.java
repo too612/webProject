@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class TimeDto {
+    private Long timeId;
     private String category;
     private String title;
     private String time;

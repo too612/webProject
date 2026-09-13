@@ -10,6 +10,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { DEFAULT_NEXTSTEPS_CONTENT } from "./nextstepsModel";
 
 /* 메인화면 새가족안내 섹션과 동일한 단계 아이콘 (순서 대응) */
@@ -23,13 +25,19 @@ const STEP_ICONS: LucideIcon[] = [
 ];
 
 export default function NextstepsPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const content = DEFAULT_NEXTSTEPS_CONTENT;
 
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-8">
         <header className="space-y-6">
-          <PageTitle title={content.headline} description={content.summary} />
+          <PageTitle
+            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+            description={
+              getCurrentMenuPageContent(currentMenu, menuLoading).summary
+            }
+          />
         </header>
 
         <article className="overflow-hidden">
@@ -51,7 +59,10 @@ export default function NextstepsPage() {
             <p className="text-base text-gray-500 md:text-lg">
               {content.welcomeSubtitle}
             </p>
-            <div className="mx-auto h-1 w-12 bg-brand-primary" aria-hidden="true" />
+            <div
+              className="mx-auto h-1 w-12 bg-brand-primary"
+              aria-hidden="true"
+            />
             <p className="text-sm leading-relaxed text-gray-600 md:text-base">
               {content.welcomeDefinition}
             </p>
@@ -92,13 +103,19 @@ export default function NextstepsPage() {
               return (
                 <li key={s.step} className="relative">
                   {/* 모바일 세로 타임라인 노드 */}
-                  <div className="absolute left-5 top-1 -translate-x-1/2 lg:hidden" aria-hidden="true">
+                  <div
+                    className="absolute left-5 top-1 -translate-x-1/2 lg:hidden"
+                    aria-hidden="true"
+                  >
                     <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-brand-primary/30 bg-white text-brand-primary ring-4 ring-white">
                       <Icon className="h-5 w-5" />
                     </span>
                   </div>
                   {!isLast && (
-                    <div className="absolute left-5 top-11 bottom-[-40px] w-0.5 -translate-x-1/2 bg-brand-primary/20 lg:hidden" aria-hidden="true" />
+                    <div
+                      className="absolute left-5 top-11 bottom-[-40px] w-0.5 -translate-x-1/2 bg-brand-primary/20 lg:hidden"
+                      aria-hidden="true"
+                    />
                   )}
 
                   <div className="ml-14 space-y-4 border border-slate-200 bg-white p-5 md:p-6 lg:ml-0">
@@ -116,7 +133,12 @@ export default function NextstepsPage() {
                     </p>
 
                     {s.images.length > 0 ? (
-                      <div className={"grid gap-3 " + (s.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
+                      <div
+                        className={
+                          "grid gap-3 " +
+                          (s.columns === 3 ? "grid-cols-3" : "grid-cols-2")
+                        }
+                      >
                         {s.images.map(function (img) {
                           return (
                             <img
@@ -130,7 +152,12 @@ export default function NextstepsPage() {
                         })}
                       </div>
                     ) : (
-                      <div className={"grid gap-3 " + (s.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
+                      <div
+                        className={
+                          "grid gap-3 " +
+                          (s.columns === 3 ? "grid-cols-3" : "grid-cols-2")
+                        }
+                      >
                         {Array.from({ length: s.columns }).map(function (_, i) {
                           return (
                             <div

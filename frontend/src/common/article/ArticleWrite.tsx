@@ -53,6 +53,26 @@ export function ArticleWrite({
     }
   }, [isEdit, articleId]);
 
+  // 신규 작성 시 URL query params에서 초기 metadata 바인딩
+  useEffect(() => {
+    if (!isEdit) {
+      const defaultMetadata = Object.fromEntries(
+        config.write.extraFields
+          .filter((field) => field.defaultValue !== undefined)
+          .map((field) => [field.key, field.defaultValue]),
+      );
+      const groupKeyParam = searchParams.get("groupKey");
+      setForm((prev) => ({
+        ...prev,
+        metadata: {
+          ...defaultMetadata,
+          ...prev.metadata,
+          ...(groupKeyParam ? { groupKey: groupKeyParam } : {}),
+        },
+      }));
+    }
+  }, [isEdit, searchParams, setForm]);
+
   // article -> form 매핑
   useEffect(() => {
     if (isEdit && article) {
@@ -124,6 +144,13 @@ export function ArticleWrite({
     }
     if (config.write.features.useAuthor && !form.author) {
       toast.warning("작성자를 입력해주세요.");
+      return;
+    }
+    const missingExtraField = config.write.extraFields.find(
+      (field) => field.required && !form.metadata?.[field.key],
+    );
+    if (missingExtraField) {
+      toast.warning(`${missingExtraField.label}을(를) 선택해주세요.`);
       return;
     }
     if (config.write.features.usePassword && !form.password) {

@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
 import { Button, CountryFlag, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { useMissionContent } from "./missionHook";
 import { DEFAULT_MISSION_CONTENT } from "./missionModel";
 
 export default function MissionPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const { missionContent, loading, error, loadMissionContent } =
     useMissionContent();
 
@@ -19,10 +22,17 @@ export default function MissionPage() {
   const [selectedGroupKey, setSelectedGroupKey] = useState<string>("");
 
   useEffect(() => {
-    if (!selectedGroupKey && content.missionaries.length > 0) {
+    if (loading || content.missionaries.length === 0) {
+      return;
+    }
+
+    const hasSelectedMissionary = content.missionaries.some(
+      (item) => item.groupKey === selectedGroupKey,
+    );
+    if (!hasSelectedMissionary) {
       setSelectedGroupKey(content.missionaries[0].groupKey);
     }
-  }, [content.missionaries, selectedGroupKey]);
+  }, [content.missionaries, loading, selectedGroupKey]);
 
   const selectedMissionary = useMemo(
     () =>
@@ -39,6 +49,10 @@ export default function MissionPage() {
     [selectedGroupKey],
   );
 
+  const writeUrl = selectedGroupKey
+    ? `/news/mission/write?groupKey=${encodeURIComponent(selectedGroupKey)}`
+    : "/news/mission/write";
+
   return (
     <section className="space-y-5">
       {loading && (
@@ -54,7 +68,12 @@ export default function MissionPage() {
 
       {!loading && !error && (
         <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-          <PageTitle title={content.headline} description={content.summary} />
+          <PageTitle
+            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+            description={
+              getCurrentMenuPageContent(currentMenu, menuLoading).summary
+            }
+          />
 
           <div>
             <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
@@ -94,7 +113,7 @@ export default function MissionPage() {
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div>
                 <h3 className="text-lg md:text-xl font-extrabold text-brand-dark">
-                  그룹별 활동 갤러리
+                  활동 갤러리
                 </h3>
                 <p className="text-xs md:text-sm text-slate-600 mt-1">
                   {selectedMissionary
@@ -103,18 +122,25 @@ export default function MissionPage() {
                 </p>
               </div>
               <Button asChild>
-                <Link to="/news/mission/write">이미지 등록</Link>
+                <Link to={writeUrl}>이미지 등록</Link>
               </Button>
             </div>
 
             <div className="border border-slate-200 bg-white p-5 md:p-6">
-              <ArticleList
-                menuKey="MISSION_GALLERY"
-                templateCode="MISSION_GALLERY"
-                basePath="/news/mission"
-                embedded
-                queryParams={listQueryParams}
-              />
+              {selectedGroupKey ? (
+                <ArticleList
+                  key={selectedGroupKey}
+                  menuKey="MISSION_GALLERY"
+                  templateCode="MISSION_GALLERY"
+                  basePath="/news/mission"
+                  embedded
+                  queryParams={listQueryParams}
+                />
+              ) : (
+                <div className="py-8 text-center text-sm text-slate-500">
+                  선교사 정보를 불러오는 중입니다.
+                </div>
+              )}
             </div>
           </section>
         </div>

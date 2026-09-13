@@ -46,10 +46,17 @@ export function GallerySlide({
 }: Readonly<GallerySlideProps>) {
   const sLen = items.length;
   const [current, setCurrent] = useState(0);
-  const [dragOffset, setDragOffset] = useState(0);
-  const dragRef = useRef<{ startX: number; moved: boolean } | null>(null);
-  const suppressClickRef = useRef(false);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const indexRef = useRef(0);
   const draggingRef = useRef(false);
+  const movedRef = useRef(false);
+  const startXRef = useRef(0);
+  const dragXRef = useRef(0);
+  const pressedIdxRef = useRef(-1);
+
+  const clamped = Math.max(0, Math.min(current, sLen - 1));
+  indexRef.current = clamped;
 
   useEffect(
     function () {
@@ -58,41 +65,59 @@ export function GallerySlide({
     [sLen, current],
   );
 
-  const handlePointerDown = function (e: ReactPointerEvent<HTMLDivElement>) {
-    draggingRef.current = false;
-    dragRef.current = { startX: e.clientX, moved: false };
-    setDragOffset(0);
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
+  function goTo(i: number) {
+    setCurrent(Math.max(0, Math.min(i, sLen - 1)));
+  }
 
-  const handlePointerMove = function (e: ReactPointerEvent<HTMLDivElement>) {
-    if (!dragRef.current) return;
-    const delta = e.clientX - dragRef.current.startX;
-    if (Math.abs(delta) > 8) {
-      draggingRef.current = true;
-      dragRef.current.moved = true;
+  function handlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    const btn = (e.target as HTMLElement).closest("[data-idx]");
+    const idx = btn ? Number(btn.getAttribute("data-idx")) : -1;
+    pressedIdxRef.current = idx;
+    draggingRef.current = true;
+    movedRef.current = false;
+    startXRef.current = e.clientX;
+    dragXRef.current = 0;
+    setDragging(true);
+    setDragX(0);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* noop */
     }
-    if (draggingRef.current) {
-      setDragOffset(delta);
-    }
-  };
+  }
 
-  const handlePointerUp = function (e: ReactPointerEvent<HTMLDivElement>) {
-    if (!dragRef.current) return;
-    const delta = e.clientX - dragRef.current.startX;
-    const moved = dragRef.current.moved;
-    dragRef.current = null;
+  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!draggingRef.current) return;
+    const dx = e.clientX - startXRef.current;
+    dragXRef.current = dx;
+    if (Math.abs(dx) > 5) movedRef.current = true;
+    setDragX(dx);
+  }
+
+  function handlePointerUp() {
+    if (!draggingRef.current) return;
     draggingRef.current = false;
-    setDragOffset(0);
-    if (!moved) return;
-    suppressClickRef.current = true;
-    if (delta < -DRAG_THRESHOLD) setCurrent((p) => (p + 1) % sLen);
-    else if (delta > DRAG_THRESHOLD) setCurrent((p) => (p - 1 + sLen) % sLen);
-  };
+    const dx = dragXRef.current;
+    if (!movedRef.current) {
+      // 클릭으로 판정 → 해당 글 열기
+      if (pressedIdxRef.current >= 0) {
+        const item = items[pressedIdxRef.current];
+        if (item) onItemClick?.(item, items);
+      }
+    } else {
+      // 드래그 → 다음/이전 슬라이드로 이동
+      const cur = indexRef.current;
+      if (dx < -DRAG_THRESHOLD) goTo(Math.min(sLen - 1, cur + 1));
+      else if (dx > DRAG_THRESHOLD) goTo(Math.max(0, cur - 1));
+    }
+    setDragging(false);
+    setDragX(0);
+    dragXRef.current = 0;
+  }
 
-  const handlePointerCancel = function () {
-    dragRef.current = null;
-  };
+  function handlePointerCancel() {
+    handlePointerUp();
+  }
 
   if (loading) {
     return (
@@ -118,8 +143,8 @@ export function GallerySlide({
       aria-label="활동 갤러리 슬라이드"
       tabIndex={0}
       onKeyDown={function (e) {
-        if (e.key === "ArrowLeft") setCurrent((p) => (p - 1 + sLen) % sLen);
-        if (e.key === "ArrowRight") setCurrent((p) => (p + 1) % sLen);
+        if (e.key === "ArrowLeft") goTo(clamped - 1);
+        if (e.key === "ArrowRight") goTo(clamped + 1);
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -129,56 +154,43 @@ export function GallerySlide({
         e.preventDefault();
       }}
     >
-      {items.map(function (item, i) {
-        const url = resolveThumbnail(item);
-        return (
-          <button
-            key={item.articleId}
-            type="button"
-            onClick={function () {
-              if (suppressClickRef.current) {
-                suppressClickRef.current = false;
-                return;
-              }
-              onItemClick?.(item, items);
-            }}
-            className={
-              "absolute inset-0 text-left transition-opacity duration-700 " +
-              (i === current
-                ? "opacity-100"
-                : "pointer-events-none opacity-0")
-            }
-            style={
-              i === current
-                ? {
-                    transform:
-                      dragOffset !== 0
-                        ? `translateX(${dragOffset}px)`
-                        : undefined,
-                    transition: draggingRef.current
-                      ? "none"
-                      : "transform 300ms ease, opacity 700ms ease",
-                  }
-                : undefined
-            }
-            aria-label={item.title}
-          >
-            {url ? (
-              <img
-                src={url}
-                alt={item.title}
-                className="h-full w-full object-contain"
-                loading="lazy"
-                draggable={false}
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-slate-200 text-slate-400">
-                <Image className="h-12 w-12" />
-              </div>
-            )}
-          </button>
-        );
-      })}
+      <div
+        className="absolute inset-0 flex transition-transform"
+        style={{
+          transform:
+            "translateX(calc(" +
+            -clamped * 100 +
+            "% + " +
+            (dragging ? dragX : 0) +
+            "px))",
+          transitionDuration: dragging ? "0ms" : "500ms",
+        }}
+      >
+        {items.map(function (item, i) {
+          const url = resolveThumbnail(item);
+          return (
+            <div
+              key={item.articleId}
+              data-idx={i}
+              className="relative h-full w-full shrink-0 cursor-pointer"
+            >
+              {url ? (
+                <img
+                  src={url}
+                  alt={item.title}
+                  className="h-full w-full object-contain"
+                  loading="lazy"
+                  draggable={false}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-slate-200 text-slate-400">
+                  <Image className="h-12 w-12" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {sLen > 1 && (
         <>
@@ -188,7 +200,7 @@ export function GallerySlide({
               e.stopPropagation();
             }}
             onClick={function () {
-              setCurrent((p) => (p - 1 + sLen) % sLen);
+              goTo(clamped - 1);
             }}
             className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55"
             aria-label="이전 슬라이드"
@@ -201,7 +213,7 @@ export function GallerySlide({
               e.stopPropagation();
             }}
             onClick={function () {
-              setCurrent((p) => (p + 1) % sLen);
+              goTo(clamped + 1);
             }}
             className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/35 p-2 text-white hover:bg-black/55"
             aria-label="다음 슬라이드"
@@ -219,17 +231,17 @@ export function GallerySlide({
                   key={item.articleId}
                   type="button"
                   role="tab"
-                  aria-selected={i === current}
+                  aria-selected={i === clamped}
                   aria-label={i + 1 + "번째 슬라이드"}
                   onPointerDown={function (e) {
                     e.stopPropagation();
                   }}
                   onClick={function () {
-                    setCurrent(i);
+                    goTo(i);
                   }}
                   className={
-                    "h-1.5 rounded-full " +
-                    (i === current ? "w-6 bg-white" : "w-1.5 bg-white/50")
+                    "h-1.5 rounded-full transition-all " +
+                    (i === clamped ? "w-6 bg-white" : "w-1.5 bg-white/50")
                   }
                 />
               );

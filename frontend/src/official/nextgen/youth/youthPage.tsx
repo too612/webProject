@@ -3,6 +3,8 @@ import { Calendar, Scroll, Sparkles, Target, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
 import { Button, PageTitle } from "../../../common/ui";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { DEFAULT_YOUTH_CONTENT } from "./youthModel";
 
 const YOUTH_GALLERY_BASE = "/nextgen/youth";
@@ -137,12 +139,17 @@ function YoutubeIcon({ className }: Readonly<{ className?: string }>) {
 }
 
 export default function YouthPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const content = DEFAULT_YOUTH_CONTENT;
+  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   return (
     <article className="border border-slate-200 bg-white shadow-panel overflow-hidden">
       <header className="p-6">
-        <PageTitle title={content.headline} description={content.summary} />
+        <PageTitle
+          title={pageContent.headline}
+          description={pageContent.summary}
+        />
       </header>
 
       {/* 참고1: 부서 소개 + 활동 갤러리 슬라이드 */}

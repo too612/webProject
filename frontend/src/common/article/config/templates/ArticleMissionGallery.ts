@@ -74,11 +74,17 @@ export const ARTICLE_MISSION_GALLERY_CONFIG: ArticleTemplateConfig = {
     extraFields: [
       {
         key: "groupKey",
-        label: "그룹 키",
-        type: "text",
+        label: "선교사 / 파송국가",
+        type: "select",
         layout: "half",
         required: true,
-        placeholder: "예: group-a",
+        options: [
+          { label: "필리핀 (조성민 선교사)", value: "PH" },
+          { label: "캄보디아 (배은혜 선교사)", value: "KH" },
+          { label: "몽골 (문태영 선교사)", value: "MN" },
+          { label: "인도네시아 (서정인 선교사)", value: "ID" },
+          { label: "미국 (노진혁 선교사)", value: "US" },
+        ],
       },
       {
         key: "photoDate",

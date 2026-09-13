@@ -42,7 +42,7 @@
     <select id="selectServiceGroup" resultMap="serviceGroupContentResultMap">
         SELECT
             '섬기는 공동체' AS headline,
-            '경영지원부 산하 각 부서는 예배와 운영, 봉사의 실무를 맡아 공동체가 안정적으로 사역할 수 있도록 섬기고 있습니다.' AS summary,
+            '각 부서는 예배와 운영, 봉사의 실무를 맡아 공동체가 안정적으로 사역할 수 있도록 섬기고 있습니다.' AS summary,
             parent_dept.dept_nm AS parent_department_name,
             leader.name_ko AS parent_department_leader,
             COALESCE(grade_code.code_name, position_code.code_name, leader.extra_attributes ->> 'role', '부서장') AS parent_department_leader_role,

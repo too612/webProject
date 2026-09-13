@@ -52,6 +52,7 @@ public class SecurityConfig {
             builder.authorizeHttpRequests(auth -> auth
                     .requestMatchers(
                             "/api/auth/**",
+                            "/api/common/chatbot/**",
                             "/",
                             "/index.html",
                             "/assets/**",

@@ -4,74 +4,100 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.news.eventcalendar.EventCalendarMapper">
 
-    <resultMap id="eventCalendarResultMap" type="com.main.app.official.news.eventcalendar.dto.EventCalendarDto">
-        <id     property="eventCalendarId" column="event_calendar_id"/>
-        <result property="title"           column="title"/>
-        <result property="content"         column="content"/>
-        <result property="updatedAt"       column="updated_at"/>
-    </resultMap>
-
-    <!-- 행사달력 단건 조회 - DB 테이블 생성 전 임시 dummy 쿼리 (dual 방식, 실제 테이블 비참조) -->
-    <select id="selectInfo" resultMap="eventCalendarResultMap">
-        SELECT
-            NULL          AS event_calendar_id,
-            '행사달력'    AS title,
-            ''            AS content,
-            NOW()         AS updated_at
+    <!-- 행사 일정 목록 조회 (구분값명/색상 포함) -->
+    <select id="selectEventList" resultType="com.main.app.official.news.eventcalendar.dto.EventCalendarDto">
+        SELECT e.event_key,
+               e.category_cd,
+               COALESCE(c.code_name, e.category_cd) AS category_name,
+               e.title,
+               e.description,
+               e.start_dtm,
+               e.end_dtm,
+               e.all_day_yn,
+               e.location_nm,
+               e.color_cd
+        FROM cal_event e
+        LEFT JOIN com_code c ON c.code = e.category_cd
+        WHERE e.use_yn = 'Y'
+        ORDER BY e.start_dtm, e.end_dtm
     </select>
 
-    <!-- 행사달력 등록 -->
-    <insert id="insertInfo"
-            parameterType="com.main.app.official.news.eventcalendar.dto.EventCalendarRequest"
-            useGeneratedKeys="true"
-            keyProperty="eventCalendarId">
-        INSERT INTO official_event_calendar (
+    <!-- 행사 구분값 목록 조회 (com_code 기반, 색상은 extra1) -->
+    <select id="selectCategoryList" resultType="com.main.app.official.news.eventcalendar.dto.EventCategoryDto">
+        SELECT code,
+               code_name,
+               COALESCE(extra1, 'indigo') AS color
+        FROM com_code
+        WHERE parent_code = '401'
+          AND use_yn = 'Y'
+        ORDER BY sort_order, code
+    </select>
+
+    <!-- 행사 일정 등록 -->
+    <insert id="insertEvent"
+            parameterType="com.main.app.official.news.eventcalendar.dto.EventCalendarRequest">
+        INSERT INTO cal_event (
+            category_cd,
             title,
-            content,
-            is_active,
-            is_deleted,
-            created_at,
-            updated_at,
-            created_by,
-            updated_by,
-            created_ip,
-            updated_ip
+            description,
+            start_dtm,
+            end_dtm,
+            all_day_yn,
+            location_nm,
+            color_cd,
+            use_yn,
+            reg_user,
+            reg_dtm,
+            reg_ip,
+            upd_user,
+            upd_dtm,
+            upd_ip
         ) VALUES (
+            #{categoryCd},
             #{title},
-            #{content},
-            TRUE,
-            FALSE,
-            NOW(),
-            NOW(),
-            #{createdBy},
+            #{description},
+            #{startDtm},
+            #{endDtm},
+            #{allDayYn},
+            #{locationNm},
+            #{colorCd},
+            'Y',
             #{updatedBy},
-            #{createdIp},
-            #{updatedIp}
+            NOW(),
+            CAST(#{updatedIp} AS INET),
+            #{updatedBy},
+            NOW(),
+            CAST(#{updatedIp} AS INET)
         )
     </insert>
 
-    <!-- 행사달력 수정 -->
-    <update id="updateInfo"
+    <!-- 행사 일정 수정 -->
+    <update id="updateEvent"
             parameterType="com.main.app.official.news.eventcalendar.dto.EventCalendarRequest">
-        UPDATE official_event_calendar
-        SET title      = #{title},
-            content    = #{content},
-            updated_at = NOW(),
-            updated_by = #{updatedBy},
-            updated_ip = #{updatedIp}
-        WHERE event_calendar_id = #{eventCalendarId}
-          AND is_deleted = FALSE
+        UPDATE cal_event
+        SET category_cd = #{categoryCd},
+            title       = #{title},
+            description = #{description},
+            start_dtm   = #{startDtm},
+            end_dtm     = #{endDtm},
+            all_day_yn  = #{allDayYn},
+            location_nm = #{locationNm},
+            color_cd    = #{colorCd},
+            upd_user    = #{updatedBy},
+            upd_dtm     = NOW(),
+            upd_ip      = CAST(#{updatedIp} AS INET)
+        WHERE event_key = #{eventKey}
+          AND use_yn = 'Y'
     </update>
 
-    <!-- 행사달력 소프트 삭제 -->
-    <update id="softDeleteInfo">
-        UPDATE official_event_calendar
-        SET is_deleted = TRUE,
-            is_active  = FALSE,
-            updated_at = NOW(),
-            updated_by = 'system'
-        WHERE event_calendar_id = #{eventCalendarId}
-          AND is_deleted = FALSE
+    <!-- 행사 일정 소프트 삭제 -->
+    <update id="softDeleteEvent">
+        UPDATE cal_event
+        SET use_yn   = 'N',
+            upd_user = 'system',
+            upd_dtm  = NOW()
+        WHERE event_key = #{eventKey}
+          AND use_yn = 'Y'
     </update>
 
 </mapper>

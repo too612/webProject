@@ -38,7 +38,7 @@
     <select id="selectCellGroup" resultMap="cellGroupContentResultMap">
         SELECT
             '셀가족 공동체' AS headline,
-            '성도모임부 하위 셀가족 공동체가 말씀과 교제로 연결되어 함께 성장합니다.' AS summary,
+            '셀가족 공동체가 말씀과 교제로 연결되어 함께 성장합니다.' AS summary,
             'D000002' AS parent_dept_cd
     </select>
 

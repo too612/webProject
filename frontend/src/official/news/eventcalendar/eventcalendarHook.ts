@@ -3,32 +3,38 @@
  * Description : 행사달력 화면 상태 및 유스케이스 훅
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { eventCalendarApi } from "./eventcalendarApi";
 import type {
-  EventCalendar,
-  EventCalendarRequest,
+  ChurchEvent,
+  ChurchEventCategory,
+  ChurchEventRequest,
 } from "./eventcalendarModel";
 
 /****************************************************************************************************
  * hook method (state, 공통 상태 초기화)
  ****************************************************************************************************/
 
-export function useEventCalendarInfo() {
-  const [eventCalendar, setEventCalendar] = useState<EventCalendar | null>(null);
+export function useEventCalendar() {
+  const [events, setEvents] = useState<ChurchEvent[]>([]);
+  const [categories, setCategories] = useState<ChurchEventCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /****************************************************************************************************
-   * tran/data method (조회, 저장 API 연동)
+   * tran/data method (조회, 저장, 삭제 API 연동)
    ****************************************************************************************************/
 
-  const loadInfo = useCallback(async () => {
+  const loadAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await eventCalendarApi.getInfo();
-      setEventCalendar(data);
+      const [eventList, categoryList] = await Promise.all([
+        eventCalendarApi.getList(),
+        eventCalendarApi.getCategoryList(),
+      ]);
+      setEvents(eventList);
+      setCategories(categoryList);
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "조회 중 오류가 발생했습니다.";
@@ -38,21 +44,21 @@ export function useEventCalendarInfo() {
     }
   }, []);
 
-  const saveInfo = useCallback(
-    async (payload: EventCalendarRequest) => {
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
+
+  const saveEvent = useCallback(
+    async (request: ChurchEventRequest) => {
       setLoading(true);
       setError(null);
       try {
-        if (eventCalendar?.eventCalendarId) {
-          await eventCalendarApi.setUpdate(
-            eventCalendar.eventCalendarId,
-            payload,
-          );
+        if (request.eventKey) {
+          await eventCalendarApi.setUpdate(request.eventKey, request);
         } else {
-          await eventCalendarApi.setCreate(payload);
+          await eventCalendarApi.setCreate(request);
         }
-        const refreshed = await eventCalendarApi.getInfo();
-        setEventCalendar(refreshed);
+        await loadAll();
       } catch (e) {
         const message =
           e instanceof Error ? e.message : "저장 중 오류가 발생했습니다.";
@@ -62,14 +68,34 @@ export function useEventCalendarInfo() {
         setLoading(false);
       }
     },
-    [eventCalendar?.eventCalendarId],
+    [loadAll],
+  );
+
+  const removeEvent = useCallback(
+    async (eventKey: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        await eventCalendarApi.delRemove(eventKey);
+        await loadAll();
+      } catch (e) {
+        const message =
+          e instanceof Error ? e.message : "삭제 중 오류가 발생했습니다.";
+        setError(message);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadAll],
   );
 
   return {
-    eventCalendar,
+    events,
+    categories,
     loading,
     error,
-    loadInfo,
-    saveInfo,
+    saveEvent,
+    removeEvent,
   };
 }

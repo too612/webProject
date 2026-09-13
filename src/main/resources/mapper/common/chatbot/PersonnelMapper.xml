@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.chatbot.PersonnelMapper">
+
+    <!-- 직분(com_code 103)별 인원 집계 -->
+    <select id="selectRoleCounts" resultType="com.main.app.common.chatbot.dto.PersonnelCountDto">
+        SELECT
+            COALESCE(c.code_name, p.extra_attributes ->> 'role', '기타') AS roleName,
+            COUNT(*) AS count
+        FROM hrm_person p
+        LEFT JOIN com_code c
+               ON p.position_code = c.code
+              AND c.parent_code = '103'
+              AND c.use_yn = 'Y'
+        WHERE p.service_status_code = '101-010'
+        GROUP BY COALESCE(c.code_name, p.extra_attributes ->> 'role', '기타')
+        ORDER BY count DESC
+    </select>
+
+</mapper>

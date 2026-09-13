@@ -2,31 +2,37 @@ package com.main.app.official.news.eventcalendar;
 
 import com.main.app.official.news.eventcalendar.dto.EventCalendarDto;
 import com.main.app.official.news.eventcalendar.dto.EventCalendarRequest;
+import com.main.app.official.news.eventcalendar.dto.EventCategoryDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface EventCalendarMapper {
 
     /**
-     * 행사달력 단건 조회 (활성 상태 1건)
+     * 행사 일정 목록 조회 (구분값명 포함)
      */
-    EventCalendarDto selectInfo();
+    List<EventCalendarDto> selectEventList();
 
     /**
-     * 행사달력 등록
-     *
-     * @return 생성된 eventCalendarId (useGeneratedKeys)
+     * 행사 구분값(com_code) 목록 조회
      */
-    int insertInfo(EventCalendarRequest request);
+    List<EventCategoryDto> selectCategoryList();
 
     /**
-     * 행사달력 수정
+     * 행사 일정 등록
      */
-    int updateInfo(EventCalendarRequest request);
+    int insertEvent(EventCalendarRequest request);
 
     /**
-     * 행사달력 소프트 삭제
+     * 행사 일정 수정
      */
-    int softDeleteInfo(@Param("eventCalendarId") Long eventCalendarId);
+    int updateEvent(EventCalendarRequest request);
+
+    /**
+     * 행사 일정 소프트 삭제
+     */
+    int softDeleteEvent(@Param("eventKey") String eventKey);
 }

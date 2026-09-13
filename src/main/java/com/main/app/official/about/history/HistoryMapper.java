@@ -1,18 +1,27 @@
 package com.main.app.official.about.history;
 
-import com.main.app.official.about.history.dto.HistoryDto;
+import com.main.app.official.about.history.dto.HistoryEventDto;
 import com.main.app.official.about.history.dto.HistoryRequest;
+import com.main.app.official.about.history.dto.HistoryYearDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface HistoryMapper {
 
-    HistoryDto selectHistory();
+    List<HistoryYearDto> selectHistoryYears();
 
-    int insertHistory(HistoryRequest request);
+    List<HistoryEventDto> selectHistoryEvents();
 
-    int updateHistory(@Param("id") Long id, @Param("request") HistoryRequest request);
+    int deleteAllYears();
 
-    int deleteHistory(@Param("id") Long id);
+    int insertYear(HistoryYearDto year);
+
+    int insertEvent(@Param("historyId") Long historyId,
+                    @Param("eventDate") String eventDate,
+                    @Param("description") String description,
+                    @Param("imagesJson") String imagesJson,
+                    @Param("sortOrder") int sortOrder);
 }

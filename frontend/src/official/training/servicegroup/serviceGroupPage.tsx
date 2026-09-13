@@ -1,8 +1,46 @@
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Button, PageTitle } from "../../../common/ui";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import {
+  Bus,
+  ChevronRight,
+  CircleCheck,
+  Clock,
+  HandHeart,
+  Mail,
+  MapPin,
+  Megaphone,
+  Music,
+  Quote,
+  Send,
+  UsersRound,
+  Wallet,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useMenu } from "../../../common/menu/menuHook";
+import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import {
+  Button,
+  Dialog,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  PageTitle,
+} from "../../../common/ui";
 import { useServiceGroupContent } from "./serviceGroupHook";
-import { DEFAULT_SERVICE_GROUP_CONTENT } from "./serviceGroupModel";
+import {
+  DEFAULT_SERVICE_GROUP_CONTENT,
+  SERVICE_GROUP_DETAIL_BY_DEPT_CODE,
+} from "./serviceGroupModel";
+import type { ServiceGroup } from "./serviceGroupModel";
 
 const IMAGE_FALLBACK_BY_DEPT_CODE: Record<string, string> = {
   D000003: "/img/official/training/servicegroup/servicegroup_01.png",
@@ -13,80 +51,194 @@ const IMAGE_FALLBACK_BY_DEPT_CODE: Record<string, string> = {
   D000008: "/img/official/training/servicegroup/servicegroup_06.png",
 };
 
-type DepartmentActivityInfo = {
-  overview: string;
-  mainMinistry: string;
-  serviceTime: string;
-  majorActivityDescription: string;
-  majorActivityMinistry: string;
-  majorActivityTime: string;
+const DEPARTMENT_ICON_BY_DEPT_CODE: Record<string, LucideIcon> = {
+  D000003: Wallet,
+  D000004: Megaphone,
+  D000005: Bus,
+  D000006: HandHeart,
+  D000007: UsersRound,
+  D000008: Music,
 };
 
-const DEPARTMENT_ACTIVITY_BY_DEPT_CODE: Record<string, DepartmentActivityInfo> =
-  {
-    D000003: {
-      overview:
-        "교회 재정의 수입과 지출을 투명하게 관리하고 예배 및 사역 운영이 안정적으로 이어지도록 지원합니다.",
-      mainMinistry: "헌금 집계, 회계 정산, 월별 결산 보고, 예산 집행 관리",
-      serviceTime: "주일 예배 전후 및 주중 결산 시간",
-      majorActivityDescription:
-        "부서별 지출 요청을 검토하고 집행 내역을 정리하여 다음 사역 계획에 반영합니다.",
-      majorActivityMinistry: "지출 증빙 확인, 결산 리포트 작성, 부서 예산 협의",
-      majorActivityTime: "매주 주중 저녁, 월말 집중 결산",
-    },
-    D000004: {
-      overview:
-        "복음 전파와 새가족 연결을 중심으로 전도 접점을 넓히고 공동체 유입을 돕습니다.",
-      mainMinistry: "노방 전도, 초청 주일 운영, 전도 대상자 관리",
-      serviceTime: "주중 전도 일정 및 주일 초청 연계 시간",
-      majorActivityDescription:
-        "지역별 전도 동선을 계획하고 전도 후속 연락을 통해 예배 참여까지 연결합니다.",
-      majorActivityMinistry: "전도 물품 준비, 전도팀 배치, 후속 케어",
-      majorActivityTime: "토요일 오전/오후, 주일 전후 후속 관리",
-    },
-    D000005: {
-      overview:
-        "예배와 행사에 필요한 차량 운행을 체계화하여 성도 이동 편의와 안전을 확보합니다.",
-      mainMinistry: "셔틀 노선 운영, 행사 차량 배차, 운행 안전 점검",
-      serviceTime: "주일 예배 전후 집중 운행, 행사일 수시 운행",
-      majorActivityDescription:
-        "운행 수요를 반영해 노선과 시간을 조정하고 봉사자 배치표를 운영합니다.",
-      majorActivityMinistry: "노선표 업데이트, 배차 확정, 운행일지 정리",
-      majorActivityTime: "주중 준비, 주일 새벽~오후 집중",
-    },
-    D000006: {
-      overview:
-        "예배와 각종 교회 행사의 현장 운영을 돕고 봉사 인력을 효율적으로 배치합니다.",
-      mainMinistry: "행사 동선 관리, 봉사자 스케줄링, 현장 안내",
-      serviceTime: "주일 예배 및 행사 당일 운영 시간",
-      majorActivityDescription:
-        "행사 규모에 맞춰 안내, 정리, 지원 인력을 구성하고 현장 상황에 즉시 대응합니다.",
-      majorActivityMinistry: "안내 데스크 운영, 좌석/동선 지원, 사후 정리",
-      majorActivityTime: "행사 시작 1시간 전부터 종료 후 정리까지",
-    },
-    D000007: {
-      overview:
-        "새가족이 교회 공동체에 자연스럽게 정착하도록 안내와 돌봄 프로세스를 운영합니다.",
-      mainMinistry: "새가족 등록 안내, 첫 방문 케어, 정착 소그룹 연결",
-      serviceTime: "주일 예배 전후 및 새가족 모임 시간",
-      majorActivityDescription:
-        "등록 이후 일정 기간 동안 관계 형성과 참여 안내를 통해 이탈을 줄이고 정착을 돕습니다.",
-      majorActivityMinistry: "초기 상담, 부서 연결, 정착 피드백 관리",
-      majorActivityTime: "주일 상시 응대, 주중 후속 연락",
-    },
-    D000008: {
-      overview:
-        "예배 찬양과 워십 문화를 준비하여 예배의 흐름과 공동체 고백을 음악으로 섬깁니다.",
-      mainMinistry: "찬양 선곡, 연습 운영, 예배 워십 리딩",
-      serviceTime: "주중 정기 연습 및 주일 예배 리허설/본예배",
-      majorActivityDescription:
-        "예배 주제에 맞는 곡을 구성하고 팀 연습을 통해 예배 집중도를 높이는 찬양을 준비합니다.",
-      majorActivityMinistry: "주간 선곡 회의, 파트 연습, 예배 리허설",
-      majorActivityTime: "주중 저녁 연습, 주일 예배 전 리허설",
-    },
-  };
+const resolveGroupImageUrl = (group: ServiceGroup) => {
+  const fallbackImageUrl = group.deptCode
+    ? IMAGE_FALLBACK_BY_DEPT_CODE[group.deptCode]
+    : undefined;
+  return group.imageUrl || fallbackImageUrl;
+};
+
+const renderPhoto = (
+  imageUrl: string | undefined,
+  icon: LucideIcon,
+  label: string,
+  className: string,
+  objectPosition = "object-center",
+) => {
+  const Icon = icon;
+
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={label}
+        draggable={false}
+        className={cn(className, "object-cover", objectPosition)}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        className,
+        "flex items-center justify-center bg-[linear-gradient(135deg,#f8fafc_0%,#e2e8f0_100%)]",
+      )}
+    >
+      <Icon className="h-8 w-8 text-slate-400" />
+    </div>
+  );
+};
+
+/* ============================================================
+   ModalImageSlider — 모달 이미지 모바일 슬라이드 캐러셀
+   - 메인홈 다사랑앨범 모바일 캐러셀 방식과 동일 (드래그 + 인디케이터)
+   - PC에서는 사용하지 않음 (md 이상에서는 4장 그리드 사용)
+   ============================================================ */
+function ModalImageSlider({
+  imageUrl,
+  icon,
+  items,
+}: Readonly<{
+  imageUrl: string | undefined;
+  icon: LucideIcon;
+  items: { label: string; objectPosition: string }[];
+}>) {
+  const viewRef = useRef<HTMLDivElement>(null);
+  const [viewWidth, setViewWidth] = useState(0);
+  const [index, setIndex] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const indexRef = useRef(0);
+  const draggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const dragXRef = useRef(0);
+  const len = items.length;
+  const cardW = viewWidth > 0 ? viewWidth * 0.52 + 12 : 200;
+  const clamped = Math.max(0, Math.min(index, len - 1));
+  indexRef.current = clamped;
+  const trackX = -clamped * cardW + (dragging ? dragX : 0);
+
+  useEffect(function () {
+    const el = viewRef.current;
+    if (!el) return;
+    const measure = function () {
+      setViewWidth(el.clientWidth);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return function () {
+      ro.disconnect();
+    };
+  }, []);
+
+  function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    draggingRef.current = true;
+    startXRef.current = e.clientX;
+    dragXRef.current = 0;
+    setDragging(true);
+    setDragX(0);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* noop */
+    }
+  }
+
+  function onPointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!draggingRef.current) return;
+    const dx = e.clientX - startXRef.current;
+    dragXRef.current = dx;
+    setDragX(dx);
+  }
+
+  function onPointerUp() {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    const dx = dragXRef.current;
+    const cur = indexRef.current;
+    let next = cur;
+    if (dx < -50) next = Math.min(len - 1, cur + 1);
+    else if (dx > 50) next = Math.max(0, cur - 1);
+    setIndex(next);
+    setDragging(false);
+    setDragX(0);
+    dragXRef.current = 0;
+  }
+
+  return (
+    <div>
+      <div
+        ref={viewRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className="touch-none select-none overflow-hidden"
+      >
+        <div
+          className="flex gap-3 transition-transform duration-300"
+          style={{
+            transform: "translateX(" + trackX + "px)",
+            transitionDuration: dragging ? "0ms" : "300ms",
+          }}
+        >
+          {items.map(function (item, i) {
+            return (
+              <div
+                key={i}
+                className="relative w-[52%] shrink-0 overflow-hidden rounded-lg bg-slate-100"
+              >
+                <div className="aspect-video w-full overflow-hidden">
+                  {renderPhoto(
+                    imageUrl,
+                    icon,
+                    item.label,
+                    "h-full w-full",
+                    item.objectPosition,
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {len > 1 && (
+        <div className="mt-3 flex justify-center gap-1.5">
+          {items.map(function (_, i) {
+            return (
+              <button
+                key={i}
+                type="button"
+                aria-label={i + 1 + "번째 이미지"}
+                onClick={function () {
+                  setIndex(i);
+                }}
+                className={cn(
+                  "h-2 rounded-full transition-all",
+                  i === clamped ? "w-5 bg-brand-primary" : "w-2 bg-slate-300",
+                )}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ServiceGroupPage() {
+  const { currentMenu, loading: menuLoading } = useMenu();
   const { serviceGroupContent, loading, error, loadServiceGroupContent } =
     useServiceGroupContent();
   const [selectedDeptCode, setSelectedDeptCode] = useState<string | null>(null);
@@ -95,9 +247,7 @@ export default function ServiceGroupPage() {
     loadServiceGroupContent();
   }, [loadServiceGroupContent]);
 
-  const content = serviceGroupContent
-    ? { ...DEFAULT_SERVICE_GROUP_CONTENT, ...serviceGroupContent }
-    : DEFAULT_SERVICE_GROUP_CONTENT;
+  const content = serviceGroupContent ?? DEFAULT_SERVICE_GROUP_CONTENT;
   const selectedGroup = useMemo(
     () =>
       content.groups.find((group) => group.deptCode === selectedDeptCode) ??
@@ -114,45 +264,15 @@ export default function ServiceGroupPage() {
     }
   }, [content.groups, selectedDeptCode]);
 
-  const renderGroupImage = (
-    group: (typeof content.groups)[number],
-    sizeClass: string,
-    titleClass: string,
-    imageClass = "",
-  ) => {
-    const fallbackImageUrl = group.deptCode
-      ? IMAGE_FALLBACK_BY_DEPT_CODE[group.deptCode]
-      : undefined;
-    const imageUrl = group.imageUrl || fallbackImageUrl;
-
-    if (imageUrl) {
-      return (
-        <img
-          src={imageUrl}
-          alt={group.title}
-          className={`${sizeClass} object-cover ${imageClass}`}
-        />
-      );
-    }
-
-    return (
-      <div
-        className={`${sizeClass} bg-[linear-gradient(135deg,#f8fafc_0%,#e2e8f0_100%)] border-b border-slate-200 flex items-end`}
-      >
-        <div className="w-full bg-white/80 px-4 py-3 backdrop-blur-sm border-t border-slate-200">
-          <div className="text-[11px] font-semibold tracking-[0.16em] text-slate-500 uppercase">
-            Image Ready
-          </div>
-          <div className={`${titleClass} mt-1`}>{group.title}</div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <section className="space-y-5">
       <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <PageTitle title={content.headline} description={content.summary} />
+        <PageTitle
+          title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
+          description={
+            getCurrentMenuPageContent(currentMenu, menuLoading).summary
+          }
+        />
         {loading && (
           <div className="text-sm text-slate-500 py-4 text-center">
             불러오는 중입니다.
@@ -165,192 +285,304 @@ export default function ServiceGroupPage() {
         )}
 
         {!loading && !error && (
-          <div className="space-y-6">
-            {!selectedGroup && (
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {content.groups.map((group) => {
-                    const leaderName =
-                      group.leaderName ??
-                      group.pastorName ??
-                      group.elderName ??
-                      "-";
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {content.groups.map((group) => {
+              const detail =
+                SERVICE_GROUP_DETAIL_BY_DEPT_CODE[group.deptCode ?? ""];
+              const DeptIcon =
+                DEPARTMENT_ICON_BY_DEPT_CODE[group.deptCode ?? ""] ?? HandHeart;
 
-                    return (
-                      <div
-                        key={group.deptCode ?? group.title}
-                        className="text-left border border-slate-200 bg-white"
-                      >
-                        <div className="aspect-[16/10] overflow-hidden border-b border-slate-200 bg-slate-100">
-                          {renderGroupImage(
-                            group,
-                            "w-full h-full",
-                            "text-base font-bold text-brand-dark",
-                          )}
-                        </div>
-                        <div className="space-y-3 px-5 py-4">
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between gap-3">
-                              <h3 className="text-lg font-bold text-brand-dark">
-                                {group.title}
-                              </h3>
-                              <div className="text-xs text-slate-500">
-                                {group.members.length}명
-                              </div>
-                            </div>
-                            <p
-                              className="text-sm text-gray-600 leading-6 h-12 overflow-hidden"
-                              style={{
-                                display: "-webkit-box",
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: "vertical",
-                              }}
-                            >
-                              {group.description}
-                            </p>
-                          </div>
-                          <div className="border-t border-slate-200 pt-3 flex items-center justify-between gap-3 text-sm">
-                            <div>
-                              <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-400 uppercase">
-                                부서장
-                              </div>
-                              <div className="mt-1 font-semibold text-slate-800">
-                                {leaderName}
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedDeptCode(group.deptCode ?? null);
-                              }}
-                            >
-                              상세보기
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {selectedGroup && (
-              <div className="space-y-5">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedDeptCode(null);
-                  }}
+              return (
+                <article
+                  key={group.deptCode ?? group.title}
+                  className="group flex flex-col overflow-hidden rounded-none border border-slate-200 bg-white transition-colors hover:border-brand-primary/40 hover:shadow-panel"
                 >
-                  <ArrowLeft className="h-[18px] w-[18px] text-brand-primary" />
-                  <span>돌아가기</span>
-                </Button>
-
-                {(() => {
-                  const activityInfo =
-                    DEPARTMENT_ACTIVITY_BY_DEPT_CODE[
-                      selectedGroup.deptCode ?? ""
-                    ];
-
-                  return (
-                    <div className="space-y-5">
-                      <div className="border border-slate-200 bg-white">
-                        <div className="bg-slate-100 border-b border-slate-200">
-                          <div className="h-[280px] md:h-[340px] overflow-hidden">
-                            {renderGroupImage(
-                              selectedGroup,
-                              "w-full h-full",
-                              "text-xl font-bold text-brand-dark",
-                              "object-top",
-                            )}
-                          </div>
-                        </div>
-                        <div className="pl-3 pr-5 py-5 md:pl-4 md:pr-6 md:py-6 space-y-2">
-                          <div className="inline-flex items-center">
-                            <h3 className="text-2xl md:text-3xl font-bold text-brand-dark">
-                              {selectedGroup.title}
-                            </h3>
-                          </div>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {selectedGroup.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="border border-slate-200 bg-white">
-                        <div className="border-b border-slate-200 pl-3 pr-5 py-4 md:pl-4 md:pr-6">
-                          <h4 className="mt-1 text-lg font-bold text-brand-dark">
-                            {selectedGroup.title} 구성
-                          </h4>
-                        </div>
-                        <div className="p-0">
-                          <div className="border border-slate-200">
-                            <div className="grid grid-cols-[120px_minmax(0,1fr)] border-b border-slate-200 bg-slate-50 px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-slate-500 uppercase">
-                              <span className="text-center">이름</span>
-                              <span className="text-center">역할</span>
-                            </div>
-                            {selectedGroup.members.map((member, index) => (
-                              <div
-                                key={`${member.name}-${member.role}`}
-                                className={`grid grid-cols-[120px_minmax(0,1fr)] items-center gap-3 px-4 py-3 text-sm ${index > 0 ? "border-t border-slate-200" : ""}`}
-                              >
-                                <span className="text-center font-semibold text-brand-dark">
-                                  {member.name}
-                                </span>
-                                <span className="text-center text-slate-700">
-                                  {member.role}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-white overflow-hidden">
-                        <div className="pl-0 pr-0 py-0 space-y-5">
-                          <div className="space-y-1.5">
-                            <div className="inline-flex items-center gap-2 text-sm font-bold text-brand-dark">
-                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
-                              <span>주요사역</span>
-                            </div>
-                            <p className="text-sm text-slate-600 leading-relaxed">
-                              {activityInfo?.mainMinistry ?? "준비 중"}
-                            </p>
-                            <div className="text-sm text-slate-600">
-                              사역시간: {activityInfo?.serviceTime ?? "준비 중"}
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <div className="inline-flex items-center gap-2 text-sm font-bold text-brand-dark">
-                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
-                              <span>부서주요활동</span>
-                            </div>
-                            <p className="text-sm text-slate-600 leading-relaxed">
-                              {activityInfo?.majorActivityDescription ??
-                                "주요 활동 내용을 준비 중입니다."}
-                            </p>
-                            <div className="text-sm text-slate-600 leading-relaxed">
-                              주요사역:{" "}
-                              {activityInfo?.majorActivityMinistry ?? "준비 중"}
-                            </div>
-                            <div className="text-sm text-slate-600">
-                              사역시간:{" "}
-                              {activityInfo?.majorActivityTime ?? "준비 중"}
-                            </div>
-                          </div>
-                        </div>
+                  {/* Top: 원형 아이콘 + 부서 정보 텍스트 */}
+                  <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-4">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
+                      <DeptIcon className="h-10 w-10" strokeWidth={1.4} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold text-brand-dark">
+                        {group.title}
+                      </h3>
+                      <p className="mt-0.5 line-clamp-2 min-h-10 text-sm text-slate-500">
+                        {detail?.slogan ?? group.description}
+                      </p>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {(detail?.tags ?? []).map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  );
-                })()}
-              </div>
-            )}
+                  </div>
+
+                  {/* Middle: 사진 (기존 텍스트 영역에 사진 배치) */}
+                  <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                    {renderPhoto(
+                      resolveGroupImageUrl(group),
+                      DeptIcon,
+                      group.title,
+                      "h-full w-full",
+                    )}
+                  </div>
+
+                  {/* Bottom: 상세보기 버튼 */}
+                  <div className="p-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-center border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5"
+                      onClick={() =>
+                        setSelectedDeptCode(group.deptCode ?? null)
+                      }
+                    >
+                      상세보기
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </div>
+
+      <Dialog
+        open={selectedDeptCode !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedDeptCode(null);
+        }}
+      >
+        <DialogPortal>
+          <DialogOverlay />
+          <DialogPrimitive.Content
+            aria-describedby={undefined}
+            className="fixed bottom-4 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-3rem)] max-w-[1080px] -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl md:max-h-[95vh]"
+          >
+            <div className="flex items-center justify-end border-b border-slate-100 px-4 py-2 md:px-6">
+              <DialogPrimitive.Close className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800">
+                <X className="h-4 w-4" />
+              </DialogPrimitive.Close>
+            </div>
+
+            {selectedGroup &&
+              (() => {
+                const detail =
+                  SERVICE_GROUP_DETAIL_BY_DEPT_CODE[
+                    selectedGroup.deptCode ?? ""
+                  ];
+                const DeptIcon =
+                  DEPARTMENT_ICON_BY_DEPT_CODE[selectedGroup.deptCode ?? ""] ??
+                  HandHeart;
+                const imageUrl = resolveGroupImageUrl(selectedGroup);
+                const leaderName =
+                  selectedGroup.leaderName ??
+                  selectedGroup.pastorName ??
+                  selectedGroup.elderName ??
+                  "-";
+                const leaderRole = selectedGroup.leaderRole ?? "";
+
+                return (
+                  <div className="min-h-0 flex-1 overflow-y-auto">
+                    <div className="flex min-h-full flex-col">
+                      {/* Title */}
+                      <div className="px-4 pb-4 pt-4 text-center md:px-6 md:pb-6 md:pt-5">
+                        <DialogTitle className="text-xl font-bold text-brand-dark md:text-2xl">
+                          {selectedGroup.title}
+                        </DialogTitle>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {detail?.slogan ?? selectedGroup.description}
+                        </p>
+                      </div>
+
+                      {/* 이미지 + 부서장 한마디 */}
+                      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+                        {/* Left - Visual Area (모바일: 하단 슬라이드 / PC: 4장 그리드) */}
+                        <div className="order-2 flex flex-col justify-center gap-3 bg-slate-50 p-4 md:order-1 md:p-5">
+                          {/* 모바일: 이미지 슬라이드 캐러셀 */}
+                          <div className="md:hidden">
+                            <ModalImageSlider
+                              imageUrl={imageUrl}
+                              icon={DeptIcon}
+                              items={[
+                                {
+                                  label: `${selectedGroup.title} 부서 현장`,
+                                  objectPosition: "object-center",
+                                },
+                                {
+                                  label: `${selectedGroup.title} 현장 스냅 1`,
+                                  objectPosition: "object-top",
+                                },
+                                {
+                                  label: `${selectedGroup.title} 현장 스냅 2`,
+                                  objectPosition: "object-center",
+                                },
+                                {
+                                  label: `${selectedGroup.title} 현장 스냅 3`,
+                                  objectPosition: "object-bottom",
+                                },
+                              ]}
+                            />
+                          </div>
+                          {/* PC: 4장 그리드 */}
+                          <div className="hidden flex-col gap-3 md:flex">
+                            <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                              {renderPhoto(
+                                imageUrl,
+                                DeptIcon,
+                                `${selectedGroup.title} 부서 현장`,
+                                "h-full w-full",
+                              )}
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                              {[
+                                "object-top",
+                                "object-center",
+                                "object-bottom",
+                              ].map((objectPosition, index) => (
+                                <div
+                                  key={objectPosition}
+                                  className="aspect-[4/3] overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
+                                >
+                                  {renderPhoto(
+                                    imageUrl,
+                                    DeptIcon,
+                                    `${selectedGroup.title} 현장 스냅 ${index + 1}`,
+                                    "h-full w-full",
+                                    objectPosition,
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right - 모임시간 및 장소 + 부서장 한마디 + 소개 섹션 */}
+                        <div className="order-1 flex flex-col justify-center gap-4 px-4 py-4 md:order-2 md:gap-5 md:px-6 md:py-5">
+                          {detail && (
+                            <>
+                              <section>
+                                <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
+                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                                  모임시간 및 장소
+                                </h4>
+                                {/* 시간·장소 개별 박스 (모바일: 나란히 한 줄) */}
+                                <div className="mt-3 grid grid-cols-2 gap-2">
+                                  <div className="flex min-w-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-700 sm:px-4 sm:py-3 sm:text-sm">
+                                    <Clock className="h-3.5 w-3.5 shrink-0 text-brand-primary/60 sm:h-4 sm:w-4" />
+                                    <span className="truncate">
+                                      {detail.meetingTime}
+                                    </span>
+                                  </div>
+                                  <div className="flex min-w-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-700 sm:px-4 sm:py-3 sm:text-sm">
+                                    <MapPin className="h-3.5 w-3.5 shrink-0 text-brand-primary/60 sm:h-4 sm:w-4" />
+                                    <span className="truncate">
+                                      {detail.meetingPlace}
+                                    </span>
+                                  </div>
+                                </div>
+                              </section>
+
+                              <section>
+                                <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
+                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                                  부서장 한마디
+                                </h4>
+                                <div className="relative mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                  <Quote className="h-4 w-4 text-brand-primary/60" />
+                                  <p className="mt-1.5 text-sm leading-relaxed text-slate-700">
+                                    {detail.vision}
+                                  </p>
+                                  <div className="mt-2.5 text-xs text-slate-500">
+                                    {leaderName}
+                                    {leaderRole && ` · ${leaderRole}`}
+                                  </div>
+                                  <span className="absolute -bottom-1.5 left-8 h-3 w-3 rotate-45 border-b border-r border-slate-200 bg-slate-50" />
+                                </div>
+                              </section>
+
+                              <section>
+                                <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
+                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                                  주요 역할
+                                </h4>
+                                <ul className="mt-3 space-y-2">
+                                  {detail.roles.map((role) => (
+                                    <li
+                                      key={role}
+                                      className="flex items-center gap-2.5 text-sm text-slate-700"
+                                    >
+                                      <CircleCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+                                      {role}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </section>
+
+                              <section>
+                                <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
+                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                                  이런 분을 찾습니다
+                                </h4>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {detail.joinProfile.map((item) => (
+                                    <span
+                                      key={item}
+                                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                                    >
+                                      {item}
+                                    </span>
+                                  ))}
+                                </div>
+                              </section>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Lower: CTA */}
+                      <div className="flex flex-col border-t border-slate-100 px-4 py-4 md:px-6 md:py-5">
+                        <div className="flex flex-col-reverse gap-2 sm:flex-row">
+                          <Button
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() =>
+                              toast("부서 문의", {
+                                description:
+                                  "사무실로 연락 주시면 해당 부서와 연결해 드리겠습니다.",
+                              })
+                            }
+                          >
+                            <Mail className="h-4 w-4" />
+                            문의하기
+                          </Button>
+                          <Button
+                            className="flex-1"
+                            onClick={() =>
+                              toast("섬김 지원 신청", {
+                                description:
+                                  "상세 안내를 위해 교회 사무실로 문의해 주세요.",
+                              })
+                            }
+                          >
+                            <Send className="h-4 w-4" />
+                            섬김 지원하기
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+          </DialogPrimitive.Content>
+        </DialogPortal>
+      </Dialog>
     </section>
   );
 }

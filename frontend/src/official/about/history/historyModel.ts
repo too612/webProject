@@ -1,21 +1,43 @@
+export type HistoryEventItem = {
+  date: string;
+  description: string;
+  images?: string[];
+  imageIds?: (string | number)[];
+};
+
 export type HistoryTimelineItem = {
   year: string;
-  events: {
-    date: string;
-    description: string;
-    images?: string[];
-  }[];
+  events: HistoryEventItem[];
 };
 
 export type HistoryContent = {
-  headline: string;
-  summary: string;
   timeline: HistoryTimelineItem[];
 };
 
+export type HistoryEventRequest = {
+  eventId?: number | null;
+  date: string;
+  description: string;
+  images?: string[];
+};
+
+export type HistoryYearRequest = {
+  historyId?: number | null;
+  year: string;
+  events: HistoryEventRequest[];
+};
+
+export type HistoryRequest = {
+  timeline: HistoryYearRequest[];
+  deletedFileIds?: (string | number)[];
+};
+
+export const EMPTY_HISTORY_REQUEST: HistoryRequest = {
+  timeline: [],
+  deletedFileIds: [],
+};
+
 export const DEFAULT_HISTORY_CONTENT: HistoryContent = {
-  headline: '하나님이 인도하신 길',
-  summary: '1987년 교회 설립부터 2026년 현재까지, 공동체가 걸어온 여정을 핵심 이정표 중심으로 정리했습니다.',
   timeline: [
     {
       year: '2026년',
@@ -129,28 +151,30 @@ export const DEFAULT_HISTORY_CONTENT: HistoryContent = {
     {
       year: '2011년',
       events: [
-        { date: '04.17', description: '지역 청소년 멘토링 사역 시작' },
-        { date: '12.18', description: '성탄 사랑나눔 바자회 개최' },
+        { date: '03.13', description: '전교인 성경읽기 운동 전개' },
+        { date: '10.16', description: '지역 연합찬양축제 개최' },
       ],
     },
     {
       year: '2010년',
       events: [
-        { date: '03.07', description: '지역사회 섬김 사역 확장' },
-        { date: '09.12', description: '청년/장년 소그룹 재편' },
+        { date: '02.07', description: '새벽기도회 100일 연속 달성' },
+        { date: '09.12', description: '가을 대부흥성회 개최' },
       ],
     },
     {
       year: '2009년',
       events: [
-        { date: '02.15', description: '국제 선교 세미나 개최' },
-        { date: '11.08', description: '다음세대 비전센터 운영 강화' },
+        { date: '01.04', description: '신년 축복성회 및 비전 선포' },
+        { date: '06.28', description: '청년 해외비전트립 파송' },
+        { date: '11.29', description: '추수감사 사랑의 쌀 나눔' },
       ],
     },
     {
       year: '2008년',
       events: [
-        { date: '05.04', description: '세계비전 제자대학 확대 운영' },
+        { date: '03.09', description: '전교인 제자훈련 수료식' },
+        { date: '07.21', description: '여름성경학교 500명 돌파' },
         { date: '10.19', description: '지역 연합예배 참여' },
       ],
     },

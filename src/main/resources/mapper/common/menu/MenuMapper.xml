@@ -4,6 +4,8 @@
     <select id="getMenuList" resultType="com.main.app.common.menu.dto.MenuDto" parameterType="map">
         SELECT menu_id
               ,menu_nm AS menuName
+              ,menu_summary AS menuSummary
+              ,menu_image_path AS menuImagePath
               ,up_menu_id AS parentId
               ,CAST(level AS INTEGER) AS level
               ,path
@@ -35,6 +37,8 @@
     <select id="getMenuListByLevel" resultType="com.main.app.common.menu.dto.MenuDto" parameterType="map">
         SELECT menu_id
               ,menu_nm AS menuName
+              ,menu_summary AS menuSummary
+              ,menu_image_path AS menuImagePath
               ,up_menu_id AS parentId
               ,CAST(level AS INTEGER) AS level
               ,path
@@ -66,6 +70,8 @@
     <select id="getSubMenusByParentId" resultType="com.main.app.common.menu.dto.MenuDto" parameterType="map">
         SELECT menu_id
               ,menu_nm AS menuName
+              ,menu_summary AS menuSummary
+              ,menu_image_path AS menuImagePath
               ,up_menu_id AS parentId
               ,CAST(level AS INTEGER) AS level
               ,path

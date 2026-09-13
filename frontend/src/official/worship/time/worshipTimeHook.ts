@@ -22,10 +22,52 @@ export function useWorshipTimeItems() {
     }
   }, []);
 
+  const hasExistingData = items.length > 0;
+
+  const saveWorshipTimeItems = useCallback(
+    async (payload: WorshipTimeItem[]): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (hasExistingData) {
+          await worshipTimeApi.setUpdate(payload);
+        } else {
+          await worshipTimeApi.setCreate(payload);
+        }
+        const refreshed = await worshipTimeApi.getWorshipTimeItems();
+        setItems(refreshed);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : '저장 중 오류가 발생했습니다.';
+        setError(message);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [hasExistingData],
+  );
+
+  const removeWorshipTimeItems = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      await worshipTimeApi.delRemove();
+      setItems([]);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : '삭제 중 오류가 발생했습니다.';
+      setError(message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     items,
     loading,
     error,
     loadWorshipTimeItems,
+    saveWorshipTimeItems,
+    removeWorshipTimeItems,
   };
 }
