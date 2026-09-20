@@ -135,6 +135,15 @@ export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
           orderNo: 5,
           subMenus: [],
         },
+        {
+          menuId: "official-about-contribution",
+          menuName: "온라인헌금",
+          path: "/about/contribution",
+          parentId: "official-about",
+          level: 2,
+          orderNo: 6,
+          subMenus: [],
+        },
       ],
     },
     {

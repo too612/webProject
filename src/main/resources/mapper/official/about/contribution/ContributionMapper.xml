@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.official.about.contribution.ContributionMapper">
+
+    <select id="selectInfo" resultType="com.main.app.official.about.contribution.dto.ContributionDto">
+        SELECT
+            '온라인헌금' AS title,
+            '헌금 종류에 맞는 계좌와 송금자명을 확인해 주세요.' AS subtitle,
+            '이름 + 생년월일(6자리) + 헌금 약자를 입력해 주세요.' AS namingGuide,
+            '홍길동991212주' AS namingExample
+    </select>
+
+    <select id="selectAccounts" resultType="com.main.app.official.about.contribution.dto.ContributionAccountDto">
+        SELECT 'general' AS accountType,
+               '일반헌금계좌' AS accountLabel,
+               '신한은행' AS bankName,
+             '123-456-789012' AS accountNumber,
+               '다사랑교회' AS accountHolder
+        UNION ALL
+        SELECT 'mission' AS accountType,
+               '선교헌금계좌' AS accountLabel,
+               '국민은행' AS bankName,
+               '987-654-321098' AS accountNumber,
+               '다사랑교회' AS accountHolder
+    </select>
+
+    <select id="selectRules" resultType="com.main.app.official.about.contribution.dto.ContributionRuleDto">
+        SELECT '주정헌금' AS purpose, '주' AS abbreviation
+        UNION ALL SELECT '십일조헌금', '십'
+        UNION ALL SELECT '감사헌금', '감'
+        UNION ALL SELECT '선교헌금', '선'
+    </select>
+
+</mapper>

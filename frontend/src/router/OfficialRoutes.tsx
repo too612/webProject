@@ -94,6 +94,9 @@ const EventCalendarPage = lazy(
 const LocationPage = lazy(
   () => import("../official/about/location/locationPage"),
 );
+const ContributionPage = lazy(
+  () => import("../official/about/contribution/contributionPage"),
+);
 
 export const officialRoutes: RouteObject[] = [
   {
@@ -111,6 +114,7 @@ export const officialRoutes: RouteObject[] = [
           { path: "history", element: <HistoryPageView /> },
           { path: "history/write", element: <HistoryPageWrite /> },
           { path: "location", element: <LocationPage /> },
+          { path: "contribution", element: <ContributionPage /> },
         ],
       },
       {

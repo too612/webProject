@@ -1,1 +1,11 @@
-새로운 대화가 시작될 때마다 반드시 `.github/copilot-instructions.md` 파일을 읽고, 그 안에 명시된 모든 규칙을 이 대화에서 엄격히 준수한다.
+새로운 대화가 시작될 때마다 아래 순서로 필요한 기준만 확인하고 엄격히 준수한다.
+
+1. `.github/copilot-instructions.md`를 읽어 프로젝트 공통 규칙을 확인한다.
+2. `.ai/AI_AUTO_RULES.md`를 읽어 요청 유형별 처리 규칙을 확인한다.
+3. 작업과 관련된 문서만 읽는다.
+   - 전체 구조: `docs/md/README.md` → `docs/md/core/system-architecture.md`
+   - official 기능: `docs/md/official/official-domain-guide.md`
+4. 기존 소스 수정·리팩토링·기능 개선이면 새 파일을 먼저 만들지 말고, 현재 파일과 직접 호출부 및 가장 가까운 기존 구현을 먼저 확인한다.
+5. 영향 범위를 좁혀 최소 변경을 적용하고, 관련 컴파일·테스트·빌드를 실행한 뒤 결과와 남은 위험을 보고한다.
+
+문서 전체를 매번 읽지 말고 현재 요청에 필요한 문서만 읽어 토큰 사용을 줄인다.

@@ -85,6 +85,7 @@ INSERT INTO public.sys_menu (
 	('M_MAIN_01_02', '교회연혁', 'M_MAIN_01', '/about/history', '2', '2', NULL),
 	('M_MAIN_01_03', '섬기는 사람들', 'M_MAIN_01', '/about/people', '3', '2', NULL),
 	('M_MAIN_01_04', '오시는 길', 'M_MAIN_01', '/about/location', '4', '2', NULL),
+	('M_MAIN_01_05', '온라인헌금', 'M_MAIN_01', '/about/contribution', '5', '2', NULL),
 	('M_MAIN_02', '예배∙말씀', 'M_MAIN', '/worship/time', '2', '1', NULL),
 	('M_MAIN_02_01', '예배시간 안내', 'M_MAIN_02', '/worship/time', '1', '2', NULL),
 	('M_MAIN_02_02', '설교 및 온라인 예배', 'M_MAIN_02', '/worship/live', '2', '2', NULL),

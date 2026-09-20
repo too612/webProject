@@ -41,7 +41,7 @@ const QUICK_MENUS: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/worship/sermons", icon: Tv, label: "주일설교" },
   { to: "/news/nextsteps", icon: UserPlus, label: "새가족등록" },
   { to: "/news/bulletin", icon: BookOpen, label: "주보" },
-  { to: "#", icon: Heart, label: "온라인헌금" },
+  { to: "/about/contribution", icon: Heart, label: "온라인헌금" },
   { to: "/worship/time", icon: Calendar, label: "예배시간" },
   { to: "/about/location", icon: MapPin, label: "오시는 길" },
 ];
