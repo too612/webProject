@@ -30,9 +30,12 @@ public class PastorProvider implements ChatbotDataProvider {
             slots.put("introduction", "");
             return slots;
         }
-        slots.put("chief_name", pastor.getChiefName() == null || pastor.getChiefName().isBlank()
+        slots.put("chief_name", ChatbotTextUtil.isMissingValue(pastor.getChiefName())
                 ? "등록된 담임목사 정보가 없습니다." : pastor.getChiefName());
-        slots.put("introduction", condense(ChatbotTextUtil.toPlainText(pastor.getIntroduction())));
+        String introduction = ChatbotTextUtil.isMissingValue(pastor.getIntroduction())
+            ? "등록된 담임목사 소개가 없습니다."
+            : condense(ChatbotTextUtil.toPlainText(pastor.getIntroduction()));
+        slots.put("introduction", introduction);
         return slots;
     }
 

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,17 +23,27 @@ public class ChatbotService {
 
     private static final int MAX_INPUT_LENGTH = 500;
     private static final Pattern SLOT_PATTERN = Pattern.compile("\\{\\{(\\w+)}}");
+    private static final Pattern LEGACY_NULL_PATTERN = Pattern.compile("(?i)\\bNULL\\b");
     private static final int MAX_SUGGESTIONS = 4;
+        private static final String MODERATION_REPLY =
+            "죄송해요, 비속어가 포함된 질문에는 답변할 수 없습니다.\n"
+                + "예배시간, 교회 위치, 공지사항처럼 궁금한 내용을 정중하게 질문해 주세요.";
     private static final String FALLBACK_REPLY =
             "죄송해요, 아직 해당 질문에 대한 답변을 준비 중입니다.\n"
                     + "예배시간, 오시는 길, 담임목사 소개, 공지사항 등에 대해 안내해 드릴 수 있어요.";
 
     private final ChatbotMapper chatbotMapper;
     private final List<ChatbotDataProvider> dataProviders;
+    private final ChatbotModerationService moderationService;
+    private final ChatbotMenuMatcher menuMatcher;
 
     @Transactional(readOnly = true)
     public ChatbotResponse reply(ChatbotRequest request) {
         String normalized = normalize(request);
+
+        if (moderationService.isBlocked(request == null ? null : request.getMessage())) {
+            return buildResponse(MODERATION_REPLY, null, Collections.emptyList());
+        }
 
         List<ChatbotKnowledgeDto> knowledgeList = chatbotMapper.selectEnabledKnowledge();
         if (knowledgeList == null || knowledgeList.isEmpty()) {
@@ -48,7 +57,13 @@ public class ChatbotService {
             }
         }
 
-        ChatbotKnowledgeDto matched = matchKnowledge(normalized, knowledgeList);
+        ChatbotMenuMatcher.MenuMatch menuMatch = null;
+        try {
+            menuMatch = menuMatcher.findBest(normalized);
+        } catch (Exception e) {
+            log.warn("챗봇 메뉴 검색 실패: {}", e.getMessage());
+        }
+        ChatbotKnowledgeDto matched = matchKnowledge(normalized, knowledgeList, menuMatch);
         if (matched != null) {
             ChatbotDataProvider provider = providerMap.get(matched.getIntentCode());
             if (provider != null) {
@@ -73,22 +88,44 @@ public class ChatbotService {
         if (value.length() > MAX_INPUT_LENGTH) {
             value = value.substring(0, MAX_INPUT_LENGTH);
         }
-        return value.toLowerCase(Locale.ROOT).replaceAll("\s+", "");
+        return ChatbotTextUtil.normalizeQuery(value);
     }
 
-    private ChatbotKnowledgeDto matchKnowledge(String normalized, List<ChatbotKnowledgeDto> knowledgeList) {
+    private ChatbotKnowledgeDto matchKnowledge(
+            String normalized,
+            List<ChatbotKnowledgeDto> knowledgeList,
+            ChatbotMenuMatcher.MenuMatch menuMatch) {
+        ChatbotKnowledgeDto best = null;
+        int bestScore = 0;
         for (ChatbotKnowledgeDto knowledge : knowledgeList) {
             if (knowledge.getKeywords() == null) {
                 continue;
             }
-            for (String keyword : knowledge.getKeywords().split(",")) {
-                String k = keyword.trim().toLowerCase(Locale.ROOT).replaceAll("\s+", "");
-                if (!k.isEmpty() && normalized.contains(k)) {
-                    return knowledge;
-                }
+            int score = menuScore(menuMatch, knowledge) + keywordScore(normalized, knowledge.getKeywords());
+            if ("SERMON_SEARCH".equals(knowledge.getIntentCode()) && normalized.contains("설교")) {
+                score += 60;
+            }
+            if (score > bestScore) {
+                best = knowledge;
+                bestScore = score;
             }
         }
-        return null;
+        return best;
+    }
+
+    private int menuScore(ChatbotMenuMatcher.MenuMatch menuMatch, ChatbotKnowledgeDto knowledge) {
+        return menuMatch != null && menuMatch.path().equals(knowledge.getMenuPath()) ? 100 : 0;
+    }
+
+    private int keywordScore(String normalized, String keywords) {
+        int score = 0;
+        for (String keyword : keywords.split(",")) {
+            String normalizedKeyword = ChatbotTextUtil.normalizeQuery(keyword);
+            if (!normalizedKeyword.isEmpty() && normalized.contains(normalizedKeyword)) {
+                score += normalizedKeyword.length() >= 3 ? 30 : 15;
+            }
+        }
+        return score;
     }
 
     private String fillTemplate(String template, Map<String, String> slots) {
@@ -106,7 +143,23 @@ public class ChatbotService {
             matcher.appendReplacement(sb, Matcher.quoteReplacement(value == null ? "" : value));
         }
         matcher.appendTail(sb);
-        return sb.toString().trim();
+        return replaceLegacyNullTokens(sb.toString(), slots).trim();
+    }
+
+    private String replaceLegacyNullTokens(String reply, Map<String, String> slots) {
+        if (slots == null || slots.isEmpty() || !LEGACY_NULL_PATTERN.matcher(reply).find()) {
+            return reply;
+        }
+
+        String result = reply;
+        for (String value : slots.values()) {
+            if (ChatbotTextUtil.isMissingValue(value)) {
+                continue;
+            }
+            result = LEGACY_NULL_PATTERN.matcher(result)
+                    .replaceFirst(Matcher.quoteReplacement(value));
+        }
+        return result;
     }
 
     private ChatbotResponse buildResponse(String reply, String menuPath, List<String> suggestions) {

@@ -1218,7 +1218,7 @@ export default function OfficialIndexPage() {
         )}
         {sLen > 0 && (
           <section
-            className="relative h-[260px] md:h-[360px] lg:h-[480px] w-full select-none"
+            className="relative h-[260px] md:h-[360px]a lg:h-[480px] w-full select-none"
             style={{ touchAction: "pan-y" }}
             aria-label="슬라이드 배너"
             aria-roledescription="carousel"
@@ -1329,10 +1329,10 @@ export default function OfficialIndexPage() {
         <div className="container mx-auto px-6 space-y-8">
           <div className="space-y-2 text-center">
             <p className="text-xs font-semibold tracking-[0.3em] text-gray-400">
-              OSAN DASARANG CHURCH
+              DASARANG CHURCH
             </p>
             <h2 className="text-2xl font-bold text-brand-dark lg:text-3xl">
-              오산 다사랑교회
+              다사랑교회
             </h2>
             <p className="font-semibold text-brand-dark">
               예배와 찬양이 중심이 된 교회입니다.

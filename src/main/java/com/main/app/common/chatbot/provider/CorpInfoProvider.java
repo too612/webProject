@@ -1,5 +1,6 @@
 package com.main.app.common.chatbot.provider;
 
+import com.main.app.common.chatbot.ChatbotTextUtil;
 import com.main.app.common.chatbot.ChatbotDataProvider;
 import com.main.app.common.corp.CorpService;
 import com.main.app.common.corp.dto.CorpDto;
@@ -30,22 +31,22 @@ public class CorpInfoProvider implements ChatbotDataProvider {
             return slots;
         }
         slots.put("address", joinAddress(corp.getAddressLine1(), corp.getAddressLine2()));
-        slots.put("phone", corp.getPhoneNumber() == null || corp.getPhoneNumber().isBlank()
+        slots.put("phone", ChatbotTextUtil.isMissingValue(corp.getPhoneNumber())
                 ? "등록된 연락처 정보가 없습니다." : corp.getPhoneNumber());
         return slots;
     }
 
     private String joinAddress(String line1, String line2) {
         StringBuilder sb = new StringBuilder();
-        if (line1 != null && !line1.isBlank()) {
+        if (!ChatbotTextUtil.isMissingValue(line1)) {
             sb.append(line1);
         }
-        if (line2 != null && !line2.isBlank()) {
-            if (sb.length() > 0) {
+        if (!ChatbotTextUtil.isMissingValue(line2)) {
+            if (!sb.isEmpty()) {
                 sb.append(" ");
             }
             sb.append(line2);
         }
-        return sb.length() > 0 ? sb.toString() : "등록된 주소 정보가 없습니다.";
+        return !sb.isEmpty() ? sb.toString() : "등록된 주소 정보가 없습니다.";
     }
 }

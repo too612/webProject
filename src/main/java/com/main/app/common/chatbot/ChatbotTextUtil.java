@@ -1,11 +1,27 @@
 package com.main.app.common.chatbot;
 
+import java.text.Normalizer;
+import java.util.stream.Collectors;
+
 /**
  * 챗봇 텍스트 변환 유틸
  */
 public final class ChatbotTextUtil {
 
     private ChatbotTextUtil() {
+    }
+
+    public static String normalizeQuery(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return Normalizer.normalize(value, Normalizer.Form.NFKC)
+                .toLowerCase()
+                .replaceAll("[\\s\\p{Punct}]+", "");
+    }
+
+    public static boolean isMissingValue(String value) {
+        return value == null || value.isBlank() || "null".equalsIgnoreCase(value.trim());
     }
 
     /**
@@ -27,8 +43,9 @@ public final class ChatbotTextUtil {
                 .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&quot;", "\"");
-        return text.replaceAll("[ \\t]*\\n[ \\t]*", "\n")
-                .replaceAll("\n{2,}", "\n")
-                .trim();
+        return text.lines()
+                .map(line -> line == null ? "" : line.trim())
+            .filter(line -> !line.isEmpty())
+            .collect(Collectors.joining("\n"));
     }
 }
