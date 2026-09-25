@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { DetailPageShell } from "../../../common/ui";
 import { usePeopleContent } from "./peopleHook";
 import { DEFAULT_PEOPLE_CONTENT } from "./peopleModel";
 import PeoplePageWrite from "./peoplePageWrite";
@@ -78,7 +76,6 @@ function PeopleListView({ people, onSelect }: PeoplePageViewProps) {
 }
 
 export default function PeoplePageView() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const { peopleContent, loading, error, loadPeopleContent } =
     usePeopleContent();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -91,7 +88,6 @@ export default function PeoplePageView() {
     ? { ...DEFAULT_PEOPLE_CONTENT, ...peopleContent }
     : DEFAULT_PEOPLE_CONTENT;
   const { pastor, leaders } = content;
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   const staffCards = useMemo(() => {
     const pastorCard: LeaderCard = {
@@ -114,37 +110,30 @@ export default function PeoplePageView() {
     staffCards.find((item) => item.key === selectedKey) ?? null;
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <PageTitle
-          title={pageContent.headline}
-          description={pageContent.summary}
-        />
+    <DetailPageShell contentClassName="space-y-6">
+      {loading && (
+        <div className="text-sm text-slate-500 py-4 text-center">
+          불러오는 중입니다.
+        </div>
+      )}
+      {error && (
+        <div className="text-sm text-red-700 bg-red-50 border border-red-100 px-4 py-3">
+          {error}
+        </div>
+      )}
 
-        {loading && (
-          <div className="text-sm text-slate-500 py-4 text-center">
-            불러오는 중입니다.
-          </div>
-        )}
-        {error && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-100 px-4 py-3">
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && (
-          <div className="space-y-8">
-            {selectedPerson ? (
-              <PeoplePageWrite
-                person={selectedPerson}
-                onBack={() => setSelectedKey(null)}
-              />
-            ) : (
-              <PeopleListView people={staffCards} onSelect={setSelectedKey} />
-            )}
-          </div>
-        )}
-      </div>
-    </section>
+      {!loading && !error && (
+        <div className="space-y-8">
+          {selectedPerson ? (
+            <PeoplePageWrite
+              person={selectedPerson}
+              onBack={() => setSelectedKey(null)}
+            />
+          ) : (
+            <PeopleListView people={staffCards} onSelect={setSelectedKey} />
+          )}
+        </div>
+      )}
+    </DetailPageShell>
   );
 }

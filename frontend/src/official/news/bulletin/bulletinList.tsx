@@ -12,13 +12,9 @@ import { ArticleList } from "../../../common/article";
 import { ImageLightbox } from "../../../common/article/ImageLightbox";
 import type { ArticleItem } from "../../../common/article/ArticleModel";
 import { articleApi } from "../../../common/article/ArticleApi";
-import { Button, PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { Button, ListPageShell } from "../../../common/ui";
 
 export default function BulletinList() {
-  const { currentMenu, loading: menuLoading } = useMenu();
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
   const navigate = useNavigate();
 
   // 레이어 팝업 상태
@@ -63,29 +59,24 @@ export default function BulletinList() {
   };
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <PageTitle
-            title={pageContent.headline}
-            description={pageContent.summary}
-          />
+    <>
+      <ListPageShell
+        actions={
           <Button asChild>
             <Link to="/news/bulletin/write">주보 등록</Link>
           </Button>
-        </div>
-        <div className="[&>section]:space-y-0 [&>section>div]:border-0 [&>section>div]:bg-transparent [&>section>div]:shadow-none [&>section>div]:p-0 [&>section>div]:space-y-4 [&>section>div>div:first-child]:hidden">
-          <ArticleList
-            menuKey="SINGLE_IMAGE"
-            templateCode="SINGLE_IMAGE"
-            basePath="/news/bulletin"
-            onGalleryItemClick={handleGalleryItemClick}
-            onGalleryEditClick={handleEditClick}
-            onGalleryDeleteClick={handleDeleteClick}
-            hideDefaultWriteButton
-          />
-        </div>
-      </div>
+        }
+      >
+        <ArticleList
+          menuKey="SINGLE_IMAGE"
+          templateCode="SINGLE_IMAGE"
+          basePath="/news/bulletin"
+          onGalleryItemClick={handleGalleryItemClick}
+          onGalleryEditClick={handleEditClick}
+          onGalleryDeleteClick={handleDeleteClick}
+          hideDefaultWriteButton
+        />
+      </ListPageShell>
 
       {/* 레이어 팝업 */}
       <ImageLightbox
@@ -96,6 +87,6 @@ export default function BulletinList() {
           setLightboxState({ isOpen: false, items: [], initialIndex: 0 })
         }
       />
-    </section>
+    </>
   );
 }

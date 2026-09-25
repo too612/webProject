@@ -9,6 +9,7 @@
               ,up_menu_id AS parentId
               ,CAST(level AS INTEGER) AS level
               ,path
+              ,param
               ,CAST(order_no AS INTEGER) AS order_no
           FROM sys_menu
          WHERE 1=1
@@ -42,6 +43,7 @@
               ,up_menu_id AS parentId
               ,CAST(level AS INTEGER) AS level
               ,path
+              ,param
               ,CAST(order_no AS INTEGER) AS order_no
           FROM sys_menu
          WHERE CAST(level AS INTEGER) = #{level}
@@ -75,6 +77,7 @@
               ,up_menu_id AS parentId
               ,CAST(level AS INTEGER) AS level
               ,path
+              ,param
               ,CAST(order_no AS INTEGER) AS order_no
           FROM sys_menu
          WHERE up_menu_id = #{parentId}

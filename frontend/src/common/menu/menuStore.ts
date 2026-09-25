@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { MenuItem } from "./menu.types";
+import { getMenuParamMatchScore } from "./menuModel";
 
 type MenuStore = {
   menuList: MenuItem[];
@@ -11,7 +12,7 @@ type MenuStore = {
   submenuVisible: boolean;
   setLoading: (loading: boolean) => void;
   setMenuList: (systemType: string, menus: MenuItem[]) => void;
-  setCurrentByPath: (path: string) => void;
+  setCurrentByPath: (path: string, search?: string) => void;
 };
 
 const cloneMenus = (menus: MenuItem[]): MenuItem[] =>
@@ -45,15 +46,26 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
     const normalized = cloneMenus(menus);
     set({ menuList: normalized, systemType });
   },
-  setCurrentByPath: (path) => {
+  setCurrentByPath: (path, search = "") => {
     const menuList = cloneMenus(get().menuList);
     const allMenus = flatten(menuList);
 
     const matched =
       allMenus
         .filter((menu) => !!menu.path && path.startsWith(menu.path))
-        .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0))[0] ??
-      null;
+        .sort((a, b) => {
+          const pathLengthDiff = (b.path?.length ?? 0) - (a.path?.length ?? 0);
+          if (pathLengthDiff !== 0) {
+            return pathLengthDiff;
+          }
+          const paramScoreDiff =
+            getMenuParamMatchScore(b.param, search) -
+            getMenuParamMatchScore(a.param, search);
+          if (paramScoreDiff !== 0) {
+            return paramScoreDiff;
+          }
+          return b.level - a.level;
+        })[0] ?? null;
 
     const topMenu =
       matched?.level === 1
@@ -69,7 +81,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
 
     const currentSubMenus = topMenu?.subMenus ?? [];
     currentSubMenus.forEach((menu) => {
-      menu.active = menu.path === matched?.path;
+      menu.active = menu.menuId === matched?.menuId;
     });
 
     set({

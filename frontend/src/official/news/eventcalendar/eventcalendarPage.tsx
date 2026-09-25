@@ -6,9 +6,7 @@
  * 별로 색상 구분되는 행사 일정을 월/주/일/목록 뷰로 제공한다.
  */
 
-import { PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { DetailPageShell } from "../../../common/ui";
 import { EventCalendar } from "../../../common/ui/calendar";
 import type { EventFormValues } from "../../../common/ui/calendar";
 import { useEventCalendar } from "./eventcalendarHook";
@@ -23,7 +21,6 @@ import {
  ****************************************************************************************************/
 
 export default function EventCalendarPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const { events, categories, loading, error, saveEvent, removeEvent } =
     useEventCalendar();
 
@@ -47,35 +44,24 @@ export default function EventCalendarPage() {
    ****************************************************************************************************/
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <header className="space-y-6">
-          <PageTitle
-            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
-            description={
-              getCurrentMenuPageContent(currentMenu, menuLoading).summary
-            }
+    <DetailPageShell>
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {loading && events.length === 0 ? (
+        <p className="text-sm text-slate-500">
+          행사달력을 불러오는 중입니다...
+        </p>
+      ) : (
+        <div className="h-[640px]">
+          <EventCalendar
+            categories={calendarCategories}
+            events={calendarEvents}
+            onCreateEvent={handleSave}
+            onUpdateEvent={handleSave}
+            onDeleteEvent={handleDelete}
           />
-        </header>
-
-        {error && <p className="text-sm text-red-500">{error}</p>}
-
-        {loading && events.length === 0 ? (
-          <p className="text-sm text-slate-500">
-            행사달력을 불러오는 중입니다...
-          </p>
-        ) : (
-          <div className="h-[640px]">
-            <EventCalendar
-              categories={calendarCategories}
-              events={calendarEvents}
-              onCreateEvent={handleSave}
-              onUpdateEvent={handleSave}
-              onDeleteEvent={handleDelete}
-            />
-          </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </DetailPageShell>
   );
 }

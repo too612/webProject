@@ -3,6 +3,12 @@ export { LoadingSpinner } from "./LoadingSpinner";
 export { ErrorMessage } from "./ErrorMessage";
 export { ConfirmModal } from "./ConfirmModal";
 export { RouteProgress } from "./route-progress";
+export {
+  PageShell,
+  ListPageShell,
+  DetailPageShell,
+  FormPageShell,
+} from "./shell";
 
 /* ─── 액션 버튼 시스템 ───────────────────────────────────── */
 export { Button, buttonVariants } from "./button";

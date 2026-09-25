@@ -5,6 +5,7 @@ export interface MenuItem {
   menuImagePath?: string | null;
   menuUrl?: string;
   path: string;
+  param?: string | null;
   parentId?: string;
   level: number;
   orderNo: number;

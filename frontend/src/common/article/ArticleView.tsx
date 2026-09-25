@@ -416,8 +416,8 @@ export function ArticleView({
       : CONTENT_IMG_SRC_REGEX.exec(article.contentHtml ?? "")?.[1] || null;
 
     return (
-      <section className="space-y-5">
-        <article className="bg-white rounded-none shadow-panel border border-gray-100 p-6 md:p-7">
+      <>
+        <div className="space-y-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-brand-dark">
               {article.title}
@@ -451,7 +451,7 @@ export function ArticleView({
               onClick={() => openPasswordModal("delete")}
             />
           </div>
-        </article>
+        </div>
         <ConfirmModal
           isOpen={deleteConfirm.isOpen}
           title="게시글 삭제"
@@ -469,7 +469,7 @@ export function ArticleView({
           onConfirm={onPasswordConfirm}
           onCancel={() => setShowPasswordModal(false)}
         />
-      </section>
+      </>
     );
   }
 
@@ -489,8 +489,8 @@ export function ArticleView({
   const shouldRenderDefaultActions = !hideDefaultActions && !actionContent;
 
   return (
-    <section className="space-y-5">
-      <article className="bg-white rounded-none shadow-panel border border-gray-100 p-6 md:p-7">
+    <>
+      <div className="space-y-5">
         {renderHeader({
           shouldRenderDefaultHeader,
           headerContent,
@@ -580,7 +580,7 @@ export function ArticleView({
           onNavigate: navigate,
           onOpenPasswordModal: openPasswordModal,
         })}
-      </article>
+      </div>
 
       <ConfirmModal
         isOpen={deleteConfirm.isOpen}
@@ -600,6 +600,6 @@ export function ArticleView({
         onConfirm={onPasswordConfirm}
         onCancel={() => setShowPasswordModal(false)}
       />
-    </section>
+    </>
   );
 }

@@ -1,16 +1,20 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Check, Copy, ExternalLink, Landmark } from "lucide-react";
-import { Badge, Button, CountryFlag, PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { toast } from "sonner";
+import {
+  Badge,
+  Button,
+  CountryFlag,
+  DetailPageShell,
+} from "../../../common/ui";
 import { useOutreachContent } from "./outreachHook";
 import {
   DEFAULT_OUTREACH_CONTENT,
   OUTREACH_OFFERING_ACCOUNT,
 } from "./outreachModel";
+import { OutreachMap } from "./OutreachMap";
 
 export default function OutreachPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const { outreachContent, loading, error, loadOutreachContent } =
     useOutreachContent();
 
@@ -26,8 +30,11 @@ export default function OutreachPage() {
     () =>
       (content.activities ?? []).map((activity) => ({
         ...activity,
+        employeeNo: activity.employeeNo,
         country: activity.country ?? "기타",
         countryCode: activity.countryCode ?? "UN",
+        city: activity.city ?? "",
+        region: activity.region ?? "",
         organization: activity.organization ?? "",
         missionaryName: activity.missionaryName ?? activity.title,
         sentYear: activity.sentYear ?? 0,
@@ -42,14 +49,8 @@ export default function OutreachPage() {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+      toast.error("계좌번호 복사에 실패했습니다.");
+      return;
     }
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
@@ -58,7 +59,7 @@ export default function OutreachPage() {
   const bannerTitleParts = content.bannerTitle.split("선교");
 
   return (
-    <section className="space-y-5">
+    <DetailPageShell>
       {loading && (
         <div className="text-sm text-slate-500 py-4 text-center">
           불러오는 중입니다.
@@ -71,41 +72,27 @@ export default function OutreachPage() {
       )}
 
       {!loading && !error && (
-        <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-          <PageTitle
-            title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
-            description={
-              getCurrentMenuPageContent(currentMenu, menuLoading).summary
-            }
-          />
-
+        <div className="space-y-5">
           <section>
-            <div className="relative overflow-hidden border border-slate-200 min-h-[380px] md:min-h-[460px] bg-slate-100">
-              <img
-                src="/img/official/training/outreach/worldMap.jpg"
-                alt="세계 지도"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-
-              <div className="relative z-10 flex flex-col items-center justify-center text-center h-full px-5 md:px-8 py-12">
-                <h3 className="text-slate-900 text-2xl md:text-4xl font-extrabold leading-tight md:leading-snug max-w-2xl">
-                  {bannerTitleParts[0]}
-                  <span className="bg-gradient-to-r from-brand-primary via-sky-600 to-sky-800 bg-clip-text text-transparent">
-                    선교
-                  </span>
-                  {bannerTitleParts[1]}
-                </h3>
-                <p className="mt-4 text-slate-700 text-sm md:text-base leading-loose max-w-2xl">
-                  {content.bannerDescription
-                    .split("\n")
-                    .map((line, index, arr) => (
-                      <Fragment key={index}>
-                        {line}
-                        {index < arr.length - 1 ? <br /> : null}
-                      </Fragment>
-                    ))}
-                </p>
-              </div>
+            <OutreachMap activities={activities} />
+            <div className="px-1 pt-4">
+              <h3 className="text-slate-900 text-2xl md:text-4xl font-extrabold leading-tight md:leading-snug max-w-2xl">
+                {bannerTitleParts[0]}
+                <span className="bg-gradient-to-r from-brand-primary via-sky-600 to-sky-800 bg-clip-text text-transparent">
+                  선교
+                </span>
+                {bannerTitleParts[1]}
+              </h3>
+              <p className="mt-3 text-slate-700 text-sm md:text-base leading-loose max-w-2xl">
+                {content.bannerDescription
+                  .split("\n")
+                  .map((line, index, arr) => (
+                    <Fragment key={line}>
+                      {line}
+                      {index < arr.length - 1 ? <br /> : null}
+                    </Fragment>
+                  ))}
+              </p>
             </div>
           </section>
 
@@ -122,7 +109,10 @@ export default function OutreachPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {activities.map((activity) => (
                 <article
-                  key={activity.countryCode || activity.title}
+                  key={
+                    activity.employeeNo ??
+                    `${activity.countryCode}-${activity.title}-${activity.missionaryName}`
+                  }
                   className="border border-slate-200 bg-white p-3 md:p-4 shadow-panel transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                 >
                   <div className="flex items-center gap-3">
@@ -169,7 +159,7 @@ export default function OutreachPage() {
                 {content.offeringSectionDescription}
               </p>
               <Button asChild className="mt-4">
-                <a href="#" target="_blank" rel="noreferrer">
+                <a href="/about/contribution">
                   온라인 헌금 바로가기
                   <ExternalLink />
                 </a>
@@ -210,6 +200,6 @@ export default function OutreachPage() {
           </section>
         </div>
       )}
-    </section>
+    </DetailPageShell>
   );
 }

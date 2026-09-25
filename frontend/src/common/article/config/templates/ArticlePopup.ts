@@ -66,7 +66,6 @@ export const ARTICLE_POPUP_CONFIG: ArticleTemplateConfig = {
     },
     imageOnly: {
       enabled: false,
-      showTitle: true,
     },
   },
 

@@ -1,10 +1,16 @@
 export type OutreachActivity = {
+  employeeNo?: string;
   title: string;
   country: string;
   countryCode: string;
+  city?: string;
+  region?: string;
+  latitude?: number;
+  longitude?: number;
   organization: string;
   missionaryName: string;
   sentYear: number;
+  assignmentContent?: string;
 };
 
 export type MissionaryApiResponse = {
@@ -15,6 +21,10 @@ export type MissionaryApiResponse = {
   dispatchDate?: string;
   dispatchedDate?: string;
   assignmentContent: string;
+  city?: string;
+  region?: string;
+  latitude?: number;
+  longitude?: number;
   groupKey?: string;
   personKey?: string;
 };

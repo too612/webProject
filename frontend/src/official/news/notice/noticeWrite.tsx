@@ -6,7 +6,12 @@
  */
 
 import { ArticleWrite } from "../../../common/article";
+import { FormPageShell } from "../../../common/ui";
 
 export default function NoticeWrite() {
-  return <ArticleWrite templateCode="PINNABLE" basePath="/news/notice" />;
+  return (
+    <FormPageShell titleSuffix="작성">
+      <ArticleWrite templateCode="PINNABLE" basePath="/news/notice" />
+    </FormPageShell>
+  );
 }

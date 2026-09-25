@@ -8,9 +8,8 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import EditorViewer from "../../../common/editor/editorViewer";
 import { Attachment, useAttachment } from "../../../common/attachment";
-import { Button, PageTitle } from "../../../common/ui";
+import { Button, DetailPageShell } from "../../../common/ui";
 import { useAuthPermission } from "../../../common/auth/authPermission";
-import { useMenu } from "../../../common/menu/menuHook";
 import { usePastorProfile } from "./pastorHook";
 import { INITIAL_PASTOR_REQUEST, resolveDisplayMode } from "./pastorModel";
 import type { PastorRequest } from "./pastorModel";
@@ -83,7 +82,6 @@ function PastorProfileView({
  ****************************************************************************************************/
 
 export default function PastorPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const { profile, loading, error, loadProfile, saveProfile, removeProfile } =
     usePastorProfile();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -101,14 +99,6 @@ export default function PastorPage() {
   const canSave = hasAction("save");
   const canCancel = hasAction("cancel");
   const canDeleteAction = hasAction("delete");
-  const pastorContent = {
-    headline: menuLoading
-      ? "페이지 정보를 불러오는 중"
-      : (currentMenu?.menuName ?? ""),
-    summary: menuLoading
-      ? "페이지 설명을 불러오는 중"
-      : (currentMenu?.menuSummary ?? null),
-  };
 
   const selectedDisplayMode = resolveDisplayMode(form.displayMode);
   const isSingleImageMode = selectedDisplayMode === "single-image";
@@ -290,174 +280,170 @@ export default function PastorPage() {
    ****************************************************************************************************/
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <PageTitle
-            title={pastorContent.headline}
-            description={pastorContent.summary}
-          />
-          <div className="flex items-center gap-2">
-            {!isEditMode && canEdit && (
-              <Button data-action="edit" onClick={handleEditStart}>
-                편집
+    <DetailPageShell
+      actions={
+        <div className="flex items-center gap-2">
+          {!isEditMode && canEdit && (
+            <Button data-action="edit" onClick={handleEditStart}>
+              편집
+            </Button>
+          )}
+          {isEditMode && (
+            <>
+              <Button
+                data-action="save"
+                onClick={handleSave}
+                disabled={loading || !canSave}
+              >
+                저장
               </Button>
-            )}
-            {isEditMode && (
-              <>
+              <Button
+                data-action="cancel"
+                variant="outline"
+                onClick={handleEditCancel}
+                disabled={loading || !canCancel}
+              >
+                취소
+              </Button>
+              {profile?.corpId && (
                 <Button
-                  data-action="save"
-                  onClick={handleSave}
-                  disabled={loading || !canSave}
+                  data-action="delete"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={loading || !canDeleteAction}
                 >
-                  저장
+                  삭제
                 </Button>
-                <Button
-                  data-action="cancel"
-                  variant="outline"
-                  onClick={handleEditCancel}
-                  disabled={loading || !canCancel}
-                >
-                  취소
-                </Button>
-                {profile?.corpId && (
-                  <Button
-                    data-action="delete"
-                    variant="destructive"
-                    onClick={handleDelete}
-                    disabled={loading || !canDeleteAction}
-                  >
-                    삭제
-                  </Button>
-                )}
-              </>
-            )}
+              )}
+            </>
+          )}
+        </div>
+      }
+    >
+      {(error || actionMessage) && (
+        <div
+          className={`rounded-none px-4 py-3 text-sm ${error ? "bg-red-50 text-red-700 border border-red-100" : "bg-green-50 text-green-700 border border-green-100"}`}
+        >
+          {error ?? actionMessage}
+        </div>
+      )}
+
+      {!isEditMode && (
+        <PastorProfileView
+          isSingleImageMode={isSingleImageMode}
+          viewImageSrc={viewImageSrc}
+          introduction={profile?.introduction ?? ""}
+          chiefName={profile?.chiefName}
+        />
+      )}
+
+      {isEditMode && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-none border border-slate-100 bg-slate-50/60 p-5 md:p-6">
+          <div className="space-y-2 text-sm md:col-span-2">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <span className="text-slate-700 font-semibold">
+                노출 방식 선택
+              </span>
+              <span className="text-xs text-slate-500">
+                운영 편의에 맞는 방식으로 선택하세요.
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label
+                htmlFor="displayModeSingle"
+                className={`flex items-start gap-3 rounded-md border bg-white px-4 py-3 cursor-pointer transition-colors ${selectedDisplayMode === "single-image" ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-slate-300"}`}
+              >
+                <input
+                  id="displayModeSingle"
+                  aria-label="통합 이미지형 노출 방식"
+                  type="radio"
+                  name="displayMode"
+                  value="single-image"
+                  checked={selectedDisplayMode === "single-image"}
+                  onChange={(event) =>
+                    handleInputChange("displayMode", event.target.value)
+                  }
+                  className="mt-0.5"
+                />
+                <span className="leading-relaxed">
+                  <span className="font-semibold text-slate-800">
+                    통합 이미지형
+                  </span>
+                  <span className="block text-slate-500 text-xs mt-1">
+                    교회소개와 담임목사 내용을 이미지 1장으로 등록해 전체 영역에
+                    크게 노출합니다.
+                  </span>
+                </span>
+              </label>
+              <label
+                htmlFor="displayModeSplit"
+                className={`flex items-start gap-3 rounded-md border bg-white px-4 py-3 cursor-pointer transition-colors ${selectedDisplayMode === "split-editor-image" ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-slate-300"}`}
+              >
+                <input
+                  id="displayModeSplit"
+                  aria-label="분리 편집형 노출 방식"
+                  type="radio"
+                  name="displayMode"
+                  value="split-editor-image"
+                  checked={selectedDisplayMode === "split-editor-image"}
+                  onChange={(event) =>
+                    handleInputChange("displayMode", event.target.value)
+                  }
+                  className="mt-0.5"
+                />
+                <span className="leading-relaxed">
+                  <span className="font-semibold text-slate-800">
+                    분리 편집형
+                  </span>
+                  <span className="block text-slate-500 text-xs mt-1">
+                    소개글은 직접 편집하고, 담임목사 이미지는 별도로 업로드해
+                    현재 레이아웃으로 노출합니다.
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {selectedDisplayMode === "split-editor-image" && (
+            <div className="space-y-1 text-sm md:col-span-2">
+              <span className="text-slate-600 font-medium">소개</span>
+              <Suspense
+                fallback={
+                  <div className="w-full min-h-40 border border-slate-300 rounded-none bg-white px-3 py-2.5 text-sm text-slate-500">
+                    에디터 불러오는 중...
+                  </div>
+                }
+              >
+                <LazyEditor
+                  value={form.introduction ?? ""}
+                  onChange={(nextValue) =>
+                    handleInputChange("introduction", nextValue)
+                  }
+                />
+              </Suspense>
+            </div>
+          )}
+
+          <div className="space-y-1 text-sm md:col-span-2">
+            <span className="text-slate-600 font-medium">
+              {selectedDisplayMode === "single-image"
+                ? "단일 소개 이미지"
+                : "담임목사 이미지"}
+            </span>
+            <Attachment
+              existingFiles={profileImageAttachment.existingFiles}
+              newFiles={profileImageAttachment.newFiles}
+              onAdd={(files) => profileImageAttachment.addFiles(files)}
+              onRemoveExisting={(fileId) =>
+                profileImageAttachment.removeExisting(fileId)
+              }
+              onRemoveNew={(index) => profileImageAttachment.removeNew(index)}
+              accept="image/*"
+              maxFiles={1}
+            />
           </div>
         </div>
-
-        {(error || actionMessage) && (
-          <div
-            className={`rounded-none px-4 py-3 text-sm ${error ? "bg-red-50 text-red-700 border border-red-100" : "bg-green-50 text-green-700 border border-green-100"}`}
-          >
-            {error ?? actionMessage}
-          </div>
-        )}
-
-        {!isEditMode && (
-          <PastorProfileView
-            isSingleImageMode={isSingleImageMode}
-            viewImageSrc={viewImageSrc}
-            introduction={profile?.introduction ?? ""}
-            chiefName={profile?.chiefName}
-          />
-        )}
-
-        {isEditMode && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-none border border-slate-100 bg-slate-50/60 p-5 md:p-6">
-            <div className="space-y-2 text-sm md:col-span-2">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <span className="text-slate-700 font-semibold">
-                  노출 방식 선택
-                </span>
-                <span className="text-xs text-slate-500">
-                  운영 편의에 맞는 방식으로 선택하세요.
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <label
-                  htmlFor="displayModeSingle"
-                  className={`flex items-start gap-3 rounded-md border bg-white px-4 py-3 cursor-pointer transition-colors ${selectedDisplayMode === "single-image" ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-slate-300"}`}
-                >
-                  <input
-                    id="displayModeSingle"
-                    type="radio"
-                    name="displayMode"
-                    value="single-image"
-                    checked={selectedDisplayMode === "single-image"}
-                    onChange={(event) =>
-                      handleInputChange("displayMode", event.target.value)
-                    }
-                    className="mt-0.5"
-                  />
-                  <span className="leading-relaxed">
-                    <span className="font-semibold text-slate-800">
-                      통합 이미지형
-                    </span>
-                    <span className="block text-slate-500 text-xs mt-1">
-                      교회소개와 담임목사 내용을 이미지 1장으로 등록해 전체
-                      영역에 크게 노출합니다.
-                    </span>
-                  </span>
-                </label>
-                <label
-                  htmlFor="displayModeSplit"
-                  className={`flex items-start gap-3 rounded-md border bg-white px-4 py-3 cursor-pointer transition-colors ${selectedDisplayMode === "split-editor-image" ? "border-brand-primary bg-brand-primary/5" : "border-slate-200 hover:border-slate-300"}`}
-                >
-                  <input
-                    id="displayModeSplit"
-                    type="radio"
-                    name="displayMode"
-                    value="split-editor-image"
-                    checked={selectedDisplayMode === "split-editor-image"}
-                    onChange={(event) =>
-                      handleInputChange("displayMode", event.target.value)
-                    }
-                    className="mt-0.5"
-                  />
-                  <span className="leading-relaxed">
-                    <span className="font-semibold text-slate-800">
-                      분리 편집형
-                    </span>
-                    <span className="block text-slate-500 text-xs mt-1">
-                      소개글은 직접 편집하고, 담임목사 이미지는 별도로 업로드해
-                      현재 레이아웃으로 노출합니다.
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {selectedDisplayMode === "split-editor-image" && (
-              <div className="space-y-1 text-sm md:col-span-2">
-                <span className="text-slate-600 font-medium">소개</span>
-                <Suspense
-                  fallback={
-                    <div className="w-full min-h-40 border border-slate-300 rounded-none bg-white px-3 py-2.5 text-sm text-slate-500">
-                      에디터 불러오는 중...
-                    </div>
-                  }
-                >
-                  <LazyEditor
-                    value={form.introduction ?? ""}
-                    onChange={(nextValue) =>
-                      handleInputChange("introduction", nextValue)
-                    }
-                  />
-                </Suspense>
-              </div>
-            )}
-
-            <div className="space-y-1 text-sm md:col-span-2">
-              <span className="text-slate-600 font-medium">
-                {selectedDisplayMode === "single-image"
-                  ? "단일 소개 이미지"
-                  : "담임목사 이미지"}
-              </span>
-              <Attachment
-                existingFiles={profileImageAttachment.existingFiles}
-                newFiles={profileImageAttachment.newFiles}
-                onAdd={(files) => profileImageAttachment.addFiles(files)}
-                onRemoveExisting={(fileId) =>
-                  profileImageAttachment.removeExisting(fileId)
-                }
-                onRemoveNew={(index) => profileImageAttachment.removeNew(index)}
-                accept="image/*"
-                maxFiles={1}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
+      )}
+    </DetailPageShell>
   );
 }

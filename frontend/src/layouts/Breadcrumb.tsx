@@ -2,6 +2,7 @@ import { useState, type FocusEvent } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, Home } from "lucide-react";
 import { useMenu } from "../common/menu/menuHook";
+import { buildMenuLink } from "../common/menu/menuModel";
 
 export default function Breadcrumb() {
   const { currentTopMenu, currentSubMenus, menuList: allTopMenus } = useMenu();
@@ -63,7 +64,11 @@ export default function Breadcrumb() {
                 {allTopMenus.map((topMenu) => (
                   <Link
                     key={topMenu.menuId}
-                    to={topMenu.path || topMenu.subMenus?.[0]?.path || "/"}
+                    to={
+                      topMenu.path
+                        ? buildMenuLink(topMenu)
+                        : buildMenuLink(topMenu.subMenus?.[0])
+                    }
                     role="menuitem"
                     className="whitespace-nowrap"
                     onClick={closeTopMenu}
@@ -108,7 +113,7 @@ export default function Breadcrumb() {
                 {currentSubMenus.map((sub) => (
                   <Link
                     key={sub.menuId}
-                    to={sub.path || "/"}
+                    to={buildMenuLink(sub)}
                     role="menuitem"
                     className={`whitespace-nowrap${sub.active ? " active" : ""}`}
                     onClick={closeSubMenu}

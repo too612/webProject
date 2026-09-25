@@ -1,3 +1,5 @@
+--param 은 'TYPE=A&CLS=BBB-111' 형식으로 사용하는것이 좋다.
+
 DROP TABLE IF EXISTS public.sys_menu;
 
 CREATE TABLE public.sys_menu (
@@ -6,6 +8,7 @@ CREATE TABLE public.sys_menu (
 	menu_summary varchar(1000) NULL,
 	up_menu_id varchar NULL,
 	"path" varchar NULL,
+	"param" varchar NULL,
 	order_no varchar NULL,
 	"level" varchar NULL,
 	menu_image_path varchar NULL,
@@ -24,6 +27,7 @@ COMMENT ON COLUMN public.sys_menu.menu_nm IS '메뉴명';
 COMMENT ON COLUMN public.sys_menu.menu_summary IS '메뉴 화면에 표시할 요약 설명';
 COMMENT ON COLUMN public.sys_menu.up_menu_id IS '상위 메뉴 식별자';
 COMMENT ON COLUMN public.sys_menu.path IS '메뉴 라우팅 경로';
+COMMENT ON COLUMN public.sys_menu.param IS '동일 경로 메뉴 구분 및 화면 기본 설정 파라미터';
 COMMENT ON COLUMN public.sys_menu.order_no IS '동일 레벨 내 정렬 순서';
 COMMENT ON COLUMN public.sys_menu.level IS '메뉴 계층 레벨';
 COMMENT ON COLUMN public.sys_menu.menu_image_path IS '메뉴 대표 이미지 경로';

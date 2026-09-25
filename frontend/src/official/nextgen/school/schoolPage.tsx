@@ -2,9 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Calendar, Scroll, Sparkles, Target, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ArticleList } from "../../../common/article";
-import { Button, PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { Button, DetailPageShell } from "../../../common/ui";
 import { DEFAULT_SCHOOL_PAGE_CONTENT } from "./schoolModel";
 
 const SCHOOL_GALLERY_BASE = "/nextgen/school";
@@ -37,9 +35,9 @@ function SectionIconLine({ icon: Icon }: Readonly<{ icon: LucideIcon }>) {
 function SectionLabel({ label }: Readonly<{ label: string[] }>) {
   return (
     <p className="text-center text-sm font-bold leading-relaxed text-slate-700 md:pr-2">
-      {label.map(function (line, i) {
+      {label.map(function (line) {
         return (
-          <span key={i} className="block">
+          <span key={line} className="block">
             {line}
           </span>
         );
@@ -139,19 +137,10 @@ function YoutubeIcon({ className }: Readonly<{ className?: string }>) {
 }
 
 export default function SchoolPromoPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const content = DEFAULT_SCHOOL_PAGE_CONTENT;
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   return (
-    <article className="border border-slate-200 bg-white shadow-panel overflow-hidden">
-      <header className="p-6">
-        <PageTitle
-          title={pageContent.headline}
-          description={pageContent.summary}
-        />
-      </header>
-
+    <DetailPageShell panelClassName="overflow-hidden">
       {/* 참고1: 부서 소개 + 활동 갤러리 슬라이드 */}
       <section>
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,340px)_minmax(0,640px)]">
@@ -230,8 +219,13 @@ export default function SchoolPromoPage() {
           </h3>
           <div className="mt-5 h-px w-full bg-slate-200" />
           <div className="mt-3">
-            {content.guidelines.sections.map(function (section, i) {
-              return <GuidelineSection key={i} section={section} />;
+            {content.guidelines.sections.map(function (section) {
+              return (
+                <GuidelineSection
+                  key={section.label.join("|")}
+                  section={section}
+                />
+              );
             })}
           </div>
         </div>
@@ -291,6 +285,6 @@ export default function SchoolPromoPage() {
           </div>
         </div>
       </section>
-    </article>
+    </DetailPageShell>
   );
 }

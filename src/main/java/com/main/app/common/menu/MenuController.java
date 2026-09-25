@@ -32,14 +32,16 @@ public class MenuController {
     @GetMapping("/path")
     public ApiResponse<MenuDto> findMenuByPath(
             @RequestParam("path") String path,
+            @RequestParam(name = "param", required = false) String param,
             @RequestParam(name = "systemType", defaultValue = "official") String systemType) {
-        return ApiResponse.ok(menuService.findMenuByPath(path, systemType));
+        return ApiResponse.ok(menuService.findMenuByPath(path, systemType, param));
     }
 
     @GetMapping("/top-menu")
     public ApiResponse<MenuDto> findTopMenuByPath(
             @RequestParam("path") String path,
+            @RequestParam(name = "param", required = false) String param,
             @RequestParam(name = "systemType", defaultValue = "official") String systemType) {
-        return ApiResponse.ok(menuService.findTopMenuByPath(path, systemType));
+        return ApiResponse.ok(menuService.findTopMenuByPath(path, systemType, param));
     }
 }

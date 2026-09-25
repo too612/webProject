@@ -17,12 +17,18 @@ function transformMissionaryToActivity(
   const dateStr = missionary.dispatchDate || missionary.dispatchedDate || "";
   const year = dateStr ? new Date(dateStr).getFullYear() : 0;
   return {
+    employeeNo: missionary.employeeNo,
     title: missionary.country || missionary.assignmentContent,
     country: missionary.country,
     countryCode: missionary.countryCode,
+    city: missionary.city,
+    region: missionary.region,
+    latitude: missionary.latitude,
+    longitude: missionary.longitude,
     organization: "",
     missionaryName: missionary.name,
     sentYear: year,
+    assignmentContent: missionary.assignmentContent,
   };
 }
 

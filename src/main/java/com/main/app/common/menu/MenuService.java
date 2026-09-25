@@ -6,7 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,6 +62,10 @@ public class MenuService {
     }
 
     public MenuDto findMenuByPath(String path, String systemType) {
+        return findMenuByPath(path, systemType, null);
+    }
+
+    public MenuDto findMenuByPath(String path, String systemType, String param) {
         if (path == null || path.trim().isEmpty()) {
             return null;
         }
@@ -66,12 +73,24 @@ public class MenuService {
         List<MenuDto> allMenus = menuMapper.getMenuList(systemType);
         return allMenus.stream()
                 .filter(menu -> path.equals(menu.getPath()))
+                .sorted((left, right) -> {
+                    int leftParamScore = matchesParam(left.getParam(), param) ? 1 : 0;
+                    int rightParamScore = matchesParam(right.getParam(), param) ? 1 : 0;
+                    if (leftParamScore != rightParamScore) {
+                        return Integer.compare(rightParamScore, leftParamScore);
+                    }
+                    return Integer.compare(right.getLevel(), left.getLevel());
+                })
                 .findFirst()
                 .orElse(null);
     }
 
     public MenuDto findTopMenuByPath(String path, String systemType) {
-        MenuDto currentMenu = findMenuByPath(path, systemType);
+        return findTopMenuByPath(path, systemType, null);
+    }
+
+    public MenuDto findTopMenuByPath(String path, String systemType, String param) {
+        MenuDto currentMenu = findMenuByPath(path, systemType, param);
         if (currentMenu == null) {
             return null;
         }
@@ -97,5 +116,43 @@ public class MenuService {
         }
 
         return topMenu;
+    }
+
+    private boolean matchesParam(String menuParam, String requestParam) {
+        if (menuParam == null || menuParam.trim().isEmpty()) {
+            return requestParam == null || requestParam.trim().isEmpty();
+        }
+        if (requestParam == null || requestParam.trim().isEmpty()) {
+            return false;
+        }
+        Map<String, String> requiredParams = parseQueryParams(menuParam);
+        Map<String, String> currentParams = parseQueryParams(requestParam);
+        return requiredParams.entrySet().stream()
+                .allMatch(entry -> entry.getValue().equals(currentParams.get(entry.getKey())));
+    }
+
+    private Map<String, String> parseQueryParams(String rawParam) {
+        Map<String, String> params = new HashMap<>();
+        if (rawParam == null || rawParam.trim().isEmpty()) {
+            return params;
+        }
+        String normalizedParam = rawParam.trim();
+        if (normalizedParam.startsWith("?")) {
+            normalizedParam = normalizedParam.substring(1);
+        }
+        for (String pair : normalizedParam.split("&")) {
+            if (pair == null || pair.isBlank()) {
+                continue;
+            }
+            String[] parts = pair.split("=", 2);
+            String key = decodeQueryValue(parts[0]);
+            String value = parts.length > 1 ? decodeQueryValue(parts[1]) : "";
+            params.put(key, value);
+        }
+        return params;
+    }
+
+    private String decodeQueryValue(String value) {
+        return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 }

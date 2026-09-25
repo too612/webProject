@@ -114,7 +114,6 @@ export interface ViewConfig {
   };
   imageOnly?: {
     enabled: boolean;
-    showTitle: boolean;
   };
 }
 
@@ -208,7 +207,6 @@ export const DEFAULT_ARTICLE_CONFIG: ArticleTemplateConfig = {
     },
     imageOnly: {
       enabled: false,
-      showTitle: true,
     },
   },
   write: {

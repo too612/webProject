@@ -58,8 +58,14 @@ export function useMenu() {
   ]);
 
   useEffect(() => {
-    setCurrentByPath(location.pathname);
-  }, [location.pathname, setCurrentByPath, menuList.length, systemType]);
+    setCurrentByPath(location.pathname, location.search);
+  }, [
+    location.pathname,
+    location.search,
+    setCurrentByPath,
+    menuList.length,
+    systemType,
+  ]);
 
   return {
     menuList,

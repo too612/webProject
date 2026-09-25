@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, PageTitle } from "../../../common/ui";
+import { Button, DetailPageShell } from "../../../common/ui";
 import { useAuthPermission } from "../../../common/auth/authPermission";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import { attachmentApi } from "../../../common/attachment";
 import { useHistoryContent } from "./historyHook";
 import type {
@@ -279,7 +277,6 @@ function HistoryYearEditor({
 
 export default function HistoryPageWrite() {
   const navigate = useNavigate();
-  const { currentMenu, loading: menuLoading } = useMenu();
   const {
     historyContent,
     loading,
@@ -289,7 +286,6 @@ export default function HistoryPageWrite() {
     removeHistoryContent,
   } = useHistoryContent();
   const { hasAction } = useAuthPermission("PROGRAM_HOME");
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
   const [editState, setEditState] = useState<HistoryEditState>({
     timeline: [],
     deletedFileIds: [],
@@ -342,104 +338,100 @@ export default function HistoryPageWrite() {
   };
 
   return (
-    <section className="space-y-5">
-      <div className="space-y-5 rounded-none border border-slate-200 bg-white p-6 shadow-panel md:p-7">
-        <div className="flex items-start justify-between gap-3">
-          <PageTitle
-            title={pageContent.headline}
-            description={pageContent.summary}
-          />
-          <Button variant="outline" onClick={() => navigate("/about/history")}>
-            목록
-          </Button>
-        </div>
-        {(loading || error) && (
-          <div
-            className={`border px-3 py-2 text-sm ${error ? "border-red-100 bg-red-50 text-red-700" : "border-blue-100 bg-blue-50 text-blue-700"}`}
-          >
-            {error ?? "연혁 정보를 불러오는 중입니다."}
-          </div>
-        )}
-        {actionMessage && (
-          <div className="border border-green-100 bg-green-50 px-3 py-2 text-sm text-green-700">
-            {actionMessage}
-          </div>
-        )}
-        <DndContext
-          sensors={dndSensors}
-          collisionDetection={closestCorners}
-          onDragEnd={(event: DragEndEvent) => {
-            const { active, over } = event;
-            if (over && active.id !== over.id) {
-              setEditState((prev) => ({
-                ...prev,
-                timeline: arrayMove(
-                  prev.timeline,
-                  Number(active.id),
-                  Number(over.id),
-                ),
-              }));
-            }
-          }}
+    <DetailPageShell
+      titleSuffix="작성"
+      actions={
+        <Button variant="outline" onClick={() => navigate("/about/history")}>
+          목록
+        </Button>
+      }
+    >
+      {(loading || error) && (
+        <div
+          className={`border px-3 py-2 text-sm ${error ? "border-red-100 bg-red-50 text-red-700" : "border-blue-100 bg-blue-50 text-blue-700"}`}
         >
-          <SortableContext
-            items={editState.timeline.map((_, index) => String(index))}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="space-y-3">
-              {editState.timeline.map((year, index) => (
-                <HistoryYearEditor
-                  key={`${year.historyId ?? "new"}-${year.year}`}
-                  year={year}
-                  index={index}
-                  onYearChange={(next) => updateYear(index, next)}
-                  onRemove={() =>
-                    setEditState((prev) => ({
-                      ...prev,
-                      timeline: prev.timeline.filter((_, i) => i !== index),
-                    }))
-                  }
-                  onDeleteFile={(fileId) =>
-                    setEditState((prev) => ({
-                      ...prev,
-                      deletedFileIds: [...prev.deletedFileIds, fileId],
-                    }))
-                  }
-                />
-              ))}
-              <button
-                type="button"
-                onClick={() =>
+          {error ?? "연혁 정보를 불러오는 중입니다."}
+        </div>
+      )}
+      {actionMessage && (
+        <div className="border border-green-100 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {actionMessage}
+        </div>
+      )}
+      <DndContext
+        sensors={dndSensors}
+        collisionDetection={closestCorners}
+        onDragEnd={(event: DragEndEvent) => {
+          const { active, over } = event;
+          if (over && active.id !== over.id) {
+            setEditState((prev) => ({
+              ...prev,
+              timeline: arrayMove(
+                prev.timeline,
+                Number(active.id),
+                Number(over.id),
+              ),
+            }));
+          }
+        }}
+      >
+        <SortableContext
+          items={editState.timeline.map((_, index) => String(index))}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-3">
+            {editState.timeline.map((year, index) => (
+              <HistoryYearEditor
+                key={`${year.historyId ?? "new"}-${year.year}`}
+                year={year}
+                index={index}
+                onYearChange={(next) => updateYear(index, next)}
+                onRemove={() =>
                   setEditState((prev) => ({
                     ...prev,
-                    timeline: [...prev.timeline, { year: "", events: [] }],
+                    timeline: prev.timeline.filter((_, i) => i !== index),
                   }))
                 }
-                className="rounded-none border border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
-              >
-                + 연도 추가
-              </button>
-            </div>
-          </SortableContext>
-        </DndContext>
-        <div className="flex items-center gap-2 border-t border-slate-200 pt-4">
-          <Button onClick={handleSave} disabled={loading || !hasAction("edit")}>
-            저장
-          </Button>
-          <Button variant="outline" onClick={() => navigate("/about/history")}>
-            취소
-          </Button>
-          {hasAction("delete") && (
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={loading}
+                onDeleteFile={(fileId) =>
+                  setEditState((prev) => ({
+                    ...prev,
+                    deletedFileIds: [...prev.deletedFileIds, fileId],
+                  }))
+                }
+              />
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                setEditState((prev) => ({
+                  ...prev,
+                  timeline: [...prev.timeline, { year: "", events: [] }],
+                }))
+              }
+              className="rounded-none border border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
             >
-              전체 삭제
-            </Button>
-          )}
-        </div>
+              + 연도 추가
+            </button>
+          </div>
+        </SortableContext>
+      </DndContext>
+      <div className="flex items-center gap-2 border-t border-slate-200 pt-4">
+        <Button onClick={handleSave} disabled={loading || !hasAction("edit")}>
+          저장
+        </Button>
+        <Button variant="outline" onClick={() => navigate("/about/history")}>
+          취소
+        </Button>
+        {hasAction("delete") && (
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={loading}
+          >
+            전체 삭제
+          </Button>
+        )}
       </div>
-    </section>
+    </DetailPageShell>
   );
 }

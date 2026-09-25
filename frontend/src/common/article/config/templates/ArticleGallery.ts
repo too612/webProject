@@ -66,7 +66,6 @@ export const ARTICLE_GALLERY_CONFIG: ArticleTemplateConfig = {
     },
     imageOnly: {
       enabled: false,
-      showTitle: true,
     },
   },
 

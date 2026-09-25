@@ -81,6 +81,46 @@ export const getCurrentMenuPageContent = (
     : (currentMenu?.menuSummary ?? null),
 });
 
+const normalizeMenuParam = (param?: string | null): string => {
+  const trimmedParam = param?.trim() ?? "";
+  return trimmedParam.startsWith("?") ? trimmedParam.slice(1) : trimmedParam;
+};
+
+export const buildMenuLink = (menu?: MenuItem | null): string => {
+  if (!menu) return "/";
+  const basePath = menu.path || menu.menuUrl || "/";
+  const normalizedParam = normalizeMenuParam(menu.param);
+  if (!normalizedParam) return basePath;
+  return `${basePath}${basePath.includes("?") ? "&" : "?"}${normalizedParam}`;
+};
+
+export const menuParamMatches = (
+  menuParam: string | null | undefined,
+  currentSearch: string,
+): boolean => {
+  const normalizedParam = normalizeMenuParam(menuParam);
+  if (!normalizedParam) {
+    return !currentSearch || currentSearch === "?";
+  }
+  const requiredParams = new URLSearchParams(normalizedParam);
+  const currentParams = new URLSearchParams(currentSearch);
+  for (const [key, value] of requiredParams.entries()) {
+    if (currentParams.get(key) !== value) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const getMenuParamMatchScore = (
+  menuParam: string | null | undefined,
+  currentSearch: string,
+): number => {
+  const normalizedParam = normalizeMenuParam(menuParam);
+  if (!normalizedParam) return 1;
+  return menuParamMatches(normalizedParam, currentSearch) ? 2 : 0;
+};
+
 export const fallbackMenuBySystem: Record<string, MenuItem[]> = {
   official: [
     {

@@ -223,7 +223,6 @@ export function ArticleWrite({
 
   return (
     <WriteLayout
-      title={isEdit ? "수정" : `${config.title} 작성`}
       onSubmit={onSubmit}
       onCancel={() => navigate(basePath)}
       error={writeError}

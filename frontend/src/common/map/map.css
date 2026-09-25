@@ -1,0 +1,54 @@
+.common-map {
+  min-height: 360px;
+  width: 100%;
+  z-index: 0;
+}
+
+.common-map .leaflet-control-attribution {
+  font-size: 10px;
+}
+
+.common-map-missionary-popup {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 22%);
+  min-width: 160px;
+  padding: 12px;
+}
+
+.common-map-missionary-overlay {
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 18px));
+  z-index: 1000;
+}
+
+.common-map-missionary-bubbles {
+  align-items: flex-end;
+  display: flex;
+  gap: 12px;
+  max-width: min(90vw, 560px);
+  white-space: normal;
+}
+
+.common-map-missionary-popup {
+  pointer-events: auto;
+}
+
+.common-map-star-marker__circle {
+  animation: common-map-star-pulse 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px rgb(250 204 21 / 95%));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes common-map-star-pulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+}

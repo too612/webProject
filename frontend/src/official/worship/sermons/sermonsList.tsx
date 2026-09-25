@@ -8,8 +8,7 @@
 import { ArticleList } from "../../../common/article";
 import type { GridColumnDef } from "../../../common/grid";
 import { Link } from "react-router-dom";
-import { Button, PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
+import { Button, ListPageShell } from "../../../common/ui";
 
 const WORSHIP_TYPE_LABEL_MAP: Record<string, string> = {
   SUNDAY: "주일예배",
@@ -50,36 +49,21 @@ const worshipTypeColumn: GridColumnDef = {
 };
 
 export default function SermonsList() {
-  const { currentMenu: menu, loading: menuLoading } = useMenu();
-
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <PageTitle
-            title={
-              menuLoading ? "페이지 정보를 불러오는 중" : (menu?.menuName ?? "")
-            }
-            description={
-              menuLoading
-                ? "페이지 설명을 불러오는 중"
-                : (menu?.menuSummary ?? null)
-            }
-          />
-          <Button asChild>
-            <Link to="/worship/sermons/write">글쓰기</Link>
-          </Button>
-        </div>
-        <div className="[&>section]:space-y-0 [&>section>div]:border-0 [&>section>div]:bg-transparent [&>section>div]:shadow-none [&>section>div]:p-0 [&>section>div]:space-y-4 [&>section>div>div:first-child]:hidden">
-          <ArticleList
-            menuKey="DEFAULT"
-            templateCode="DEFAULT"
-            basePath="/worship/sermons"
-            middleColumns={[worshipTypeColumn]}
-            hideDefaultWriteButton
-          />
-        </div>
-      </div>
-    </section>
+    <ListPageShell
+      actions={
+        <Button asChild>
+          <Link to="/worship/sermons/write">글쓰기</Link>
+        </Button>
+      }
+    >
+      <ArticleList
+        menuKey="DEFAULT"
+        templateCode="DEFAULT"
+        basePath="/worship/sermons"
+        middleColumns={[worshipTypeColumn]}
+        hideDefaultWriteButton
+      />
+    </ListPageShell>
   );
 }

@@ -15,6 +15,7 @@ import {
 
 // 프로젝트 내부의 다른 폴더 시스템에서 메뉴, 인증, 기업 정보를 다루는 커스텀 기능들을 가져옵니다.
 import { useMenu } from "../common/menu/menuHook"; // 서버로부터 받아온 동적 메뉴 데이터 배열을 제공하는 기능입니다.
+import { buildMenuLink } from "../common/menu/menuModel";
 import { useAuthStore } from "../common/auth/authStore"; // 로그인 여부, 유저 정보, 로그아웃 기능을 담은 중앙 전역 상태 저장소입니다.
 import { useCorpInfo } from "../common/corp/corpHook"; // 현재 사이트에 표기할 교회/회사 정보를 커스텀하게 가져오는 기능입니다.
 import type { MenuItem } from "../common/menu/menu.types"; // 메뉴 객체가 어떤 구조(ID, 이름, 경로 등)로 구성되어야 하는지 규정한 타입 양식입니다.
@@ -380,7 +381,7 @@ export default function Header() {
               const subMenus = menu.subMenus ?? [];
 
               // 메뉴 링크 태그에 장착할 타겟 주소를 판별합니다. 단축 평가 논리합 연산(||)을 통해 path 데이터가 최우선, 없으면 menuUrl을 채택하고 그것마저 공란이면 루트('/') 홈 주소를 이식합니다.
-              const href = menu.path || menu.menuUrl || "/";
+              const href = buildMenuLink(menu);
 
               return (
                 // relative group: 자식 레이어 드롭다운 팝업창이 모니터 화면 밖으로 탈출하지 않도록 이 대메뉴 위치를 절대 좌표의 모체 기준점(relative)으로 삼고, 마우스 진입 이벤트를 감지할 그룹 울타리를 형성합니다.
@@ -404,7 +405,7 @@ export default function Header() {
                       {subMenus.map((sub) => (
                         <Link
                           key={sub.menuId} // 자식 소메뉴 전용 유니크 식별 키 부여
-                          to={sub.path || sub.menuUrl || "/"} // 하위 서브 카테고리 목적지 주소 세팅
+                          to={buildMenuLink(sub)} // 하위 서브 카테고리 목적지 주소 세팅
                           // whitespace-nowrap: 소메뉴 글씨 타이틀 글자 수 수치가 과도하게 길어져도 임의로 엔터(줄바꿈) 현상을 발생시키지 않고 곧바르게 가로 방향 1열 종대로 글자 폭을 강제 고수합니다.
                           className="block px-4 py-2 text-sm text-gray-600 hover:text-brand-primary hover:bg-gray-50 whitespace-nowrap transition-colors"
                         >
@@ -488,9 +489,7 @@ export default function Header() {
                 <li key={menu.menuId} className={menuItemClassName}>
                   {/* 대메뉴 글씨 타이틀과 우측 터치형 화살표 버튼을 가로 수평 축선상에 나란히 정렬해 주는 1열 가로 행(Row) 벨트 상자입니다. */}
                   <div className="menu-item-row">
-                    <Link to={menu.path || menu.menuUrl || "/"}>
-                      {menu.menuName}
-                    </Link>
+                    <Link to={buildMenuLink(menu)}>{menu.menuName}</Link>
                     {/* 만약 자식 소메뉴 리스트를 부하로 거느린 상위 대메뉴 항목임이 확정 확인되면, 접고 펼칠 수 있는 인터랙션용 아코디언 터치 단추(button)를 우측 끝자락에 배정합니다. */}
                     {hasSubmenu && (
                       <button
@@ -521,9 +520,7 @@ export default function Header() {
                     <ul className="submenu">
                       {subMenus.map((sub) => (
                         <li key={sub.menuId}>
-                          <Link to={sub.path || sub.menuUrl || "/"}>
-                            {sub.menuName}
-                          </Link>
+                          <Link to={buildMenuLink(sub)}>{sub.menuName}</Link>
                         </li>
                       ))}
                     </ul>

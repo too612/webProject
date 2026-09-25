@@ -25,15 +25,13 @@ import {
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import {
   Button,
   Dialog,
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  PageTitle,
+  DetailPageShell,
 } from "../../../common/ui";
 import { useServiceGroupContent } from "./serviceGroupHook";
 import {
@@ -196,7 +194,7 @@ function ModalImageSlider({
           {items.map(function (item, i) {
             return (
               <div
-                key={i}
+                key={`${item.label}-${item.objectPosition}-${i}`}
                 className="relative w-[52%] shrink-0 overflow-hidden rounded-lg bg-slate-100"
               >
                 <div className="aspect-video w-full overflow-hidden">
@@ -215,10 +213,10 @@ function ModalImageSlider({
       </div>
       {len > 1 && (
         <div className="mt-3 flex justify-center gap-1.5">
-          {items.map(function (_, i) {
+          {items.map(function (item, i) {
             return (
               <button
-                key={i}
+                key={`${item.label}-${item.objectPosition}-${i}`}
                 type="button"
                 aria-label={i + 1 + "번째 이미지"}
                 onClick={function () {
@@ -238,7 +236,6 @@ function ModalImageSlider({
 }
 
 export default function ServiceGroupPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const { serviceGroupContent, loading, error, loadServiceGroupContent } =
     useServiceGroupContent();
   const [selectedDeptCode, setSelectedDeptCode] = useState<string | null>(null);
@@ -265,93 +262,83 @@ export default function ServiceGroupPage() {
   }, [content.groups, selectedDeptCode]);
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <PageTitle
-          title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
-          description={
-            getCurrentMenuPageContent(currentMenu, menuLoading).summary
-          }
-        />
-        {loading && (
-          <div className="text-sm text-slate-500 py-4 text-center">
-            불러오는 중입니다.
-          </div>
-        )}
-        {error && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-100 px-4 py-3">
-            {error}
-          </div>
-        )}
+    <DetailPageShell contentClassName="space-y-5">
+      {loading && (
+        <div className="text-sm text-slate-500 py-4 text-center">
+          불러오는 중입니다.
+        </div>
+      )}
+      {error && (
+        <div className="text-sm text-red-700 bg-red-50 border border-red-100 px-4 py-3">
+          {error}
+        </div>
+      )}
 
-        {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {content.groups.map((group) => {
-              const detail =
-                SERVICE_GROUP_DETAIL_BY_DEPT_CODE[group.deptCode ?? ""];
-              const DeptIcon =
-                DEPARTMENT_ICON_BY_DEPT_CODE[group.deptCode ?? ""] ?? HandHeart;
+      {!loading && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {content.groups.map((group) => {
+            const detail =
+              SERVICE_GROUP_DETAIL_BY_DEPT_CODE[group.deptCode ?? ""];
+            const DeptIcon =
+              DEPARTMENT_ICON_BY_DEPT_CODE[group.deptCode ?? ""] ?? HandHeart;
 
-              return (
-                <article
-                  key={group.deptCode ?? group.title}
-                  className="group flex flex-col overflow-hidden rounded-none border border-slate-200 bg-white transition-colors hover:border-brand-primary/40 hover:shadow-panel"
-                >
-                  {/* Top: 원형 아이콘 + 부서 정보 텍스트 */}
-                  <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-4">
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
-                      <DeptIcon className="h-10 w-10" strokeWidth={1.4} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-lg font-bold text-brand-dark">
-                        {group.title}
-                      </h3>
-                      <p className="mt-0.5 line-clamp-2 min-h-10 text-sm text-slate-500">
-                        {detail?.slogan ?? group.description}
-                      </p>
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {(detail?.tags ?? []).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+            return (
+              <article
+                key={group.deptCode ?? group.title}
+                className="group flex flex-col overflow-hidden rounded-none border border-slate-200 bg-white transition-colors hover:border-brand-primary/40 hover:shadow-panel"
+              >
+                {/* Top: 원형 아이콘 + 부서 정보 텍스트 */}
+                <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-4">
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
+                    <DeptIcon className="h-10 w-10" strokeWidth={1.4} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg font-bold text-brand-dark">
+                      {group.title}
+                    </h3>
+                    <p className="mt-0.5 line-clamp-2 min-h-10 text-sm text-slate-500">
+                      {detail?.slogan ?? group.description}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {(detail?.tags ?? []).map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
+                </div>
 
-                  {/* Middle: 사진 (기존 텍스트 영역에 사진 배치) */}
-                  <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
-                    {renderPhoto(
-                      resolveGroupImageUrl(group),
-                      DeptIcon,
-                      group.title,
-                      "h-full w-full",
-                    )}
-                  </div>
+                {/* Middle: 사진 (기존 텍스트 영역에 사진 배치) */}
+                <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                  {renderPhoto(
+                    resolveGroupImageUrl(group),
+                    DeptIcon,
+                    group.title,
+                    "h-full w-full",
+                  )}
+                </div>
 
-                  {/* Bottom: 상세보기 버튼 */}
-                  <div className="p-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-center border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5"
-                      onClick={() =>
-                        setSelectedDeptCode(group.deptCode ?? null)
-                      }
-                    >
-                      상세보기
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                {/* Bottom: 상세보기 버튼 */}
+                <div className="p-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5"
+                    onClick={() => setSelectedDeptCode(group.deptCode ?? null)}
+                  >
+                    상세보기
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
 
       <Dialog
         open={selectedDeptCode !== null}
@@ -469,8 +456,11 @@ export default function ServiceGroupPage() {
                             <>
                               <section>
                                 <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
-                                  모임시간 및 장소
+                                  <span
+                                    className="inline-block h-2 w-2 rounded-full bg-brand-primary"
+                                    aria-hidden="true"
+                                  />
+                                  <span className="ml-2">모임시간 및 장소</span>
                                 </h4>
                                 {/* 시간·장소 개별 박스 (모바일: 나란히 한 줄) */}
                                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -491,8 +481,11 @@ export default function ServiceGroupPage() {
 
                               <section>
                                 <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
-                                  부서장 한마디
+                                  <span
+                                    className="inline-block h-2 w-2 rounded-full bg-brand-primary"
+                                    aria-hidden="true"
+                                  />
+                                  <span className="ml-2">부서장 한마디</span>
                                 </h4>
                                 <div className="relative mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
                                   <Quote className="h-4 w-4 text-brand-primary/60" />
@@ -509,8 +502,11 @@ export default function ServiceGroupPage() {
 
                               <section>
                                 <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
-                                  주요 역할
+                                  <span
+                                    className="inline-block h-2 w-2 rounded-full bg-brand-primary"
+                                    aria-hidden="true"
+                                  />
+                                  <span className="ml-2">주요 역할</span>
                                 </h4>
                                 <ul className="mt-3 space-y-2">
                                   {detail.roles.map((role) => (
@@ -527,8 +523,13 @@ export default function ServiceGroupPage() {
 
                               <section>
                                 <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                                  <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
-                                  이런 분을 찾습니다
+                                  <span
+                                    className="inline-block h-2 w-2 rounded-full bg-brand-primary"
+                                    aria-hidden="true"
+                                  />
+                                  <span className="ml-2">
+                                    이런 분을 찾습니다
+                                  </span>
                                 </h4>
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   {detail.joinProfile.map((item) => (
@@ -583,6 +584,6 @@ export default function ServiceGroupPage() {
           </DialogPrimitive.Content>
         </DialogPortal>
       </Dialog>
-    </section>
+    </DetailPageShell>
   );
 }

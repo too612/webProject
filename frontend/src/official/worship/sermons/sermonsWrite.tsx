@@ -6,7 +6,12 @@
  */
 
 import { ArticleWrite } from "../../../common/article";
+import { FormPageShell } from "../../../common/ui";
 
 export default function SermonsWrite() {
-  return <ArticleWrite templateCode="DEFAULT" basePath="/worship/sermons" />;
+  return (
+    <FormPageShell titleSuffix="작성">
+      <ArticleWrite templateCode="DEFAULT" basePath="/worship/sermons" />
+    </FormPageShell>
+  );
 }

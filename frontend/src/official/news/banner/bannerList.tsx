@@ -9,13 +9,9 @@ import { ArticleList } from "../../../common/article";
 import { articleApi } from "../../../common/article/ArticleApi";
 import type { ArticleItem } from "../../../common/article/ArticleModel";
 import { useArticle } from "../../../common/article/ArticleHook";
-import { Button, PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { Button, ListPageShell } from "../../../common/ui";
 
 export default function BannerList() {
-  const { currentMenu, loading: menuLoading } = useMenu();
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
   const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
   const { loadList, page, searchType, keyword } = useArticle();
@@ -75,62 +71,53 @@ export default function BannerList() {
   };
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <PageTitle
-            title={pageContent.headline}
-            description={pageContent.summary}
-          />
-          <Button asChild>
-            <Link to={`/news/banner/write?type=${filterType}`}>배너등록</Link>
-          </Button>
-        </div>
-        <div className="[&>section]:space-y-0 [&>section>div]:border-0 [&>section>div]:bg-transparent [&>section>div]:shadow-none [&>section>div]:p-0 [&>section>div]:space-y-4 [&>section>div>div:first-child]:hidden">
-          <ArticleList
-            menuKey="BANNER"
-            templateCode={filterType}
-            basePath="/news/banner"
-            onGalleryEditClick={handleEditClick}
-            onGalleryDeleteClick={handleDeleteClick}
-            onReorderSlides={handleReorderSlides}
-            enableDragDrop={filterType === "SLIDE"}
-            refreshKey={refreshKey}
-            hideDefaultWriteButton
-            headerExtra={
-              <div className="flex items-center gap-4 bg-white border border-slate-200 rounded-md px-4 py-2.5">
-                <span className="text-sm font-medium text-slate-600">
-                  배너유형
-                </span>
-                <div className="flex gap-4">
-                  <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input
-                      type="radio"
-                      name="filterType"
-                      value="POPUP"
-                      checked={filterType === "POPUP"}
-                      onChange={() => handleFilterChange("POPUP")}
-                    />
-                    <span className="inline-block w-2 h-2 rounded-full bg-purple-500" />
-                    <span>팝업</span>
-                  </label>
-                  <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input
-                      type="radio"
-                      name="filterType"
-                      value="SLIDE"
-                      checked={filterType === "SLIDE"}
-                      onChange={() => handleFilterChange("SLIDE")}
-                    />
-                    <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
-                    <span>슬라이드</span>
-                  </label>
-                </div>
-              </div>
-            }
-          />
-        </div>
-      </div>
-    </section>
+    <ListPageShell
+      actions={
+        <Button asChild>
+          <Link to={`/news/banner/write?type=${filterType}`}>배너등록</Link>
+        </Button>
+      }
+    >
+      <ArticleList
+        menuKey="BANNER"
+        templateCode={filterType}
+        basePath="/news/banner"
+        onGalleryEditClick={handleEditClick}
+        onGalleryDeleteClick={handleDeleteClick}
+        onReorderSlides={handleReorderSlides}
+        enableDragDrop={filterType === "SLIDE"}
+        refreshKey={refreshKey}
+        hideDefaultWriteButton
+        headerExtra={
+          <div className="flex items-center gap-4 bg-white border border-slate-200 rounded-md px-4 py-2.5">
+            <span className="text-sm font-medium text-slate-600">배너유형</span>
+            <div className="flex gap-4">
+              <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="filterType"
+                  value="POPUP"
+                  checked={filterType === "POPUP"}
+                  onChange={() => handleFilterChange("POPUP")}
+                />
+                <span className="inline-block w-2 h-2 rounded-full bg-purple-500" />
+                <span>팝업</span>
+              </label>
+              <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="filterType"
+                  value="SLIDE"
+                  checked={filterType === "SLIDE"}
+                  onChange={() => handleFilterChange("SLIDE")}
+                />
+                <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
+                <span>슬라이드</span>
+              </label>
+            </div>
+          </div>
+        }
+      />
+    </ListPageShell>
   );
 }

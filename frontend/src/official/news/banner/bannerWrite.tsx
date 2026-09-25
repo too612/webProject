@@ -7,10 +7,15 @@
  */
 import { useSearchParams } from "react-router-dom";
 import { ArticleWrite } from "../../../common/article";
+import { FormPageShell } from "../../../common/ui";
 
 export default function BannerWrite() {
   const [searchParams] = useSearchParams();
   const type = searchParams.get("type") || "POPUP";
 
-  return <ArticleWrite templateCode={type} basePath="/news/banner" />;
+  return (
+    <FormPageShell titleSuffix="작성">
+      <ArticleWrite templateCode={type} basePath="/news/banner" />
+    </FormPageShell>
+  );
 }

@@ -22,6 +22,9 @@
 ## 구현 시 확인할 경계
 
 - 새 기능은 DB 메뉴 경로, 라우트, 페이지, API URL이 일치하는지 확인한다. 메뉴와 권한은 코드보다 DB 기준을 우선한다.
+- 공식 페이지는 공통 shell인 `ListPageShell`, `DetailPageShell`, `FormPageShell`에서 제목/설명을 관리하고, 화면 단에서 직접 `PageTitle`/`title`/`description`을 덧대지 않는다. 제목·요약은 `currentMenu`의 DB 값이 우선이며, 필요 시 `titleSuffix`와 `actions`만 route에서 전달한다.
+- 동일 프로그램에서 서로 다른 메뉴가 같은 경로를 공유할 수 있으므로 `sys_menu.param`을 기준으로 URL 쿼리 파라미터를 부분 일치 비교해야 한다. 매칭 우선순위는 경로 길이 → param 일치도 → 하위 메뉴 깊이 순서를 따른다.
+- 메뉴 링크 생성은 `buildMenuLink`를 사용해 쿼리 파라미터와 메뉴 `param`이 함께 유지되도록 한다. 네비게이션/사이드바/브레드크럼이 같은 로직을 공유해야 한다.
 - API 변경 전 [src/main/java/com/main/app/common/dto/ApiResponse.java](../src/main/java/com/main/app/common/dto/ApiResponse.java)와 [frontend/src/common/api/api.types.ts](../frontend/src/common/api/api.types.ts)의 `statusCode`, `message`, `data` 계약을 확인한다.
 - MyBatis Mapper 인터페이스 메서드와 XML `id`, `namespace`가 Java 전체 경로와 1:1인지 확인한다.
 - MyBatis XML 비교 연산자는 XML 문법에 맞게 `!=` 또는 `&lt;&gt;`를 사용한다.

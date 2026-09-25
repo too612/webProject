@@ -11,6 +11,7 @@ public class MenuDto {
     private String menuUrl;
     private String parentId;
     private String path;
+    private String param;
     private int level;
     private int orderNo;
     private List<MenuDto> subMenus = new ArrayList<>();
@@ -70,6 +71,14 @@ public class MenuDto {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getParam() {
+        return param;
+    }
+
+    public void setParam(String param) {
+        this.param = param;
     }
 
     public int getLevel() {

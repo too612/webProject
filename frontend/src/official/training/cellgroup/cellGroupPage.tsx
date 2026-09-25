@@ -28,8 +28,6 @@ import {
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
 import {
   Avatar,
   AvatarFallback,
@@ -39,7 +37,7 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  PageTitle,
+  DetailPageShell,
 } from "../../../common/ui";
 import { useCellGroupContent } from "./cellGroupHook";
 import {
@@ -215,7 +213,7 @@ function ModalImageSlider({
           {items.map(function (item, i) {
             return (
               <div
-                key={i}
+                key={`${item.label}-${item.objectPosition}-${i}`}
                 className="relative w-[52%] shrink-0 overflow-hidden rounded-lg bg-slate-100"
               >
                 <div className="aspect-video w-full overflow-hidden">
@@ -234,10 +232,10 @@ function ModalImageSlider({
       </div>
       {len > 1 && (
         <div className="mt-3 flex justify-center gap-1.5">
-          {items.map(function (_, i) {
+          {items.map(function (item, i) {
             return (
               <button
-                key={i}
+                key={`${item.label}-${item.objectPosition}-${i}`}
                 type="button"
                 aria-label={i + 1 + "번째 이미지"}
                 onClick={function () {
@@ -257,7 +255,6 @@ function ModalImageSlider({
 }
 
 export default function CellGroupPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const { cellGroupContent, loading, error, loadCellGroupContent } =
     useCellGroupContent();
   const [selectedCellKey, setSelectedCellKey] = useState<string | null>(null);
@@ -298,16 +295,9 @@ export default function CellGroupPage() {
         activeTab,
     );
   }, [content.groups, activeTab]);
-
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-5">
-        <PageTitle
-          title={getCurrentMenuPageContent(currentMenu, menuLoading).headline}
-          description={
-            getCurrentMenuPageContent(currentMenu, menuLoading).summary
-          }
-        />
+    <>
+      <DetailPageShell>
         {loading && (
           <div className="text-sm text-slate-500 py-4 text-center">
             불러오는 중입니다.
@@ -411,7 +401,7 @@ export default function CellGroupPage() {
             )}
           </div>
         )}
-      </div>
+      </DetailPageShell>
 
       <Dialog
         open={selectedCellKey !== null}
@@ -495,7 +485,7 @@ export default function CellGroupPage() {
                           {/* Block 1 - Keywords */}
                           <section>
                             <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />{" "}
                               우리 셀의 키워드
                             </h4>
                             <div className="mt-3 grid grid-cols-3 gap-2">
@@ -520,7 +510,7 @@ export default function CellGroupPage() {
                           {/* Block 2 - Schedule */}
                           <section>
                             <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />{" "}
                               모임 흐름
                             </h4>
                             <ol className="relative mt-3 space-y-4 pl-1 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-px before:bg-slate-200">
@@ -553,7 +543,7 @@ export default function CellGroupPage() {
                           {/* Block 3 - Gallery */}
                           <section>
                             <h4 className="flex items-center gap-2 text-sm font-bold text-brand-dark">
-                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />
+                              <span className="inline-block h-2 w-2 rounded-full bg-brand-primary" />{" "}
                               현장 스냅
                             </h4>
                             {/* 모바일: 슬라이드 캐러셀 */}
@@ -625,6 +615,6 @@ export default function CellGroupPage() {
           </DialogPrimitive.Content>
         </DialogPortal>
       </Dialog>
-    </section>
+    </>
   );
 }

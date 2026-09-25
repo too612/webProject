@@ -17,9 +17,7 @@ import {
 import { useLocationInfo } from "./useLocationInfo";
 import { useCorpInfo } from "../../../common/corp/corpHook";
 import { DEFAULT_LOCATION_PAGE_CONTENT } from "./LocationModel";
-import { PageTitle } from "../../../common/ui";
-import { useMenu } from "../../../common/menu/menuHook";
-import { getCurrentMenuPageContent } from "../../../common/menu/menuModel";
+import { DetailPageShell } from "../../../common/ui";
 
 // 네이버 지도 SDK 타입 선언
 declare global {
@@ -37,7 +35,6 @@ declare global {
  ****************************************************************************************************/
 
 export default function LocationPage() {
-  const { currentMenu, loading: menuLoading } = useMenu();
   const mapRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<any>(null);
   const { locationInfo, loading, error, loadLocationInfo } = useLocationInfo();
@@ -49,7 +46,6 @@ export default function LocationPage() {
     ? `(${corpInfo.postalCode}) ${corpInfo.addressLine1} ${corpInfo.addressLine2}`
     : "";
   const phoneNumber = corpInfo?.phoneNumber ?? "-";
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
 
   // 네이버 지도 초기화 로직
   const initMap = useCallback(() => {
@@ -111,179 +107,172 @@ export default function LocationPage() {
   }, []);
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-none border border-slate-200 bg-white shadow-panel p-6 md:p-7 space-y-6">
-        <PageTitle
-          title={pageContent.headline}
-          description={pageContent.summary}
-        />
+    <DetailPageShell>
+      {loading && (
+        <div className="py-10 text-center text-sm text-slate-500">
+          오시는 길 정보를 불러오는 중입니다.
+        </div>
+      )}
+      {error && (
+        <div className="border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
-        {loading && (
-          <div className="text-sm text-slate-500 py-10 text-center">
-            오시는 길 정보를 불러오는 중입니다.
-          </div>
-        )}
-        {error && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-100 px-4 py-3">
-            {error}
-          </div>
-        )}
-
-        {locationInfo && (
-          <div className="space-y-6">
-            {/* 실제 네이버 지도가 렌더링되는 영역 */}
-            <div
-              ref={mapRef}
-              className="bg-slate-100 border border-slate-200 rounded-none h-72 md:h-96 shadow-inner relative group"
-              role="img"
-              aria-label="교회 위치 지도"
-            >
-              <div className="absolute bottom-4 right-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={initMap}
-                  className="bg-white/90 backdrop-blur shadow-sm border border-slate-200 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-white transition-colors flex items-center gap-1 z-[100]"
-                >
-                  <LocateFixed className="h-4 w-4" /> 현위치
-                </button>
-              </div>
+      {locationInfo && (
+        <div className="space-y-6">
+          {/* 실제 네이버 지도가 렌더링되는 영역 */}
+          <div
+            ref={mapRef}
+            className="bg-slate-100 border border-slate-200 rounded-none h-72 md:h-96 shadow-inner relative group"
+            role="img"
+            aria-label="교회 위치 지도"
+          >
+            <div className="absolute bottom-4 right-4 flex gap-2">
+              <button
+                type="button"
+                onClick={initMap}
+                className="bg-white/90 backdrop-blur shadow-sm border border-slate-200 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-white transition-colors flex items-center gap-1 z-[100]"
+              >
+                <LocateFixed className="h-4 w-4" /> 현위치
+              </button>
             </div>
+          </div>
 
-            {/* 핵심 정보 카드와 길찾기 버튼 그룹 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-slate-50/70 border border-slate-100 p-6 md:p-7 space-y-5">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-brand-dark text-lg">
-                      {locationInfo.title}
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyAddress(fullAddress)}
-                      className="text-xs font-semibold text-brand-primary hover:text-brand-dark transition-colors flex items-center gap-1"
-                    >
-                      <Copy className="h-4 w-4" /> 주소 복사
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="h-4 w-4 text-brand-primary/60 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
-                          ADDRESS
-                        </p>
-                        <p className="text-sm text-slate-800 leading-relaxed font-medium">
-                          {fullAddress || locationInfo.address}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Phone className="h-4 w-4 text-brand-primary/60 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
-                          PHONE
-                        </p>
-                        <p className="text-sm text-slate-800 font-medium">
-                          {phoneNumber}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 md:col-span-2">
-                      <Clock className="h-4 w-4 text-brand-primary/60 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
-                          OFFICE HOURS
-                        </p>
-                        <p className="text-sm text-slate-800 font-medium">
-                          {locationInfo.hours}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-200/60 flex items-start gap-2">
-                    <Info className="h-4 w-4 text-slate-400" />
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      {locationInfo.notice}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 교통수단 상세 섹션: modern UX 스타일 */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
-                    <div className="flex items-center gap-2 text-brand-dark font-bold text-sm">
-                      <Bus className="h-4 w-4" /> 버스 이용 시
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      {DEFAULT_LOCATION_PAGE_CONTENT.traffic.bus}
-                    </p>
-                  </div>
-                  <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
-                    <div className="flex items-center gap-2 text-brand-dark font-bold text-sm">
-                      <Train className="h-4 w-4" /> 지하철 이용 시
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      {DEFAULT_LOCATION_PAGE_CONTENT.traffic.subway}
-                    </p>
-                  </div>
-                  <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
-                    <div className="flex items-center gap-2 text-brand-dark font-bold text-sm">
-                      <ParkingSquare className="h-4 w-4" /> 주차 안내
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      {DEFAULT_LOCATION_PAGE_CONTENT.traffic.parking}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 우측 퀵 내비게이션 섹션 */}
-              <div className="space-y-4">
-                <div className="bg-slate-50 border border-slate-100 p-6 flex flex-col gap-3">
-                  <h5 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-                    <Compass className="h-4 w-4" /> 빠른 길찾기
-                  </h5>
-                  <a
-                    href={locationInfo.naverMapUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full bg-[#03C75A] text-white rounded-md px-5 py-3 text-sm font-bold hover:brightness-95 transition-all shadow-sm flex items-center justify-center gap-2"
+          {/* 핵심 정보 카드와 길찾기 버튼 그룹 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-slate-50/70 border border-slate-100 p-6 md:p-7 space-y-5">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-brand-dark text-lg">
+                    {locationInfo.title}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyAddress(fullAddress)}
+                    className="text-xs font-semibold text-brand-primary hover:text-brand-dark transition-colors flex items-center gap-1"
                   >
-                    네이버 지도
-                  </a>
-                  <a
-                    href={locationInfo.kakaoMapUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full bg-[#FAE100] text-[#3C1E1E] rounded-md px-5 py-3 text-sm font-bold hover:brightness-95 transition-all shadow-sm flex items-center justify-center gap-2"
-                  >
-                    카카오 맵
-                  </a>
+                    <Copy className="h-4 w-4" /> 주소 복사
+                  </button>
                 </div>
 
-                <div className="p-6 border border-slate-100 bg-white space-y-4">
-                  <p className="text-xs text-slate-400 font-medium">
-                    더 궁금하신 점이 있나요?
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-4 w-4 text-brand-primary/60 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                        ADDRESS
+                      </p>
+                      <p className="text-sm text-slate-800 leading-relaxed font-medium">
+                        {fullAddress || locationInfo.address}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Phone className="h-4 w-4 text-brand-primary/60 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                        PHONE
+                      </p>
+                      <p className="text-sm text-slate-800 font-medium">
+                        {phoneNumber}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 md:col-span-2">
+                    <Clock className="h-4 w-4 text-brand-primary/60 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                        OFFICE HOURS
+                      </p>
+                      <p className="text-sm text-slate-800 font-medium">
+                        {locationInfo.hours}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/60 flex items-start gap-2">
+                  <Info className="h-4 w-4 text-slate-400" />
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {locationInfo.notice}
                   </p>
-                  <div className="flex flex-col gap-2">
-                    <Link
-                      className="flex items-center justify-between group p-3 rounded-md bg-slate-50 hover:bg-brand-primary/5 transition-colors"
-                      to="/support/faq"
-                    >
-                      <span className="text-sm font-medium text-slate-700 group-hover:text-brand-primary">
-                        자주 묻는 질문
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-brand-primary" />
-                    </Link>
+                </div>
+              </div>
+
+              {/* 교통수단 상세 섹션: modern UX 스타일 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
+                  <div className="flex items-center gap-2 text-brand-dark font-bold text-sm">
+                    <Bus className="h-4 w-4" /> 버스 이용 시
                   </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {DEFAULT_LOCATION_PAGE_CONTENT.traffic.bus}
+                  </p>
+                </div>
+                <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
+                  <div className="flex items-center gap-2 text-brand-dark font-bold text-sm">
+                    <Train className="h-4 w-4" /> 지하철 이용 시
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {DEFAULT_LOCATION_PAGE_CONTENT.traffic.subway}
+                  </p>
+                </div>
+                <div className="p-5 border border-slate-100 bg-white rounded-none space-y-2">
+                  <div className="flex items-center gap-2 text-brand-dark font-bold text-sm">
+                    <ParkingSquare className="h-4 w-4" /> 주차 안내
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {DEFAULT_LOCATION_PAGE_CONTENT.traffic.parking}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 우측 퀵 내비게이션 섹션 */}
+            <div className="space-y-4">
+              <div className="bg-slate-50 border border-slate-100 p-6 flex flex-col gap-3">
+                <h5 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  <Compass className="h-4 w-4" /> 빠른 길찾기
+                </h5>
+                <a
+                  href={locationInfo.naverMapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full bg-[#03C75A] text-white rounded-md px-5 py-3 text-sm font-bold hover:brightness-95 transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  네이버 지도
+                </a>
+                <a
+                  href={locationInfo.kakaoMapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full bg-[#FAE100] text-[#3C1E1E] rounded-md px-5 py-3 text-sm font-bold hover:brightness-95 transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  카카오 맵
+                </a>
+              </div>
+
+              <div className="p-6 border border-slate-100 bg-white space-y-4">
+                <p className="text-xs text-slate-400 font-medium">
+                  더 궁금하신 점이 있나요?
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    className="flex items-center justify-between group p-3 rounded-md bg-slate-50 hover:bg-brand-primary/5 transition-colors"
+                    to="/support/faq"
+                  >
+                    <span className="text-sm font-medium text-slate-700 group-hover:text-brand-primary">
+                      자주 묻는 질문
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-brand-primary" />
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </DetailPageShell>
   );
 }

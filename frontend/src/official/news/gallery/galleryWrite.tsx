@@ -4,11 +4,16 @@
  */
 import { useSearchParams } from "react-router-dom";
 import { ArticleWrite } from "../../../common/article";
+import { FormPageShell } from "../../../common/ui";
 
 export default function GalleryWrite() {
   const [searchParams] = useSearchParams();
   const templateCode =
     searchParams.get("type") === "SINGLE_IMAGE" ? "SINGLE_IMAGE" : "GALLERY";
 
-  return <ArticleWrite templateCode={templateCode} basePath="/news/gallery" />;
+  return (
+    <FormPageShell titleSuffix="작성">
+      <ArticleWrite templateCode={templateCode} basePath="/news/gallery" />
+    </FormPageShell>
+  );
 }
