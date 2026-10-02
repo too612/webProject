@@ -218,7 +218,7 @@ export default function grid(props: GridProps) {
 
   // ===== AG Grid 렌더링 =====
   return (
-    <div className="ag-theme-custom w-full border border-slate-200 rounded-md overflow-hidden">
+    <div className="ag-theme-alpine ag-theme-custom w-full border border-slate-200 rounded-md overflow-hidden">
       <AgGridReact
         // ===== 기본 설정 =====
         theme="legacy"
