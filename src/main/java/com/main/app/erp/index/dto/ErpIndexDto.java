@@ -8,15 +8,31 @@ import java.util.List;
 public class ErpIndexDto {
 
     private long totalMembers;
-    private long sermonPendingCount;
-    private long accountRecordCount;
-    private List<TaskItem> recentSermonTasks;
+    private long activeMemberCount;
+    private long newMemberCount;
+    private long departmentCount;
+    private List<MonthlyRegistration> monthlyRegistrations;
+    private List<MemberCategory> serviceStatusDistribution;
+    private List<MemberCategory> employmentDistribution;
+    private List<DepartmentStaff> departmentStaff;
 
     @Data
-    public static class TaskItem {
-        private String id;
-        private String title;
-        private String status;
-        private String date;
+    public static class MonthlyRegistration {
+        private String month;
+        private long count;
+    }
+
+    @Data
+    public static class MemberCategory {
+        private String code;
+        private String label;
+        private long count;
+    }
+
+    @Data
+    public static class DepartmentStaff {
+        private String departmentCode;
+        private String department;
+        private long staffCount;
     }
 }

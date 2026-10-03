@@ -6,46 +6,47 @@ import java.util.List;
 @Data
 public class CommunityIndexDto {
 
-    /** 최근 게시글 (최대 5건) */
+    private String source;
+    private String asOf;
+    private String periodStart;
+    private String periodEnd;
     private List<PostItem> recentPosts;
-
-    /** 공지사항 (최대 3건) */
-    private List<NoticeItem> notices;
-
-    /** 활동 소식 (최대 5건) */
-    private List<ActivityItem> activities;
-
-    /** 커뮤니티 통계 */
+    private List<MonthlyPosts> monthlyPosts;
+    private List<Category> categories;
     private Stats stats;
 
     @Data
     public static class PostItem {
-        private String id;
         private String category;
+        private String path;
+        private String param;
         private String title;
-        private String author;
         private String date;
-        private Integer views;
+        private long views;
     }
 
     @Data
-    public static class NoticeItem {
-        private String id;
-        private String title;
-        private String date;
+    public static class MonthlyPosts {
+        private String month;
+        private long count;
     }
 
     @Data
-    public static class ActivityItem {
-        private String id;
-        private String category;
-        private String title;
-        private String date;
+    public static class Category {
+        private String code;
+        private String label;
+        private String path;
+        private String param;
+        private long count;
+        private long periodCount;
     }
 
     @Data
     public static class Stats {
-        private long totalMembers;
         private long totalPosts;
+        private long contributors;
+        private long currentMonthPosts;
+        private long totalViews;
+        private long periodPosts;
     }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { accountReportApi } from './reportApi';
 import {
   CURRENT_MONTH,
@@ -8,8 +9,19 @@ import {
 } from './reportModel';
 
 export function useAccountReport() {
-  const [year, setYear] = useState(CURRENT_YEAR);
-  const [month, setMonth] = useState(CURRENT_MONTH);
+  const [searchParams] = useSearchParams();
+  const requestedYear = searchParams.get('year');
+  const requestedMonth = searchParams.get('month');
+  const currentYear = Number(CURRENT_YEAR);
+  const yearFromUrl = requestedYear && /^\d{4}$/.test(requestedYear)
+    && Number(requestedYear) <= currentYear && Number(requestedYear) >= currentYear - 2
+    ? requestedYear
+    : CURRENT_YEAR;
+  const monthFromUrl = requestedMonth && /^(0[1-9]|1[0-2])$/.test(requestedMonth)
+    ? requestedMonth
+    : CURRENT_MONTH;
+  const [year, setYear] = useState(yearFromUrl);
+  const [month, setMonth] = useState(monthFromUrl);
   const [data, setData] = useState<AccountReportData>(EMPTY_ACCOUNT_REPORT_DATA);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

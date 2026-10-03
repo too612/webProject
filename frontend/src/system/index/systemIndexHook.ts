@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { systemIndexApi } from './systemIndexApi';
-import { EMPTY_SYSTEM_INDEX, type SystemIndexData } from './systemIndexModel';
+import type { SystemIndexData } from './systemIndexModel';
 
 export function useSystemIndexPage() {
-  const [indexData, setIndexData] = useState<SystemIndexData>(EMPTY_SYSTEM_INDEX);
+  const [indexData, setIndexData] = useState<SystemIndexData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [revision, setRevision] = useState(0);
+  const reload = useCallback(() => setRevision((value) => value + 1), []);
 
   useEffect(() => {
     let mounted = true;
@@ -22,7 +24,7 @@ export function useSystemIndexPage() {
         if (!mounted) return;
         const message = e instanceof Error ? e.message : '시스템 메인 데이터를 불러오지 못했습니다.';
         setError(message);
-        setIndexData(EMPTY_SYSTEM_INDEX);
+        setIndexData(null);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -31,11 +33,12 @@ export function useSystemIndexPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [revision]);
 
   return {
     indexData,
     loading,
     error,
+    reload,
   };
 }

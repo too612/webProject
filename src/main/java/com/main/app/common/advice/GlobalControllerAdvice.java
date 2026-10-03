@@ -30,11 +30,12 @@ public class GlobalControllerAdvice {
      */
     @ModelAttribute
     @SuppressWarnings("null")
-    public void addCommonAttributes(Model model, HttpServletRequest request, HttpSession session) {
+    public void addCommonAttributes(Model model, HttpServletRequest request) {
         // 세션 정보를 모델에 추가
-        Object userId = session.getAttribute("userId");
-        Object userName = session.getAttribute("userName");
-        Object loginUser = session.getAttribute("loginUser");
+        HttpSession session = request.getSession(false);
+        Object userId = session == null ? null : session.getAttribute("userId");
+        Object userName = session == null ? null : session.getAttribute("userName");
+        Object loginUser = session == null ? null : session.getAttribute("loginUser");
 
         log.debug("세션 조회: 사용자아이디={}, 사용자명={}, 로그인사용자존재여부={}", userId, userName, loginUser != null);
 

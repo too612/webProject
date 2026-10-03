@@ -330,8 +330,9 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> me(HttpSession session) {
-        Object sessionUserId = session.getAttribute(SESSION_USER_ID_KEY);
+    public ResponseEntity<ApiResponse<Map<String, Object>>> me(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Object sessionUserId = session == null ? null : session.getAttribute(SESSION_USER_ID_KEY);
         if (sessionUserId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.fail(HttpStatus.UNAUTHORIZED.value(), "로그인이 필요합니다."));
@@ -354,15 +355,19 @@ public class AuthController {
     }
 
     @GetMapping("/check")
-    public ApiResponse<Map<String, Boolean>> check(HttpSession session) {
+    public ApiResponse<Map<String, Boolean>> check(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
         Map<String, Boolean> payload = new HashMap<>();
-        payload.put("authenticated", session.getAttribute(SESSION_USER_ID_KEY) != null);
+        payload.put("authenticated", session != null && session.getAttribute(SESSION_USER_ID_KEY) != null);
         return ApiResponse.ok(payload);
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(HttpSession session) {
-        session.invalidate();
+    public ApiResponse<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
         return ApiResponse.ok(null, "로그아웃되었습니다.");
     }
 

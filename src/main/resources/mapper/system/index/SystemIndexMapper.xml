@@ -4,37 +4,89 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.system.index.SystemIndexMapper">
 
-    <select id="selectActiveAccounts" resultType="long">
-        SELECT COUNT(DISTINCT rqst_id)
-          FROM board
-         WHERE rqst_id IS NOT NULL
-           AND rqst_id != ''
+    <select id="selectSummary" resultType="com.main.app.system.index.dto.SystemIndexDto">
+        SELECT 'LIVE'::text AS source,
+               CURRENT_DATE AS as_of,
+               (DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months')::date AS period_start,
+               (SELECT COUNT(*) FROM sys_menu) AS menu_count,
+               (SELECT COUNT(*) FROM sys_menu WHERE NULLIF(BTRIM(path), '') IS NOT NULL) AS routed_menu_count,
+               (SELECT COUNT(*) FROM sys_program) AS program_count,
+               (SELECT COUNT(*) FROM sys_program WHERE is_active = TRUE) AS active_program_count,
+               (SELECT COUNT(*) FROM sys_role) AS role_count,
+               (SELECT COUNT(*) FROM sys_role WHERE is_active = TRUE) AS active_role_count,
+               (SELECT COUNT(*) FROM com_code) AS code_count,
+               (SELECT COUNT(*) FROM com_code WHERE use_yn = 'Y') AS active_code_count,
+               (SELECT COUNT(*) FROM com_code
+                 WHERE reg_dtm >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+                   AND reg_dtm &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month') AS period_code_count,
+               (SELECT COUNT(*) FROM sys_program
+                 WHERE reg_dtm >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+                   AND reg_dtm &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month') AS period_program_count
     </select>
 
-    <select id="selectTodayWarnings" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE board_type LIKE 'SYSTEM_%'
-           AND ins_dt >= CURRENT_DATE
+    <select id="selectMonthlyRegistrations" resultType="com.main.app.system.index.dto.SystemIndexDto$MonthlyRegistration">
+        WITH months AS (
+            SELECT generate_series(
+                DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months',
+                DATE_TRUNC('month', CURRENT_TIMESTAMP), INTERVAL '1 month'
+            ) AS month_start
+        ), codes AS (
+            SELECT DATE_TRUNC('month', reg_dtm) AS month_start, COUNT(*) AS count
+              FROM com_code
+             WHERE reg_dtm >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+               AND reg_dtm &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+             GROUP BY 1
+        ), programs AS (
+            SELECT DATE_TRUNC('month', reg_dtm) AS month_start, COUNT(*) AS count
+              FROM sys_program
+             WHERE reg_dtm >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+               AND reg_dtm &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+             GROUP BY 1
+        )
+        SELECT TO_CHAR(m.month_start, 'YYYY-MM') AS month,
+               COALESCE(c.count, 0) AS code_count,
+               COALESCE(p.count, 0) AS program_count
+          FROM months m
+          LEFT JOIN codes c USING (month_start)
+          LEFT JOIN programs p USING (month_start)
+         ORDER BY m.month_start
     </select>
 
-    <select id="selectPendingRoleRequests" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE board_type = 'SYSTEM_USER_ROLE_REQUEST'
+    <select id="selectProgramStatus" resultType="com.main.app.system.index.dto.SystemIndexDto$Distribution">
+        SELECT CASE WHEN is_active THEN '사용' ELSE '미사용' END AS label, COUNT(*) AS count
+          FROM sys_program
+         GROUP BY is_active
+         ORDER BY is_active DESC
     </select>
 
-    <select id="selectBackupHistoryCount" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE board_type = 'SYSTEM_BACKUP_HISTORY'
+    <select id="selectRoleCoverage" resultType="com.main.app.system.index.dto.SystemIndexDto$RoleCoverage">
+        SELECT r.role_name AS label,
+               COUNT(p.program_id) FILTER (WHERE a.can_read = TRUE) AS read_count,
+               COUNT(p.program_id) FILTER (WHERE a.can_write = TRUE) AS write_count
+          FROM sys_role r
+          LEFT JOIN sys_role_program_permission a ON a.role_id = r.role_id AND a.is_open = TRUE
+          LEFT JOIN sys_program p ON p.program_id = a.program_id AND p.is_active = TRUE
+         WHERE r.is_active = TRUE
+         GROUP BY r.role_id, r.role_name, r.sort_order
+         ORDER BY r.sort_order, r.role_id
     </select>
 
-    <select id="selectBackupSuccessCount" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE board_type = 'SYSTEM_BACKUP_HISTORY'
-           AND UPPER(COALESCE(cont, '')) LIKE '%SUCCESS%'
+    <select id="selectRecentChanges" resultType="com.main.app.system.index.dto.SystemIndexDto$RecentChange">
+        WITH changes AS (
+            SELECT 'MENU'::text AS kind, menu_nm AS label,
+                   COALESCE(upd_dtm, reg_dtm) AS changed_at FROM sys_menu
+            UNION ALL
+            SELECT 'CODE'::text, code_name, COALESCE(upd_dtm, reg_dtm) FROM com_code
+            UNION ALL
+            SELECT 'ROLE'::text, role_name, COALESCE(upd_dtm, reg_dtm) FROM sys_role
+            UNION ALL
+            SELECT 'PROGRAM'::text, program_name, COALESCE(upd_dtm, reg_dtm) FROM sys_program
+        )
+        SELECT kind, label, TO_CHAR(changed_at, 'YYYY-MM-DD HH24:MI') AS changed_at
+          FROM changes
+         WHERE changed_at IS NOT NULL
+         ORDER BY changes.changed_at DESC, kind, label
+         LIMIT 8
     </select>
 
 </mapper>

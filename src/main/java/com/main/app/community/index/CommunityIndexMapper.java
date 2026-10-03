@@ -10,11 +10,11 @@ public interface CommunityIndexMapper {
 
     List<CommunityIndexDto.PostItem> selectRecentPosts();
 
-    List<CommunityIndexDto.NoticeItem> selectNotices();
+    List<CommunityIndexDto.MonthlyPosts> selectMonthlyPosts();
 
-    List<CommunityIndexDto.ActivityItem> selectActivities();
+    List<CommunityIndexDto.Category> selectCategories();
 
-    long selectTotalMembers();
+    CommunityIndexDto.Stats selectStats();
 
-    long selectTotalPosts();
+    CommunityIndexDto selectMetadata();
 }

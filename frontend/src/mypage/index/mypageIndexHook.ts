@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { mypageIndexApi } from './mypageIndexApi';
-import { EMPTY_MYPAGE_INDEX, type MypageIndexData } from './mypageIndexModel';
+import type { MypageIndexData } from './mypageIndexModel';
 
 export function useMypageIndexPage() {
-  const [indexData, setIndexData] = useState<MypageIndexData>(EMPTY_MYPAGE_INDEX);
+  const [indexData, setIndexData] = useState<MypageIndexData | null>(null);
+  const mode = 'DEMO' as const;
+  const [revision, setRevision] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -11,9 +13,10 @@ export function useMypageIndexPage() {
     let mounted = true;
     setLoading(true);
     setError('');
+    setIndexData(null);
 
     mypageIndexApi
-      .getIndexData()
+      .getIndexData(mode)
       .then((data) => {
         if (!mounted) return;
         setIndexData(data);
@@ -22,7 +25,6 @@ export function useMypageIndexPage() {
         if (!mounted) return;
         const message = e instanceof Error ? e.message : '마이페이지 메인 데이터를 불러오지 못했습니다.';
         setError(message);
-        setIndexData(EMPTY_MYPAGE_INDEX);
       })
       .finally(() => {
         if (mounted) setLoading(false);
@@ -31,11 +33,13 @@ export function useMypageIndexPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [revision]);
 
   return {
-    indexData,
-    loading,
+    indexData: indexData?.source === mode ? indexData : null,
+    loading: loading || (!error && indexData?.source !== mode),
     error,
+    mode,
+    retry: () => setRevision((value) => value + 1),
   };
 }

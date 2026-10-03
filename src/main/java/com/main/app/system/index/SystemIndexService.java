@@ -4,8 +4,7 @@ import com.main.app.system.index.dto.SystemIndexDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Locale;
+import org.springframework.transaction.annotation.Isolation;
 
 @Service
 @RequiredArgsConstructor
@@ -13,20 +12,13 @@ public class SystemIndexService {
 
     private final SystemIndexMapper systemIndexMapper;
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public SystemIndexDto getIndexData() {
-        SystemIndexDto dto = new SystemIndexDto();
-        dto.setActiveAccounts(systemIndexMapper.selectActiveAccounts());
-        dto.setTodayWarnings(systemIndexMapper.selectTodayWarnings());
-        dto.setPendingRoleRequests(systemIndexMapper.selectPendingRoleRequests());
-
-        long backupTotal = systemIndexMapper.selectBackupHistoryCount();
-        long backupSuccess = systemIndexMapper.selectBackupSuccessCount();
-        String successRate = backupTotal == 0
-                ? "0.0%"
-                : String.format(Locale.ROOT, "%.1f%%", (backupSuccess * 100.0) / backupTotal);
-        dto.setBackupSuccessRate(successRate);
-
+        SystemIndexDto dto = systemIndexMapper.selectSummary();
+        dto.setMonthlyRegistrations(systemIndexMapper.selectMonthlyRegistrations());
+        dto.setProgramStatus(systemIndexMapper.selectProgramStatus());
+        dto.setRoleCoverage(systemIndexMapper.selectRoleCoverage());
+        dto.setRecentChanges(systemIndexMapper.selectRecentChanges());
         return dto;
     }
 }

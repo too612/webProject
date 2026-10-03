@@ -10,9 +10,17 @@ public interface ErpIndexMapper {
 
     long selectTotalMembers();
 
-    long selectSermonPendingCount();
+    long selectActiveMemberCount();
 
-    long selectAccountRecordCount();
+    long selectNewMemberCount();
 
-    List<ErpIndexDto.TaskItem> selectRecentSermonTasks();
+    long selectDepartmentCount();
+
+    List<ErpIndexDto.MonthlyRegistration> selectMonthlyRegistrations();
+
+    List<ErpIndexDto.MemberCategory> selectServiceStatusDistribution();
+
+    List<ErpIndexDto.MemberCategory> selectEmploymentDistribution();
+
+    List<ErpIndexDto.DepartmentStaff> selectDepartmentStaff();
 }

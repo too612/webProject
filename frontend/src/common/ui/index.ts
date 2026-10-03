@@ -4,6 +4,15 @@ export { ErrorMessage } from "./ErrorMessage";
 export { ConfirmModal } from "./ConfirmModal";
 export { RouteProgress } from "./route-progress";
 export {
+  ChartFrame,
+  LineChart,
+  AreaChart,
+  BarChart,
+  DonutChart,
+  RadarChart,
+} from "./chart";
+export type { ChartSeries, ChartValueFormatter } from "./chart";
+export {
   PageShell,
   ListPageShell,
   DetailPageShell,

@@ -4,7 +4,7 @@ import { EMPTY_ERP_INDEX_DATA, type ErpIndexData } from './erpIndexModel';
 
 export function useErpIndexData() {
   const [indexData, setIndexData] = useState<ErpIndexData>(EMPTY_ERP_INDEX_DATA);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadIndexData = useCallback(async () => {

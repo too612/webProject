@@ -1,17 +1,19 @@
 package com.main.app.system.index;
 
 import org.apache.ibatis.annotations.Mapper;
+import com.main.app.system.index.dto.SystemIndexDto;
+import java.util.List;
 
 @Mapper
 public interface SystemIndexMapper {
 
-    long selectActiveAccounts();
+    SystemIndexDto selectSummary();
 
-    long selectTodayWarnings();
+    List<SystemIndexDto.MonthlyRegistration> selectMonthlyRegistrations();
 
-    long selectPendingRoleRequests();
+    List<SystemIndexDto.Distribution> selectProgramStatus();
 
-    long selectBackupHistoryCount();
+    List<SystemIndexDto.RoleCoverage> selectRoleCoverage();
 
-    long selectBackupSuccessCount();
+    List<SystemIndexDto.RecentChange> selectRecentChanges();
 }

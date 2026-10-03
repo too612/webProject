@@ -4,6 +4,7 @@ import com.main.app.community.index.dto.CommunityIndexDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 @Service
 @RequiredArgsConstructor
@@ -11,17 +12,13 @@ public class CommunityIndexService {
 
     private final CommunityIndexMapper communityIndexMapper;
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public CommunityIndexDto getIndexData() {
-        CommunityIndexDto dto = new CommunityIndexDto();
+        CommunityIndexDto dto = communityIndexMapper.selectMetadata();
         dto.setRecentPosts(communityIndexMapper.selectRecentPosts());
-        dto.setNotices(communityIndexMapper.selectNotices());
-        dto.setActivities(communityIndexMapper.selectActivities());
-
-        CommunityIndexDto.Stats stats = new CommunityIndexDto.Stats();
-        stats.setTotalMembers(communityIndexMapper.selectTotalMembers());
-        stats.setTotalPosts(communityIndexMapper.selectTotalPosts());
-        dto.setStats(stats);
+        dto.setMonthlyPosts(communityIndexMapper.selectMonthlyPosts());
+        dto.setCategories(communityIndexMapper.selectCategories());
+        dto.setStats(communityIndexMapper.selectStats());
 
         return dto;
     }

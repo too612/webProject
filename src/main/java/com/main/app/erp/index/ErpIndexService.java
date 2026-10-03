@@ -15,9 +15,13 @@ public class ErpIndexService {
     public ErpIndexDto getIndexData() {
         ErpIndexDto dto = new ErpIndexDto();
         dto.setTotalMembers(erpIndexMapper.selectTotalMembers());
-        dto.setSermonPendingCount(erpIndexMapper.selectSermonPendingCount());
-        dto.setAccountRecordCount(erpIndexMapper.selectAccountRecordCount());
-        dto.setRecentSermonTasks(erpIndexMapper.selectRecentSermonTasks());
+        dto.setActiveMemberCount(erpIndexMapper.selectActiveMemberCount());
+        dto.setNewMemberCount(erpIndexMapper.selectNewMemberCount());
+        dto.setDepartmentCount(erpIndexMapper.selectDepartmentCount());
+        dto.setMonthlyRegistrations(erpIndexMapper.selectMonthlyRegistrations());
+        dto.setServiceStatusDistribution(erpIndexMapper.selectServiceStatusDistribution());
+        dto.setEmploymentDistribution(erpIndexMapper.selectEmploymentDistribution());
+        dto.setDepartmentStaff(erpIndexMapper.selectDepartmentStaff());
         return dto;
     }
 }

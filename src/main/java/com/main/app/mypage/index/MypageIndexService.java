@@ -12,12 +12,22 @@ public class MypageIndexService {
     private final MypageIndexMapper mypageIndexMapper;
 
     @Transactional(readOnly = true)
-    public MypageIndexDto getIndexData(String userId) {
-        MypageIndexDto dto = new MypageIndexDto();
-        dto.setActivityCount(mypageIndexMapper.selectActivityCount(userId));
-        dto.setInquiryCount(mypageIndexMapper.selectInquiryCount(userId));
-        dto.setNotificationCount(mypageIndexMapper.selectNotificationCount(userId));
-        dto.setRecentActivities(mypageIndexMapper.selectRecentActivities(userId));
+    public MypageIndexDto getIndexData(String userId, MypageIndexDto.Source source) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("Authenticated user is required");
+        }
+        MypageIndexDto dto = mypageIndexMapper.selectMetadata(source);
+        if (source == MypageIndexDto.Source.DEMO) {
+            dto.setStats(mypageIndexMapper.selectDemoStats());
+            dto.setMonthlyActivities(mypageIndexMapper.selectDemoMonthlyActivities());
+            dto.setCategories(mypageIndexMapper.selectDemoCategories());
+            dto.setRecentActivities(mypageIndexMapper.selectDemoRecentActivities());
+        } else {
+            dto.setStats(mypageIndexMapper.selectStats(userId));
+            dto.setMonthlyActivities(mypageIndexMapper.selectMonthlyActivities(userId));
+            dto.setCategories(mypageIndexMapper.selectCategories(userId));
+            dto.setRecentActivities(mypageIndexMapper.selectRecentActivities(userId));
+        }
         return dto;
     }
 }

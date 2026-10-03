@@ -38,7 +38,44 @@
 - 마이페이지의 프로필, 비밀번호, 알림, 탈퇴 API는 현재 서버 호출 없이 완료되는 기존 임시 구현을 유지한다. 작업공간의 저장 완료 표시와 미저장 해제는 이 기존 계약에 연결되어 있으며, 실제 계정 정보를 서버에 저장하려면 별도 백엔드 연결 작업이 필요하다.
 - 비밀번호와 탈퇴 확인 입력은 성공/취소 시 메모리 상태에서 정리하며 작업공간 브라우저 저장소에는 저장하지 않는다.
 
+## ERP 홈 대시보드 데이터
+
+- [ERP 홈](../../../frontend/src/erp/index/erpIndexPage.tsx)은 [index Mapper](../../../src/main/resources/mapper/erp/index/ErpIndexMapper.xml)를 통해 [인사 기본정보](../../table/hrm_person.sql), [조직](../../table/hrm_department.sql), [공통코드](../../table/com_code.sql)의 실제 집계만 표시한다. 대시보드 응답에는 이름·생년월일 등 개인 식별 정보를 포함하지 않는다.
+- 전체 등록 인원은 인사 기본정보 전체, 활성 인원은 재직구분 `101-010`, 운영 조직은 사용여부 `Y` 기준이다. 신규 등록과 최근 6개월 추이는 `reg_dtm` 기준이며 입사일이나 새가족 방문일을 의미하지 않는다. 등록이 없는 월도 0건으로 반환한다.
+- 재직구분과 고용형태 차트는 전체 등록 인원 기준이며 명칭은 DB 공통코드를 조회한다. 조직별 현황은 활성 인원 기준으로 집계하며 차트에는 상위 8개, 표에는 전체 집계를 표시한다.
+- 차트 클릭은 인사 목록으로 연결한다. 재직구분·고용형태는 해당 조건을, 조직은 부서와 재직 조건을 함께 전달한다. 등록 추이는 인사 목록에 기간 필터가 없으므로 전체 목록으로만 이동한다. 미분류 항목도 별도 미분류 필터가 없어 전체 목록으로 이동한다.
+- `erp_member`, `erp_offering`, `erp_expense`, `erp_attendance`, `erp_worship`는 이 대시보드의 데이터 원천으로 사용하지 않는다. 재정·출석·설교 현황은 실제 스키마 및 데이터가 확인된 후 별도로 연결해야 한다.
+- [DB 회귀 테스트](../../../src/test/java/com/main/app/erp/index/ErpIndexDatabaseTest.java)는 프로젝트에 설정된 DB에서 읽기 전용으로 API의 조회 경로, 요약값, 6개월 구간과 분류별 합계를 검증한다. 스키마나 seed를 생성·변경하지 않는다.
+
 ## 스타일과 검증
+
+### 시스템 첫 진입 대시보드
+
+- [시스템 홈](../../../frontend/src/system/index/systemIndexPage.tsx)은 기존 [index API](../../../src/main/java/com/main/app/system/index/SystemIndexController.java)와 [Mapper XML](../../../src/main/resources/mapper/system/index/SystemIndexMapper.xml)을 확장한다. `source=LIVE`로 실제 `sys_menu`, `sys_program`, `sys_role`, `sys_role_program_permission`, `com_code`만 읽으며 XML 데모는 사용하지 않는다. 기존 게시판 기반 계정·경고·백업 지표와 고정 정상 운영 표시는 제거한다.
+- 등록 메뉴는 그룹 포함 전체 행이며 경로 지정 수를 함께 표시한다. 프로그램은 미사용 포함 전체, 사용 역할은 `is_active=true`, 사용 코드는 `use_yn='Y'`이며 루트도 포함한다. 해당 테이블에는 별도 삭제 플래그가 없고 미사용 설정을 활성 집계에서만 제외한다. 사용자 이름·연락처·사용자 식별키는 조회하지 않는다.
+- 최근 6개월 등록 추이는 DB 시간대의 `reg_dtm` 기준으로 미사용 포함 코드·프로그램을 집계하고 빈 월도 0건으로 반환한다. 기간은 시작 월 1일부터 현재 월 다음 달 1일 미만이다. 프로그램 구성비의 합계는 전체 프로그램 수, 각 추이 합계는 해당 기간 수와 일치한다. 한 응답의 조회는 읽기 전용 repeatable-read 트랜잭션으로 묶는다.
+- 역할별 조회/등록 허용 수는 사용 역할·사용 프로그램·`is_open=true`인 권한 기준이다. 역할 간 같은 프로그램이 중복될 수 있으며 사용자 수나 실효 사용자 권한을 의미하지 않는다. 차트는 정렬순 앞 8개, 표는 전체 사용 역할을 표시하고 등록 권한 비율의 분모는 사용 프로그램 전체다.
+- 최근 설정은 메뉴·코드·역할·프로그램의 `upd_dtm`, 없으면 `reg_dtm` 기준 최신 8건이며 감사 로그가 아니다. 바로가기와 차트/기록 이동은 현재 시스템 메뉴와 `buildMenuLink`를 사용한다. 대상 Hook에서 URL 필터를 지원하지 않으므로 새로운 조건/상세 ID를 만들지 않고 전체 관리 화면으로 이동한다. 기존 관리 화면 일부는 참조 데이터 목록이므로 실제 대시보드와 원천이 다를 수 있음을 화면에도 표시한다.
+- [DB 테스트](../../../src/test/java/com/main/app/system/index/SystemIndexDatabaseTest.java)는 기존 프로파일/datasource로 테이블·컬럼 존재, 실제 SQL 매핑, 기간 및 집계 합계를 읽기 전용으로 검증한다. 프론트 응답 타입·집계 합계·기간 검증은 index Model/API에서 수행한다. SQL 실패를 0이나 데모로 바꾸지 않으며 화면에 오류와 재시도를 제공한다.
+
+### 마이페이지 첫 진입 대시보드
+
+- [마이페이지 홈](../../../frontend/src/mypage/index/mypageIndexPage.tsx)은 기존 [index API](../../../src/main/java/com/main/app/mypage/index/MypageIndexController.java)와 [Mapper XML](../../../src/main/resources/mapper/mypage/index/MypageIndexMapper.xml)을 확장한다. 화면은 `mode=DEMO`로 고정하며 데이터 선택 대신 다시 불러오기 버튼을 제공한다. 기존 API의 `LIVE` 조회는 서버 세션의 사용자와 `board.rqst_id`가 일치하는 기록만 조회하며, 작성자 식별키·연락처는 반환하지 않는다.
+- 전체 작성 기록에는 문의 `QNA`가 포함된다. 구성비는 문의와 그 외 게시글로 중복 없이 나누며, 월별 추이와 기간 KPI는 DB `ins_dt` 기준 이번 달 포함 6개월(시작 포함, 다음 달 시작 제외)이다. 삭제·활성 컬럼은 현재 실제 `board` 스키마에 없으므로 별도의 상태를 추정하지 않는다.
+- 실제 DB의 테이블·컬럼을 읽기 전용으로 확인했으며 현재 게시글은 0건이다. 화면은 실제 기록 대신 XML CTE에서 비식별 가상 기록 24건(월별 4건, 문의 6건)을 생성하며 각 KPI·차트·최근 목록에 데모 표시를 한다. 데모도 기존 로그인 정책을 유지하고 SQL 실패 시 자동 대체하지 않는다.
+- 차트·최근 기록은 기존 메뉴의 `buildMenuLink`를 사용해 활동/문의 전체 목록으로 이동한다. 대상 목록은 기간·분류 필터를 지원하지 않아 임의 쿼리나 상세 ID를 만들지 않는다. 프로필·비밀번호·알림 입력 화면은 기존 임시 구현으로 서버 저장 미연결 안내를 표시한다. 알림 수·일정 등 원천이 없는 지표는 표시하지 않는다.
+- [읽기 전용 DB 테스트](../../../src/test/java/com/main/app/mypage/index/MypageIndexDatabaseTest.java)는 실조회와 XML 데모, 6개월 구간·합계·인증 식별자 필수 조건을 검증한다. HTTP 성공 응답과 화면 상호작용은 실제 로그인 세션에서 `/api/mypage/index?mode=LIVE` 및 `mode=DEMO`로 확인한다. 인증 우회나 seed 실행은 하지 않는다.
+- 조회 실패는 서버 메시지와 응답 검증 오류를 보존하고 단일 오류 화면에서 재시도와 로그인 확인 링크를 제공한다. 대시보드 조회 실패만으로 전역 로그인 상태를 삭제하지 않는다. 데모도 같은 서버 인증 정책을 적용한다.
+- 공통 모델 속성 조회와 인증 확인(`/auth/check`, `/auth/me`), 마이페이지 index는 `getSession(false)`로 기존 세션만 읽는다. 공개 조회가 새 익명 세션 쿠키를 발급해 로그인 쿠키를 덮어쓰지 않도록 한다. 로그인·인증코드 발급의 세션 생성과 명시적 로그아웃은 유지한다. [세션 회귀 테스트](../../../src/test/java/com/main/app/common/auth/SessionReadTest.java)로 세션 미생성 및 기존 세션 보존을 검증한다.
+
+### 공동체 첫 진입 대시보드
+
+- [공동체 홈](../../../frontend/src/community/index/communityIndexPage.tsx)은 [index Mapper](../../../src/main/resources/mapper/community/index/CommunityIndexMapper.xml)의 실제 `board` 조회를 사용한다. `sys_menu`에서 분류명과 `param`을 조회하고 기존 `buildMenuLink`로 목록 링크를 생성한다. 기존 회원 수·가상 게시글 수·갤러리·공지·운영시간 표시는 제거했다.
+- 기존 목록 Mapper와 일치하는 13개 게시판 분류 중 `secret = 'N'`이고 비밀번호가 없는 글만 포함한다. 현재 DB의 `board`에는 삭제·활성 컬럼이 없음을 확인했다. 작성 계정은 고유 작성 참여자 집계에만 사용하고 응답에는 계정·레코드 식별자·본문·연락처를 포함하지 않는다.
+- 전체 공개 글, 이번 달 공개 글, 고유 작성 참여자(전체 회원 수가 아님), 공개 글 누적 조회수를 표시한다. 음수 조회수는 0으로 정규화한다. 최근 6개월은 DB 현재 월을 포함한 6개 달, 등록일 기준이며 종료일은 다음 달 1일 미포함이다. KPI·차트·분류별 표는 동일 공개 기준을 사용한다.
+- 응답의 `source = LIVE`는 모든 위젯이 실데이터임을 뜻한다. XML 데모 데이터는 사용하지 않으며 실제 0건은 빈 차트·최근 목록과 0값으로 표시한다. API 실패는 0값으로 치환하지 않고 오류와 재시도를 제공한다.
+- 기존 목록은 URL 기간 필터를 지원하지 않으므로 모든 차트와 최근 글은 분류의 전체 목록으로만 이동한다. 추이의 점은 가장 최근 공개 글의 분류 목록으로 이동하며 공개 글이 없으면 클릭하지 않는다. 가짜 상세 ID와 미지원 필터를 만들지 않는다.
+- [읽기 전용 DB 테스트](../../../src/test/java/com/main/app/community/index/CommunityIndexDatabaseTest.java)는 기존 datasource/profile로 원천 컬럼, 공개 글 집계, 6개월 구간과 위젯 합계를 검증한다. 운영 프로파일의 기존 API 인증 정책은 변경하지 않는다. 스키마·seed 변경은 없다.
 
 - global.css는 기본 스타일과 기존 공통 기반을 유지하고, layouts CSS를 import한다.
 - 기존 레이아웃 CSS는 shared, site, shared-footer, shared-responsive 순서로 분리했다. 푸터와 반응형을 별도 파일로 둔 것은 기존 레이아웃 간 선언 순서를 유지하기 위해서다.

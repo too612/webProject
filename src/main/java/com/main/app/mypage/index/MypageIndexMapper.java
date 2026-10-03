@@ -9,11 +9,21 @@ import java.util.List;
 @Mapper
 public interface MypageIndexMapper {
 
-    long selectActivityCount(@Param("userId") String userId);
+    MypageIndexDto selectMetadata(@Param("source") MypageIndexDto.Source source);
 
-    long selectInquiryCount(@Param("userId") String userId);
+    MypageIndexDto.Stats selectStats(@Param("userId") String userId);
 
-    long selectNotificationCount(@Param("userId") String userId);
+    List<MypageIndexDto.MonthlyActivity> selectMonthlyActivities(@Param("userId") String userId);
+
+    List<MypageIndexDto.Category> selectCategories(@Param("userId") String userId);
 
     List<MypageIndexDto.ActivityItem> selectRecentActivities(@Param("userId") String userId);
+
+    MypageIndexDto.Stats selectDemoStats();
+
+    List<MypageIndexDto.MonthlyActivity> selectDemoMonthlyActivities();
+
+    List<MypageIndexDto.Category> selectDemoCategories();
+
+    List<MypageIndexDto.ActivityItem> selectDemoRecentActivities();
 }

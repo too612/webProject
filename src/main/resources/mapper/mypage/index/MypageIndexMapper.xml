@@ -4,35 +4,103 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.mypage.index.MypageIndexMapper">
 
-    <select id="selectActivityCount" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE rqst_id = #{userId}
-    </select>
+    <sql id="ownActivities">
+        WITH activities AS (
+            SELECT title, board_type, ins_dt
+              FROM board
+             WHERE rqst_id = #{userId}
+        )
+    </sql>
 
-    <select id="selectInquiryCount" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE rqst_id = #{userId}
-           AND board_type LIKE 'MYPAGE_%INQUIRY%'
-    </select>
+    <sql id="demoActivities">
+        WITH activities AS (
+            SELECT ('활동 예시 ' || LPAD(n::text, 2, '0'))::text AS title,
+                   CASE WHEN n % 4 = 0 THEN 'QNA'::text ELSE 'OTHER'::text END AS board_type,
+                   (DATE_TRUNC('month', CURRENT_TIMESTAMP)::timestamp
+                    - ((n - 1) / 4) * INTERVAL '1 month'
+                    + LEAST((n - 1) % 4, EXTRACT(DAY FROM CURRENT_DATE)::integer - 1)
+                      * INTERVAL '1 day')::timestamp AS ins_dt
+              FROM generate_series(1, 24) AS n
+        )
+    </sql>
 
-    <select id="selectNotificationCount" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-         WHERE rqst_id = #{userId}
-              AND board_type LIKE 'MYPAGE_%NOTIFICATION%'
-    </select>
+    <sql id="stats">
+        SELECT COUNT(*) AS "totalActivities",
+               COUNT(*) FILTER (
+                   WHERE ins_dt >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+                     AND ins_dt &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+               ) AS "periodActivities",
+               COUNT(*) FILTER (
+                   WHERE ins_dt >= DATE_TRUNC('month', CURRENT_TIMESTAMP)
+                     AND ins_dt &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+               ) AS "currentMonthActivities",
+               COUNT(*) FILTER (WHERE board_type = 'QNA') AS "inquiryCount"
+          FROM activities
+    </sql>
 
-    <select id="selectRecentActivities" resultType="com.main.app.mypage.index.dto.MypageIndexDto$ActivityItem">
-        SELECT CAST(rqst_no AS VARCHAR) AS id,
-               title,
-               board_type AS type,
-               TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
-          FROM board
-         WHERE rqst_id = #{userId}
-         ORDER BY ins_dt DESC
+    <sql id="monthlyActivities">
+        , months AS (
+            SELECT generate_series(
+                DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months',
+                DATE_TRUNC('month', CURRENT_TIMESTAMP), INTERVAL '1 month'
+            ) AS month_start
+        )
+        SELECT TO_CHAR(m.month_start, 'YYYY-MM') AS month, COUNT(a.ins_dt) AS count
+          FROM months m
+          LEFT JOIN activities a ON a.ins_dt >= m.month_start
+                                AND a.ins_dt &lt; m.month_start + INTERVAL '1 month'
+         GROUP BY m.month_start
+         ORDER BY m.month_start
+    </sql>
+
+    <sql id="categories">
+        SELECT CASE WHEN board_type = 'QNA' THEN '문의'::text ELSE '게시글'::text END AS label,
+               COUNT(*) AS count
+          FROM activities
+         GROUP BY CASE WHEN board_type = 'QNA' THEN '문의'::text ELSE '게시글'::text END
+         ORDER BY label
+    </sql>
+
+    <sql id="recentActivities">
+        SELECT title,
+               CASE WHEN board_type = 'QNA' THEN '문의'::text ELSE '게시글'::text END AS type,
+               TO_CHAR(ins_dt, 'YYYY-MM-DD') AS date
+          FROM activities
+         ORDER BY ins_dt DESC, title
          LIMIT 5
+    </sql>
+
+    <select id="selectMetadata" resultType="com.main.app.mypage.index.dto.MypageIndexDto">
+        SELECT #{source}::text AS source,
+               TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') AS "asOf",
+               TO_CHAR(DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months', 'YYYY-MM-DD') AS "periodStart",
+               TO_CHAR(DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month', 'YYYY-MM-DD') AS "periodEnd"
+    </select>
+
+    <select id="selectStats" resultType="com.main.app.mypage.index.dto.MypageIndexDto$Stats">
+        <include refid="ownActivities"/><include refid="stats"/>
+    </select>
+    <select id="selectMonthlyActivities" resultType="com.main.app.mypage.index.dto.MypageIndexDto$MonthlyActivity">
+        <include refid="ownActivities"/><include refid="monthlyActivities"/>
+    </select>
+    <select id="selectCategories" resultType="com.main.app.mypage.index.dto.MypageIndexDto$Category">
+        <include refid="ownActivities"/><include refid="categories"/>
+    </select>
+    <select id="selectRecentActivities" resultType="com.main.app.mypage.index.dto.MypageIndexDto$ActivityItem">
+        <include refid="ownActivities"/><include refid="recentActivities"/>
+    </select>
+
+    <select id="selectDemoStats" resultType="com.main.app.mypage.index.dto.MypageIndexDto$Stats">
+        <include refid="demoActivities"/><include refid="stats"/>
+    </select>
+    <select id="selectDemoMonthlyActivities" resultType="com.main.app.mypage.index.dto.MypageIndexDto$MonthlyActivity">
+        <include refid="demoActivities"/><include refid="monthlyActivities"/>
+    </select>
+    <select id="selectDemoCategories" resultType="com.main.app.mypage.index.dto.MypageIndexDto$Category">
+        <include refid="demoActivities"/><include refid="categories"/>
+    </select>
+    <select id="selectDemoRecentActivities" resultType="com.main.app.mypage.index.dto.MypageIndexDto$ActivityItem">
+        <include refid="demoActivities"/><include refid="recentActivities"/>
     </select>
 
 </mapper>

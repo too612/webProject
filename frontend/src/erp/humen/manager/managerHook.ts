@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useState,
 } from "react";
+import { useSearchParams } from "react-router-dom";
 import { managerApi } from "./managerApi";
 import type { ManagerListQuery, ManagerListResult } from "./managerApi";
 import { useWorkspaceDirty } from "../../../common/workspace/workspaceHook";
@@ -39,6 +40,7 @@ const EMPTY_CREATE_FORM: ManagerCreateRequest = {
 };
 
 export function useManagerPage() {
+  const [searchParams] = useSearchParams();
   const [items, setItems] = useState<ManagerRow[]>([]);
   const [page, setPage] = useState(0);
   const [size] = useState(10);
@@ -46,7 +48,12 @@ export function useManagerPage() {
   const [totalElements, setTotalElements] = useState(0);
   const [keyword, setKeyword] = useState("");
   const [inputKeyword, setInputKeyword] = useState("");
-  const [filters, setFilters] = useState<ManagerFilters>(EMPTY_FILTERS);
+  const [filters, setFilters] = useState<ManagerFilters>(() => ({
+    ...EMPTY_FILTERS,
+    deptCd: searchParams.get("deptCd") ?? "",
+    serviceStatusCode: searchParams.get("serviceStatusCode") ?? "",
+    employmentTypeCode: searchParams.get("employmentTypeCode") ?? "",
+  }));
   const [filterOptions, setFilterOptions] =
     useState<ManagerFilterOptions>(EMPTY_OPTIONS);
   const [loading, setLoading] = useState(true);

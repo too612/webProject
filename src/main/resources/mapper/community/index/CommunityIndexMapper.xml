@@ -4,52 +4,103 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.community.index.CommunityIndexMapper">
 
+    <sql id="publicPosts">
+        WITH category_routes(code, path, fallback_label) AS (
+            VALUES
+                ('COMMUNITY_GROUP_MANAGER'::text, '/community/group/manager'::text, '모임 현황'::text),
+                ('COMMUNITY_GROUP_A1', '/community/group/groupa1', '모임 A1'),
+                ('COMMUNITY_GROUP_B2', '/community/group/groupb2', '모임 B2'),
+                ('COMMUNITY_FACILITIES_CALENDAR', '/community/facilities/calendar', '연간 일정'),
+                ('COMMUNITY_FACILITIES_DINING', '/community/facilities/dining', '봉사 일정'),
+                ('COMMUNITY_FACILITIES_PRAYER', '/community/facilities/prayer', '활동 일정'),
+                ('COMMUNITY_SAINT_FAMILY', '/community/saint/family', '경조사'),
+                ('COMMUNITY_SAINT_PRAY', '/community/saint/pray', '기도 제목'),
+                ('COMMUNITY_SAINT_SALES', '/community/saint/sales', '알뜰 시장'),
+                ('COMMUNITY_SAINT_JOB', '/community/saint/job', '채용 소식'),
+                ('COMMUNITY_WORLD_CHRISTIAN', '/community/world/christian', '기독교 소식'),
+                ('COMMUNITY_WORLD_ECONOMIC', '/community/world/economic', '경제 소식'),
+                ('COMMUNITY_WORLD_HEALTH', '/community/world/health', '건강 소식')
+        ),
+        categories AS (
+            SELECT r.code, r.path, COALESCE(NULLIF(m.menu_nm, ''), r.fallback_label) AS label,
+                   COALESCE(m.param, '') AS param
+              FROM category_routes r
+              LEFT JOIN LATERAL (
+                  SELECT menu_nm, param FROM sys_menu
+                   WHERE path = r.path
+                   ORDER BY CASE WHEN level = '2' THEN 0 ELSE 1 END, menu_id
+                   LIMIT 1
+              ) m ON TRUE
+        ),
+        public_posts AS (
+            SELECT b.rqst_no, b.title, b.ins_dt, b.rqst_id,
+                   GREATEST(COALESCE(b.views, 0), 0)::bigint AS views,
+                   c.code, c.label, c.path, c.param
+              FROM board b
+              JOIN categories c ON c.code = b.board_type
+             WHERE b.secret = 'N'
+               AND NULLIF(BTRIM(b.password), '') IS NULL
+        )
+    </sql>
+
+    <select id="selectMetadata" resultType="com.main.app.community.index.dto.CommunityIndexDto">
+        SELECT 'LIVE'::text AS source,
+               TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD') AS "asOf",
+               TO_CHAR(DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months', 'YYYY-MM-DD') AS "periodStart",
+               TO_CHAR(DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month', 'YYYY-MM-DD') AS "periodEnd"
+    </select>
+
+    <select id="selectStats" resultType="com.main.app.community.index.dto.CommunityIndexDto$Stats">
+        <include refid="publicPosts"/>
+        SELECT COUNT(*) AS "totalPosts",
+               COUNT(DISTINCT NULLIF(BTRIM(rqst_id), '')) AS contributors,
+               COUNT(*) FILTER (
+                   WHERE ins_dt >= DATE_TRUNC('month', CURRENT_TIMESTAMP)
+                     AND ins_dt &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+               ) AS "currentMonthPosts",
+               COALESCE(SUM(views), 0)::bigint AS "totalViews",
+               COUNT(*) FILTER (
+                   WHERE ins_dt >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+                     AND ins_dt &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+               ) AS "periodPosts"
+          FROM public_posts
+    </select>
+
+    <select id="selectMonthlyPosts" resultType="com.main.app.community.index.dto.CommunityIndexDto$MonthlyPosts">
+        <include refid="publicPosts"/>,
+        months AS (
+            SELECT generate_series(
+                DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months',
+                DATE_TRUNC('month', CURRENT_TIMESTAMP), INTERVAL '1 month'
+            ) AS month_start
+        )
+        SELECT TO_CHAR(m.month_start, 'YYYY-MM') AS month, COUNT(p.rqst_no) AS count
+          FROM months m
+          LEFT JOIN public_posts p ON p.ins_dt >= m.month_start
+                                 AND p.ins_dt &lt; m.month_start + INTERVAL '1 month'
+         GROUP BY m.month_start
+         ORDER BY m.month_start
+    </select>
+
+    <select id="selectCategories" resultType="com.main.app.community.index.dto.CommunityIndexDto$Category">
+        <include refid="publicPosts"/>
+        SELECT c.code, c.label, c.path, c.param, COUNT(p.rqst_no) AS count,
+               COUNT(p.rqst_no) FILTER (
+                   WHERE p.ins_dt >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+                     AND p.ins_dt &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+               ) AS "periodCount"
+          FROM categories c
+          LEFT JOIN public_posts p ON p.code = c.code
+         GROUP BY c.code, c.label, c.path, c.param
+         ORDER BY count DESC, c.code
+    </select>
+
     <select id="selectRecentPosts" resultType="com.main.app.community.index.dto.CommunityIndexDto$PostItem">
-        SELECT CAST(rqst_no AS VARCHAR) AS id,
-               REPLACE(board_type, 'COMMUNITY_', '') AS category,
-               title,
-               rqst_id AS author,
-               TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date,
-               COALESCE(views, 0) AS views
-          FROM board
-         WHERE board_type LIKE 'COMMUNITY_%'
-         ORDER BY ins_dt DESC
-         LIMIT 5
+        <include refid="publicPosts"/>
+        SELECT label AS category, path, param, COALESCE(title, '(제목 없음)') AS title,
+               COALESCE(TO_CHAR(ins_dt, 'YYYY-MM-DD'), '') AS date, views
+          FROM public_posts
+         ORDER BY ins_dt DESC NULLS LAST, rqst_no DESC
+         LIMIT 6
     </select>
-
-    <select id="selectNotices" resultType="com.main.app.community.index.dto.CommunityIndexDto$NoticeItem">
-        SELECT CAST(rqst_no AS VARCHAR) AS id,
-               title,
-               TO_CHAR(ins_dt, 'MM.DD') AS date
-          FROM board
-         WHERE board_type IN ('COMMUNITY_GROUP_MANAGER', 'COMMUNITY_FACILITIES_CALENDAR')
-         ORDER BY ins_dt DESC
-         LIMIT 3
-    </select>
-
-    <select id="selectActivities" resultType="com.main.app.community.index.dto.CommunityIndexDto$ActivityItem">
-        SELECT CAST(rqst_no AS VARCHAR) AS id,
-               REPLACE(board_type, 'COMMUNITY_', '') AS category,
-               title,
-               TO_CHAR(ins_dt, 'MM.DD') AS date
-          FROM board
-         WHERE board_type LIKE 'COMMUNITY_%'
-         ORDER BY ins_dt DESC
-         LIMIT 5
-    </select>
-
-    <select id="selectTotalMembers" resultType="long">
-        SELECT COUNT(DISTINCT rqst_id)
-          FROM board
-                 WHERE board_type LIKE 'COMMUNITY_%'
-           AND rqst_id IS NOT NULL
-                     AND rqst_id != ''
-    </select>
-
-    <select id="selectTotalPosts" resultType="long">
-        SELECT COUNT(*)
-          FROM board
-            WHERE board_type LIKE 'COMMUNITY_%'
-    </select>
-
 </mapper>

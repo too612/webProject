@@ -1,15 +1,29 @@
-export type ErpIndexTaskItem = {
-  id: string;
-  title: string;
-  status: string;
-  date: string;
+export type ErpMonthlyRegistration = {
+  month: string;
+  count: number;
+};
+
+export type ErpMemberCategory = {
+  code: string;
+  label: string;
+  count: number;
+};
+
+export type ErpDepartmentStaff = {
+  departmentCode: string;
+  department: string;
+  staffCount: number;
 };
 
 export type ErpIndexData = {
   totalMembers: number;
-  sermonPendingCount: number;
-  accountRecordCount: number;
-  recentSermonTasks: ErpIndexTaskItem[];
+  activeMemberCount: number;
+  newMemberCount: number;
+  departmentCount: number;
+  monthlyRegistrations: ErpMonthlyRegistration[];
+  serviceStatusDistribution: ErpMemberCategory[];
+  employmentDistribution: ErpMemberCategory[];
+  departmentStaff: ErpDepartmentStaff[];
 };
 
 export type ErpShortcut = {
@@ -28,15 +42,11 @@ export const ERP_INDEX_SHORTCUTS: ErpShortcut[] = [
 
 export const EMPTY_ERP_INDEX_DATA: ErpIndexData = {
   totalMembers: 0,
-  sermonPendingCount: 0,
-  accountRecordCount: 0,
-  recentSermonTasks: [],
+  activeMemberCount: 0,
+  newMemberCount: 0,
+  departmentCount: 0,
+  monthlyRegistrations: [],
+  serviceStatusDistribution: [],
+  employmentDistribution: [],
+  departmentStaff: [],
 };
-
-export function getTaskStatusStyle(status: string): string {
-  const normalized = status.toUpperCase();
-  if (normalized.includes('URGENT')) return 'bg-red-100 text-red-700';
-  if (normalized.includes('PENDING') || normalized.includes('DRAFT')) return 'bg-amber-100 text-amber-700';
-  if (normalized.includes('DONE') || normalized.includes('COMPLETE') || normalized.includes('ACTIVE')) return 'bg-emerald-100 text-emerald-700';
-  return 'bg-gray-100 text-gray-600';
-}

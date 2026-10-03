@@ -3,7 +3,7 @@
    - ERP 시스템 페이지 전용 CSS
    ========================================================= */
 
-.workspace[data-workspace="/erp"] .workspace-home > section > header {
+.workspace[data-workspace="/erp"] .workspace-home > section > header:not([data-workspace-index-header]) {
   border-radius: 0;
   background: transparent;
   color: var(--workspace-ink);
@@ -11,7 +11,7 @@
   padding: 0 0 16px;
   border-bottom: 1px solid var(--workspace-line);
 }
-.workspace[data-workspace="/erp"] .workspace-home > section > header p {
+.workspace[data-workspace="/erp"] .workspace-home > section > header:not([data-workspace-index-header]) p {
   color: #6e7873;
 }
 .workspace[data-workspace="/erp"] .workspace-home > section > div {

@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { communityIndexApi } from './communityIndexApi';
-import { EMPTY_COMMUNITY_INDEX, type CommunityIndexData } from './communityIndexModel';
+import type { CommunityIndexData } from './communityIndexModel';
 
 export function useCommunityIndex() {
-    const [indexData, setIndexData] = useState<CommunityIndexData>(EMPTY_COMMUNITY_INDEX);
+    const [indexData, setIndexData] = useState<CommunityIndexData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [requestVersion, setRequestVersion] = useState(0);
+    const reload = useCallback(() => setRequestVersion((version) => version + 1), []);
 
     useEffect(() => {
         let mounted = true;
@@ -21,7 +23,7 @@ export function useCommunityIndex() {
                 if (!mounted) return;
                 const message = e instanceof Error ? e.message : '커뮤니티 메인 데이터를 불러오지 못했습니다.';
                 setError(message);
-                setIndexData(EMPTY_COMMUNITY_INDEX);
+                setIndexData(null);
             })
             .finally(() => {
                 if (mounted) {
@@ -32,11 +34,12 @@ export function useCommunityIndex() {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [requestVersion]);
 
     return {
         indexData,
         loading,
         error,
+        reload,
     };
 }

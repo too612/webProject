@@ -1,15 +1,18 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { accountManagerApi } from './managerApi';
 import type { ManagerListQuery, ManagerListResult } from './managerApi';
 import type { AccountManagerRow } from './managerModel';
 
 export function useAccountManagerPage() {
+  const [searchParams] = useSearchParams();
+  const keywordFromUrl = searchParams.get('keyword')?.trim() ?? '';
   const [items, setItems] = useState<AccountManagerRow[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [keyword, setKeyword] = useState('');
-  const [inputKeyword, setInputKeyword] = useState('');
+  const [keyword, setKeyword] = useState(keywordFromUrl);
+  const [inputKeyword, setInputKeyword] = useState(keywordFromUrl);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 

@@ -5,34 +5,89 @@
 <mapper namespace="com.main.app.erp.index.ErpIndexMapper">
 
     <select id="selectTotalMembers" resultType="long">
-        SELECT COUNT(DISTINCT rqst_id)
-          FROM board
-         WHERE rqst_id IS NOT NULL
-           AND rqst_id != ''
-    </select>
-
-    <select id="selectSermonPendingCount" resultType="long">
         SELECT COUNT(*)
-          FROM board
-         WHERE board_type LIKE 'ERP_SERMON%'
+          FROM hrm_person
     </select>
 
-    <select id="selectAccountRecordCount" resultType="long">
+    <select id="selectActiveMemberCount" resultType="long">
         SELECT COUNT(*)
-          FROM board
-         WHERE board_type LIKE 'ERP_ACCOUNT%'
-           AND ins_dt >= DATE_TRUNC('month', CURRENT_DATE)
+          FROM hrm_person
+         WHERE service_status_code = '101-010'
     </select>
 
-    <select id="selectRecentSermonTasks" resultType="com.main.app.erp.index.dto.ErpIndexDto$TaskItem">
-        SELECT CAST(rqst_no AS VARCHAR) AS id,
-               title,
-               'PENDING' AS status,
-               TO_CHAR(ins_dt, 'YYYY.MM.DD') AS date
-          FROM board
-         WHERE board_type LIKE 'ERP_SERMON%'
-         ORDER BY ins_dt DESC
-         LIMIT 4
+    <select id="selectDepartmentCount" resultType="long">
+        SELECT COUNT(*)
+          FROM hrm_org_dept
+         WHERE use_yn = 'Y'
+    </select>
+
+    <select id="selectNewMemberCount" resultType="long">
+        SELECT COUNT(*)
+          FROM hrm_person
+         WHERE reg_dtm >= DATE_TRUNC('month', CURRENT_TIMESTAMP)
+           AND reg_dtm &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+    </select>
+
+    <select id="selectMonthlyRegistrations" resultType="com.main.app.erp.index.dto.ErpIndexDto$MonthlyRegistration">
+        WITH months AS (
+            SELECT generate_series(
+                       DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months',
+                       DATE_TRUNC('month', CURRENT_TIMESTAMP),
+                       INTERVAL '1 month'
+                   ) AS month_start
+        ),
+        registrations AS (
+            SELECT DATE_TRUNC('month', reg_dtm) AS month_start,
+                   COUNT(*) AS count
+              FROM hrm_person
+             WHERE reg_dtm >= DATE_TRUNC('month', CURRENT_TIMESTAMP) - INTERVAL '5 months'
+               AND reg_dtm &lt; DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
+             GROUP BY DATE_TRUNC('month', reg_dtm)
+        )
+        SELECT TO_CHAR(m.month_start, 'YYYY-MM') AS month,
+               COALESCE(r.count, 0) AS count
+          FROM months m
+          LEFT JOIN registrations r ON r.month_start = m.month_start
+         ORDER BY m.month_start
+    </select>
+
+    <select id="selectServiceStatusDistribution" resultType="com.main.app.erp.index.dto.ErpIndexDto$MemberCategory">
+        SELECT COALESCE(NULLIF(p.service_status_code, ''), '') AS code,
+               COALESCE(c.code_name, NULLIF(p.service_status_code, ''), '미분류') AS label,
+               COUNT(*) AS count
+          FROM hrm_person p
+          LEFT JOIN com_code c
+            ON c.code = p.service_status_code
+           AND c.parent_code = '101'
+         GROUP BY COALESCE(NULLIF(p.service_status_code, ''), ''),
+                  COALESCE(c.code_name, NULLIF(p.service_status_code, ''), '미분류')
+         ORDER BY count DESC, code
+    </select>
+
+    <select id="selectEmploymentDistribution" resultType="com.main.app.erp.index.dto.ErpIndexDto$MemberCategory">
+        SELECT COALESCE(NULLIF(p.employment_type_code, ''), '') AS code,
+               COALESCE(c.code_name, NULLIF(p.employment_type_code, ''), '미분류') AS label,
+               COUNT(*) AS count
+          FROM hrm_person p
+          LEFT JOIN com_code c
+            ON c.code = p.employment_type_code
+           AND c.parent_code = '104'
+         GROUP BY COALESCE(NULLIF(p.employment_type_code, ''), ''),
+                  COALESCE(c.code_name, NULLIF(p.employment_type_code, ''), '미분류')
+         ORDER BY count DESC, code
+    </select>
+
+    <select id="selectDepartmentStaff" resultType="com.main.app.erp.index.dto.ErpIndexDto$DepartmentStaff">
+        SELECT COALESCE(d.dept_cd, '') AS "departmentCode",
+               COALESCE(d.dept_nm, '미분류') AS department,
+               COUNT(*) AS "staffCount"
+          FROM hrm_person p
+          LEFT JOIN hrm_org_dept d
+            ON d.dept_cd = p.dept_cd
+           AND d.use_yn = 'Y'
+         WHERE p.service_status_code = '101-010'
+         GROUP BY COALESCE(d.dept_cd, ''), COALESCE(d.dept_nm, '미분류')
+         ORDER BY COUNT(*) DESC, department, "departmentCode"
     </select>
 
 </mapper>
