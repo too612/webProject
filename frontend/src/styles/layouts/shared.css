@@ -1,0 +1,301 @@
+/* =============================
+   2. 헤더 (Header) - 교회 디자인
+   ============================= */
+.header {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1010;
+}
+
+.header-top {
+  background: #f8f9fa;
+  padding: 10px 0;
+  text-align: right;
+  font-size: 13px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* 헤더 상단 링크 (홈으로, 회원가입) */
+.header-top-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-top-links a {
+  padding: 4px 0;
+  transition: color 0.3s ease;
+  font-weight: 500;
+}
+
+.header-top-links a:hover {
+  color: #5c6bc0;
+}
+
+.header-top-links span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 구분자 스타일 */
+.header-top-links .separator {
+  color: #dee2e6;
+  font-size: 12px;
+}
+
+/* 링크 사이에 구분선 추가 */
+.header-top-links a + a {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid #dee2e6;
+}
+
+.header-main {
+  padding: 8px 0;
+}
+
+.header-main .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  min-height: 64px;
+}
+
+.header-main .container.erp-wide {
+  max-width: 1520px;
+}
+
+.header-main .logo {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 64px;
+  line-height: 0;
+  transition: all 0.3s ease;
+}
+
+.header-main .logo:hover {
+  transform: translateY(-2px);
+}
+
+.header-main .logo img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: 170px;
+  object-fit: contain;
+}
+
+.header-main .logo .header-logo-image {
+  width: min(170px, 38vw);
+  max-width: 170px;
+  height: auto;
+}
+
+/* GNB (메인 네비게이션) */
+.nav-main {
+  display: flex;
+  gap: 52px;
+}
+
+@media (min-width: 993px) {
+  .header-main {
+    padding: 6px 0;
+  }
+
+  .header-main .container {
+    min-height: 70px;
+  }
+
+  .header-main .logo {
+    height: 70px;
+  }
+
+  .header-main .container .nav-main.desktop-only {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .header-main .container.erp-wide .nav-main.erp-menu.desktop-only {
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+    flex: 1 1 auto;
+    margin-left: 24px;
+    display: grid !important;
+    grid-template-columns: repeat(var(--erp-menu-count, 10), minmax(0, 1fr));
+    gap: 12px;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 993px) and (max-width: 1199px) {
+  .header-main .logo {
+    height: 64px;
+  }
+
+  .nav-main {
+    gap: 38px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1279px) {
+  .nav-main {
+    gap: 44px;
+  }
+
+  .header-main .container.erp-wide {
+    max-width: 1320px;
+  }
+
+  .nav-main.erp-menu {
+    gap: 16px;
+  }
+
+  .nav-main.erp-menu > .dropdown > a {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .nav-main {
+    gap: 48px;
+  }
+
+  .header-main .container.erp-wide {
+    max-width: 1420px;
+  }
+
+  .nav-main.erp-menu {
+    gap: 18px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .nav-main {
+    gap: 52px;
+  }
+}
+
+.nav-main a {
+  font-weight: 600;
+  padding: 10px 0;
+  position: relative;
+  transition: color 0.3s ease;
+  font-size: 15px;
+}
+
+/* 최상단(1차) 메뉴 폰트 크기 확대 — 드롭다운 서브메뉴에는 영향 없음 */
+.nav-main > .dropdown > a {
+  font-size: 17px;
+}
+
+.nav-main.erp-menu {
+  gap: 12px;
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+.nav-main.erp-menu > .dropdown {
+  min-width: 0;
+  width: 100%;
+}
+
+.nav-main.erp-menu > .dropdown > a {
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  line-height: 1.2;
+}
+
+.nav-main a:hover {
+  color: #5c6bc0;
+}
+
+.nav-main a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #5c6bc0, #7986cb);
+  transition: width 0.3s ease;
+}
+
+.nav-main a:hover::after {
+  width: 100%;
+}
+
+/* 드롭다운 메뉴 - 교회 디자인 */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px);
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  z-index: 1000;
+  padding: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.nav-main .dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-10px);
+  border-radius: 0;
+}
+
+.nav-main .dropdown-menu a {
+  border-radius: 0;
+}
+
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-main .dropdown:hover > .dropdown-menu,
+.nav-main .dropdown:focus-within > .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px 14px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.dropdown-menu a:hover {
+  background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+  color: #5c6bc0;
+  padding-left: 20px;
+  box-shadow: 0 2px 8px rgba(92, 107, 192, 0.1);
+}
+

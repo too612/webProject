@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import type { MenuItem } from "../common/menu/menu.types";
-import { buildMenuLink, menuParamMatches } from "../common/menu/menuModel";
+import type { MenuItem } from "../../common/menu/menu.types";
+import { buildMenuLink, menuParamMatches } from "../../common/menu/menuModel";
 
 type SidebarProps = Readonly<{
   items: MenuItem[];

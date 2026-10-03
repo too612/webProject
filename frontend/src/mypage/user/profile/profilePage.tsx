@@ -1,7 +1,10 @@
+import { useId } from "react";
 import { useMypageProfilePage } from "./profileHook";
 import { ActionButton, Button } from "../../../common/ui";
+import { WorkspaceActions } from "../../../common/workspace/workspaceHook";
 
 export default function ProfilePage() {
+  const formId = useId();
   const {
     form,
     loading,
@@ -15,6 +18,23 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-5">
+      <WorkspaceActions>
+        <ActionButton
+          action="save"
+          type="submit"
+          form={formId}
+          loading={saving}
+          disabled={loading || saving}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleReset}
+          disabled={loading || saving}
+        >
+          취소
+        </Button>
+      </WorkspaceActions>
       <div className="space-y-1">
         <h2 className="text-lg font-bold text-brand-dark">내 정보 관리</h2>
         <p className="text-sm text-gray-500">
@@ -34,6 +54,7 @@ export default function ProfilePage() {
       )}
 
       <form
+        id={formId}
         className="bg-white rounded-panel shadow-panel border border-gray-100 p-6 space-y-4"
         onSubmit={handleSubmit}
       >
@@ -65,14 +86,14 @@ export default function ProfilePage() {
         ].map((field) => (
           <div key={field.id} className="space-y-1">
             <label
-              htmlFor={field.id}
+              htmlFor={`${formId}-${field.id}`}
               className="text-sm font-medium text-gray-700"
             >
               {field.label}
             </label>
             <input
               type={field.type}
-              id={field.id}
+              id={`${formId}-${field.id}`}
               placeholder={field.placeholder}
               value={form[field.id as keyof typeof form]}
               onChange={(event) =>
@@ -83,17 +104,6 @@ export default function ProfilePage() {
             />
           </div>
         ))}
-        <div className="flex gap-3 pt-2">
-          <ActionButton action="save" type="submit" loading={saving} />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleReset}
-            disabled={loading || saving}
-          >
-            취소
-          </Button>
-        </div>
       </form>
     </div>
   );

@@ -4,8 +4,8 @@
  */
 import { lazy } from "react";
 import { Navigate, type RouteObject } from "react-router-dom";
-import MainLayout from "../layouts/MainLayout";
-import SubmenuLayout from "../layouts/SubmenuLayout";
+import MainLayout from "../layouts/shared/MainLayout";
+import SubmenuLayout from "../layouts/site/SubmenuLayout";
 
 const OfficialIndexPage = lazy(
   () => import("../official/index/officialIndexPage"),

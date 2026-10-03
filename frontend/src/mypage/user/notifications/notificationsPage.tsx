@@ -1,6 +1,7 @@
 import { useMypageNotificationsPage } from "./notificationsHook";
 import { MYPAGE_NOTIFICATION_ITEMS } from "./notificationsModel";
 import { ActionButton, Button } from "../../../common/ui";
+import { WorkspaceActions } from "../../../common/workspace/workspaceHook";
 
 export default function NotificationsPage() {
   const {
@@ -16,6 +17,21 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-5">
+      <WorkspaceActions>
+        <ActionButton
+          action="save"
+          loading={saving}
+          disabled={loading || saving}
+          onClick={handleSave}
+        />
+        <Button
+          variant="outline"
+          onClick={handleReset}
+          disabled={loading || saving}
+        >
+          취소
+        </Button>
+      </WorkspaceActions>
       <div className="space-y-1">
         <h2 className="text-lg font-bold text-brand-dark">알림 설정</h2>
         <p className="text-sm text-gray-500">알림 방식과 주기를 설정하세요</p>
@@ -52,6 +68,7 @@ export default function NotificationsPage() {
               <button
                 type="button"
                 role="switch"
+                aria-label={item.title}
                 aria-checked={settings[item.key]}
                 onClick={() => handleToggle(item.key)}
                 disabled={saving}
@@ -64,17 +81,6 @@ export default function NotificationsPage() {
             </div>
           ))
         )}
-
-        <div className="flex gap-3 pt-2">
-          <ActionButton action="save" loading={saving} onClick={handleSave} />
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={loading || saving}
-          >
-            취소
-          </Button>
-        </div>
       </div>
     </div>
   );

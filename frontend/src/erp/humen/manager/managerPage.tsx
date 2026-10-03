@@ -43,6 +43,7 @@ import {
   TabsTrigger,
 } from "../../../common/ui";
 import { UserPlus } from "lucide-react";
+import { useWorkspaceTab } from "../../../common/workspace/workspaceHook";
 
 function formatDate(value?: string | null) {
   return value ? value.slice(0, 10) : "-";
@@ -95,6 +96,7 @@ function InfoItem({
 }
 
 export default function ManagerPage() {
+  const workspace = useWorkspaceTab();
   const {
     items,
     page,
@@ -331,7 +333,10 @@ export default function ManagerPage() {
         </div>
       </div>
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <Sheet
+        open={isSheetOpen && (workspace?.active ?? true)}
+        onOpenChange={setIsSheetOpen}
+      >
         <SheetContent
           side="right"
           className="flex min-h-0 w-full flex-col overflow-hidden rounded-md p-0 sm:max-w-xl"
@@ -496,7 +501,10 @@ export default function ManagerPage() {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+      <Dialog
+        open={isCreateOpen && (workspace?.active ?? true)}
+        onOpenChange={setIsCreateOpen}
+      >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>신규 교직원 등록</DialogTitle>

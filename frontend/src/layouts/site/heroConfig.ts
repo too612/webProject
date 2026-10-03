@@ -1,4 +1,4 @@
-import type { MenuItem } from "../common/menu/menu.types";
+import type { MenuItem } from "../../common/menu/menu.types";
 
 export type HeroConfig = {
   enabled: boolean;

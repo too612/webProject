@@ -3,6 +3,10 @@ import { cn } from "@/lib/utils";
 import { useMenu } from "../../menu/menuHook";
 import { getCurrentMenuPageContent } from "../../menu/menuModel";
 import { PageTitle } from "../title";
+import {
+  WorkspaceActions,
+  useWorkspaceTab,
+} from "../../workspace/workspaceHook";
 
 export interface FormPageShellProps {
   readonly title?: ReactNode;
@@ -26,7 +30,11 @@ export function FormPageShell({
   headerClassName,
 }: FormPageShellProps) {
   const { currentMenu, loading: menuLoading } = useMenu();
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
+  const workspace = useWorkspaceTab();
+  const pageContent = getCurrentMenuPageContent(
+    workspace?.menu ?? currentMenu,
+    menuLoading,
+  );
   const resolvedTitle = title ?? pageContent.headline;
   const resolvedDescription = description ?? pageContent.summary;
   const displayTitle =
@@ -38,7 +46,15 @@ export function FormPageShell({
       resolvedTitle
     );
 
-  return (
+  return workspace ? (
+    <section className={cn("space-y-4", className)}>
+      <WorkspaceActions>{actions}</WorkspaceActions>
+      <div className={headerClassName}>
+        <PageTitle title={displayTitle} description={resolvedDescription} />
+      </div>
+      {children}
+    </section>
+  ) : (
     <section className={cn("space-y-5", className)}>
       <div
         className={cn(

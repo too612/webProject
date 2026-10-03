@@ -7,6 +7,7 @@ import {
 } from "react";
 import { managerApi } from "./managerApi";
 import type { ManagerListQuery, ManagerListResult } from "./managerApi";
+import { useWorkspaceDirty } from "../../../common/workspace/workspaceHook";
 import type {
   ManagerCreateRequest,
   ManagerFilterOptions,
@@ -61,6 +62,9 @@ export function useManagerPage() {
     useState<ManagerCreateRequest>(EMPTY_CREATE_FORM);
   const [createLoading, setCreateLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  useWorkspaceDirty(
+    JSON.stringify(createForm) !== JSON.stringify(EMPTY_CREATE_FORM),
+  );
 
   useLayoutEffect(() => {
     if (!isSheetOpen) return;

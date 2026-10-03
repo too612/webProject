@@ -1,22 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
-import { mypageNotificationsApi } from './notificationsApi';
+import { useCallback, useEffect, useState } from "react";
+import { mypageNotificationsApi } from "./notificationsApi";
+import { useWorkspaceDirty } from "../../../common/workspace/workspaceHook";
 import {
   EMPTY_MYPAGE_NOTIFICATION_SETTINGS,
   type MypageNotificationSettings,
-} from './notificationsModel';
+} from "./notificationsModel";
 
 export function useMypageNotificationsPage() {
-  const [settings, setSettings] = useState<MypageNotificationSettings>(EMPTY_MYPAGE_NOTIFICATION_SETTINGS);
-  const [initialSettings, setInitialSettings] = useState<MypageNotificationSettings>(EMPTY_MYPAGE_NOTIFICATION_SETTINGS);
+  const [settings, setSettings] = useState<MypageNotificationSettings>(
+    EMPTY_MYPAGE_NOTIFICATION_SETTINGS,
+  );
+  const [initialSettings, setInitialSettings] =
+    useState<MypageNotificationSettings>(EMPTY_MYPAGE_NOTIFICATION_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  useWorkspaceDirty(
+    JSON.stringify(settings) !== JSON.stringify(initialSettings),
+  );
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    setError('');
+    setError("");
 
     mypageNotificationsApi
       .getNotificationSettings()
@@ -27,7 +34,8 @@ export function useMypageNotificationsPage() {
       })
       .catch((e) => {
         if (!mounted) return;
-        const nextMessage = e instanceof Error ? e.message : '알림 설정을 불러오지 못했습니다.';
+        const nextMessage =
+          e instanceof Error ? e.message : "알림 설정을 불러오지 못했습니다.";
         setError(nextMessage);
         setSettings(EMPTY_MYPAGE_NOTIFICATION_SETTINGS);
         setInitialSettings(EMPTY_MYPAGE_NOTIFICATION_SETTINGS);
@@ -47,17 +55,18 @@ export function useMypageNotificationsPage() {
 
   const handleSave = useCallback(() => {
     setSaving(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     mypageNotificationsApi
       .updateNotificationSettings(settings)
       .then(() => {
         setInitialSettings(settings);
-        setMessage('알림 설정이 저장되었습니다.');
+        setMessage("알림 설정이 저장되었습니다.");
       })
       .catch((e) => {
-        const nextMessage = e instanceof Error ? e.message : '알림 설정을 저장하지 못했습니다.';
+        const nextMessage =
+          e instanceof Error ? e.message : "알림 설정을 저장하지 못했습니다.";
         setError(nextMessage);
       })
       .finally(() => {
@@ -67,8 +76,8 @@ export function useMypageNotificationsPage() {
 
   const handleReset = useCallback(() => {
     setSettings(initialSettings);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
   }, [initialSettings]);
 
   return {

@@ -1,23 +1,31 @@
-import { lazy } from 'react';
-import type { RouteObject } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import MainLayout from '../layouts/MainLayout';
-import SubmenuLayout from '../layouts/SubmenuLayout';
+import { lazy } from "react";
+import type { RouteObject } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
+import WorkspaceLayout from "../layouts/workspace/WorkspaceLayout";
+import { UserRound } from "lucide-react";
 
-const MypageIndexPage = lazy(() => import('../mypage/index/mypageIndexPage'));
-const ProfilePage = lazy(() => import('../mypage/user/profile/profilePage'));
-const PasswordPage = lazy(() => import('../mypage/user/password/passwordPage'));
-const ActivityPage = lazy(() => import('../mypage/user/activity/activityPage'));
-const InquiryPage = lazy(() => import('../mypage/user/inquiry/inquiryPage'));
-const NotificationsPage = lazy(() => import('../mypage/user/notifications/notificationsPage'));
-const WithdrawPage = lazy(() => import('../mypage/user/withdraw/withdrawPage'));
+const MypageIndexPage = lazy(() => import("../mypage/index/mypageIndexPage"));
+const ProfilePage = lazy(() => import("../mypage/user/profile/profilePage"));
+const PasswordPage = lazy(() => import("../mypage/user/password/passwordPage"));
+const ActivityPage = lazy(() => import("../mypage/user/activity/activityPage"));
+const InquiryPage = lazy(() => import("../mypage/user/inquiry/inquiryPage"));
+const NotificationsPage = lazy(
+  () => import("../mypage/user/notifications/notificationsPage"),
+);
+const WithdrawPage = lazy(() => import("../mypage/user/withdraw/withdrawPage"));
 
 export const mypageRoutes: RouteObject[] = [
   {
-    path: '/mypage',
+    path: "/mypage",
     element: (
       <ProtectedRoute>
-        <MainLayout showChatbot={false} />
+        <WorkspaceLayout
+          basePath="/mypage"
+          name="마이페이지"
+          menuPresentation={{
+            "/mypage": { label: "내 정보", icon: UserRound },
+          }}
+        />
       </ProtectedRoute>
     ),
     children: [
@@ -25,15 +33,14 @@ export const mypageRoutes: RouteObject[] = [
 
       // user
       {
-        path: 'user',
-        element: <SubmenuLayout />,
+        path: "user",
         children: [
-          { path: 'profile', element: <ProfilePage /> },
-          { path: 'password', element: <PasswordPage /> },
-          { path: 'activity', element: <ActivityPage /> },
-          { path: 'inquiry', element: <InquiryPage /> },
-          { path: 'notifications', element: <NotificationsPage /> },
-          { path: 'withdraw', element: <WithdrawPage /> },
+          { path: "profile", element: <ProfilePage /> },
+          { path: "password", element: <PasswordPage /> },
+          { path: "activity", element: <ActivityPage /> },
+          { path: "inquiry", element: <InquiryPage /> },
+          { path: "notifications", element: <NotificationsPage /> },
+          { path: "withdraw", element: <WithdrawPage /> },
         ],
       },
     ],

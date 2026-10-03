@@ -1,8 +1,22 @@
+import { useEffect, useId, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSermonWrite } from "./writeHook";
 import { ActionButton, Button } from "../../../common/ui";
+import {
+  WorkspaceActions,
+  useWorkspaceTab,
+} from "../../../common/workspace/workspaceHook";
 
 export default function SermonWritePage() {
+  const formId = useId();
+  const workspace = useWorkspaceTab();
+  const active = useRef(workspace?.active ?? true);
+  useEffect(() => {
+    active.current = workspace?.active ?? true;
+    return () => {
+      active.current = false;
+    };
+  }, [workspace?.active]);
   const navigate = useNavigate();
   const { form, submitting, error, updateField, submit } = useSermonWrite();
 
@@ -16,7 +30,7 @@ export default function SermonWritePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const ok = await submit();
-    if (ok) {
+    if (ok && active.current) {
       navigate("/erp/sermon/manager");
     }
   }
@@ -34,16 +48,16 @@ export default function SermonWritePage() {
           {error}
         </div>
       )}
-      <form className="space-y-4 max-w-xl" onSubmit={handleSubmit}>
+      <form id={formId} className="space-y-4 max-w-xl" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1">
           <label
-            htmlFor="sermon-title"
+            htmlFor={`${formId}-title`}
             className="text-sm font-medium text-gray-700"
           >
             설교 제목
           </label>
           <input
-            id="sermon-title"
+            id={`${formId}-title`}
             name="title"
             value={form.title}
             onChange={handleChange}
@@ -53,13 +67,13 @@ export default function SermonWritePage() {
         </div>
         <div className="flex flex-col gap-1">
           <label
-            htmlFor="sermon-preacher"
+            htmlFor={`${formId}-preacher`}
             className="text-sm font-medium text-gray-700"
           >
             설교자
           </label>
           <input
-            id="sermon-preacher"
+            id={`${formId}-preacher`}
             name="preacher"
             value={form.preacher}
             onChange={handleChange}
@@ -69,13 +83,13 @@ export default function SermonWritePage() {
         </div>
         <div className="flex flex-col gap-1">
           <label
-            htmlFor="sermon-scripture"
+            htmlFor={`${formId}-scripture`}
             className="text-sm font-medium text-gray-700"
           >
             본문
           </label>
           <input
-            id="sermon-scripture"
+            id={`${formId}-scripture`}
             name="scripture"
             value={form.scripture}
             onChange={handleChange}
@@ -84,13 +98,13 @@ export default function SermonWritePage() {
         </div>
         <div className="flex flex-col gap-1">
           <label
-            htmlFor="sermon-date"
+            htmlFor={`${formId}-date`}
             className="text-sm font-medium text-gray-700"
           >
             설교일
           </label>
           <input
-            id="sermon-date"
+            id={`${formId}-date`}
             type="date"
             name="sermonDate"
             value={form.sermonDate}
@@ -101,13 +115,13 @@ export default function SermonWritePage() {
         </div>
         <div className="flex flex-col gap-1">
           <label
-            htmlFor="sermon-content"
+            htmlFor={`${formId}-content`}
             className="text-sm font-medium text-gray-700"
           >
             내용
           </label>
           <textarea
-            id="sermon-content"
+            id={`${formId}-content`}
             name="content"
             value={form.content}
             onChange={handleChange}
@@ -115,13 +129,32 @@ export default function SermonWritePage() {
             className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-y"
           />
         </div>
-        <div className="flex gap-3 pt-2">
+        {!workspace && (
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+            >
+              취소
+            </Button>
+            <ActionButton action="save" type="submit" loading={submitting} />
+          </div>
+        )}
+      </form>
+      {workspace && (
+        <WorkspaceActions>
           <Button type="button" variant="outline" onClick={() => navigate(-1)}>
             취소
           </Button>
-          <ActionButton action="save" type="submit" loading={submitting} />
-        </div>
-      </form>
+          <ActionButton
+            action="save"
+            type="submit"
+            form={formId}
+            loading={submitting}
+          />
+        </WorkspaceActions>
+      )}
     </section>
   );
 }

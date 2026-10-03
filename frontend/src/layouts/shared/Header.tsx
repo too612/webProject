@@ -14,11 +14,11 @@ import {
 } from "react-router-dom";
 
 // 프로젝트 내부의 다른 폴더 시스템에서 메뉴, 인증, 기업 정보를 다루는 커스텀 기능들을 가져옵니다.
-import { useMenu } from "../common/menu/menuHook"; // 서버로부터 받아온 동적 메뉴 데이터 배열을 제공하는 기능입니다.
-import { buildMenuLink } from "../common/menu/menuModel";
-import { useAuthStore } from "../common/auth/authStore"; // 로그인 여부, 유저 정보, 로그아웃 기능을 담은 중앙 전역 상태 저장소입니다.
-import { useCorpInfo } from "../common/corp/corpHook"; // 현재 사이트에 표기할 교회/회사 정보를 커스텀하게 가져오는 기능입니다.
-import type { MenuItem } from "../common/menu/menu.types"; // 메뉴 객체가 어떤 구조(ID, 이름, 경로 등)로 구성되어야 하는지 규정한 타입 양식입니다.
+import { useMenu } from "../../common/menu/menuHook"; // 서버로부터 받아온 동적 메뉴 데이터 배열을 제공하는 기능입니다.
+import { buildMenuLink } from "../../common/menu/menuModel";
+import { useAuthStore } from "../../common/auth/authStore"; // 로그인 여부, 유저 정보, 로그아웃 기능을 담은 중앙 전역 상태 저장소입니다.
+import { useCorpInfo } from "../../common/corp/corpHook"; // 현재 사이트에 표기할 교회/회사 정보를 커스텀하게 가져오는 기능입니다.
+import type { MenuItem } from "../../common/menu/menu.types"; // 메뉴 객체가 어떤 구조(ID, 이름, 경로 등)로 구성되어야 하는지 규정한 타입 양식입니다.
 
 // 화면에 상단 바와 네비게이션 메뉴를 그려줄 Header 함수형 컴포넌트를 정의하고 바깥으로 내보냅니다.
 export default function Header() {

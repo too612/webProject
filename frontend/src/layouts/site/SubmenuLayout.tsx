@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
-import { useMenu } from "../common/menu/menuHook";
+import { useMenu } from "../../common/menu/menuHook";
 import Sidebar from "./Sidebar";
 import { resolveHeroConfig } from "./heroConfig";
 

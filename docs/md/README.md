@@ -8,6 +8,10 @@
 2. [core/system-architecture.md](core/system-architecture.md)
 3. [official/official-domain-guide.md](official/official-domain-guide.md)
 
+## 기능 문서
+
+- [core/workspace-layout.md](core/workspace-layout.md): ERP·마이페이지·커뮤니티·시스템 작업공간의 적용 경계, 탭 상태, 브라우저 저장 정책과 재사용 방법
+
 ## 읽는 원칙
 
 - 문서는 중복을 줄이고, 필요한 규칙만 유지합니다.

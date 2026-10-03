@@ -1,0 +1,129 @@
+/* =============================
+   4. Footer
+   ============================= */
+.footer {
+  background: #4a4a4a;
+  color: #e6e6e6;
+  padding: 40px 0 20px;
+  margin-top: 60px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 40px;
+}
+
+.footer-info {
+  flex: 1;
+}
+
+.footer-info .footer-logo {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.footer-info .footer-logo img {
+  display: block;
+  width: min(170px, 46vw);
+  max-width: 170px;
+  height: auto;
+  object-fit: contain;
+}
+
+.footer-details p {
+  margin-bottom: 4px;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.footer-social a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: transform 0.25s ease;
+}
+
+.footer-social a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.25s ease;
+  z-index: 0;
+}
+
+.footer-social img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 26px;
+  height: 26px;
+  opacity: 0.7;
+  transition:
+    opacity 0.25s ease,
+    filter 0.25s ease;
+}
+
+.footer-social a:hover {
+  transform: translateY(-1px);
+}
+
+.footer-social a:hover::after {
+  transform: scale(1);
+}
+
+.footer-social a:hover img {
+  opacity: 1;
+}
+
+.footer-social a:not(.kakao):hover img {
+  filter: brightness(0) invert(1);
+}
+
+.footer-social .kakao:hover::after {
+  background: #ffe800;
+}
+
+.footer-social .naver:hover::after {
+  background: #06be34;
+}
+
+.footer-social .youtube:hover::after {
+  background: #d4262c;
+}
+
+.footer-social .instagram:hover::after {
+  background: linear-gradient(to bottom, #8452a1, #ea2d87, #ef4c3e, #efcb6b);
+}
+
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 24px;
+  padding-top: 16px;
+  font-size: 12px;
+  color: #b8b8b8;
+  text-align: center;
+}
+

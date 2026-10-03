@@ -1,0 +1,373 @@
+/* =============================
+   3. 서브 페이지 레이아웃 및 컴포넌트
+   ============================= */
+/* 서브페이지용 레이아웃 컨테이너 */
+.main-wrapper,
+.main-content {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   4-x. 사이드바 개선 (TO-BE 스타일, Material Design 반영)
+   ---------------------------------------------------------
+   - HTML 구조는 그대로 유지 (sidebar.html 수정 없음)
+   - PC 버전: 카드형 스타일 + Material hover/active 효과
+   - Mobile 버전: sidebar 자체는 숨김 (기존 로직 유지)
+   - 홈 아이콘은 제거 (breadcrumb에서 관리)
+   ========================================================= */
+
+/* 전체 사이드바 컨테이너 */
+.sidebar {
+  width: 260px; /* 살짝 넓게 */
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #dfe3e8;
+  height: fit-content;
+  overflow: hidden; /* 내부 요소 튀어나옴 방지 */
+}
+
+/* 메뉴 리스트 기본 */
+.sidebar-menu {
+  padding: 6px 0;
+}
+
+.sidebar-menu li {
+  border-bottom: 1px solid #eef2f7;
+  padding: 0 6px 4px;
+}
+
+.sidebar-menu li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* 메뉴 항목 링크 */
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #334155;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  position: relative; /* ripple 효과 기준 */
+}
+
+/* ripple 효과를 적용하려면 sidebar.html에서 a 태그에 class="ripple" 추가 가능 */
+
+/* Hover 상태 */
+.sidebar-menu a:hover {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+/* Active 상태 */
+.sidebar-menu li.is-active a {
+  background-color: #eef2ff;
+  color: var(--color-brand-primary, #5c6bc0);
+  font-weight: 600;
+  border-left: 3px solid var(--color-brand-primary, #5c6bc0);
+}
+
+.sidebar-menu a:focus-visible {
+  outline: 2px solid var(--color-brand-primary, #5c6bc0);
+  outline-offset: -2px;
+  background-color: #f8fafc;
+}
+
+/* 비활성화된 메뉴 */
+.sidebar-menu a.disabled {
+  color: #aaa !important;
+  cursor: not-allowed !important;
+}
+
+/* 빈 메뉴 안내 */
+.sidebar-empty {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  font-size: 14px;
+  background: #fafafa;
+}
+
+/* 반응형 처리 (모바일에서는 숨김 유지) */
+@media (max-width: 992px) {
+  .sidebar {
+    display: none; /* breadcrumb로 대체 */
+  }
+  /* 모바일에서는 breadcrumb의 첫 번째 항목(홈)과 구분자 숨김 */
+  .breadcrumb-nav .breadcrumb-item:first-child,
+  .breadcrumb-nav .breadcrumb-item:first-child + .breadcrumb-separator {
+    display: none;
+  }
+}
+
+/* 콘텐츠 영역 */
+.content-area {
+  flex-grow: 1;
+  background: white;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: 0;
+}
+
+/* 서브페이지용 Hero */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  color: #0f172a;
+  padding: 48px 0;
+  text-align: left;
+  min-height: 180px;
+}
+
+.hero-image {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: min(1200px, calc(100% - 40px));
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  background-color: #fff;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.08) 42%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+  color: #0f172a;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+  text-shadow: none;
+}
+
+.hero p {
+  margin-top: 8px;
+  font-size: 15px;
+  color: rgba(15, 23, 42, 0.8);
+}
+
+.hero.hero--compact {
+  min-height: 120px;
+  padding: 30px 0;
+}
+
+.hero.hero--compact .hero-overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+}
+
+.hero.hero--compact h1 {
+  font-size: 1.55rem;
+}
+
+.hero.hero--compact p {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+@media (max-width: 992px) {
+  .hero {
+    min-height: 140px;
+    padding: 34px 0;
+  }
+
+  .hero-image {
+    max-width: calc(100% - 24px);
+  }
+
+  .hero-content {
+    width: calc(100% - 24px);
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero p {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .hero.hero--compact {
+    min-height: 108px;
+    padding: 24px 0;
+  }
+
+  .hero.hero--compact h1 {
+    font-size: 1.35rem;
+  }
+}
+
+/* 브레드크럼 (경로) */
+.breadcrumb {
+  background: #eef2f7;
+  padding: 0;
+  border-bottom: 1px solid #d7dde7;
+}
+
+.breadcrumb-nav {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  width: auto;
+  font-size: 15px;
+}
+
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  flex: 0 0 auto;
+  min-width: 44px;
+  padding: 0;
+  min-height: 44px;
+  border-radius: 0;
+  border: 1px solid #d8e0ea;
+  background: #eef2f7;
+  color: #4b5563;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.breadcrumb-item > button {
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #eef2f7;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0 14px;
+}
+
+.breadcrumb-item + .breadcrumb-item {
+  margin-left: -1px;
+}
+
+.breadcrumb-item:hover {
+  background: #f6f8fc;
+  border-color: #c6d0de;
+  color: #334155;
+}
+
+.breadcrumb-separator {
+  display: none;
+}
+
+.breadcrumb-nav > .breadcrumb-item:last-child {
+  background: #ffffff;
+  border-color: #d8e0ea;
+  color: #4b5563;
+  font-weight: 400;
+}
+
+.breadcrumb-item:focus-within {
+  outline: none;
+}
+
+.breadcrumb .dropdown-menu {
+  margin-top: 8px;
+  min-width: 180px;
+  background: #eef2f7;
+  border: 1px solid #d8e0ea;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  border-radius: 0;
+  padding: 0;
+}
+
+.breadcrumb .dropdown-menu a {
+  color: #4b5563;
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid #e6ebf2;
+}
+
+.breadcrumb .dropdown-menu a:last-child {
+  border-bottom: 0;
+}
+
+.breadcrumb .dropdown-menu a:hover {
+  background: #f6f8fc;
+  color: #334155;
+  padding-left: 14px;
+  box-shadow: none;
+}
+
+@media (max-width: 992px) {
+  .breadcrumb .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .breadcrumb-nav {
+    width: 100%;
+  }
+
+  .breadcrumb-item {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 40px;
+    font-size: 15px;
+  }
+
+  .breadcrumb .dropdown-menu {
+    min-width: 100%;
+    width: 100%;
+    text-align: center;
+  }
+
+  .breadcrumb-item > button {
+    min-height: 40px;
+    padding: 0 10px;
+  }
+}
+

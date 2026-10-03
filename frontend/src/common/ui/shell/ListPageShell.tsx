@@ -3,6 +3,10 @@ import { cn } from "@/lib/utils";
 import { useMenu } from "../../menu/menuHook";
 import { getCurrentMenuPageContent } from "../../menu/menuModel";
 import { PageTitle } from "../title";
+import {
+  WorkspaceActions,
+  useWorkspaceTab,
+} from "../../workspace/workspaceHook";
 
 export interface ListPageShellProps {
   readonly title?: ReactNode;
@@ -28,7 +32,11 @@ export function ListPageShell({
   contentClassName,
 }: ListPageShellProps) {
   const { currentMenu, loading: menuLoading } = useMenu();
-  const pageContent = getCurrentMenuPageContent(currentMenu, menuLoading);
+  const workspace = useWorkspaceTab();
+  const pageContent = getCurrentMenuPageContent(
+    workspace?.menu ?? currentMenu,
+    menuLoading,
+  );
   const resolvedTitle = title ?? pageContent.headline;
   const resolvedDescription = description ?? pageContent.summary;
   const displayTitle =
@@ -40,7 +48,20 @@ export function ListPageShell({
       resolvedTitle
     );
 
-  return (
+  return workspace ? (
+    <section className={cn("space-y-4", className)}>
+      <WorkspaceActions>{actions}</WorkspaceActions>
+      <div
+        className={cn(
+          "flex items-start justify-between gap-4",
+          headerClassName,
+        )}
+      >
+        <PageTitle title={displayTitle} description={resolvedDescription} />
+      </div>
+      <div className={contentClassName}>{children}</div>
+    </section>
+  ) : (
     <section className={cn("space-y-5", className)}>
       <div
         className={cn(

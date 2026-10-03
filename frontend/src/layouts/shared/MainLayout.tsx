@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import Chatbot from "../common/chatbot/chatbot";
-import { useMenu } from "../common/menu/menuHook";
-import { RouteProgress } from "../common/ui";
+import Chatbot from "../../common/chatbot/chatbot";
+import { useMenu } from "../../common/menu/menuHook";
+import { RouteProgress } from "../../common/ui";
 import Footer from "./Footer";
 import Header from "./Header";
 
@@ -9,7 +9,9 @@ type MainLayoutProps = {
   showChatbot?: boolean;
 };
 
-export default function MainLayout({ showChatbot = true }: Readonly<MainLayoutProps>) {
+export default function MainLayout({
+  showChatbot = true,
+}: Readonly<MainLayoutProps>) {
   useMenu();
 
   return (

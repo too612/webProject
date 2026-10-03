@@ -1,8 +1,8 @@
 import { useState, type FocusEvent } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, Home } from "lucide-react";
-import { useMenu } from "../common/menu/menuHook";
-import { buildMenuLink } from "../common/menu/menuModel";
+import { useMenu } from "../../common/menu/menuHook";
+import { buildMenuLink } from "../../common/menu/menuModel";
 
 export default function Breadcrumb() {
   const { currentTopMenu, currentSubMenus, menuList: allTopMenus } = useMenu();

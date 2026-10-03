@@ -1,7 +1,10 @@
+import { useId } from "react";
 import { useMypagePasswordPage } from "./passwordHook";
 import { ActionButton, Button } from "../../../common/ui";
+import { WorkspaceActions } from "../../../common/workspace/workspaceHook";
 
 export default function PasswordPage() {
+  const formId = useId();
   const {
     form,
     saving,
@@ -14,6 +17,23 @@ export default function PasswordPage() {
 
   return (
     <div className="space-y-5">
+      <WorkspaceActions>
+        <ActionButton
+          action="save"
+          type="submit"
+          form={formId}
+          loading={saving}
+          label="변경"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleReset}
+          disabled={saving}
+        >
+          취소
+        </Button>
+      </WorkspaceActions>
       <div className="space-y-1">
         <h2 className="text-lg font-bold text-brand-dark">비밀번호 변경</h2>
         <p className="text-sm text-gray-500">계정의 비밀번호를 변경하세요</p>
@@ -31,19 +51,20 @@ export default function PasswordPage() {
       )}
 
       <form
+        id={formId}
         className="bg-white rounded-panel shadow-panel border border-gray-100 p-6 space-y-4"
         onSubmit={handleSubmit}
       >
         <div className="space-y-1">
           <label
-            htmlFor="current-password"
+            htmlFor={`${formId}-current-password`}
             className="text-sm font-medium text-gray-700"
           >
             현재 비밀번호
           </label>
           <input
             type="password"
-            id="current-password"
+            id={`${formId}-current-password`}
             placeholder="현재 비밀번호를 입력하세요"
             value={form.currentPassword}
             onChange={(event) =>
@@ -55,14 +76,14 @@ export default function PasswordPage() {
         </div>
         <div className="space-y-1">
           <label
-            htmlFor="new-password"
+            htmlFor={`${formId}-new-password`}
             className="text-sm font-medium text-gray-700"
           >
             새 비밀번호
           </label>
           <input
             type="password"
-            id="new-password"
+            id={`${formId}-new-password`}
             placeholder="새 비밀번호를 입력하세요"
             value={form.newPassword}
             onChange={(event) =>
@@ -77,14 +98,14 @@ export default function PasswordPage() {
         </div>
         <div className="space-y-1">
           <label
-            htmlFor="confirm-password"
+            htmlFor={`${formId}-confirm-password`}
             className="text-sm font-medium text-gray-700"
           >
             새 비밀번호 확인
           </label>
           <input
             type="password"
-            id="confirm-password"
+            id={`${formId}-confirm-password`}
             placeholder="새 비밀번호를 다시 입력하세요"
             value={form.confirmPassword}
             onChange={(event) =>
@@ -93,22 +114,6 @@ export default function PasswordPage() {
             disabled={saving}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary disabled:bg-gray-50"
           />
-        </div>
-        <div className="flex gap-3 pt-2">
-          <ActionButton
-            action="save"
-            type="submit"
-            loading={saving}
-            label="변경"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleReset}
-            disabled={saving}
-          >
-            취소
-          </Button>
         </div>
       </form>
     </div>
