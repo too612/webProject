@@ -1,4 +1,5 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
+import { useAuthStore } from '../auth/authStore';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
@@ -22,11 +23,15 @@ client.interceptors.request.use(
 );
 
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data?.statusCode === 401) {
+      useAuthStore.getState().clearAuth();
+    }
+    return response;
+  },
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentUser');
+      useAuthStore.getState().clearAuth();
     }
     return Promise.reject(error);
   }

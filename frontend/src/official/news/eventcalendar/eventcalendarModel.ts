@@ -8,7 +8,7 @@ import type {
   CalendarEvent,
   EventColorId,
   EventFormValues,
-} from "../../../common/ui/calendar";
+} from "../../../common/calendar";
 
 /****************************************************************************************************
  * type method (도메인 타입, 요청/응답 계약)

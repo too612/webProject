@@ -1,22 +1,27 @@
+import { useEffect, useId, useMemo, useState } from "react";
 import { useManagerPage } from "./managerHook";
 import {
   ASSIGNMENT_COLUMNS,
   CAREER_COLUMNS,
-  type ManagerCodeOption,
   type ManagerRow,
 } from "./managerModel";
 import {
   DataGrid,
+  ErpDataGrid,
+  erpColumn,
+  useGridDetail,
   type GridCellRendererParams,
   type GridColumnDef,
 } from "../../../common/grid";
 import {
-  ActionButton,
   Avatar,
+  AsyncFeedback,
   AvatarFallback,
   AvatarImage,
   Badge,
   Button,
+  ConfirmModal,
+  DetailPanelLayout,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,61 +29,27 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Label,
+  FormField,
+  ListPageActions,
   ListPageShell,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
+  SearchPanel,
+  SearchField,
+  ResultPanel,
+  CodeSelect,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "../../../common/ui";
-import { UserPlus } from "lucide-react";
 import { useWorkspaceTab } from "../../../common/workspace/workspaceHook";
+import { useExcelExport, type ExcelGridSource } from "../../../common/excel";
+import { ActionButton } from "../../../common/ui/action-button";
+
+const MOBILE_HIDDEN_COLUMNS = ["profilePhotoUrl", "gradeName", "positionName", "deptName", "employmentTypeName", "hireDate", "serviceStatusName", "detail"];
+const personKey = (row: ManagerRow) => row.personKey;
 
 function formatDate(value?: string | null) {
   return value ? value.slice(0, 10) : "-";
-}
-
-type OptionSelectProps = Readonly<{
-  value: string;
-  options: ManagerCodeOption[];
-  onChange: (value: string) => void;
-  placeholder: string;
-  allLabel?: string;
-}>;
-
-function OptionSelect({
-  value,
-  options,
-  onChange,
-  placeholder,
-  allLabel = `${placeholder} 전체`,
-}: OptionSelectProps) {
-  return (
-    <Select value={value || "all"} onValueChange={onChange}>
-      <SelectTrigger className="w-full" aria-label={placeholder}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">{allLabel}</SelectItem>
-        {options.map((option) => (
-          <SelectItem key={option.code} value={option.code}>
-            {option.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
 }
 
 function InfoItem({
@@ -97,37 +68,66 @@ function InfoItem({
 
 export default function ManagerPage() {
   const workspace = useWorkspaceTab();
+  const formId = useId();
+  const searchFormId = `${formId}-search`;
+  const excel = useExcelExport();
+  const excelGridId = `${formId}-manager-grid`;
+  const [detailTab, setDetailTab] = useState("basic");
   const {
-    items,
-    page,
-    totalPages,
+    loadRows,
+    excelState,
     totalElements,
+    setGridState,
+    searchPending,
     inputKeyword,
     filters,
     filterOptions,
     loading,
-    error,
+    optionsLoading,
+    optionsError,
+    retryOptions,
+    detailError,
+    createError,
+    createFieldErrors,
+    createMessage,
+    selectedRow,
     selectedPerson,
     detailLoading,
     isSheetOpen,
-    sheetTop,
-    sheetRight,
     isCreateOpen,
     createForm,
     createLoading,
     handleSearch,
     handleInputKeywordChange,
     handleFilterChange,
-    handlePrevPage,
-    handleNextPage,
     selectPerson,
-    setIsSheetOpen,
-    setIsCreateOpen,
+    handleDetailOpenChange,
+    handleCreateOpenChange,
+    confirmDiscard,
+    setConfirmDiscard,
+    discardCreate,
     updateCreateForm,
     submitCreate,
   } = useManagerPage();
 
-  const columns: GridColumnDef[] = [
+  const detailGrid = useGridDetail({
+    selected: selectedRow, open: isSheetOpen, getKey: personKey,
+    onSelect: selectPerson, onClose: () => handleDetailOpenChange(false), queryKey: loadRows,
+  });
+  const { openRow } = detailGrid;
+  const optionsDisabled = optionsLoading || Boolean(optionsError);
+  const excelSource = useMemo<ExcelGridSource<ManagerRow>>(() => ({
+    scope: excel.scope, id: excelGridId, sheetName: "인사관리",
+    getRowRef: row => row.excelRef, getEmptyToken: () => excelState.current.token,
+  }), [excel.scope, excelGridId, excelState]);
+
+  useEffect(() => {
+    setDetailTab("basic");
+  }, [selectedRow?.personKey]);
+
+  const columns = useMemo<GridColumnDef<ManagerRow>[]>(() => [
+    erpColumn<ManagerRow>("name", { headerName: "성명", field: "nameKo", minWidth: 120, flex: 1 }),
+    erpColumn<ManagerRow>("code", { headerName: "사번", field: "employeeNo", minWidth: 130, sort: "asc" }),
     {
       headerName: "프로필",
       field: "profilePhotoUrl",
@@ -146,31 +146,30 @@ export default function ManagerPage() {
         </Avatar>
       ),
     },
-    { headerName: "성명", field: "nameKo", minWidth: 120, flex: 1 },
-    {
-      headerName: "직급 / 직위",
+    erpColumn<ManagerRow>("code", { headerName: "직급", field: "gradeName", minWidth: 100 }),
+    erpColumn<ManagerRow>("code", {
+      headerName: "직위",
+      field: "positionName",
       minWidth: 130,
-      valueGetter: (params) =>
-        params.data?.positionName || params.data?.gradeName || "-",
       cellRenderer: (params: GridCellRendererParams<ManagerRow>) => (
         <Badge variant="info">{params.value || "미지정"}</Badge>
       ),
-    },
-    { headerName: "소속 부서", field: "deptName", minWidth: 140 },
-    {
+    }),
+    erpColumn<ManagerRow>("name", { headerName: "소속 부서", field: "deptName", minWidth: 140, tooltipField: "deptName" }),
+    erpColumn<ManagerRow>("code", {
       headerName: "고용형태",
       field: "employmentTypeName",
       minWidth: 110,
       cellRenderer: (params: GridCellRendererParams<ManagerRow>) =>
         params.value ? <Badge variant="outline">{params.value}</Badge> : "-",
-    },
-    {
+    }),
+    erpColumn<ManagerRow>("date", {
       headerName: "입사일",
       field: "hireDate",
       minWidth: 110,
       valueFormatter: (params) => formatDate(params.value),
-    },
-    {
+    }),
+    erpColumn<ManagerRow>("status", {
       headerName: "재직 상태",
       field: "serviceStatusName",
       minWidth: 110,
@@ -185,9 +184,10 @@ export default function ManagerPage() {
           {params.value || "미지정"}
         </Badge>
       ),
-    },
+    }),
     {
       headerName: "상세",
+      colId: "detail",
       width: 90,
       sortable: false,
       filter: false,
@@ -197,190 +197,123 @@ export default function ManagerPage() {
           className="text-sm font-medium text-primary hover:underline"
           onClick={(event) => {
             event.stopPropagation();
-            if (params.data) void selectPerson(params.data);
+            if (params.data) openRow(params.data, params.column?.getColId());
           }}
         >
           상세보기
         </button>
       ),
     },
-  ];
+  ], [openRow]);
 
   return (
     <ListPageShell
       actions={
-        <Button onClick={() => setIsCreateOpen(true)}>
-          <UserPlus className="mr-2 h-4 w-4" /> 신규 등록
-        </Button>
+        <ListPageActions searchFormId={searchFormId} searching={loading}
+          onCreate={() => handleCreateOpenChange(true)}>
+          <ActionButton action="excel" type="button" loading={excel.exporting}
+            disabled={loading} title="현재 조회되어 남아 있는 행과 표시된 열을 다운로드합니다."
+            onClick={() => void excel.exportExcel(`#${excelGridId}`, "인사관리")} />
+        </ListPageActions>
       }
     >
-      <div className="min-w-0 space-y-4 [&_.ag-horizontal-left-spacer]:!overflow-x-hidden">
-        <form
-          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-          onSubmit={handleSearch}
-        >
-          <div className="flex gap-2">
-            <Input
-              value={inputKeyword}
-              onChange={(event) => handleInputKeywordChange(event.target.value)}
-              placeholder="성명 또는 사번 검색"
-              aria-label="성명 또는 사번 검색"
-            />
-            <ActionButton
-              action="search"
-              type="submit"
-              loading={loading}
-              className="min-w-0"
-            />
+      <DetailPanelLayout
+        open={isSheetOpen}
+        onOpenChange={handleDetailOpenChange}
+        onRestoreFocus={detailGrid.restoreFocus}
+        navigation={{ ...detailGrid.navigation, disabled: detailLoading,
+          previousLabel: "이전 인사정보", nextLabel: "다음 인사정보" }}
+        title={
+          <span className="inline-flex items-center gap-3">
+            <Avatar className="h-10 w-10 shrink-0">
+              <AvatarImage src={selectedRow?.profilePhotoUrl || undefined} alt={selectedRow?.nameKo || ""} />
+              <AvatarFallback>{selectedRow?.nameKo?.slice(0, 1) || "?"}</AvatarFallback>
+            </Avatar>
+            <span>{selectedRow?.nameKo || "인사 상세"}</span>
+          </span>
+        }
+        description={selectedRow ? [selectedRow.employeeNo, selectedRow.gradeName, selectedRow.positionName].filter(Boolean).join(" · ") : "인사 상세정보"}
+        children={
+          <div className="min-w-0 space-y-4">
+            <SearchPanel formId={searchFormId} onSearch={handleSearch} pending={searchPending}>
+              <SearchField label="성명 / 사번" width="keyword">
+                {(id) => (
+                  <Input
+                    id={id}
+                    value={inputKeyword}
+                    onChange={(event) => handleInputKeywordChange(event.target.value)}
+                    placeholder="성명·사번 입력"
+                  />
+                )}
+              </SearchField>
+              <SearchField label="직급" width="compact">
+                {(id) => <CodeSelect id={id} disabled={optionsDisabled}
+                  value={filters.gradeCode}
+                  options={filterOptions.grades}
+                  onChange={(value) => handleFilterChange("gradeCode", value)}
+                  placeholder="직급"
+                />}
+              </SearchField>
+              <SearchField label="직위" width="compact">
+                {(id) => <CodeSelect id={id} disabled={optionsDisabled}
+                  value={filters.positionCode}
+                  options={filterOptions.positions}
+                  onChange={(value) => handleFilterChange("positionCode", value)}
+                  placeholder="직위"
+                />}
+              </SearchField>
+              <SearchField label="소속 부서" width="compact">
+                {(id) => <CodeSelect id={id} disabled={optionsDisabled}
+                  value={filters.deptCd}
+                  options={filterOptions.departments}
+                  onChange={(value) => handleFilterChange("deptCd", value)}
+                  placeholder="소속 부서"
+                />}
+              </SearchField>
+              <SearchField label="재직 상태" width="compact">
+                {(id) => <CodeSelect id={id} disabled={optionsDisabled}
+                  value={filters.serviceStatusCode}
+                  options={filterOptions.serviceStatuses}
+                  onChange={(value) => handleFilterChange("serviceStatusCode", value)}
+                  placeholder="재직 상태"
+                />}
+              </SearchField>
+              <SearchField label="고용형태" width="compact">
+                {(id) => <CodeSelect id={id} disabled={optionsDisabled}
+                  value={filters.employmentTypeCode}
+                  options={filterOptions.employmentTypes}
+                  onChange={(value) =>
+                    handleFilterChange("employmentTypeCode", value)
+                  }
+                  placeholder="고용형태"
+                />}
+              </SearchField>
+            </SearchPanel>
+
+            <AsyncFeedback loading={optionsLoading} loadingMessage="검색조건을 불러오는 중..."
+              error={optionsError} onRetry={retryOptions} />
+            {createMessage && <p role="status" className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">{createMessage}</p>}
+
+            <ResultPanel totalCount={totalElements} countUnit="명">
+              <ErpDataGrid<ManagerRow>
+                excel={excelSource}
+                columns={columns}
+                onLoadData={loadRows}
+                onDataStateChanged={setGridState}
+                getRowId={personKey}
+                mobileHiddenColumns={MOBILE_HIDDEN_COLUMNS}
+                emptyMessage="조회된 인사정보가 없습니다."
+                gridOptions={detailGrid.gridOptions}
+              />
+            </ResultPanel>
           </div>
-          <OptionSelect
-            value={filters.gradeCode}
-            options={filterOptions.grades}
-            onChange={(value) => handleFilterChange("gradeCode", value)}
-            placeholder="직급"
-          />
-          <OptionSelect
-            value={filters.positionCode}
-            options={filterOptions.positions}
-            onChange={(value) => handleFilterChange("positionCode", value)}
-            placeholder="직위"
-          />
-          <OptionSelect
-            value={filters.deptCd}
-            options={filterOptions.departments}
-            onChange={(value) => handleFilterChange("deptCd", value)}
-            placeholder="소속 부서"
-          />
-          <OptionSelect
-            value={filters.serviceStatusCode}
-            options={filterOptions.serviceStatuses}
-            onChange={(value) => handleFilterChange("serviceStatusCode", value)}
-            placeholder="재직 상태"
-          />
-          <OptionSelect
-            value={filters.employmentTypeCode}
-            options={filterOptions.employmentTypes}
-            onChange={(value) =>
-              handleFilterChange("employmentTypeCode", value)
-            }
-            placeholder="고용형태"
-          />
-        </form>
-
-        {error && (
-          <div
-            role="alert"
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          >
-            {error}
-          </div>
-        )}
-
-        <DataGrid
-          mode="basic"
-          columns={columns}
-          rows={items}
-          loading={loading}
-          pagination={false}
-          rowHeight={52}
-          emptyMessage="조회된 인사정보가 없습니다."
-          defaultColDef={{ cellStyle: { textAlign: "center" } }}
-          gridOptions={{
-            getRowId: (params) => params.data.personKey,
-            rowSelection: {
-              mode: "multiRow",
-              checkboxes: true,
-              headerCheckbox: false,
-              enableClickSelection: false,
-            },
-            selectionColumnDef: {
-              headerName: "선택",
-              width: 74,
-              pinned: "left",
-              resizable: false,
-              cellClass:
-                "[&_.ag-cell-wrapper]:justify-center [&_.ag-selection-checkbox]:!m-0 [&_.ag-cell-value]:hidden",
-            },
-            onRowClicked: (event) => {
-              if (event.data) void selectPerson(event.data as ManagerRow);
-            },
-          }}
-        />
-
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-500">총 {totalElements}명</span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 0 || loading}
-              onClick={handlePrevPage}
-            >
-              이전
-            </Button>
-            <span className="min-w-16 text-center text-slate-600">
-              {page + 1} / {Math.max(totalPages, 1)}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page >= totalPages - 1 || loading}
-              onClick={handleNextPage}
-            >
-              다음
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <Sheet
-        open={isSheetOpen && (workspace?.active ?? true)}
-        onOpenChange={setIsSheetOpen}
-      >
-        <SheetContent
-          side="right"
-          className="flex min-h-0 w-full flex-col overflow-hidden rounded-md p-0 sm:max-w-xl"
-          style={{
-            top: sheetTop + 12,
-            bottom: 12,
-            right: sheetRight,
-            width: `calc(100% - ${sheetRight + 12}px)`,
-            height: `calc(100dvh - ${sheetTop + 24}px)`,
-          }}
-        >
-          <SheetHeader className="shrink-0 border-b border-slate-200 px-6 py-5 pr-12 text-left">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-14 w-14">
-                <AvatarImage
-                  src={selectedPerson?.profilePhotoUrl || undefined}
-                  alt={selectedPerson?.nameKo || ""}
-                />
-                <AvatarFallback>
-                  {selectedPerson?.nameKo?.slice(0, 1) || "?"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <SheetTitle>
-                  {detailLoading
-                    ? "인사정보 불러오는 중"
-                    : selectedPerson?.nameKo || "인사 상세"}
-                </SheetTitle>
-                <SheetDescription className="mt-1">
-                  {selectedPerson
-                    ? `${selectedPerson.employeeNo} · ${selectedPerson.positionName || selectedPerson.gradeName || "직급 미지정"}`
-                    : "인사 상세정보"}
-                </SheetDescription>
-              </div>
-            </div>
-          </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-            {detailLoading && (
-              <p className="py-12 text-center text-sm text-slate-500">
-                불러오는 중...
-              </p>
-            )}
+        }
+        detail={
+          <div className="min-w-0">
+            <AsyncFeedback loading={detailLoading} error={detailError}
+              onRetry={() => { if (selectedRow) void selectPerson(selectedRow); }} />
             {!detailLoading && selectedPerson && (
-              <Tabs defaultValue="basic">
+              <Tabs value={detailTab} onValueChange={setDetailTab}>
                 <TabsList className="grid h-auto w-full grid-cols-4">
                   <TabsTrigger value="basic">기본 정보</TabsTrigger>
                   <TabsTrigger value="work">사역/근무</TabsTrigger>
@@ -461,7 +394,6 @@ export default function ManagerPage() {
                     pagination={false}
                     emptyMessage="등록된 경력 정보가 없습니다."
                     defaultColDef={{
-                      cellStyle: { textAlign: "center" },
                       valueFormatter: (params) => params.value || "-",
                     }}
                     gridOptions={{
@@ -477,7 +409,6 @@ export default function ManagerPage() {
                     pagination={false}
                     emptyMessage="등록된 발령 이력이 없습니다."
                     defaultColDef={{
-                      cellStyle: { textAlign: "center" },
                       valueFormatter: (params) => params.value || "-",
                     }}
                     gridOptions={{
@@ -487,180 +418,89 @@ export default function ManagerPage() {
                 </TabsContent>
               </Tabs>
             )}
-            {!detailLoading && !selectedPerson && (
+            {!detailLoading && !selectedPerson && !detailError && (
               <p className="py-8 text-center text-sm text-slate-500">
                 인사정보를 표시할 수 없습니다.
               </p>
             )}
           </div>
-          <SheetFooter className="shrink-0 border-t border-slate-200 px-6 py-4">
-            <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
-              닫기
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+        }
+      />
 
       <Dialog
         open={isCreateOpen && (workspace?.active ?? true)}
-        onOpenChange={setIsCreateOpen}
+        onOpenChange={handleCreateOpenChange}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl motion-reduce:animate-none" onInteractOutside={(event) => event.preventDefault()}>
           <DialogHeader>
             <DialogTitle>신규 교직원 등록</DialogTitle>
             <DialogDescription>
               인사 기본정보를 입력합니다. 사번과 성명은 필수입니다.
             </DialogDescription>
           </DialogHeader>
-          <form className="space-y-5" onSubmit={submitCreate}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="employeeNo">사번</Label>
-                <Input
-                  id="employeeNo"
-                  value={createForm.employeeNo}
-                  onChange={(event) =>
-                    updateCreateForm("employeeNo", event.target.value)
-                  }
-                  required
-                  maxLength={30}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nameKo">성명</Label>
-                <Input
-                  id="nameKo"
-                  value={createForm.nameKo}
-                  onChange={(event) =>
-                    updateCreateForm("nameKo", event.target.value)
-                  }
-                  required
-                  maxLength={100}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nameEn">영문 성명</Label>
-                <Input
-                  id="nameEn"
-                  value={createForm.nameEn || ""}
-                  onChange={(event) =>
-                    updateCreateForm("nameEn", event.target.value)
-                  }
-                  maxLength={100}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="hireDate">입사일</Label>
-                <Input
-                  id="hireDate"
-                  type="date"
-                  value={createForm.hireDate || ""}
-                  onChange={(event) =>
-                    updateCreateForm("hireDate", event.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>부서</Label>
-                <OptionSelect
-                  value={createForm.deptCd || ""}
-                  options={filterOptions.departments}
-                  onChange={(value) =>
-                    updateCreateForm("deptCd", value === "all" ? "" : value)
-                  }
-                  placeholder="부서 선택"
-                  allLabel="미지정"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>직급</Label>
-                <OptionSelect
-                  value={createForm.gradeCode || ""}
-                  options={filterOptions.grades}
-                  onChange={(value) =>
-                    updateCreateForm("gradeCode", value === "all" ? "" : value)
-                  }
-                  placeholder="직급 선택"
-                  allLabel="미지정"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>직위</Label>
-                <OptionSelect
-                  value={createForm.positionCode || ""}
-                  options={filterOptions.positions}
-                  onChange={(value) =>
-                    updateCreateForm(
-                      "positionCode",
-                      value === "all" ? "" : value,
-                    )
-                  }
-                  placeholder="직위 선택"
-                  allLabel="미지정"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>고용형태</Label>
-                <OptionSelect
-                  value={createForm.employmentTypeCode || ""}
-                  options={filterOptions.employmentTypes}
-                  onChange={(value) =>
-                    updateCreateForm(
-                      "employmentTypeCode",
-                      value === "all" ? "" : value,
-                    )
-                  }
-                  placeholder="고용형태 선택"
-                  allLabel="미지정"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>재직 상태</Label>
-                <OptionSelect
-                  value={createForm.serviceStatusCode || ""}
-                  options={filterOptions.serviceStatuses}
-                  onChange={(value) =>
-                    updateCreateForm(
-                      "serviceStatusCode",
-                      value === "all" ? "" : value,
-                    )
-                  }
-                  placeholder="재직 상태 선택"
-                  allLabel="미지정"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="birthDate">생년월일</Label>
-                <Input
-                  id="birthDate"
-                  type="date"
-                  value={createForm.birthDate || ""}
-                  onChange={(event) =>
-                    updateCreateForm("birthDate", event.target.value)
-                  }
-                />
-              </div>
-            </div>
-            {error && (
+          <form className="space-y-5" onSubmit={submitCreate} noValidate>
+            <AsyncFeedback loading={optionsLoading} loadingMessage="등록 선택항목을 불러오는 중..."
+              error={optionsError} onRetry={retryOptions} />
+            <fieldset disabled={createLoading} className="grid gap-4 border-0 p-0 sm:grid-cols-2">
+              {([
+                { field: "employeeNo", label: "사번", required: true, maxLength: 30, type: "text" },
+                { field: "nameKo", label: "성명", required: true, maxLength: 100, type: "text" },
+                { field: "nameEn", label: "영문 성명", required: false, maxLength: 100, type: "text" },
+                { field: "hireDate", label: "입사일", required: false, maxLength: undefined, type: "date" },
+              ] as const).map(({ field, label, required, maxLength, type }) => (
+                <FormField key={field} label={label} required={required} error={createFieldErrors[field]}>
+                  {(control) => <Input {...control} type={type} required={required} maxLength={maxLength}
+                    value={createForm[field] || ""} onChange={(event) => updateCreateForm(field, event.target.value)} />}
+                </FormField>
+              ))}
+              {([
+                { field: "deptCd", label: "부서", options: filterOptions.departments },
+                { field: "gradeCode", label: "직급", options: filterOptions.grades },
+                { field: "positionCode", label: "직위", options: filterOptions.positions },
+                { field: "employmentTypeCode", label: "고용형태", options: filterOptions.employmentTypes },
+                { field: "serviceStatusCode", label: "재직 상태", options: filterOptions.serviceStatuses },
+              ] as const).map(({ field, label, options }) => (
+                <FormField key={field} label={label} required={field === "serviceStatusCode"} error={createFieldErrors[field]}>
+                  {(control) => <CodeSelect {...control} options={options} value={createForm[field] || ""}
+                    disabled={optionsDisabled} onChange={(value) => updateCreateForm(field, value)}
+                    placeholder={`${label} 선택`} allLabel="미지정" allowEmpty={field !== "serviceStatusCode"} />}
+                </FormField>
+              ))}
+              <FormField label="생년월일" error={createFieldErrors.birthDate}>
+                {(control) => <Input {...control} type="date" value={createForm.birthDate || ""}
+                  onChange={(event) => updateCreateForm("birthDate", event.target.value)} />}
+              </FormField>
+            </fieldset>
+            {createError && (
               <p role="alert" className="text-sm text-red-600">
-                {error}
+                {createError}
               </p>
             )}
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setIsCreateOpen(false)}
+                disabled={createLoading}
+                onClick={() => handleCreateOpenChange(false)}
               >
                 취소
               </Button>
-              <Button type="submit" disabled={createLoading}>
+              <Button type="submit" disabled={createLoading || optionsDisabled}>
                 {createLoading ? "등록 중..." : "등록"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+      <ConfirmModal
+        isOpen={confirmDiscard && (workspace?.active ?? true)}
+        title="등록 취소"
+        message="입력한 내용이 저장되지 않았습니다. 입력을 버리고 닫으시겠습니까?"
+        confirmText="입력 버리기"
+        cancelText="계속 작성"
+        onConfirm={discardCreate}
+        onCancel={() => setConfirmDiscard(false)}
+      />
     </ListPageShell>
   );
 }

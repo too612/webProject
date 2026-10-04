@@ -2,13 +2,13 @@
  * File Name   : eventcalendarPage
  * Description : 교회 행사달력 조회/등록/수정/삭제 화면
  * -----------------------------------------------------------------------------
- * common/ui/calendar(EventCalendar)를 활용해 구분값(주일학교/청년부/장년부/교회)
+ * common/calendar(EventCalendar)를 활용해 구분값(주일학교/청년부/장년부/교회)
  * 별로 색상 구분되는 행사 일정을 월/주/일/목록 뷰로 제공한다.
  */
 
 import { DetailPageShell } from "../../../common/ui";
-import { EventCalendar } from "../../../common/ui/calendar";
-import type { EventFormValues } from "../../../common/ui/calendar";
+import { EventCalendar } from "../../../common/calendar";
+import type { EventFormValues } from "../../../common/calendar";
 import { useEventCalendar } from "./eventcalendarHook";
 import {
   toCalendarCategories,

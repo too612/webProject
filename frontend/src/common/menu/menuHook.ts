@@ -3,8 +3,6 @@ import { useLocation } from "react-router-dom";
 import { useMenuStore } from "./menuStore";
 import { menuApi } from "./menuApi";
 import {
-  fallbackMenus,
-  fallbackMenuBySystem,
   getSystemTypeByPath,
   normalizeMenusForSystem,
 } from "./menuModel";
@@ -15,6 +13,7 @@ export function useMenu() {
     menuList,
     loading,
     systemType,
+    loadedSystemType,
     currentTopMenu,
     currentSubMenus,
     currentMenu,
@@ -35,22 +34,17 @@ export function useMenu() {
           resolvedSystemType,
           menus,
         );
-        const fallback =
-          fallbackMenuBySystem[resolvedSystemType] ?? fallbackMenus;
-        setMenuList(
-          resolvedSystemType,
-          normalizedMenus.length > 0 ? normalizedMenus : fallback,
-        );
+        setMenuList(resolvedSystemType, normalizedMenus);
       } finally {
         setLoading(false);
       }
     };
 
-    if (menuList.length === 0 || systemType !== resolvedSystemType) {
+    if (loadedSystemType !== resolvedSystemType) {
       void loadMenus();
     }
   }, [
-    menuList.length,
+    loadedSystemType,
     resolvedSystemType,
     setLoading,
     setMenuList,

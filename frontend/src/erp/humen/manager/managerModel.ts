@@ -1,6 +1,8 @@
-import type { GridColumnDef } from "../../../common/grid";
+import { erpColumn, rowNumberColumn, type GridColumnDef } from "../../../common/grid";
+import type { ExcelRowRef } from "../../../common/excel";
 
 export type ManagerRow = {
+  excelRef?: ExcelRowRef;
   personKey: string;
   employeeNo: string;
   nameKo: string;
@@ -44,65 +46,67 @@ export type ManagerAssignment = {
   remark?: string | null;
 };
 
-export const CAREER_COLUMNS: GridColumnDef[] = [
-  {
+export const CAREER_COLUMNS: GridColumnDef<ManagerCareer>[] = [
+  rowNumberColumn<ManagerCareer>(),
+  erpColumn<ManagerCareer>("name", {
     headerName: "기관명",
     field: "companyName",
     minWidth: 150,
     tooltipField: "companyName",
-  },
-  { headerName: "직책", field: "jobTitle", minWidth: 110 },
-  { headerName: "고용형태", field: "employmentTypeName", minWidth: 110 },
-  { headerName: "입사일", field: "hireDate", minWidth: 115 },
-  { headerName: "퇴직일", field: "retireDate", minWidth: 115 },
-  {
+  }),
+  erpColumn<ManagerCareer>("code", { headerName: "직책", field: "jobTitle", minWidth: 110 }),
+  erpColumn<ManagerCareer>("code", { headerName: "고용형태", field: "employmentTypeName", minWidth: 110 }),
+  erpColumn<ManagerCareer>("date", { headerName: "입사일", field: "hireDate", minWidth: 115 }),
+  erpColumn<ManagerCareer>("date", { headerName: "퇴직일", field: "retireDate", minWidth: 115 }),
+  erpColumn<ManagerCareer>("text", {
     headerName: "담당업무",
     field: "jobResponsibility",
     minWidth: 220,
     tooltipField: "jobResponsibility",
     wrapText: true,
     autoHeight: true,
-  },
-  {
+  }),
+  erpColumn<ManagerCareer>("text", {
     headerName: "비고",
     field: "remark",
     minWidth: 180,
     tooltipField: "remark",
     wrapText: true,
     autoHeight: true,
-  },
+  }),
 ];
 
-export const ASSIGNMENT_COLUMNS: GridColumnDef[] = [
-  { headerName: "발령일", field: "assignmentDate", minWidth: 115 },
-  { headerName: "발령 종류", field: "assignmentTypeName", minWidth: 120 },
-  { headerName: "소속 부서", field: "deptName", minWidth: 140 },
-  { headerName: "직급", field: "gradeName", minWidth: 110 },
-  { headerName: "직위", field: "positionName", minWidth: 110 },
-  { headerName: "직책", field: "jobTitleName", minWidth: 110 },
-  { headerName: "종료일", field: "assignmentEndDate", minWidth: 115 },
-  {
+export const ASSIGNMENT_COLUMNS: GridColumnDef<ManagerAssignment>[] = [
+  rowNumberColumn<ManagerAssignment>(),
+  erpColumn<ManagerAssignment>("date", { headerName: "발령일", field: "assignmentDate", minWidth: 115 }),
+  erpColumn<ManagerAssignment>("code", { headerName: "발령 종류", field: "assignmentTypeName", minWidth: 120 }),
+  erpColumn<ManagerAssignment>("name", { headerName: "소속 부서", field: "deptName", minWidth: 140 }),
+  erpColumn<ManagerAssignment>("code", { headerName: "직급", field: "gradeName", minWidth: 110 }),
+  erpColumn<ManagerAssignment>("code", { headerName: "직위", field: "positionName", minWidth: 110 }),
+  erpColumn<ManagerAssignment>("code", { headerName: "직책", field: "jobTitleName", minWidth: 110 }),
+  erpColumn<ManagerAssignment>("date", { headerName: "종료일", field: "assignmentEndDate", minWidth: 115 }),
+  erpColumn<ManagerAssignment>("status", {
     headerName: "겸임",
     field: "concurrentAssignmentYn",
     width: 80,
     valueFormatter: (params) => (params.value === "Y" ? "예" : "아니오"),
-  },
-  {
+  }),
+  erpColumn<ManagerAssignment>("text", {
     headerName: "발령 내용",
     field: "assignmentContent",
     minWidth: 240,
     tooltipField: "assignmentContent",
     wrapText: true,
     autoHeight: true,
-  },
-  {
+  }),
+  erpColumn<ManagerAssignment>("text", {
     headerName: "비고",
     field: "remark",
     minWidth: 180,
     tooltipField: "remark",
     wrapText: true,
     autoHeight: true,
-  },
+  }),
 ];
 
 export type ManagerPersonDetail = ManagerRow & {

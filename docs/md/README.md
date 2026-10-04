@@ -11,6 +11,7 @@
 ## 기능 문서
 
 - [core/workspace-layout.md](core/workspace-layout.md): ERP·마이페이지·커뮤니티·시스템 작업공간의 적용 경계, 탭 상태, 브라우저 저장 정책과 재사용 방법
+- [core/grid-excel.md](core/grid-excel.md): 공통 그리드 엑셀 함수, 다중 시트, 서버 검증과 운영 제한
 
 ## 읽는 원칙
 

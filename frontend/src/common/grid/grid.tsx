@@ -41,25 +41,36 @@
  * />
  * ```
  */
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import {
+  AllCommunityModule,
+  ModuleRegistry,
+  type GridApi,
+  type SortChangedEvent,
+  type FilterChangedEvent,
+} from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import "../../styles/gridTheme.css";
 import { RefreshCw } from "lucide-react";
 import type { GridProps } from "./gridModel";
-import { useCallback, useEffect, useRef } from "react";
+import { createInfiniteDatasource, INITIAL_GRID_STATE } from "./infiniteDatasource";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AsyncFeedback } from "../ui/AsyncFeedback";
+import { registerExcelGrid, retainExcelGrid, invalidateExcelGrid, markExcelGridReady } from "../excel/excelRegistry";
+import type { ExcelSheet } from "../excel/excelModel";
 
 // AG Grid Community 모듈 등록 (앱 전체에서 한 번만 실행)
 ModuleRegistry.registerModules([AllCommunityModule]);
+const EMPTY_COLUMN_DEF = {};
 
-export default function grid(props: GridProps) {
+export default function DataGrid<TData>(props: GridProps<TData>) {
   const {
     mode = "basic",
     columns,
     rows = [],
     loading = false,
-    pagination = true,
+    pagination = mode !== "infinite",
     pageSize = 10,
     rowHeight = 44,
     onSortChanged,
@@ -68,18 +79,77 @@ export default function grid(props: GridProps) {
     onGridReady,
     emptyMessage = "데이터가 없습니다.",
     gridOptions = {},
-    defaultColDef = {},
+    defaultColDef = EMPTY_COLUMN_DEF,
     saveState = false,
     stateKey,
     loadingComponent,
     emptyComponent,
+    height = 480,
+    cacheBlockSize = 50,
+    maxBlocksInCache = 6,
+    onTotalCountChanged,
+    onLoadStateChanged,
+    onDataStateChanged,
+    excel,
   } = props;
 
   // AG Grid API 참조를 저장할 ref
-  const gridApiRef = useRef<any>(null);
+  const gridApiRef = useRef<GridApi<TData> | null>(null);
+  const [dataState, setDataState] = useState(INITIAL_GRID_STATE);
+  const dataStateRef = useRef(dataState);
+  dataStateRef.current = dataState;
+  const excelRef = useRef(excel);
+  excelRef.current = excel;
+  const callbacks = useRef({ onTotalCountChanged, onLoadStateChanged, onDataStateChanged });
+  callbacks.current = { onTotalCountChanged, onLoadStateChanged, onDataStateChanged };
+  const snapshotExcel = useCallback((): ExcelSheet => {
+    const source = excelRef.current;
+    const api = gridApiRef.current;
+    if (!source || !api || api.isDestroyed()) throw new Error("엑셀 그리드가 준비되지 않았습니다.");
+    const state = dataStateRef.current;
+    if (loading || (mode === "infinite" && (state.pendingRequests > 0 || !["ready", "empty"].includes(state.phase)))) {
+      throw new Error(state.error || "조회가 완료된 후 엑셀을 다운로드하세요.");
+    }
+    const nodes: Array<{ index: number; data: TData }> = [];
+    const collect = (node: { rowIndex: number | null; data: TData | undefined }) => {
+      if (node.data && node.rowIndex != null) nodes.push({ index: node.rowIndex, data: node.data });
+    };
+    if (mode === "infinite") api.forEachNode(collect);
+    else api.forEachNodeAfterFilterAndSort(collect);
+    nodes.sort((a, b) => a.index - b.index);
+    for (let index = api.getPinnedTopRowCount() - 1; index >= 0; index--) {
+      const data = api.getPinnedTopRow(index)?.data;
+      if (data) nodes.unshift({ index: -index - 1, data });
+    }
+    for (let index = 0; index < api.getPinnedBottomRowCount(); index++) {
+      const data = api.getPinnedBottomRow(index)?.data;
+      if (data) nodes.push({ index: Number.MAX_SAFE_INTEGER - index, data });
+    }
+    const blocks: Array<{ token: string; indexes: number[] }> = [];
+    for (const node of nodes) {
+      const ref = source.getRowRef(node.data);
+      if (!ref) throw new Error("엑셀 조회 검증 정보가 없습니다. 화면을 다시 조회하세요.");
+      const previous = blocks[blocks.length - 1];
+      if (previous?.token === ref.token) previous.indexes.push(ref.index);
+      else blocks.push({ token: ref.token, indexes: [ref.index] });
+    }
+    if (!nodes.length) {
+      if (mode === "infinite" && state.totalCount !== 0) throw new Error("엑셀 조회 행이 준비되지 않았습니다.");
+      const token = source.getEmptyToken();
+      if (!token) throw new Error("조회하지 않은 그리드는 다운로드할 수 없습니다.");
+      blocks.push({ token, indexes: [] });
+    }
+    return { name: source.sheetName, blocks,
+      columns: api.getAllDisplayedColumns().map(column => ({
+        id: column.getColId(), title: api.getDisplayNameForColumn(column, "header") || column.getColId(),
+        width: column.getActualWidth(),
+      })) };
+  }, [mode, loading]);
+  const snapshotRef = useRef(snapshotExcel);
+  snapshotRef.current = snapshotExcel;
 
   // ===== 모드별 기본 컬럼 속성 결정 =====
-  const getDefaultColDef = useCallback(() => {
+  const resolvedDefaultColDef = useMemo(() => {
     const base = {
       resizable: true,
       ...defaultColDef,
@@ -93,7 +163,7 @@ export default function grid(props: GridProps) {
       case "infinite":
       case "client":
         // 서버/무한/클라이언트: 정렬/필터 활성화 (단, 이벤트는 페이지에서 처리)
-        return { ...base, sortable: true, filter: true };
+        return { sortable: true, filter: true, ...base };
       default:
         return base;
     }
@@ -107,16 +177,19 @@ export default function grid(props: GridProps) {
 
   // ===== 서버 모드 이벤트 핸들러 =====
   const handleSortChanged = useCallback(
-    (params: any) => {
+    (params: SortChangedEvent<TData>) => {
       if (mode !== "server" && mode !== "infinite") return;
-      const sortModel = params.api.getSortModel();
+      const sortModel = params.api.getColumnState()
+        .filter((column) => column.sort)
+        .sort((a, b) => (a.sortIndex ?? 0) - (b.sortIndex ?? 0))
+        .map((column) => ({ colId: column.colId, sort: column.sort ?? null }));
       onSortChanged?.(sortModel);
     },
     [mode, onSortChanged],
   );
 
   const handleFilterChanged = useCallback(
-    (params: any) => {
+    (params: FilterChangedEvent<TData>) => {
       if (mode !== "server" && mode !== "infinite") return;
       const filterModel = params.api.getFilterModel();
       onFilterChanged?.(filterModel);
@@ -125,42 +198,50 @@ export default function grid(props: GridProps) {
   );
 
   // ===== Infinite 모드 Datasource 설정 =====
-  const getInfiniteDatasource = useCallback(() => {
-    if (!onLoadData) return undefined;
+  const infiniteDatasource = useMemo(() => {
+    if (mode !== "infinite" || !onLoadData) return undefined;
+    return createInfiniteDatasource(onLoadData, (state) => {
+      setDataState(state);
+      dataStateRef.current = state;
+      if (excelRef.current && ["ready", "empty"].includes(state.phase) && state.pendingRequests === 0) {
+        markExcelGridReady(excelRef.current.scope, excelRef.current.id);
+      }
+      callbacks.current.onTotalCountChanged?.(state.totalCount);
+      callbacks.current.onLoadStateChanged?.(state.pendingRequests > 0);
+      callbacks.current.onDataStateChanged?.(state);
+    });
+  }, [mode, onLoadData]);
 
-    return {
-      getRows: async (params: any) => {
-        const { startRow, endRow, sortModel, filterModel } = params;
-        try {
-          const result = await onLoadData({
-            startRow,
-            endRow,
-            sortModel,
-            filterModel,
-          });
-          params.successCallback(result.rows, result.totalCount);
-        } catch (error) {
-          console.error("Infinite mode load error:", error);
-          params.failCallback();
-        }
-      },
-    };
-  }, [onLoadData]);
+  useEffect(() => {
+    if (mode !== "infinite") return;
+    setDataState(INITIAL_GRID_STATE);
+    dataStateRef.current = INITIAL_GRID_STATE;
+    if (excelRef.current) invalidateExcelGrid(excelRef.current.scope, excelRef.current.id, "조회 조건이 변경되었습니다. 다시 조회하세요.");
+    callbacks.current.onTotalCountChanged?.(null);
+    callbacks.current.onDataStateChanged?.(INITIAL_GRID_STATE);
+  }, [mode, infiniteDatasource]);
+
+  useEffect(() => {
+    if (mode === "infinite" || !excelRef.current) return;
+    const source = excelRef.current;
+    if (loading) invalidateExcelGrid(source.scope, source.id, "조회 중입니다.");
+    else markExcelGridReady(source.scope, source.id);
+  }, [mode, loading, rows]);
 
   // ===== 상태 저장 (localStorage) =====
   useEffect(() => {
     if (!saveState || !stateKey || !gridApiRef.current) return;
 
     const api = gridApiRef.current;
-    const columnApi = api.getColumnApi();
+    const columnApi = api;
 
     // 저장된 상태 복원
     const savedState = localStorage.getItem(`grid-state-${stateKey}`);
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        if (parsed.columnState) columnApi.applyColumnState(parsed.columnState);
-        if (parsed.sortModel) api.setSortModel(parsed.sortModel);
+        if (parsed.columnState) columnApi.applyColumnState({ state: parsed.columnState, applyOrder: true });
+        if (parsed.sortModel) api.applyColumnState({ state: parsed.sortModel, defaultState: { sort: null } });
         if (parsed.filterModel) api.setFilterModel(parsed.filterModel);
       } catch (e) {
         console.warn("Failed to restore grid state:", e);
@@ -171,7 +252,7 @@ export default function grid(props: GridProps) {
     const saveCurrentState = () => {
       const state = {
         columnState: columnApi.getColumnState(),
-        sortModel: api.getSortModel(),
+        sortModel: api.getColumnState().filter((column) => column.sort),
         filterModel: api.getFilterModel(),
       };
       localStorage.setItem(`grid-state-${stateKey}`, JSON.stringify(state));
@@ -192,7 +273,7 @@ export default function grid(props: GridProps) {
   }, [saveState, stateKey]);
 
   // ===== 로딩 UI =====
-  if (loading) {
+  if (loading && mode !== "infinite") {
     return (
       loadingComponent || (
         <div className="flex items-center justify-center h-60 border border-slate-200 rounded-md bg-slate-50">
@@ -218,35 +299,73 @@ export default function grid(props: GridProps) {
 
   // ===== AG Grid 렌더링 =====
   return (
-    <div className="ag-theme-alpine ag-theme-custom w-full border border-slate-200 rounded-md overflow-hidden">
-      <AgGridReact
-        // ===== 기본 설정 =====
-        theme="legacy"
-        columnDefs={columns}
-        rowData={mode === "infinite" ? undefined : rows}
-        pagination={pagination}
-        paginationPageSize={pageSize}
-        paginationPageSizeSelector={[10, 20, 50, 100]}
-        rowHeight={rowHeight}
-        suppressMovableColumns={true}
-        suppressCellFocus={true}
-        rowClass="hover:bg-slate-50/80 transition-colors"
-        domLayout="autoHeight"
-        // ===== 모드별 설정 =====
-        rowModelType={getRowModelType()}
-        datasource={mode === "infinite" ? getInfiniteDatasource() : undefined}
-        // ===== 컬럼 기본값 =====
-        defaultColDef={getDefaultColDef()}
-        // ===== 이벤트 =====
-        onGridReady={(params) => {
-          gridApiRef.current = params.api;
-          onGridReady?.(params);
-        }}
-        onSortChanged={handleSortChanged}
-        onFilterChanged={handleFilterChanged}
-        // ===== 사용자 정의 옵션 =====
-        {...gridOptions}
-      />
+    <div className="min-w-0 space-y-2">
+      {mode === "infinite" && <AsyncFeedback
+        loading={dataState.pendingRequests > 0}
+        loadingMessage={dataState.phase === "loadingMore" ? "추가 결과를 불러오는 중..." : "조회 중..."}
+        error={dataState.error ?? ""}
+        onRetry={() => gridApiRef.current?.refreshInfiniteCache()}
+      />}
+      {mode === "infinite" && dataState.phase === "empty" && (
+        <p role="status" className="py-3 text-center text-sm text-slate-500">{emptyMessage}</p>
+      )}
+      <div
+        className={`ag-theme-alpine ag-theme-custom w-full border border-slate-200 rounded-md overflow-hidden ${excel?.classNames?.join(" ") ?? ""}`}
+        id={excel?.id}
+        style={mode === "infinite" ? { height } : undefined}
+        aria-busy={mode === "infinite" ? dataState.pendingRequests > 0 : loading}
+      >
+        <AgGridReact
+          // ===== 기본 설정 =====
+          theme="legacy"
+          columnDefs={columns}
+          rowData={mode === "infinite" ? undefined : rows}
+          pagination={pagination}
+          paginationPageSize={pageSize}
+          paginationPageSizeSelector={[10, 20, 50, 100]}
+          rowHeight={rowHeight}
+          suppressMovableColumns={true}
+          suppressCellFocus={mode !== "infinite"}
+          rowClass="hover:bg-slate-50/80 transition-colors"
+          domLayout={mode === "infinite" ? "normal" : "autoHeight"}
+          {...(mode === "infinite" ? {
+            cacheBlockSize,
+            maxBlocksInCache,
+            maxConcurrentDatasourceRequests: 2,
+          } : {})}
+          // ===== 모드별 설정 =====
+          rowModelType={getRowModelType()}
+          datasource={infiniteDatasource}
+          // ===== 컬럼 기본값 =====
+          defaultColDef={resolvedDefaultColDef}
+          // ===== 사용자 정의 옵션 =====
+          {...gridOptions}
+          // ===== 이벤트 =====
+          onGridReady={(params) => {
+            gridApiRef.current = params.api;
+            if (excelRef.current) {
+              const source = excelRef.current;
+              registerExcelGrid({ scope: source.scope, id: source.id, classNames: source.classNames ?? [],
+                snapshot: () => snapshotRef.current() });
+            }
+            onGridReady?.(params);
+            gridOptions.onGridReady?.(params);
+          }}
+          onSortChanged={(params) => {
+            handleSortChanged(params);
+            gridOptions.onSortChanged?.(params);
+          }}
+          onFilterChanged={(params) => {
+            handleFilterChanged(params);
+            gridOptions.onFilterChanged?.(params);
+          }}
+          onGridPreDestroyed={(params) => {
+            if (excelRef.current) retainExcelGrid(excelRef.current.scope, excelRef.current.id);
+            gridApiRef.current = null;
+            gridOptions.onGridPreDestroyed?.(params);
+          }}
+        />
+      </div>
     </div>
   );
 }

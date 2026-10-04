@@ -6,6 +6,9 @@ import com.main.app.erp.humen.manager.dto.ManagerRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import com.main.app.common.excel.ExcelController;
 
 @RestController("erpHumenManagerController")
 @RequestMapping("/api/erp/humen/manager")
@@ -13,11 +16,25 @@ import org.springframework.web.bind.annotation.*;
 public class ManagerController {
 
     private final ManagerService managerService;
+    private final ManagerExcelDataProvider excelDataProvider;
 
-    @GetMapping
+    @GetMapping(params = "!excelSnapshot")
     public ApiResponse<Page<ManagerDto.Person>> list(
             @ModelAttribute ManagerDto.ListQuery query) {
         return ApiResponse.ok(managerService.getPersonList(query));
+    }
+
+    @GetMapping(params = "excelSnapshot")
+    public ApiResponse<Page<ManagerDto.Person>> listWithSnapshot(
+            @ModelAttribute ManagerDto.ListQuery query, @RequestParam boolean excelSnapshot,
+            HttpServletRequest request, HttpServletResponse response) {
+        var session = excelSnapshot ? ExcelController.authenticatedSession(request) : null;
+        var page = managerService.getPersonList(query);
+        if (session != null) {
+            response.setHeader("Cache-Control", "no-store");
+            response.setHeader("X-Excel-Snapshot", excelDataProvider.issue(session, query, page));
+        }
+        return ApiResponse.ok(page);
     }
 
     @GetMapping("/options")

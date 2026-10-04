@@ -2,12 +2,16 @@ import {
   FormEvent,
   useCallback,
   useEffect,
-  useLayoutEffect,
+  useRef,
   useState,
 } from "react";
 import { useSearchParams } from "react-router-dom";
 import { managerApi } from "./managerApi";
-import type { ManagerListQuery, ManagerListResult } from "./managerApi";
+import { blockToPage, type GridLoadParams, type GridDataState } from "../../../common/grid";
+import { INITIAL_GRID_STATE } from "../../../common/grid/infiniteDatasource";
+import { useAsyncResource, useSearchQuery } from "../../../common/ui";
+import { focusFirstInvalid, type FieldErrors } from "../../../common/ui/form/formValidation";
+import { equalManagerSearch, hasManagerSearch, normalizeManagerCreate, validateManagerCreate, type ManagerSearch } from "./managerValidation";
 import { useWorkspaceDirty } from "../../../common/workspace/workspaceHook";
 import type {
   ManagerCreateRequest,
@@ -41,223 +45,209 @@ const EMPTY_CREATE_FORM: ManagerCreateRequest = {
 
 export function useManagerPage() {
   const [searchParams] = useSearchParams();
-  const [items, setItems] = useState<ManagerRow[]>([]);
-  const [page, setPage] = useState(0);
-  const [size] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [keyword, setKeyword] = useState("");
-  const [inputKeyword, setInputKeyword] = useState("");
-  const [filters, setFilters] = useState<ManagerFilters>(() => ({
+  const [initialQuery] = useState<ManagerSearch>(() => ({
     ...EMPTY_FILTERS,
+    keyword: searchParams.get("keyword") ?? "",
     deptCd: searchParams.get("deptCd") ?? "",
+    gradeCode: searchParams.get("gradeCode") ?? "",
+    positionCode: searchParams.get("positionCode") ?? "",
     serviceStatusCode: searchParams.get("serviceStatusCode") ?? "",
     employmentTypeCode: searchParams.get("employmentTypeCode") ?? "",
   }));
-  const [filterOptions, setFilterOptions] =
-    useState<ManagerFilterOptions>(EMPTY_OPTIONS);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const search = useSearchQuery(initialQuery, equalManagerSearch);
+  const { draft: filters, applied: appliedQuery, revision, setDraft, apply, refresh } = search;
+  const options = useAsyncResource(managerApi.getFilterOptions, "인사 검색조건을 불러오지 못했습니다.");
+  const [gridState, setGridState] = useState<GridDataState>(INITIAL_GRID_STATE);
+  const [detailError, setDetailError] = useState("");
+  const [createError, setCreateError] = useState("");
+  const [createFieldErrors, setCreateFieldErrors] = useState<FieldErrors<ManagerCreateRequest>>({});
+  const [createMessage, setCreateMessage] = useState("");
+  const [selectedRow, setSelectedRow] = useState<ManagerRow | null>(null);
   const [selectedPerson, setSelectedPerson] =
     useState<ManagerPersonDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [sheetTop, setSheetTop] = useState(0);
-  const [sheetRight, setSheetRight] = useState(12);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createForm, setCreateForm] =
     useState<ManagerCreateRequest>(EMPTY_CREATE_FORM);
   const [createLoading, setCreateLoading] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-  useWorkspaceDirty(
-    JSON.stringify(createForm) !== JSON.stringify(EMPTY_CREATE_FORM),
-  );
-
-  useLayoutEffect(() => {
-    if (!isSheetOpen) return;
-    const header = document.querySelector<HTMLElement>("header.header");
-    const updateSheetBounds = () => {
-      const headerBounds = header?.getBoundingClientRect();
-      const frameRight = Math.min(
-        document.documentElement.clientWidth,
-        headerBounds?.right ?? document.documentElement.clientWidth,
-      );
-      setSheetTop(Math.max(0, headerBounds?.bottom ?? 0));
-      setSheetRight(Math.max(0, window.innerWidth - frameRight) + 12);
-    };
-    updateSheetBounds();
-    const observer = new ResizeObserver(updateSheetBounds);
-    if (header) observer.observe(header);
-    window.addEventListener("resize", updateSheetBounds);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateSheetBounds);
-    };
-  }, [isSheetOpen]);
-
-  const loadManagerList = useCallback(
-    async (query: ManagerListQuery): Promise<ManagerListResult<ManagerRow>> => {
-      return managerApi.getManagerList(query);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const detailRequest = useRef<AbortController | null>(null);
+  const createInFlight = useRef(false);
+  const excelState = useRef<{ token?: string }>({});
+  const createDirty = JSON.stringify(createForm) !== JSON.stringify(EMPTY_CREATE_FORM);
+  useWorkspaceDirty(createDirty);
+  const loadRows = useCallback(
+    async ({ startRow, endRow, sortModel, signal }: GridLoadParams) => {
+      const { page, size } = blockToPage(startRow, endRow);
+      const sort = sortModel?.[0];
+      const result = await managerApi.getManagerList({
+        ...appliedQuery,
+        page,
+        size,
+        sortField: sort?.colId ?? "employeeNo",
+        sortDirection: sort?.sort ?? "asc",
+      }, signal);
+      if (!signal?.aborted) excelState.current = { token: result.excelToken };
+      return { rows: result.items, totalCount: result.totalElements };
     },
-    [],
+    [appliedQuery, revision],
   );
 
-  useEffect(() => {
-    let mounted = true;
-    managerApi
-      .getFilterOptions()
-      .then((options) => {
-        if (mounted) setFilterOptions(options);
-      })
-      .catch((e) => {
-        if (mounted)
-          setError(
-            e instanceof Error
-              ? e.message
-              : "인사 필터 옵션을 불러오지 못했습니다.",
-          );
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    setError("");
-
-    loadManagerList({ page, size, keyword: keyword || undefined, ...filters })
-      .then((result) => {
-        if (!mounted) return;
-        setItems(result.items);
-        setTotalPages(result.totalPages);
-        setTotalElements(result.totalElements);
-      })
-      .catch((e) => {
-        if (!mounted) return;
-        const message =
-          e instanceof Error ? e.message : "담당자 목록을 불러오지 못했습니다.";
-        setError(message);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, [page, size, keyword, filters, loadManagerList, refreshKey]);
+  useEffect(() => () => detailRequest.current?.abort(), []);
 
   const handleSearch = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      setPage(0);
-      setKeyword(inputKeyword.trim());
+      apply({ ...filters, keyword: filters.keyword.trim() });
+      setIsSheetOpen(false);
     },
-    [inputKeyword],
+    [apply, filters],
   );
 
   const handleFilterChange = useCallback(
     (key: keyof ManagerFilters, value: string) => {
-      setPage(0);
-      setFilters((current) => ({
+      setDraft((current) => ({
         ...current,
-        [key]: value === "all" ? "" : value,
+        [key]: value,
       }));
     },
-    [],
+    [setDraft],
   );
 
   const handleInputKeywordChange = useCallback((value: string) => {
-    setInputKeyword(value);
-  }, []);
-
-  const handlePrevPage = useCallback(() => {
-    setPage((prev) => Math.max(0, prev - 1));
-  }, []);
-
-  const handleNextPage = useCallback(() => {
-    setPage((prev) => (prev >= totalPages - 1 ? prev : prev + 1));
-  }, [totalPages]);
+    setDraft((current) => ({ ...current, keyword: value }));
+  }, [setDraft]);
 
   const selectPerson = useCallback(async (row: ManagerRow) => {
+    detailRequest.current?.abort();
+    const controller = new AbortController();
+    detailRequest.current = controller;
+    setSelectedRow(row);
     setSelectedPerson(null);
     setIsSheetOpen(true);
     setDetailLoading(true);
-    setError("");
+    setDetailError("");
     try {
-      setSelectedPerson(await managerApi.getPersonDetail(row.employeeNo));
+      const detail = await managerApi.getPersonDetail(row.employeeNo, controller.signal);
+      if (!controller.signal.aborted) setSelectedPerson(detail);
     } catch (e) {
-      setError(
+      if (controller.signal.aborted) return;
+      setDetailError(
         e instanceof Error ? e.message : "인사 상세정보를 불러오지 못했습니다.",
       );
     } finally {
-      setDetailLoading(false);
+      if (!controller.signal.aborted) setDetailLoading(false);
     }
+  }, []);
+
+  const handleDetailOpenChange = useCallback((open: boolean) => {
+    setIsSheetOpen(open);
+    if (!open) detailRequest.current?.abort();
+  }, []);
+
+  const handleCreateOpenChange = useCallback((open: boolean) => {
+    if (createInFlight.current) return;
+    if (!open && createDirty) {
+      setConfirmDiscard(true);
+      return;
+    }
+    setCreateError("");
+    setCreateFieldErrors({});
+    if (open) setCreateMessage("");
+    setIsCreateOpen(open);
+  }, [createLoading, createDirty]);
+
+  const discardCreate = useCallback(() => {
+    setCreateForm({ ...EMPTY_CREATE_FORM });
+    setCreateError("");
+    setCreateFieldErrors({});
+    setIsCreateOpen(false);
+    setConfirmDiscard(false);
   }, []);
 
   const updateCreateForm = useCallback(
     (key: keyof ManagerCreateRequest, value: string) => {
       setCreateForm((current) => ({ ...current, [key]: value }));
+      setCreateFieldErrors((current) => ({ ...current, [key]: undefined }));
+      setCreateError("");
     },
     [],
   );
 
   const submitCreate = useCallback(
-    async (event: FormEvent) => {
+    async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (createInFlight.current) return;
+      if (options.loading || options.error) {
+        setCreateError("검색조건을 불러온 후 등록할 수 있습니다.");
+        return;
+      }
+      const errors = validateManagerCreate(createForm);
+      setCreateFieldErrors(errors);
+      if (Object.keys(errors).length > 0) {
+        const form = event.currentTarget;
+        setCreateError("입력 내용을 확인하세요.");
+        requestAnimationFrame(() => focusFirstInvalid(form));
+        return;
+      }
+      createInFlight.current = true;
       setCreateLoading(true);
-      setError("");
-      const request = Object.fromEntries(
-        Object.entries(createForm).map(([key, value]) => [
-          key,
-          value === "" ? undefined : value,
-        ]),
-      ) as unknown as ManagerCreateRequest;
+      setCreateError("");
+      const request = normalizeManagerCreate(createForm);
       try {
         await managerApi.createPerson(request);
         setIsCreateOpen(false);
         setCreateForm(EMPTY_CREATE_FORM);
-        setPage(0);
-        setRefreshKey((current) => current + 1);
+        refresh();
+        setCreateMessage(hasManagerSearch(appliedQuery)
+          ? `${request.nameKo} 등록이 완료되었습니다. 현재 검색조건에 따라 목록에 보이지 않을 수 있습니다.`
+          : `${request.nameKo} 등록이 완료되었습니다.`);
       } catch (e) {
-        setError(
+        setCreateError(
           e instanceof Error ? e.message : "인사정보 등록에 실패했습니다.",
         );
       } finally {
+        createInFlight.current = false;
         setCreateLoading(false);
       }
     },
-    [createForm],
+    [createForm, options.loading, options.error, appliedQuery, refresh],
   );
 
   return {
-    items,
-    page,
-    totalPages,
-    totalElements,
-    inputKeyword,
+    excelState,
+    loadRows,
+    totalElements: gridState.totalCount,
+    setGridState,
+    searchPending: search.pending,
+    inputKeyword: filters.keyword,
     filters,
-    filterOptions,
-    loading,
-    error,
+    filterOptions: options.data ?? EMPTY_OPTIONS,
+    loading: gridState.phase === "initialLoading",
+    optionsLoading: options.loading,
+    optionsError: options.error,
+    retryOptions: options.retry,
+    detailError,
+    createError,
+    createFieldErrors,
+    createMessage,
+    selectedRow,
     selectedPerson,
     detailLoading,
     isSheetOpen,
-    sheetTop,
-    sheetRight,
     isCreateOpen,
     createForm,
     createLoading,
+    confirmDiscard,
+    setConfirmDiscard,
+    discardCreate,
     handleSearch,
     handleInputKeywordChange,
     handleFilterChange,
-    handlePrevPage,
-    handleNextPage,
     selectPerson,
-    setIsSheetOpen,
-    setIsCreateOpen,
+    handleDetailOpenChange,
+    handleCreateOpenChange,
     updateCreateForm,
     submitCreate,
   };

@@ -96,6 +96,8 @@ public class ManagerDto {
         private String positionCode;
         private String employmentTypeCode;
         private String serviceStatusCode;
+        private String sortField = "employeeNo";
+        private String sortDirection = "asc";
     }
 
     @Data
@@ -106,7 +108,9 @@ public class ManagerDto {
         private String positionCode;
         private String employmentTypeCode;
         private String serviceStatusCode;
-        private int offset;
+        private String sortField;
+        private String sortDirection;
+        private long offset;
         private int limit;
     }
 }

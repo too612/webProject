@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.humen.myprofile.MyProfileMapper">
+
+    <select id="selectProfileByUserId" resultType="com.main.app.erp.humen.myprofile.dto.MyProfileDto$Profile">
+        SELECT
+            to_jsonb(u) ->> 'employee_no' AS employee_no,
+            hp.person_key IS NOT NULL AS employee_linked,
+            COALESCE(hp.name_ko, u.user_name) AS name_ko,
+            hp.name_en AS name_en,
+            hp.profile_photo_url AS profile_photo_url,
+            d.dept_nm AS dept_name,
+            grade.code_name AS grade_name,
+            position.code_name AS position_name,
+            employment.code_name AS employment_type_name,
+            status.code_name AS service_status_name,
+            hp.birth_date AS birth_date,
+            hp.gender_code AS gender_code,
+            hp.hire_date AS hire_date,
+            hp.retire_date AS retire_date,
+            hp.promotion_date AS promotion_date,
+            u.email AS email,
+            u.phone AS phone,
+            u.postal_code AS postal_code,
+            u.address_line1 AS address_line1,
+            u.address_line2 AS address_line2
+        FROM users u
+        LEFT JOIN hrm_person hp ON hp.employee_no = (to_jsonb(u) ->> 'employee_no')
+        LEFT JOIN hrm_org_dept d ON hp.dept_cd = d.dept_cd AND d.use_yn = 'Y'
+        LEFT JOIN com_code grade ON hp.grade_code = grade.code AND grade.parent_code = '102' AND grade.use_yn = 'Y'
+        LEFT JOIN com_code position ON hp.position_code = position.code AND position.parent_code = '103' AND position.use_yn = 'Y'
+        LEFT JOIN com_code employment ON hp.employment_type_code = employment.code AND employment.parent_code = '104' AND employment.use_yn = 'Y'
+        LEFT JOIN com_code status ON hp.service_status_code = status.code AND status.parent_code = '101' AND status.use_yn = 'Y'
+        WHERE u.user_id = #{userId}
+          AND u.status != 'D'
+    </select>
+
+    <select id="selectPersonKeyByUserId" resultType="string">
+        SELECT hp.person_key
+        FROM users u
+        JOIN hrm_person hp ON hp.employee_no = (to_jsonb(u) ->> 'employee_no')
+        WHERE u.user_id = #{userId}
+          AND u.status != 'D'
+    </select>
+
+    <select id="selectAssignments" resultType="com.main.app.erp.humen.myprofile.dto.MyProfileDto$Assignment">
+        SELECT
+            a.assignment_key AS assignment_key,
+            a.assignment_date AS assignment_date,
+            a.assignment_end_date AS assignment_end_date,
+            assignment_type.code_name AS assignment_type_name,
+            d.dept_nm AS dept_name,
+            grade.code_name AS grade_name,
+            position.code_name AS position_name,
+            job_title.code_name AS job_title_name,
+            a.assignment_content AS assignment_content,
+            a.concurrent_assignment_yn AS concurrent_assignment_yn,
+            a.remark AS remark
+        FROM hrm_assignment a
+        LEFT JOIN com_code assignment_type ON a.assignment_type_code = assignment_type.code
+            AND assignment_type.parent_code = '105' AND assignment_type.use_yn = 'Y'
+        LEFT JOIN hrm_org_dept d ON a.dept_cd = d.dept_cd AND d.use_yn = 'Y'
+        LEFT JOIN com_code grade ON a.grade_code = grade.code AND grade.parent_code = '102' AND grade.use_yn = 'Y'
+        LEFT JOIN com_code position ON a.position_code = position.code AND position.parent_code = '103' AND position.use_yn = 'Y'
+        LEFT JOIN com_code job_title ON a.job_title_code = job_title.code AND job_title.parent_code = '106' AND job_title.use_yn = 'Y'
+        WHERE a.person_key = #{personKey}
+          AND a.del_yn = 'N'
+        ORDER BY a.assignment_date DESC, a.assignment_key
+    </select>
+
+    <select id="selectCareers" resultType="com.main.app.erp.humen.myprofile.dto.MyProfileDto$Career">
+        SELECT
+            c.career_key AS career_key,
+            c.company_name AS company_name,
+            c.job_title AS job_title,
+            c.job_responsibility AS job_responsibility,
+            c.hire_date AS hire_date,
+            c.retire_date AS retire_date,
+            employment.code_name AS employment_type_name,
+            c.remark AS remark
+        FROM hrm_career c
+        LEFT JOIN com_code employment ON c.employment_type_code = employment.code
+            AND employment.parent_code = '104' AND employment.use_yn = 'Y'
+        WHERE c.person_key = #{personKey}
+          AND c.del_yn = 'N'
+        ORDER BY c.hire_date DESC, c.career_key
+    </select>
+
+    <select id="selectEducations" resultType="com.main.app.erp.humen.myprofile.dto.MyProfileDto$Education">
+        SELECT
+            e.education_key AS education_key,
+            school_type.code_name AS school_type_name,
+            e.school_name AS school_name,
+            e.admission_date AS admission_date,
+            e.graduation_date AS graduation_date,
+            graduation_status.code_name AS graduation_status_name,
+            degree.code_name AS degree_name,
+            field.code_name AS field_name,
+            e.major AS major,
+            e.minor AS minor,
+            e.is_final_education AS final_education,
+            e.remark AS remark
+        FROM hrm_education e
+        LEFT JOIN com_code school_type ON e.school_type_code = school_type.code
+            AND school_type.parent_code = '110' AND school_type.use_yn = 'Y'
+        LEFT JOIN com_code graduation_status ON e.graduation_status_code = graduation_status.code
+            AND graduation_status.parent_code = '120' AND graduation_status.use_yn = 'Y'
+        LEFT JOIN com_code degree ON e.degree_code = degree.code
+            AND degree.parent_code = '130' AND degree.use_yn = 'Y'
+        LEFT JOIN com_code field ON e.field_code = field.code
+            AND field.parent_code = '140' AND field.use_yn = 'Y'
+        WHERE e.person_key = #{personKey}
+          AND e.del_yn = 'N'
+        ORDER BY e.is_final_education DESC, e.graduation_date DESC NULLS LAST, e.education_key
+    </select>
+
+    <update id="updateOwnContactInfo">
+        UPDATE users
+        SET email = #{contact.email},
+            phone = #{contact.phone},
+            postal_code = #{contact.postalCode},
+            address_line1 = #{contact.addressLine1},
+            address_line2 = #{contact.addressLine2},
+            upt_dt = NOW()
+        WHERE user_id = #{userId}
+          AND status != 'D'
+    </update>
+
+</mapper>

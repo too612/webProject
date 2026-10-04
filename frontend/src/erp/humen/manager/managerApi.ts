@@ -1,4 +1,4 @@
-﻿import client from "../../../common/api/api.client";
+import client from "../../../common/api/api.client";
 import { getApiErrorMessage } from "../../../common/api/apiError";
 import type { ApiResponse } from "../../../common/api/api.types";
 import type {
@@ -15,12 +15,15 @@ export type ManagerListResult<T> = {
   size: number;
   totalElements: number;
   totalPages: number;
+  excelToken?: string;
 };
 
 export type ManagerListQuery = {
   page?: number;
   size?: number;
   keyword?: string;
+  sortField?: string;
+  sortDirection?: "asc" | "desc";
 } & Partial<ManagerFilters>;
 
 type SpringPage<T> = {
@@ -32,20 +35,21 @@ type SpringPage<T> = {
 };
 
 function toListResult<T>(
-  page: SpringPage<T> | null | undefined,
+  page: SpringPage<T>,
 ): ManagerListResult<T> {
   return {
-    items: page?.content ?? [],
-    page: page?.number ?? 0,
-    size: page?.size ?? 10,
-    totalElements: page?.totalElements ?? 0,
-    totalPages: page?.totalPages ?? 0,
+    items: page.content,
+    page: page.number,
+    size: page.size,
+    totalElements: page.totalElements,
+    totalPages: page.totalPages,
   };
 }
 
 export const managerApi = {
   async getManagerList(
     query: ManagerListQuery,
+    signal?: AbortSignal,
   ): Promise<ManagerListResult<ManagerRow>> {
     try {
       const params = Object.fromEntries(
@@ -56,9 +60,16 @@ export const managerApi = {
 
       const response = await client.get<ApiResponse<SpringPage<ManagerRow>>>(
         "/erp/humen/manager",
-        { params },
+        { params: { ...params, excelSnapshot: true }, signal },
       );
-      return toListResult(response.data.data);
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || "인사 목록 응답이 올바르지 않습니다.");
+      }
+      const header = response.headers["x-excel-snapshot"];
+      const token = typeof header === "string" ? header : undefined;
+      const result = toListResult(response.data.data);
+      return { ...result, excelToken: token,
+        items: result.items.map((row, index) => ({ ...row, excelRef: token ? { token, index } : undefined })) };
     } catch (error) {
       throw new Error(
         getApiErrorMessage(error, "요청 처리 중 오류가 발생했습니다."),
@@ -66,20 +77,16 @@ export const managerApi = {
     }
   },
 
-  async getFilterOptions(): Promise<ManagerFilterOptions> {
+  async getFilterOptions(signal?: AbortSignal): Promise<ManagerFilterOptions> {
     try {
       const response = await client.get<ApiResponse<ManagerFilterOptions>>(
         "/erp/humen/manager/options",
+        { signal },
       );
-      return (
-        response.data.data ?? {
-          departments: [],
-          grades: [],
-          positions: [],
-          employmentTypes: [],
-          serviceStatuses: [],
-        }
-      );
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || "인사 검색조건 응답이 올바르지 않습니다.");
+      }
+      return response.data.data;
     } catch (error) {
       throw new Error(
         getApiErrorMessage(error, "인사 필터 옵션을 불러오지 못했습니다."),
@@ -87,12 +94,15 @@ export const managerApi = {
     }
   },
 
-  async getPersonDetail(employeeNo: string): Promise<ManagerPersonDetail> {
+  async getPersonDetail(employeeNo: string, signal?: AbortSignal): Promise<ManagerPersonDetail> {
     try {
       const response = await client.get<ApiResponse<ManagerPersonDetail>>(
         `/erp/humen/manager/${encodeURIComponent(employeeNo)}`,
+        { signal },
       );
-      if (!response.data.data) throw new Error("인사정보를 찾을 수 없습니다.");
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || "인사정보를 찾을 수 없습니다.");
+      }
       return response.data.data;
     } catch (error) {
       throw new Error(
@@ -103,7 +113,10 @@ export const managerApi = {
 
   async createPerson(request: ManagerCreateRequest): Promise<void> {
     try {
-      await client.post<ApiResponse<void>>("/erp/humen/manager", request);
+      const response = await client.post<ApiResponse<void>>("/erp/humen/manager", request);
+      if (!response.data.success) {
+        throw new Error(response.data.message || "인사정보 등록에 실패했습니다.");
+      }
     } catch (error) {
       throw new Error(
         getApiErrorMessage(error, "인사정보 등록에 실패했습니다."),

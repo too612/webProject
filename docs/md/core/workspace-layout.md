@@ -21,6 +21,59 @@
 - 현재 메뉴 경로는 콘텐츠 밖의 전역 네비게이션 영역에 표시한다. 이 영역에는 화면 작업 버튼을 배치하지 않는다.
 - 비활성 탭의 포털 팝업은 useWorkspaceTab의 active를 확인해 숨긴다. 화면 작업 버튼은 WorkspaceActions로 해당 탭의 콘텐츠 내부 우측 상단에 표시한다. 버튼 대상 영역은 각 WorkspacePanel이 소유하며 전역 네비게이션과 공유하지 않는다. 폼 외부 제출 버튼에는 해당 폼의 고유 ID를 연결한다.
 
+## ERP 목록과 상세 표시 기준
+
+- [인사관리 화면](../../../frontend/src/erp/humen/manager/managerPage.tsx)을 목록 기준 구현으로 사용한다. 화면 제목과 주요 작업은 기존 ListPageShell에 맡기고, 검색·결과·상세는 [공통 shell 조합](../../../frontend/src/common/ui/shell/index.ts)으로 구성한다.
+- SearchPanel은 테두리 밖 검색조건 제목과 변경 안내를 제공하고, SearchField는 고유 ID로 라벨과 입력을 연결한다. 조회 버튼은 formId로 검색 폼에 연결해 주요 작업 영역에 배치한다. 인사 화면은 상단 우측에 조회 → 신규 등록 순서와 일정한 간격을 사용하며 초기화 버튼을 제공하지 않는다.
+- 공통 영역은 `data-ui`로 식별하며 여러 탭에서 동일한 HTML ID를 사용하지 않는다. 검색항목은 모바일 2열, 충분한 검색영역 폭에서 3열로 배치한다. SearchField의 `width`를 `compact`(10rem), `medium`(14rem), `keyword`(좁은 영역 10rem/넓은 영역 14rem), `range`(20rem)로 선언하고 좁은 영역에서는 줄어든다. 라벨 폭과 반응형 배치를 화면별 CSS로 다시 구현하지 않는다.
+- 일반 업무 목록은 입력 중 조건과 적용 조건을 분리하고 조회 버튼 또는 Enter로 일괄 적용한다. 메뉴 쿼리로 전달된 조건은 최초 조회에 적용한다. 같은 조건으로 다시 조회해도 서버 데이터를 갱신한다.
+- 검색 접기는 SearchPanel의 기본 동작이며 접혀도 입력값·적용 여부와 외부 조회 버튼을 유지한다. 필요 없는 업무는 `collapsible={false}`로 명시한다. 자동 접기나 검색조건 브라우저 저장은 하지 않는다.
+- ResultPanel은 검색결과 제목과 서버 전체 건수를 그리드 위에 표시한다. 건수를 모르면 미확정으로 표시하고 0건으로 대체하지 않는다. 선택 건수는 조회 결과 전체 건수와 별도로 표시한다.
+- [ERP 컬럼 헬퍼](../../../frontend/src/common/grid/erpGrid.ts)는 NO와 데이터 의미별 셀 정렬을 제공한다. 코드·상태·날짜는 가운데, 숫자는 오른쪽, 이름·설명은 왼쪽을 기본값으로 한다. NO는 조회·정렬 결과 순번이며 행 식별자로 사용하지 않는다.
+- 일반 ERP 탐색은 [ErpDataGrid](../../../frontend/src/common/grid/ErpDataGrid.tsx)를 사용한다. NO, infinite 모드, 50행 블록, 최대 6블록 캐시, 최대 2개 동시 요청, 52px 행 높이, 다중 정렬·컬럼 필터 제외가 기본이다. `onLoadData`, 도메인 고유키를 반환하는 `getRowId`, 모바일 부가 컬럼의 ID 목록 `mobileHiddenColumns`를 반드시 제공한다. NO를 columns에 중복 추가하지 않는다. 검색 시 캐시·스크롤을 초기화하고 이전 조회를 취소한다. 실패는 결과 없음과 구분해 표시하고 재시도를 제공한다.
+- [그리드 상태 계약](../../../frontend/src/common/grid/gridModel.ts)의 `onDataStateChanged`는 최초 로딩, 추가 로딩, 준비, 빈 결과, 오류와 미확정 전체 건수를 구분한다. 추가 블록 조회 중에는 조회 버튼을 막지 않는다. 검색·정렬 변경 전 응답은 무시하고, 동시에 요청한 다른 블록의 실패를 성공으로 덮지 않는다. 기존 DataGrid의 boolean 로딩 콜백은 호환용으로 유지한다.
+- NO는 그리드 맨 왼쪽에 고정한다. 선택 체크박스와 선택 건수는 일괄 수정 등 실제 후속 작업이 있는 화면에서만 개발자가 명시적으로 추가한다. 인사 조회 화면에는 선택 컬럼·선택 건수·스크롤 안내 문구를 표시하지 않는다. ResultPanel의 actions 확장점은 다른 업무의 선택 작업 등에 유지한다.
+- 인사 목록 API는 기존 page/size 응답을 유지하고 허용된 sortField/sortDirection만 서버에 적용한다. 같은 정렬값의 순서는 사번·고유키로 고정한다. 동시 데이터 변경에 대한 조회 스냅샷은 제공하지 않는다. 그룹·집계·확정 결과가 필요한 업무는 별도 조회 정책을 정의하며 infinite 모드를 일괄 강제하지 않는다.
+- 인사 목록의 직급과 직위는 별도 컬럼·서버 정렬이다. 좁은 그리드(640px 미만)에서는 NO·성명·사번만 표시하며 부가 정보는 상세에서 확인한다. 컬럼 의미·표시 순서·모바일 제외 여부·서버 정렬 허용 목록은 도메인이 선언하며 공통 코드가 필드명을 추측하지 않는다.
+- DetailPanelLayout은 충분한 콘텐츠 폭에서 부모를 조작할 수 있는 오른쪽 분할 조회 패널을 제공한다. 경계는 마우스와 키보드로 조절하며, 확대하거나 콘텐츠 폭이 좁으면 배경을 차단하는 Sheet로 전환한다. 상세 로딩·오류는 패널 내부에 표시하고 닫으면 호출 위치로 포커스를 복귀시킨다. 상세 확대·축소 시 선택한 상세 탭은 유지한다.
+- [useGridDetail](../../../frontend/src/common/grid/useGridDetail.ts)의 `gridOptions`와 DetailPanelLayout의 `navigation`을 함께 사용해 행 클릭/Enter, 현재 행 표시, 이전·다음과 포커스 복귀를 연결한다. 이동 범위는 현재 캐시에 있는 바로 인접한 행이며 추가 블록을 자동 조회하지 않는다. 검색·정렬 시 상세를 닫고, 모바일 전환으로 호출 컬럼이 숨겨지면 같은 행의 표시된 핵심 컬럼으로 복귀한다. 원래 행이 캐시에서 사라졌으면 현재 표시된 행으로 복귀한다.
+- 인사 신규 등록은 중앙 Dialog를 유지한다. 저장 중에는 입력·닫기를 막고, 미저장 입력이 있으면 취소 확인을 받는다. 비활성 workspace 탭의 포털은 숨긴다. 별도 상세 업무 탭·라우트는 이번 기준 구현에서 추가하지 않는다.
+- 등록 폼은 [FormField](../../../frontend/src/common/ui/form/FormField.tsx)로 라벨·필수 표시·`aria-invalid`·오류 설명을 연결한다. 공통 [검증 함수](../../../frontend/src/common/ui/form/formValidation.ts)는 필수 문자열·길이·달력상 유효한 날짜를 지원한다. [인사 검증 규칙](../../../frontend/src/erp/humen/manager/managerValidation.ts)은 도메인에 유지한다. 검증 실패 시 최초 오류 필드로 이동하고, 저장 중 중복 제출을 막으며, 서버 오류는 입력을 보존한 채 안내한다. 성공 시 미저장 상태를 해제하고 목록을 갱신하며 적용 검색조건이 있으면 새 데이터가 보이지 않을 수 있음을 안내한다. 프론트 검증만 믿지 않고 서버에서도 필수값·스키마 길이·날짜를 검증한다.
+- 검색조건, 조회 데이터, 상세 내용과 패널 크기는 브라우저 저장소에 저장하지 않는다. 일반 공식 게시판 등의 basic 그리드를 ERP 정책으로 일괄 전환하지 않는다.
+- [인사 조회 테스트](../../../src/test/java/com/main/app/erp/humen/manager/ManagerDatabaseTest.java)는 실제 DB에서 읽기 전용으로 블록 연결·정렬·건수와 응답 계약을 검증한다. [서비스 테스트](../../../src/test/java/com/main/app/erp/humen/manager/ManagerServiceTest.java)는 조회 조건 전달, 정렬 허용 목록과 페이지 범위를 검증한다.
+
+### 새 ERP 목록의 필수 조합
+
+| 책임 | 공통 요소 | 화면에서 선언할 내용 |
+| --- | --- | --- |
+| 제목·작업 | ListPageShell + [ListPageActions](../../../frontend/src/common/ui/shell/ListPageActions.tsx) | 검색 폼 ID, 등록 동작, 실제 승인된 권한값 |
+| 검색 적용 | [useSearchQuery](../../../frontend/src/common/ui/useSearchQuery.ts) + SearchPanel/SearchField | 초기 메뉴 조건, 조건 비교·정규화, 항목별 폭 |
+| 선택 옵션 | [useAsyncResource](../../../frontend/src/common/ui/useAsyncResource.ts) + [CodeSelect](../../../frontend/src/common/ui/CodeSelect.tsx) + [AsyncFeedback](../../../frontend/src/common/ui/AsyncFeedback.tsx) | 안정적인 loader, 오류 메시지, 옵션 코드·명칭 |
+| 목록 | ErpDataGrid + ResultPanel | 안정적인 조회 함수, 컬럼 정의, 고유키, 모바일 부가 컬럼 ID, 서버 건수 |
+| 상세 | useGridDetail + DetailPanelLayout | 선택 행, 조회·닫기 동작, 상세 내용과 제목, 조회 변경 키 |
+| 등록 | FormField + 도메인 검증 + useWorkspaceDirty | 필드 규칙, 요청 정규화, 미저장 기준, 저장 성공·실패 처리 |
+
+- loader는 모듈 함수 또는 `useCallback`으로, columns는 `useMemo`로 안정화한다. 매 렌더마다 새 조회 함수를 만들면 캐시가 재생성된다. `useSearchQuery.revision`을 조회 함수의 의존성에 넣어 같은 조건의 재조회·저장 후 갱신도 수행한다.
+- useAsyncResource는 로딩·오류·재시도·요청 취소·늦게 도착한 응답 무시를 제공한다. 옵션 로딩/실패 시 해당 선택 입력을 비활성화하고 AsyncFeedback을 표시한다. 빈 옵션 배열로 실패를 숨기지 않는다. CodeSelect는 가시적 라벨과 연결하고 긴 선택값의 전체 명칭을 툴팁으로 제공한다.
+- ListPageActions는 조회 → 신규 등록 순서와 간격을 제공한다. `searchAllowed`/`createAllowed`는 표시 정책일 뿐 서버 인가를 대체하지 않는다. DB에 연결된 프로그램 권한이 확인된 화면만 실제 권한값과 API 인가를 함께 연결한다. 인사 화면의 기존 권한 정책은 유지하며 임의 프로그램 ID·역할을 추가하지 않는다.
+- 전역화 대상은 **표시·동작 규칙**이며 업무 데이터가 아니다. 검색·옵션·폼·상세 상태는 화면 인스턴스에 유지하고 전역 저장소에 개인정보를 옮기지 않는다. 공식 게시판이나 기존 basic/client 그리드는 이 프리셋으로 강제 이전하지 않는다.
+- 조합과 콜백의 실제 예제는 [인사 화면](../../../frontend/src/erp/humen/manager/managerPage.tsx)과 [인사 훅](../../../frontend/src/erp/humen/manager/managerHook.ts)을 기준으로 한다. 새로운 ERP 목록은 개별 스타일·로딩·행 클릭 로직을 복사하는 대신 위 조합으로 시작한다.
+
+### 반복 검증
+
+프론트엔드 디렉터리에서 실행한다. Windows PowerShell 실행 정책이 npm 스크립트를 차단하면 `npm.cmd`를 사용한다.
+
+```powershell
+npm.cmd run test:erp
+npm.cmd exec playwright -- install chromium
+npm.cmd run test:erp:ui
+npm.cmd run build
+```
+
+- Chromium 설치는 테스트 런타임 최초 준비 시 필요하다. UI 테스트는 Node 20 이상을 사용한다. 테스트 설정이 전용 서버(기본 5187 포트)와 임시 Vite 캐시를 시작·종료하므로 기존 5173 개발 서버를 재사용하거나 캐시를 변경하지 않는다. 포트 충돌 시 `ERP_TEST_PORT` 환경 변수로 테스트 포트만 바꾼다.
+- [공통 계약 테스트](../../../frontend/tests/erp-standard.test.mjs)는 검증 경계, 오류 계약, 연속 NO, 동시 요청·정렬 경쟁·요청 취소와 접근성 마크업을 검증한다.
+- [브라우저 회귀 테스트](../../../frontend/tests/manager.ui.spec.ts)는 검색 옵션 실패·재시도, 수동 적용·접기·0건 결과, 추가 로딩 중 재검색, 서버 정렬, 모바일 2열·핵심 컬럼·긴 명칭, 상세 이동·크기 조절·확대·포커스, 메뉴 조건별 탭 상태와 비활성 포털 차단, 등록 오류·중복 제출·성공 안내·미저장 취소를 검증한다. 인증·API는 각 격리된 브라우저 컨텍스트에서 가짜 데이터로 대체하므로 실제 DB에 등록하지 않는다. 실제 DB 정렬·응답은 위 읽기 전용 백엔드 테스트로 별도 확인한다.
+
 ## 브라우저 저장 정책
 
 - 키는 workspace:v1, 사용자 ID, basePath로 분리한다. 다른 계정이나 다른 그룹의 설정을 읽지 않는다.

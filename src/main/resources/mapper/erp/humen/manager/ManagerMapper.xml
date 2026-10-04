@@ -40,7 +40,22 @@
             <if test="condition.employmentTypeCode != null and condition.employmentTypeCode != ''">AND hp.employment_type_code = #{condition.employmentTypeCode}</if>
             <if test="condition.serviceStatusCode != null and condition.serviceStatusCode != ''">AND hp.service_status_code = #{condition.serviceStatusCode}</if>
         </where>
-        ORDER BY hp.employee_no
+        ORDER BY
+        <choose>
+            <when test="condition.sortField == 'nameKo'">hp.name_ko</when>
+            <when test="condition.sortField == 'gradeName'">grade.code_name</when>
+            <when test="condition.sortField == 'positionName'">position.code_name</when>
+            <when test="condition.sortField == 'deptName'">d.dept_nm</when>
+            <when test="condition.sortField == 'employmentTypeName'">employment.code_name</when>
+            <when test="condition.sortField == 'hireDate'">hp.hire_date</when>
+            <when test="condition.sortField == 'serviceStatusName'">status.code_name</when>
+            <otherwise>hp.employee_no</otherwise>
+        </choose>
+        <choose>
+            <when test="condition.sortDirection == 'desc'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        NULLS LAST, hp.employee_no ASC, hp.person_key ASC
         LIMIT #{condition.limit} OFFSET #{condition.offset}
     </select>
 

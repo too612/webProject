@@ -6,6 +6,7 @@ type MenuStore = {
   menuList: MenuItem[];
   loading: boolean;
   systemType: string;
+  loadedSystemType: string | null;
   currentMenu: MenuItem | null;
   currentTopMenu: MenuItem | null;
   currentSubMenus: MenuItem[];
@@ -37,6 +38,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   menuList: [],
   loading: false,
   systemType: "official",
+  loadedSystemType: null,
   currentMenu: null,
   currentTopMenu: null,
   currentSubMenus: [],
@@ -44,7 +46,7 @@ export const useMenuStore = create<MenuStore>((set, get) => ({
   setLoading: (loading) => set({ loading }),
   setMenuList: (systemType, menus) => {
     const normalized = cloneMenus(menus);
-    set({ menuList: normalized, systemType });
+    set({ menuList: normalized, systemType, loadedSystemType: systemType });
   },
   setCurrentByPath: (path, search = "") => {
     const menuList = cloneMenus(get().menuList);

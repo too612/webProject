@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "test:erp": "node --test tests/erp-standard.test.mjs",
+    "test:erp:ui": "tsc --project tests/tsconfig.json --pretty false && playwright test --config tests/playwright.config.ts",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -76,6 +78,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.2.4",
     "@tailwindcss/vite": "^4.2.4",
     "@types/leaflet": "^1.9.22",

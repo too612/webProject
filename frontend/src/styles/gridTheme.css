@@ -51,6 +51,11 @@
   transition: background-color 0.15s ease;
 }
 
+.ag-theme-custom .ag-row.erp-detail-active {
+  background-color: #eff6ff;
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+
 /* ===== 헤더 가운데 정렬 (기본) ===== */
 /* 각 페이지에서 headerClass로 재정의 가능 */
 .ag-theme-custom .ag-header-cell-label {

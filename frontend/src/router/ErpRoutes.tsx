@@ -34,10 +34,12 @@ const HumenManagerPage = lazy(() => import("../erp/humen/manager/managerPage"));
 const HumenDistrictPage = lazy(
   () => import("../erp/humen/district/districtPage"),
 );
-const HumenNewcomerPage = lazy(
-  () => import("../erp/humen/newcomer/newcomerPage"),
+const HumenMyProfilePage = lazy(
+  () => import("../erp/humen/myprofile/myprofilePage"),
 );
-const HumenChangePage = lazy(() => import("../erp/humen/change/changePage"));
+const HumenPersonnelMovePage = lazy(
+  () => import("../erp/humen/personnelmove/personnelmovePage"),
+);
 const SermonManagerPage = lazy(
   () => import("../erp/sermon/manager/managerPage"),
 );
@@ -154,8 +156,8 @@ export const erpRoutes: RouteObject[] = [
         children: [
           { path: "manager", element: <HumenManagerPage /> },
           { path: "district", element: <HumenDistrictPage /> },
-          { path: "newcomer", element: <HumenNewcomerPage /> },
-          { path: "change", element: <HumenChangePage /> },
+          { path: "myprofile", element: <HumenMyProfilePage /> },
+          { path: "personnelmove", element: <HumenPersonnelMovePage /> },
         ],
       },
 

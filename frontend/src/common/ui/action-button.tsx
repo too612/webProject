@@ -55,6 +55,7 @@ export function ActionButton({
   return (
     <Button
       disabled={disabled || loading}
+      aria-busy={loading}
       className={cn(
         "gap-2 font-semibold shadow-sm transition-all duration-200",
         "disabled:cursor-not-allowed disabled:opacity-80",
@@ -64,13 +65,13 @@ export function ActionButton({
       {...props}
     >
       {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin motion-reduce:animate-none" />
       ) : (
         <>
           {config.icon}
-          <span>{displayLabel}</span>
         </>
       )}
+      <span>{displayLabel}</span>
     </Button>
   );
 }

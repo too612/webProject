@@ -7,14 +7,31 @@
  * - 'infinite': 대용량 데이터 탐색용 (무한 스크롤)
  * - 'client'  : 소량 데이터 완전 제어용 (클라이언트 정렬/필터)
  */
-import { ColDef, GridOptions, ICellRendererParams } from 'ag-grid-community';
+import type { ColDef, GridOptions, GridReadyEvent, ICellRendererParams } from 'ag-grid-community';
+import type { ExcelGridSource } from "../excel/excelModel";
 
-export interface GridProps {
+export interface GridLoadParams {
+  startRow: number;
+  endRow: number;
+  sortModel?: Array<{ colId: string; sort: 'asc' | 'desc' | null }>;
+  filterModel?: Record<string, unknown>;
+  signal?: AbortSignal;
+}
+
+export interface GridDataState {
+  readonly phase: "initialLoading" | "loadingMore" | "ready" | "empty" | "error";
+  readonly totalCount: number | null;
+  readonly error: string | null;
+  readonly pendingRequests: number;
+}
+
+export interface GridProps<TData = any> {
+  excel?: ExcelGridSource<TData>;
   // ===== 필수 Props =====
   /** 컬럼 정의 (각 페이지에서 정의) */
-  columns: ColDef[];
+  columns: ColDef<TData>[];
   /** 표시할 데이터 (basic/client 모드에서는 rows를 직접 전달) */
-  rows?: any[];
+  rows?: TData[];
   
   // ===== 운영 모드 =====
   /**
@@ -38,9 +55,15 @@ export interface GridProps {
   /** 데이터 없을 때 표시할 메시지 */
   emptyMessage?: string;
   /** AG Grid 추가 옵션 (고급 설정용) */
-  gridOptions?: GridOptions;
+  gridOptions?: GridOptions<TData>;
   /** 기본 컬럼 속성 (sortable, filter 등) - 페이지별 제어 가능 */
-  defaultColDef?: ColDef;
+  defaultColDef?: ColDef<TData>;
+  height?: number | string;
+  cacheBlockSize?: number;
+  maxBlocksInCache?: number;
+  onTotalCountChanged?: (count: number | null) => void;
+  onLoadStateChanged?: (loading: boolean) => void;
+  onDataStateChanged?: (state: GridDataState) => void;
   
   // ===== 서버 모드 전용 (mode='server' 또는 'infinite') =====
   /** 전체 데이터 건수 (서버에서 받아온 total) */
@@ -66,12 +89,7 @@ export interface GridProps {
    * @param params.filterModel 현재 필터 모델
    * @returns { rows: any[], totalCount: number }
    */
-  onLoadData?: (params: {
-    startRow: number;
-    endRow: number;
-    sortModel?: Array<{ colId: string; sort: 'asc' | 'desc' | null }>;
-    filterModel?: Record<string, any>;
-  }) => Promise<{ rows: any[]; totalCount: number }>;
+  onLoadData?: (params: GridLoadParams) => Promise<{ rows: TData[]; totalCount: number }>;
   
   // ===== 반응형/상태 저장 =====
   /** 반응형 컬럼 표시/숨김 설정 (true: 기본 breakpoint 적용) */
@@ -89,8 +107,8 @@ export interface GridProps {
   
   // ===== 이벤트 =====
   /** 그리드 초기화 완료 콜백 (AG Grid API 획득용) */
-  onGridReady?: (params: any) => void;
+  onGridReady?: (params: GridReadyEvent<TData>) => void;
 }
 
 export type GridCellRendererParams<TData = any> = ICellRendererParams<TData>;
-export type GridColumnDef = ColDef;
+export type GridColumnDef<TData = any> = ColDef<TData>;
