@@ -1,18 +1,15 @@
 import client from "../../../common/api/api.client";
 import { getApiErrorMessage } from "../../../common/api/apiError";
+import { OUTREACH_MAP_NOTICE } from "./outreachModel";
 import type { ApiResponse } from "../../../common/api/api.types";
 import type {
   OutreachContent,
   OutreachActivity,
-  MissionaryApiResponse,
+  OutreachApiResponse,
 } from "./outreachModel";
 
-interface MissionaryApiData {
-  missionaries: MissionaryApiResponse[];
-}
-
-function transformMissionaryToActivity(
-  missionary: MissionaryApiResponse,
+function transformOutreachToActivity(
+  missionary: OutreachApiResponse,
 ): OutreachActivity {
   const dateStr = missionary.dispatchDate || missionary.dispatchedDate || "";
   const year = dateStr ? new Date(dateStr).getFullYear() : 0;
@@ -32,16 +29,19 @@ function transformMissionaryToActivity(
   };
 }
 
-async function getMissionariesFromApi(): Promise<OutreachActivity[]> {
+async function getOutreachFromApi(): Promise<OutreachActivity[]> {
   try {
-    const response = await client.get<ApiResponse<MissionaryApiData>>(
-      "/official/missionaries",
+    const response = await client.get<ApiResponse<OutreachApiResponse[]>>(
+      "/official/training/outreach/getInfo",
     );
     const data = response.data.data;
-    if (!data || !Array.isArray(data.missionaries)) {
-      return [];
+    if (!response.data.success) {
+      throw new Error(response.data.message || "아웃리치 데이터 조회에 실패했습니다.");
     }
-    return data.missionaries.map(transformMissionaryToActivity);
+    if (!Array.isArray(data)) {
+      throw new Error("아웃리치 응답 형식이 올바르지 않습니다.");
+    }
+    return data.map(transformOutreachToActivity);
   } catch (error) {
     throw new Error(
       getApiErrorMessage(error, "선교사 데이터 조회 중 오류가 발생했습니다."),
@@ -52,7 +52,7 @@ async function getMissionariesFromApi(): Promise<OutreachActivity[]> {
 export const outreachApi = {
   async getOutreachContent(): Promise<OutreachContent | null> {
     try {
-      const activities = await getMissionariesFromApi();
+      const activities = await getOutreachFromApi();
       return {
         headline: "해외선교아웃리치",
         summary:
@@ -61,8 +61,7 @@ export const outreachApi = {
         bannerDescription:
           "'mission'은 보냄을 받는 것입니다.\n다사랑교회는 복음의 통로로 세워진 모든 성도가 열방으로 보냄을 받아, 하나님이 사랑하시는 세계를 품고 섬깁니다.",
         missionSectionTitle: "선교참여 현황",
-        missionSectionDescription:
-          "다사랑교회가 파송한 선교사님들과 함께하는 파송 국가입니다.",
+        missionSectionDescription: OUTREACH_MAP_NOTICE,
         offeringSectionTitle: "선교헌금 안내",
         offeringSectionDescription:
           "선교헌금은 매월 현지 사역과 파송 선교사를 후원하는 데 사용되며, 매년 사역 보고를 통해 투명하게 공유됩니다.",

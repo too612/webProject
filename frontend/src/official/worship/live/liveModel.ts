@@ -11,6 +11,44 @@ export type LiveItem = {
   orderNo?: number;
 };
 
+export function parseLiveSermonTitle(rawTitle: string | undefined) {
+  const title = rawTitle?.trim() ?? "";
+  const separator = title.includes("|")
+    ? "|"
+    : title.includes("/")
+      ? "/"
+      : null;
+
+  if (!separator) {
+    return {
+      date: "",
+      title: title || "제목 없는 설교",
+      scripture: "",
+      preacher: "",
+    };
+  }
+
+  const parts = title.split(separator).map((part) => part.trim());
+  if (separator === "|") {
+    const date = parts.find((part) =>
+      /\d{4}\s*년\s*\d{1,2}\s*월\s*\d{1,2}\s*일/.test(part),
+    );
+    return {
+      date: date ?? "",
+      title: parts[0] || title || "제목 없는 설교",
+      scripture: parts[1] ?? "",
+      preacher: parts[2]?.split("#")[0].trim() ?? "",
+    };
+  }
+
+  return {
+    date: parts[0],
+    title: parts[1] || rawTitle?.trim() || "제목 없는 설교",
+    scripture: parts[2] ?? "",
+    preacher: parts[3]?.split("#")[0].trim() ?? "",
+  };
+}
+
 /** 실시간 라이브 방송 상태 (백엔드 /official/worship/live/stream 응답) */
 export type LiveStreamStatus = {
   /** 현재 실시간 라이브 방송 중인지 여부 */

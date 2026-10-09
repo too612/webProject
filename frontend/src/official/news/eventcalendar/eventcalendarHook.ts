@@ -95,6 +95,7 @@ export function useEventCalendar() {
     categories,
     loading,
     error,
+    loadAll,
     saveEvent,
     removeEvent,
   };

@@ -6,13 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class OutreachService {
     private final OutreachMapper outreachMapper;
 
     @Transactional(readOnly = true)
-    public OutreachDto getOutreach() { return outreachMapper.selectOutreach(); }
+    public List<OutreachDto> getInfo() {
+        return outreachMapper.getInfo();
+    }
 
     @Transactional
     public void createOutreach(OutreachRequest request) throws Exception {

@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["official-popup*.ts", "official-popup-fixture.tsx"]
+}

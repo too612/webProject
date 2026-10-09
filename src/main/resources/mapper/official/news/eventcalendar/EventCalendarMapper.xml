@@ -28,7 +28,7 @@
                code_name,
                COALESCE(extra1, 'indigo') AS color
         FROM com_code
-        WHERE parent_code = '401'
+        WHERE parent_code = '201'
           AND use_yn = 'Y'
         ORDER BY sort_order, code
     </select>

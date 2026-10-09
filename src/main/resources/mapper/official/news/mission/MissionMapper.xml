@@ -1,8 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.official.news.mission.MissionMapper">
-    <select id="selectMission" resultType="com.main.app.official.news.mission.dto.MissionDto">
-        SELECT 'Mission' AS title, 'Mission content template' AS content
+    <select id="getInfo" resultType="com.main.app.official.news.mission.dto.MissionDto">
+        WITH ranked_dispatch AS (
+            SELECT a.*,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY a.person_key
+                       ORDER BY a.assignment_date DESC, a.reg_dtm DESC, a.assignment_key DESC
+                   ) AS dispatch_rank
+            FROM hrm_assignment a
+            WHERE a.del_yn = 'N'
+              AND a.assignment_type_code = '105-030'
+              AND a.grade_code = '102-060'
+              AND a.dispatch_country_code IS NOT NULL
+              AND a.assignment_date &lt;= CURRENT_DATE
+              AND (a.assignment_end_date IS NULL OR a.assignment_end_date >= CURRENT_DATE)
+        )
+        SELECT p.employee_no, p.person_key, p.name_ko AS name,
+               c.country_name_ko AS country, a.dispatch_country_code AS country_code,
+               NULL::TEXT AS city, NULL::TEXT AS region,
+               c.map_latitude AS latitude, c.map_longitude AS longitude,
+               a.assignment_date AS dispatched_date, a.assignment_date AS dispatch_date,
+               a.assignment_content, a.dispatch_country_code AS group_key
+        FROM ranked_dispatch a
+        JOIN hrm_person p ON p.person_key = a.person_key
+        JOIN sys_country_code c ON c.country_code = a.dispatch_country_code
+        WHERE a.dispatch_rank = 1
+          AND p.service_status_code = '101-010'
+          AND (p.retire_date IS NULL OR p.retire_date > CURRENT_DATE)
+          AND c.use_yn = 'Y'
+        ORDER BY a.assignment_date ASC, p.employee_no ASC
     </select>
     <insert id="insertMission" parameterType="com.main.app.official.news.mission.dto.MissionRequest">SELECT 1</insert>
     <update id="updateMission" parameterType="com.main.app.official.news.mission.dto.MissionRequest">SELECT 1</update>

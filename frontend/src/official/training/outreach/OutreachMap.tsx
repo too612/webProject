@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import { MapMarker, MapView } from "../../../common/map";
 import type { OutreachActivity } from "./outreachModel";
+import { hasOutreachCoordinates } from "./outreachModel";
 
 type OutreachMapProps = Readonly<{
   activities: OutreachActivity[];
@@ -15,19 +16,11 @@ type MarkerGroup = Readonly<{
 
 const MAP_CENTER_LONGITUDE = -160;
 
-function hasCoordinates(activity: OutreachActivity) {
-  return (
-    typeof activity.latitude === "number" &&
-    typeof activity.longitude === "number"
-  );
-}
-
 function groupByCoordinate(activities: OutreachActivity[]): MarkerGroup[] {
   const groups = new Map<string, MarkerGroup>();
 
-  activities.filter(hasCoordinates).forEach((activity) => {
-    const latitude = activity.latitude as number;
-    const longitude = activity.longitude as number;
+  activities.filter(hasOutreachCoordinates).forEach((activity) => {
+    const { latitude, longitude } = activity;
     const key = `${latitude.toFixed(6)}:${longitude.toFixed(6)}`;
     const existingGroup = groups.get(key);
 

@@ -21,7 +21,7 @@ import {
  ****************************************************************************************************/
 
 export default function EventCalendarPage() {
-  const { events, categories, loading, error, saveEvent, removeEvent } =
+  const { events, categories, loading, error, loadAll, saveEvent, removeEvent } =
     useEventCalendar();
 
   const calendarEvents = toCalendarEvents(events);
@@ -44,15 +44,29 @@ export default function EventCalendarPage() {
    ****************************************************************************************************/
 
   return (
-    <DetailPageShell>
-      {error && <p className="text-sm text-red-500">{error}</p>}
+    <DetailPageShell contentClassName="space-y-3">
+      {error && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+        >
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => void loadAll()}
+            className="font-medium underline underline-offset-2 hover:text-rose-950"
+          >
+            다시 시도
+          </button>
+        </div>
+      )}
 
       {loading && events.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500">
           행사달력을 불러오는 중입니다...
         </p>
       ) : (
-        <div className="h-[640px]">
+        <div className="h-[min(72vh,760px)] min-h-[420px] sm:min-h-[520px]">
           <EventCalendar
             categories={calendarCategories}
             events={calendarEvents}

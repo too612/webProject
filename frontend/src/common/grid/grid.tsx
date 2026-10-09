@@ -77,6 +77,7 @@ export default function DataGrid<TData>(props: GridProps<TData>) {
     onFilterChanged,
     onLoadData,
     onGridReady,
+    allowColumnMoving = false,
     emptyMessage = "데이터가 없습니다.",
     gridOptions = {},
     defaultColDef = EMPTY_COLUMN_DEF,
@@ -324,7 +325,7 @@ export default function DataGrid<TData>(props: GridProps<TData>) {
           paginationPageSize={pageSize}
           paginationPageSizeSelector={[10, 20, 50, 100]}
           rowHeight={rowHeight}
-          suppressMovableColumns={true}
+          suppressMovableColumns={!allowColumnMoving}
           suppressCellFocus={mode !== "infinite"}
           rowClass="hover:bg-slate-50/80 transition-colors"
           domLayout={mode === "infinite" ? "normal" : "autoHeight"}

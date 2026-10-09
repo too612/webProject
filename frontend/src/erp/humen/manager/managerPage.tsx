@@ -1,4 +1,6 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import type { GridApi } from "ag-grid-community";
 import { useManagerPage } from "./managerHook";
 import {
   ASSIGNMENT_COLUMNS,
@@ -73,6 +75,7 @@ export default function ManagerPage() {
   const excel = useExcelExport();
   const excelGridId = `${formId}-manager-grid`;
   const [detailTab, setDetailTab] = useState("basic");
+  const gridApiRef = useRef<GridApi<ManagerRow> | null>(null);
   const {
     loadRows,
     excelState,
@@ -109,6 +112,10 @@ export default function ManagerPage() {
     updateCreateForm,
     submitCreate,
   } = useManagerPage();
+  const handleSearchWithDefaultSort = useCallback((event: FormEvent) => {
+    gridApiRef.current?.applyColumnState({ defaultState: { sort: null } });
+    handleSearch(event);
+  }, [handleSearch]);
 
   const detailGrid = useGridDetail({
     selected: selectedRow, open: isSheetOpen, getKey: personKey,
@@ -127,7 +134,7 @@ export default function ManagerPage() {
 
   const columns = useMemo<GridColumnDef<ManagerRow>[]>(() => [
     erpColumn<ManagerRow>("name", { headerName: "성명", field: "nameKo", minWidth: 120, flex: 1 }),
-    erpColumn<ManagerRow>("code", { headerName: "사번", field: "employeeNo", minWidth: 130, sort: "asc" }),
+    erpColumn<ManagerRow>("code", { headerName: "사번", field: "employeeNo", minWidth: 130 }),
     {
       headerName: "프로필",
       field: "profilePhotoUrl",
@@ -235,7 +242,7 @@ export default function ManagerPage() {
         description={selectedRow ? [selectedRow.employeeNo, selectedRow.gradeName, selectedRow.positionName].filter(Boolean).join(" · ") : "인사 상세정보"}
         children={
           <div className="min-w-0 space-y-4">
-            <SearchPanel formId={searchFormId} onSearch={handleSearch} pending={searchPending}>
+            <SearchPanel formId={searchFormId} onSearch={handleSearchWithDefaultSort} pending={searchPending}>
               <SearchField label="성명 / 사번" width="keyword">
                 {(id) => (
                   <Input
@@ -299,6 +306,7 @@ export default function ManagerPage() {
                 excel={excelSource}
                 columns={columns}
                 onLoadData={loadRows}
+                onGridReady={({ api }) => { gridApiRef.current = api; }}
                 onDataStateChanged={setGridState}
                 getRowId={personKey}
                 mobileHiddenColumns={MOBILE_HIDDEN_COLUMNS}

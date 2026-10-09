@@ -5,6 +5,7 @@ import type { WorshipTimeItem } from './worshipTimeModel';
 export function useWorshipTimeItems() {
   const [items, setItems] = useState<WorshipTimeItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadWorshipTimeItems = useCallback(async () => {
@@ -13,10 +14,12 @@ export function useWorshipTimeItems() {
     try {
       const data = await worshipTimeApi.getWorshipTimeItems();
       setItems(data);
+      setLoaded(true);
     } catch (e) {
       const message = e instanceof Error ? e.message : '조회 중 오류가 발생했습니다.';
       setError(message);
       setItems([]);
+      setLoaded(false);
     } finally {
       setLoading(false);
     }
@@ -65,6 +68,7 @@ export function useWorshipTimeItems() {
   return {
     items,
     loading,
+    loaded,
     error,
     loadWorshipTimeItems,
     saveWorshipTimeItems,

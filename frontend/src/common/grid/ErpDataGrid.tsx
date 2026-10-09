@@ -31,6 +31,7 @@ export function ErpDataGrid<TData>({
         {...props}
         mode="infinite"
         columns={numberedColumns}
+        allowColumnMoving
         defaultColDef={resolvedDefaults}
         pagination={false}
         height={props.height ?? "min(65dvh, 640px)"}

@@ -58,6 +58,8 @@ export interface GridProps<TData = any> {
   gridOptions?: GridOptions<TData>;
   /** 기본 컬럼 속성 (sortable, filter 등) - 페이지별 제어 가능 */
   defaultColDef?: ColDef<TData>;
+  /** 헤더 드래그로 열 순서를 바꾸는 기능을 허용할지 여부 */
+  allowColumnMoving?: boolean;
   height?: number | string;
   cacheBlockSize?: number;
   maxBlocksInCache?: number;

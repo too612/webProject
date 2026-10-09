@@ -1,9 +1,9 @@
 import {
   Fragment,
-  useCallback,
   useEffect,
   useRef,
   useState,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -31,9 +31,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useOfficialIndexData } from "./officialIndexHook";
-import type { BannerItem } from "./officialIndexModel";
+import OfficialIndexPopup from "./officialIndexPopup";
 import LiveBanner from "../worship/live/LiveBanner";
 import { liveApi } from "../worship/live/liveApi";
+import { parseLiveSermonTitle } from "../worship/live/liveModel";
 import { memberNewsApi } from "../news/member/memberApi";
 import { MEMBER_EVENT_TYPE_OPTIONS } from "../news/member/memberModel";
 
@@ -67,40 +68,30 @@ const SERMON_TABS: {
   key: SermonTabKey;
   label: string;
   icon: LucideIcon;
-  description: string;
-  imageUrl: string;
   category?: string;
 }[] = [
   {
     key: "sunday",
-    label: "주일낮설교",
+    label: "주일낮예배",
     icon: Tv,
-    description: "주일 낮 예배 설교 영상이 표시되는 영역입니다.",
-    imageUrl: "/img/official/index/sermon_01.png",
     category: "sunday_day",
   },
   {
     key: "sunday_evening",
-    label: "주일저녁설교",
+    label: "주일저녁예배",
     icon: MoonStar,
-    description: "주일 저녁 예배 설교 영상이 표시되는 영역입니다.",
-    imageUrl: "/img/official/index/sermon_04.png",
     category: "sunday_evening",
   },
   {
     key: "wednesday",
-    label: "수요설교",
+    label: "수요예배",
     icon: Calendar,
-    description: "수요 예배 설교 영상이 표시되는 영역입니다.",
-    imageUrl: "/img/official/index/sermon_02.png",
     category: "wednesday",
   },
   {
     key: "friday",
-    label: "금요설교",
+    label: "금요심야기도회",
     icon: Moon,
-    description: "금요 예배 설교 영상이 표시되는 영역입니다.",
-    imageUrl: "/img/official/index/sermon_03.png",
     category: "friday",
   },
 ];
@@ -111,6 +102,7 @@ type SermonMeta = {
   scripture: string;
   preacher: string;
   linkUrl: string;
+  thumbnailUrl: string;
 };
 
 const EMPTY_SERMON_META: SermonMeta = {
@@ -119,24 +111,8 @@ const EMPTY_SERMON_META: SermonMeta = {
   scripture: "",
   preacher: "",
   linkUrl: "",
+  thumbnailUrl: "",
 };
-
-/**
- * 설교 영상 제목을 '/' 기준으로 분리한다.
- * 예) "2026년 8월14일(금) 금요심야기도회 / 누가 내 이웃인가? / 누가복음 10:25-37 / 김형수담임목사#다사랑교회#..."
- * → { date: "2026년 8월14일(금) 금요심야기도회", title: "누가 내 이웃인가?", scripture: "누가복음 10:25-37", preacher: "김형수담임목사" }
- */
-function parseSermonTitle(rawTitle: string): Omit<SermonMeta, "linkUrl"> {
-  const parts = rawTitle.split("/").map(function (s) {
-    return s.trim();
-  });
-  return {
-    date: parts[0] ?? "",
-    title: parts[1] ?? "",
-    scripture: parts[2] ?? "",
-    preacher: parts[3] ? parts[3].split("#")[0].trim() : "",
-  };
-}
 
 function imgUrl(raw: unknown, fb: string): string {
   if (!raw || typeof raw !== "string") return fb;
@@ -164,13 +140,14 @@ function firstImg(html: unknown): string {
 
 /* ============================================================
    SermonTabSection — 방송설교 세그먼트 탭 섹션
-   - 상단 세그먼트 컨트롤 4개(주일낮설교 | 주일저녁설교 | 수요설교 | 금요설교)
-   - 하단 메인 영상에 탭별 이미지 + 최신 설교 텍스트 오버레이, 클릭 시 모달 재생
+   - 상단 세그먼트 컨트롤 4개(주일낮예배 | 주일저녁예배 | 수요예배 | 금요심야기도회)
+   - 하단 메인 영상에 최신 설교 썸네일과 정보를 표시하고 클릭 시 모달 재생
    - 주일/수요/금요 최신 영상 1개씩 조회 → 제목을 '/' 기준으로 분리하여 표시
    ============================================================ */
 function SermonTabSection() {
   const [tab, setTab] = useState<SermonTabKey>("sunday");
   const [playerUrl, setPlayerUrl] = useState<string | null>(null);
+  const sermonTabButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const [sermonMeta, setSermonMeta] = useState<
     Record<SermonTabKey, SermonMeta>
   >({
@@ -185,7 +162,7 @@ function SermonTabSection() {
       return t.key === tab;
     }) ?? SERMON_TABS[0];
 
-  // 주일/수요/금요 예배의 가장 최근 영상 1개씩을 조회해 제목을 '/' 기준으로 파싱한다.
+  // 각 예배의 최신 영상 정보와 제목 메타데이터를 함께 표시한다.
   useEffect(function () {
     let cancelled = false;
 
@@ -196,19 +173,21 @@ function SermonTabSection() {
         .then(function (items) {
           if (cancelled) return;
           const latest = items && items[0] ? items[0] : null;
-          if (latest && latest.title) {
-            const title = latest.title;
-            const linkUrl = latest.linkUrl ?? "";
+          if (latest) {
             setSermonMeta(function (prev) {
               return {
                 ...prev,
-                [t.key]: { ...parseSermonTitle(title), linkUrl },
+                [t.key]: {
+                  ...parseLiveSermonTitle(latest.title),
+                  linkUrl: latest.linkUrl ?? "",
+                  thumbnailUrl: imgUrl(latest.thumbnailUrl, ""),
+                },
               };
             });
           }
         })
         .catch(function () {
-          // 조회 실패 시 이미지만 노출 (텍스트 오버레이 없음)
+          // 조회에 실패하면 해당 카테고리의 기본 배경과 안내를 표시한다.
         });
     });
 
@@ -221,97 +200,133 @@ function SermonTabSection() {
 
   // 메인 영상 공통 스타일 (세그먼트 컨트롤 하단, 16:9)
   const mainBoxClass =
-    "relative block aspect-video w-full overflow-hidden border border-slate-200";
+    "group relative block aspect-video w-full overflow-hidden rounded-xl border border-slate-200 text-left";
 
-  // 이미지 위 텍스트 오버레이 (LEFT 5% / TOP 10%)
-  const overlayContent =
-    activeMeta &&
-    (activeMeta.title || activeMeta.scripture || activeMeta.preacher) ? (
-      <div className="absolute left-[5%] top-[10%] px-3 py-2.5 text-left text-brand-dark drop-shadow-sm sm:px-5 sm:py-4">
-        {/* 라벨: 주일설교메시지 / 수요설교메시지 / 금요설교메시지 */}
-        <p className="whitespace-nowrap text-[10px] font-semibold text-brand-primary sm:text-xs">
-          {activeTab.label}메시지
+  function handleSermonTabKeyDown(
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    let nextIndex: number | undefined;
+    if (event.key === "ArrowRight") {
+      nextIndex = (index + 1) % SERMON_TABS.length;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex = (index - 1 + SERMON_TABS.length) % SERMON_TABS.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = SERMON_TABS.length - 1;
+    }
+
+    if (nextIndex !== undefined) {
+      event.preventDefault();
+      setTab(SERMON_TABS[nextIndex].key);
+      sermonTabButtons.current[nextIndex]?.focus();
+    }
+  }
+
+  // 썸네일 위에 대비가 확보되는 하단 정보 영역을 겹쳐 표시한다.
+  const overlayContent = (
+    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/55 to-transparent px-4 pb-4 pt-16 text-left text-white sm:px-6 sm:pb-6 sm:pt-24">
+      <p className="text-[10px] font-semibold tracking-wide text-white/75 sm:text-xs">
+        {activeTab.label}
+      </p>
+      {activeMeta.title ? (
+        <p className="mt-1 line-clamp-2 text-lg font-bold leading-snug sm:text-2xl">
+          {activeMeta.title}
         </p>
-        {/* 설교 제목 (1.5배 확대) */}
-        {activeMeta.title && (
-          <p className="mt-1 text-[21px] font-bold leading-snug sm:text-[27px]">
-            {activeMeta.title}
-          </p>
-        )}
-        {/* 성경본문 / 설교자 */}
-        {(activeMeta.scripture || activeMeta.preacher) && (
-          <div className="mt-2 space-y-0.5 border-t border-brand-primary/30 pt-1.5 sm:mt-4 sm:pt-2">
-            {activeMeta.scripture && (
-              <p className="text-[10px] text-brand-muted sm:text-sm">
-                {activeMeta.scripture}
-              </p>
-            )}
-            {activeMeta.preacher && (
-              <p className="text-[10px] text-brand-muted sm:text-sm">
-                {activeMeta.preacher}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    ) : null;
+      ) : (
+        <p className="mt-1 text-sm font-medium text-white/90 sm:text-base">
+          최신 설교 영상을 확인해 보세요
+        </p>
+      )}
+      {(activeMeta.scripture || activeMeta.preacher || activeMeta.date) && (
+        <p className="mt-2 line-clamp-1 text-[10px] text-white/80 sm:text-sm">
+          {[activeMeta.scripture, activeMeta.preacher, activeMeta.date]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      )}
+    </div>
+  );
 
-  // 메인 네모 내부 콘텐츠 (이미지 + 오버레이)
+  const ActiveIcon = activeTab.icon;
   const mainBoxContent = (
     <>
-      <img
-        src={activeTab.imageUrl}
-        alt={activeTab.label}
-        className="h-full w-full object-contain"
-        onError={function (e) {
-          e.currentTarget.src = "/img/church-bg.svg";
-        }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-brand-dark" />
+      <ActiveIcon className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 text-white/20" />
+      {activeMeta.thumbnailUrl && (
+        <img
+          src={activeMeta.thumbnailUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={function (e) {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      )}
       {overlayContent}
-      {/* 유튜브 재생 버튼 오버레이 */}
-      <span className="absolute inset-0 flex items-center justify-center">
-        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm">
-          <Play className="h-7 w-7 translate-x-0.5" fill="currentColor" />
+      {activeMeta.linkUrl && (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-slate-900 shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
+            <Play className="h-7 w-7 translate-x-0.5" fill="currentColor" />
+          </span>
         </span>
-      </span>
+      )}
     </>
   );
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
       {/* 세그먼트 컨트롤 탭 (PC·모바일 공통 상단 배치) */}
-      <div
-        className="flex w-full gap-1 rounded-lg bg-slate-100 p-1"
-        role="tablist"
-        aria-label="방송설교 탭"
-      >
-        {SERMON_TABS.map(function (t) {
-          const selected = tab === t.key;
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.key}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={function () {
-                setTab(t.key);
-              }}
-              className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-                selected
-                  ? "bg-white text-brand-primary shadow-sm"
-                  : "text-slate-500 hover:text-brand-dark"
-              }`}
-            >
-              <Icon className="hidden h-4 w-4 sm:block" />
-              <span className="whitespace-nowrap">{t.label}</span>
-            </button>
-          );
-        })}
+      <div className="-mx-2 overflow-x-auto px-2 sm:mx-0 sm:px-0">
+        <div
+          className="flex min-w-max gap-1 rounded-lg bg-slate-100 p-1 sm:w-full"
+          role="tablist"
+          aria-label="예배 영상 종류"
+        >
+          {SERMON_TABS.map(function (t, index) {
+            const selected = tab === t.key;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.key}
+                id={`homepage-sermon-tab-${t.key}`}
+                ref={function (node) {
+                  sermonTabButtons.current[index] = node;
+                }}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-controls="homepage-sermon-panel"
+                tabIndex={selected ? 0 : -1}
+                onClick={function () {
+                  setTab(t.key);
+                }}
+                onKeyDown={function (event) {
+                  handleSermonTabKeyDown(event, index);
+                }}
+                className={`flex shrink-0 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary sm:flex-1 sm:px-2 sm:text-sm ${
+                  selected
+                    ? "bg-white text-brand-primary shadow-sm"
+                    : "text-slate-500 hover:text-brand-dark"
+                }`}
+              >
+                <Icon className="hidden h-4 w-4 sm:block" />
+                <span className="whitespace-nowrap">{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* 큰 메인 영상 — 클릭 시 모달 플레이어(라이트박스)로 재생 */}
-      <div className="relative min-w-0">
+      <div
+        id="homepage-sermon-panel"
+        role="tabpanel"
+        aria-labelledby={`homepage-sermon-tab-${tab}`}
+        tabIndex={0}
+        className="relative min-w-0 outline-none"
+      >
         {activeMeta.linkUrl ? (
           <button
             type="button"
@@ -367,128 +382,6 @@ function SermonTabSection() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ============================================================
-   PopupLayer — 개별 dismiss
-   ============================================================ */
-function PopupLayer({ popups }: Readonly<{ popups: BannerItem[] }>) {
-  const raw = Array.isArray(popups) ? popups : [];
-  const valid = raw.filter(function (p) {
-    if (!p.startDt && !p.endDt) return true;
-    const now = Date.now();
-    if (p.startDt) {
-      const sd = Date.parse(p.startDt);
-      if (!Number.isNaN(sd) && now < sd) return false;
-    }
-    if (p.endDt) {
-      const ed = Date.parse(p.endDt);
-      if (!Number.isNaN(ed) && now > ed) return false;
-    }
-    return true;
-  });
-  const [hidden, setHidden] = useState<Set<number>>(function () {
-    return new Set();
-  });
-  const todayKey = new Date().toDateString();
-
-  const dismissOne = useCallback(
-    function (i: number, opt: string) {
-      setHidden(function (prev) {
-        const next = new Set(prev);
-        next.add(i);
-        if (opt === "today")
-          sessionStorage.setItem("popup_dismissed_" + i, todayKey);
-        return next;
-      });
-    },
-    [todayKey],
-  );
-
-  const dismissAll = useCallback(
-    function (opt: string) {
-      setHidden(function () {
-        const all = new Set<number>();
-        for (let i = 0; i < valid.length; i++) all.add(i);
-        return all;
-      });
-      if (opt === "today") sessionStorage.setItem("popup_dismissed", todayKey);
-    },
-    [valid.length, todayKey],
-  );
-
-  const visible = valid.filter(function (_, i) {
-    return (
-      !hidden.has(i) &&
-      sessionStorage.getItem("popup_dismissed_" + i) !== todayKey
-    );
-  });
-  if (visible.length === 0) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-3 sm:p-4">
-      <div className="relative w-full sm:w-auto max-w-[420px] sm:max-w-none border-2 border-white/30 pt-10 bg-white/5">
-        <button
-          type="button"
-          onClick={function () {
-            dismissAll("close");
-          }}
-          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white hover:bg-gray-100 text-gray-600 rounded-full text-sm font-bold shadow"
-        >
-          <X className="h-4 w-4" />
-        </button>
-        <div className="flex flex-col sm:flex-row overflow-y-auto sm:overflow-x-auto max-h-[82vh] sm:max-h-none max-w-full px-1 sm:px-2 pb-2 gap-2 snap-y sm:snap-x">
-          {visible.map(function (p, vi) {
-            const origIdx = valid.indexOf(p);
-            const isLast = vi === visible.length - 1;
-            return (
-              <div
-                key={origIdx}
-                className="snap-start shrink-0 w-full sm:w-[360px] bg-white overflow-hidden shadow-2xl border-2 border-gray-200 flex flex-col"
-              >
-                <a
-                  href={
-                    p.linkUrl
-                      ? S(p.linkUrl)
-                      : "/news/banner/view?rqstNo=" + S(p.id)
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={imgUrl(p.imageUrl, "/img/church-bg.svg")}
-                    alt={S(p.title)}
-                    className="w-full aspect-[3/4] object-contain"
-                  />
-                </a>
-                <div className="flex border-t border-gray-100 text-xs">
-                  <button
-                    type="button"
-                    onClick={function () {
-                      dismissOne(origIdx, "today");
-                    }}
-                    className="flex-1 py-2.5 text-gray-500 hover:bg-gray-50"
-                  >
-                    {isLast ? "일주일 안보기" : "오늘 안보기"}
-                  </button>
-                  <div className="w-px bg-gray-100" />
-                  <button
-                    type="button"
-                    onClick={function () {
-                      dismissOne(origIdx, "close");
-                    }}
-                    className="flex-1 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    닫기
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }
@@ -873,7 +766,7 @@ function ChurchNewsCarousel({ items }: Readonly<{ items: ChurchNewsItem[] }>) {
 }
 
 /* ============================================================
-   GalleryAsymmetricGrid — 다사랑앨범 PC 비대칭 그리드 렌더러 (상당교회 갤러리 벤치마킹)
+   GalleryAsymmetricGrid — 다사랑앨범 PC 비대칭 그리드 렌더러
    - PC(lg 이상): 좌측 대형 1장 + 우측 2x2 소형 4장 비대칭 그리드
    - 모바일: React 상태 기반 드래그 캐러셀(클릭 유지 후 좌우 이동 시 인덱스 갱신)
    ============================================================ */
@@ -1207,7 +1100,11 @@ export default function OfficialIndexPage() {
 
   return (
     <>
-      <PopupLayer popups={indexData.popupBanners} />
+      <OfficialIndexPopup
+        popups={
+          Array.isArray(indexData.popupBanners) ? indexData.popupBanners : []
+        }
+      />
 
       {/* Hero */}
       <section className="relative overflow-hidden min-h-[260px] md:min-h-[360px] lg:min-h-[480px] bg-[#0f1c3f]">

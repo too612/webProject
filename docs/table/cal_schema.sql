@@ -17,7 +17,7 @@
 --   upd_ip    INET
 --
 -- 구분값(주일학교/청년부/장년부/교회)은 com_code(공통코드)로 관리한다.
---   - 부모코드 401 = 행사구분
+--   - 부모코드 201 = 행사구분 (총무관리 010-200 아래)
 --   - 각 구분값의 표시 색상은 com_code.extra1 에 저장 (예: sky/green/orange/indigo)
 --   - 구분값은 현재 구현 목적의 임의값이며, com_code 에 행만 추가/변경하면
 --     화면(필터/다이얼로그)에 자동 반영된다.
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS cal_event (
     event_key      CHAR(80) PRIMARY KEY
                    DEFAULT encode(gen_random_bytes(40), 'hex'),
 
-    category_cd    VARCHAR(30) NOT NULL,                 -- 구분값 (com_code.code, parent_code=401)
+    category_cd    VARCHAR(30) NOT NULL,                 -- 구분값 (com_code.code, parent_code=201)
     title          VARCHAR(200) NOT NULL,
     description    TEXT,
     start_dtm      TIMESTAMPTZ NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS cal_event (
 
 COMMENT ON TABLE cal_event IS '교회 행사 일정 마스터';
 COMMENT ON COLUMN cal_event.event_key IS '일정 내부키(40byte 난수 HEX 80자리)';
-COMMENT ON COLUMN cal_event.category_cd IS '행사 구분값(com_code.code, parent_code=401)';
+COMMENT ON COLUMN cal_event.category_cd IS '행사 구분값(com_code.code, parent_code=201)';
 COMMENT ON COLUMN cal_event.title IS '행사 제목';
 COMMENT ON COLUMN cal_event.description IS '행사 내용';
 COMMENT ON COLUMN cal_event.start_dtm IS '시작 일시';
@@ -85,17 +85,5 @@ CREATE INDEX IF NOT EXISTS ix_cal_event_reg_dtm
     ON cal_event (reg_dtm DESC);
 
 -- ---------------------------------------------------------------------
--- 2. 구분값(행사구분) 샘플 시드 - com_code 사용
---    ※ 실제 데이터는 docs/com_code_seed.sql 과 동일한 방식으로 관리한다.
+-- 2. 구분값(행사구분)은 com_code_seed.sql에서 일괄 등록한다.
 -- ---------------------------------------------------------------------
-INSERT INTO com_code (
-    code, code_name, parent_code, category_code, extra1, remark, use_yn, sort_order,
-    reg_user, reg_dtm, reg_ip, upd_user, upd_dtm, upd_ip
-) VALUES
-    ('010-400', '행사관리', '010', '400', NULL, '행사달력 구분 상위코드', 'Y', 40, 'SYSTEM', NOW(), '127.0.0.1', 'SYSTEM', NOW(), '127.0.0.1'),
-    ('401',     '행사구분', '010-400', '400', NULL, '교회 행사 구분값 그룹', 'Y', 10, 'SYSTEM', NOW(), '127.0.0.1', 'SYSTEM', NOW(), '127.0.0.1'),
-    ('401-010', '주일학교', '401', '400', 'sky',    '주일학교 행사', 'Y', 10, 'SYSTEM', NOW(), '127.0.0.1', 'SYSTEM', NOW(), '127.0.0.1'),
-    ('401-020', '청년부',   '401', '400', 'green',  '청년부 행사',   'Y', 20, 'SYSTEM', NOW(), '127.0.0.1', 'SYSTEM', NOW(), '127.0.0.1'),
-    ('401-030', '장년부',   '401', '400', 'orange', '장년부 행사',   'Y', 30, 'SYSTEM', NOW(), '127.0.0.1', 'SYSTEM', NOW(), '127.0.0.1'),
-    ('401-040', '교회',     '401', '400', 'indigo', '교회 공통 행사', 'Y', 40, 'SYSTEM', NOW(), '127.0.0.1', 'SYSTEM', NOW(), '127.0.0.1')
-ON CONFLICT (code) DO NOTHING;

@@ -5,9 +5,11 @@ import com.main.app.official.training.outreach.dto.OutreachRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface OutreachMapper {
-    OutreachDto selectOutreach();
+    List<OutreachDto> getInfo();
     int insertOutreach(OutreachRequest request);
     int updateOutreach(@Param("id") Long id, @Param("request") OutreachRequest request);
     int deleteOutreach(@Param("id") Long id);

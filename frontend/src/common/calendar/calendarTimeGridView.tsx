@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { isSameDay, isToday } from "date-fns";
 import type { CalendarEventOccurrence } from "./calendarTypes";
-import { colorHex, textColorForHex, WEEKDAY_LABELS } from "./calendarTypes";
+import { mutedColorHex, WEEKDAY_LABELS } from "./calendarTypes";
 import { DAY_END_HOUR, DAY_START_HOUR, HOUR_ROW_HEIGHT, isMultiDay } from "./calendarUtils";
 
 interface CalendarTimeGridViewProps {
@@ -18,7 +18,6 @@ interface LaidOutBlock {
 }
 
 const TIME_COL_WIDTH = 56; // px, 시간 라벨 컬럼 폭
-const GRID_COLS = `${TIME_COL_WIDTH}px repeat(7, minmax(0, 1fr))`;
 
 /** week 배열에서 date의 요일 인덱스. 범위 밖이면 isEnd에 따라 양끝으로 클램프 */
 function dayIndexInDays(days: Date[], date: Date, isEnd = false): number {
@@ -30,6 +29,7 @@ function dayIndexInDays(days: Date[], date: Date, isEnd = false): number {
 }
 
 export function CalendarTimeGridView({ days, occurrences, onSelectOccurrence, onSelectSlot }: CalendarTimeGridViewProps) {
+  const gridColumns = `${TIME_COL_WIDTH}px repeat(${days.length}, minmax(0, 1fr))`;
   const hours = useMemo(
     () => Array.from({ length: DAY_END_HOUR - DAY_START_HOUR }, (_, i) => DAY_START_HOUR + i),
     [],
@@ -68,21 +68,21 @@ export function CalendarTimeGridView({ days, occurrences, onSelectOccurrence, on
       {/* 요일 헤더 + 종일 바 + 시간 그리드가 같은 스크롤 컨테이너 안에 있어 세로줄 정렬이 유지됨 */}
       <div className="relative flex-1 overflow-y-auto">
         {/* 요일 헤더 (세로 스크롤 시 상단 고정) */}
-        <div className="sticky top-0 z-20 grid border-b bg-background" style={{ gridTemplateColumns: GRID_COLS }}>
-          <div className="px-2 py-2 text-xs font-medium text-muted-foreground" />
+        <div className="sticky top-0 z-20 grid border-b border-slate-200 bg-slate-50/90" style={{ gridTemplateColumns: gridColumns }}>
+          <div className="px-2 py-2 text-xs font-medium text-slate-500" />
           {days.map((day) => {
             const dow = day.getDay();
             const labelClass =
-              dow === 0 ? "text-red-500" : dow === 6 ? "text-blue-500" : "text-muted-foreground";
+              dow === 0 ? "text-rose-400" : dow === 6 ? "text-sky-500" : "text-slate-500";
             return (
               <div
                 key={day.toISOString()}
-                className={`border-r px-2 py-2 text-center last:border-r-0 ${isToday(day) ? "bg-primary/5" : ""}`}
+                className={`border-r border-slate-100 px-1 py-2 text-center last:border-r-0 sm:px-2 ${isToday(day) ? "bg-slate-50" : ""}`}
               >
                 <div className={`text-xs font-medium ${labelClass}`}>{WEEKDAY_LABELS[dow]}</div>
                 <div
                   className={`mx-auto mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm ${
-                    isToday(day) ? "bg-primary font-semibold text-primary-foreground" : ""
+                    isToday(day) ? "bg-slate-200 font-semibold text-slate-700" : "text-slate-600"
                   }`}
                 >
                   {day.getDate()}
@@ -95,36 +95,41 @@ export function CalendarTimeGridView({ days, occurrences, onSelectOccurrence, on
         {/* 종일 / 멀티데이 이벤트 바 (요일 열을 가로질러 연속 배치) */}
         {allDayBarLayout.length > 0 && (
           <div
-            className="grid gap-y-[2px] border-b py-1"
-            style={{ gridTemplateColumns: GRID_COLS, gridAutoRows: "auto", gridAutoFlow: "row" }}
+            className="grid gap-y-[2px] border-b border-slate-200 bg-slate-50/50 py-1"
+            style={{ gridTemplateColumns: gridColumns, gridAutoRows: "auto", gridAutoFlow: "row" }}
           >
             {allDayBarLayout.map(({ occ, lane, startCol, endCol }) => (
               <button
                 key={`${occ.event.id}-${lane}`}
                 onClick={(e) => onSelectOccurrence(occ, e.currentTarget)}
-                className="truncate rounded px-1.5 text-left text-[11px] font-medium leading-[18px] hover:opacity-90"
+                className="flex min-w-0 items-center gap-1 overflow-hidden rounded-md border-l-2 px-1.5 text-left text-[11px] font-medium leading-[18px] text-slate-700 hover:brightness-[0.98]"
                 style={{
                   gridColumn: `${startCol + 2} / ${endCol + 3}`,
                   gridRow: lane + 1,
                   marginLeft: startCol === 0 ? 0 : 2,
                   marginRight: endCol === days.length - 1 ? 0 : 2,
-                  backgroundColor: colorHex(occ.event.color),
-                  color: textColorForHex(colorHex(occ.event.color)),
+                  backgroundColor: `color-mix(in srgb, ${mutedColorHex(occ.event.color)} 14%, #f1f5f9)`,
+                  borderLeftColor: mutedColorHex(occ.event.color),
                 }}
               >
-                {occ.event.title}
+                <span className="min-w-0 flex-1 truncate">{occ.event.title}</span>
+                {occ.event.categoryName && (
+                  <span className="max-w-[40%] shrink-0 truncate text-[9px] opacity-90">
+                    · {occ.event.categoryName}
+                  </span>
+                )}
               </button>
             ))}
           </div>
         )}
 
-        <div className="relative grid" style={{ gridTemplateColumns: GRID_COLS }}>
-          <div className="border-r">
+        <div className="relative grid" style={{ gridTemplateColumns: gridColumns }}>
+          <div className="border-r border-slate-200">
             {hours.map((h) => (
               <div
                 key={h}
                 style={{ height: HOUR_ROW_HEIGHT }}
-                className="flex items-center justify-end border-b pr-2 text-[11px] text-muted-foreground"
+                className="flex items-center justify-end border-b border-slate-100 pr-2 text-[11px] text-slate-400"
               >
                 {String(h).padStart(2, "0")}:00
               </div>
@@ -140,13 +145,18 @@ export function CalendarTimeGridView({ days, occurrences, onSelectOccurrence, on
             return (
               <div
                 key={day.toISOString()}
-                className={`relative border-r last:border-r-0 ${isToday(day) ? "bg-primary/5" : ""}`}
+                className={`relative border-r border-slate-100 last:border-r-0 ${isToday(day) ? "bg-slate-50/60" : ""}`}
               >
                 {hours.map((h) => (
                   <button
                     key={h}
                     style={{ height: HOUR_ROW_HEIGHT }}
-                    className="block w-full border-b hover:bg-muted/40"
+                    className="block w-full border-b border-slate-100 hover:bg-slate-100/70"
+                    aria-label={`${day.toLocaleDateString("ko-KR", {
+                      month: "long",
+                      day: "numeric",
+                      weekday: "long",
+                    })} ${String(h).padStart(2, "0")}시 일정 추가`}
                     onClick={() => {
                       const slotStart = new Date(day);
                       slotStart.setHours(h, 0, 0, 0);
@@ -168,7 +178,7 @@ export function CalendarTimeGridView({ days, occurrences, onSelectOccurrence, on
             );
           })}
 
-          <NowLine />
+          <NowLine days={days} />
         </div>
       </div>
     </div>
@@ -176,8 +186,10 @@ export function CalendarTimeGridView({ days, occurrences, onSelectOccurrence, on
 }
 
 /** 현재 시간 위치에 표시하는 빨간 가로선 + 시각 배지 */
-function NowLine() {
+function NowLine({ days }: { days: Date[] }) {
   const now = new Date();
+  const todayIndex = days.findIndex((day) => isSameDay(day, now));
+  if (todayIndex < 0) return null;
   const minutes = now.getHours() * 60 + now.getMinutes();
   const top = (minutes / 60) * HOUR_ROW_HEIGHT;
   const maxTop = (DAY_END_HOUR - DAY_START_HOUR) * HOUR_ROW_HEIGHT;
@@ -188,9 +200,16 @@ function NowLine() {
     hour12: false,
   });
   return (
-    <div className="pointer-events-none absolute left-14 right-0 z-10" style={{ top }}>
-      <div className="h-0.5 bg-red-500" />
-      <span className="absolute left-0 top-0 -translate-y-1/2 rounded bg-red-500 px-1 py-px text-[10px] font-semibold leading-3 text-white">
+    <div
+      className="pointer-events-none absolute z-10"
+      style={{
+        top,
+        left: `calc(${(todayIndex / days.length) * 100}% + ${TIME_COL_WIDTH * (1 - todayIndex / days.length)}px)`,
+        width: `calc(${100 / days.length}% - ${TIME_COL_WIDTH / days.length}px)`,
+      }}
+    >
+      <div className="h-px bg-rose-400/80" />
+      <span className="absolute left-0 top-0 -translate-y-1/2 rounded bg-rose-500 px-1 py-px text-[10px] font-semibold leading-3 text-white">
         {timeLabel}
       </span>
     </div>
@@ -223,14 +242,15 @@ function EventBlock({
         e.stopPropagation();
         onClick(e.currentTarget);
       }}
-      className="absolute overflow-hidden rounded-md px-2 py-1 text-left shadow-sm ring-1 ring-white/20"
+      className="absolute overflow-hidden rounded-md border-l-2 px-2 py-1 text-left shadow-sm"
       style={{
         top,
         height: Math.max(height, 20),
         left: `${col * widthPct}%`,
         width: `calc(${widthPct}% - 4px)`,
-        backgroundColor: colorHex(occ.event.color),
-        color: textColorForHex(colorHex(occ.event.color)),
+        backgroundColor: `color-mix(in srgb, ${mutedColorHex(occ.event.color)} 14%, #f1f5f9)`,
+        borderLeftColor: mutedColorHex(occ.event.color),
+        color: "#475569",
       }}
     >
       <div className="truncate text-[11px] font-semibold leading-tight">
@@ -238,7 +258,14 @@ function EventBlock({
         {" - "}
         {occ.occurrenceEnd.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false })}
       </div>
-      <div className="truncate text-[11px] leading-tight">{occ.event.title}</div>
+      <div className="flex min-w-0 items-center gap-1 text-[11px] leading-tight">
+        <span className="min-w-0 flex-1 truncate">{occ.event.title}</span>
+        {occ.event.categoryName && (
+          <span className="max-w-[40%] shrink-0 truncate text-[9px] opacity-90">
+            {occ.event.categoryName}
+          </span>
+        )}
+      </div>
     </button>
   );
 }
@@ -275,4 +302,3 @@ function layoutOverlaps(occs: CalendarEventOccurrence[]): LaidOutBlock[] {
   }
   return result;
 }
-

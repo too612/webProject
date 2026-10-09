@@ -6,14 +6,18 @@ import com.main.app.official.news.mission.dto.MissionRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController("newsMissionController")
 @RequestMapping("/api/official/news/mission")
 @RequiredArgsConstructor
 public class MissionController {
     private final MissionService missionService;
 
-    @GetMapping
-    public ApiResponse<MissionDto> getMission() { return ApiResponse.ok(missionService.getMission()); }
+    @GetMapping("/getInfo")
+    public ApiResponse<List<MissionDto>> getInfo() {
+        return ApiResponse.ok(missionService.getInfo());
+    }
 
     @PostMapping
     public ApiResponse<Void> createMission(@RequestBody MissionRequest request) throws Exception {

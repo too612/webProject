@@ -27,8 +27,11 @@ const CoursePage = lazy(() => import("../official/training/course/coursePage"));
 const ServiceGroupPage = lazy(
   () => import("../official/training/servicegroup/serviceGroupPage"),
 );
-const WorshipTimePage = lazy(
-  () => import("../official/worship/time/worshipTimePage"),
+const WorshipTimeView = lazy(
+  () => import("../official/worship/time/worshipTimeView"),
+);
+const WorshipTimeWrite = lazy(
+  () => import("../official/worship/time/worshipTimeWrite"),
 );
 const LivePage = lazy(() => import("../official/worship/live/livePage"));
 const SermonsList = lazy(
@@ -121,7 +124,8 @@ export const officialRoutes: RouteObject[] = [
         path: "worship",
         element: <SubmenuLayout />,
         children: [
-          { path: "time", element: <WorshipTimePage /> },
+          { path: "time", element: <WorshipTimeView /> },
+          { path: "time/write", element: <WorshipTimeWrite /> },
           { path: "live", element: <LivePage /> },
           { path: "sermons", element: <SermonsList /> },
           { path: "sermons/view", element: <SermonsView /> },

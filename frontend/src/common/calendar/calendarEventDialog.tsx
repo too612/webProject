@@ -12,20 +12,13 @@ import { Textarea } from "@/common/ui/textarea";
 import { Label } from "@/common/ui/label";
 import { Switch } from "@/common/ui/switch";
 import { Button } from "@/common/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/common/ui/select";
 import type {
   CalendarCategory,
   CalendarEvent,
   EventColorId,
   EventFormValues,
 } from "./calendarTypes";
-import { colorHex } from "./calendarTypes";
+import { mutedColorHex } from "./calendarTypes";
 import { fromDateTimeLocalInput, toDateTimeLocalInput } from "./calendarUtils";
 
 interface CalendarEventDialogProps {
@@ -35,7 +28,7 @@ interface CalendarEventDialogProps {
   initialEvent?: CalendarEvent | null;
   defaultStart?: Date | null;
   onSubmit: (values: EventFormValues) => void | Promise<void>;
-  onDelete?: (eventId: string) => void | Promise<void>;
+  onDelete?: (eventId: string) => boolean | void | Promise<boolean | void>;
 }
 
 const DEFAULT_DURATION_MIN = 60;
@@ -59,6 +52,7 @@ export function CalendarEventDialog({
   const [allDay, setAllDay] = useState(false);
   const [location, setLocation] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -101,6 +95,14 @@ export function CalendarEventDialog({
       setFormError("시작/종료 일시를 입력해주세요.");
       return;
     }
+    if (
+      !Number.isFinite(new Date(start).getTime()) ||
+      !Number.isFinite(new Date(end).getTime()) ||
+      new Date(end).getTime() <= new Date(start).getTime()
+    ) {
+      setFormError("종료 일시는 시작 일시보다 늦어야 합니다.");
+      return;
+    }
     setSaving(true);
     setFormError(null);
     try {
@@ -125,22 +127,26 @@ export function CalendarEventDialog({
 
   async function handleDelete() {
     if (!initialEvent || !onDelete) return;
+    setDeleting(true);
     try {
-      await onDelete(initialEvent.id);
+      const deleted = await onDelete(initialEvent.id);
+      if (deleted === false) return;
       onOpenChange(false);
     } catch {
       // 삭제 실패 시 다이얼로그 유지
+    } finally {
+      setDeleting(false);
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 fixed bottom-12 left-1/2 top-auto -translate-x-1/2 translate-y-0 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="border-b px-6 py-4">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-2xl border-slate-200 p-0">
+        <DialogHeader className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 sm:px-6">
           <DialogTitle>{isEditing ? "일정 수정" : "새 일정"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-4">
+        <div className="space-y-4 px-5 py-4 text-slate-600 sm:px-6">
           <div className="space-y-1.5">
             <Label htmlFor="cal-event-title">제목</Label>
             <Input
@@ -152,24 +158,39 @@ export function CalendarEventDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label>구분</Label>
-            <Select value={categoryCode} onValueChange={setCategoryCode}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="구분을 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c.code} value={c.code}>
-                    <span className="inline-flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: colorHex(c.color) }} />
-                      {c.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: colorHex(activeColor) }} />
+            <Label id="cal-event-category-label">구분</Label>
+            {categories.length > 0 ? (
+              <div className="flex flex-wrap gap-2" role="group" aria-labelledby="cal-event-category-label">
+                {categories.map((category) => {
+                  const selected = categoryCode === category.code;
+                  return (
+                    <button
+                      key={category.code}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => setCategoryCode(category.code)}
+                      className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors ${
+                        selected
+                          ? "border-slate-300 bg-slate-100 text-slate-700"
+                          : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: mutedColorHex(category.color) }}
+                      />
+                      {category.name || category.code}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">
+                선택 가능한 구분값이 없습니다. 관리자에게 문의해주세요.
+              </p>
+            )}
+            <p className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: mutedColorHex(activeColor) }} />
               구분값에 따라 색상이 자동 지정됩니다.
             </p>
           </div>
@@ -193,6 +214,7 @@ export function CalendarEventDialog({
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
                 disabled={allDay}
+                min={start || undefined}
               />
             </div>
           </div>
@@ -223,20 +245,24 @@ export function CalendarEventDialog({
             />
           </div>
 
-          {formError && <p className="text-sm text-destructive">{formError}</p>}
+          {formError && (
+            <p role="alert" className="text-sm text-destructive">
+              {formError}
+            </p>
+          )}
         </div>
 
-        <DialogFooter className="border-t px-6 py-4">
+        <DialogFooter className="border-t border-slate-200 px-5 py-4 sm:px-6">
           {isEditing && initialEvent && onDelete && (
-            <Button variant="destructive" type="button" onClick={handleDelete} className="mr-auto gap-1.5">
+            <Button variant="destructive" type="button" onClick={handleDelete} disabled={deleting || saving} className="mr-auto gap-1.5">
               <Trash2 className="h-4 w-4" />
-              삭제
+              {deleting ? "삭제 중..." : "삭제"}
             </Button>
           )}
           <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
             취소
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={saving}>
+          <Button type="button" onClick={handleSubmit} disabled={saving || deleting}>
             {saving ? "저장 중..." : "저장"}
           </Button>
         </DialogFooter>

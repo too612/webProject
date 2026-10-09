@@ -1,0 +1,125 @@
+.official-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+}
+
+.official-popup-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 2101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  outline: none;
+}
+
+.official-popup-shell {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: white;
+  color: var(--color-brand-dark);
+  box-shadow: 0 8px 24px #00000026;
+}
+
+.official-popup-header {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.official-popup-row {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.official-popup-card {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+
+.official-popup-image {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.official-popup-image[data-scroll="true"] {
+  display: block;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.official-popup-image[data-scroll="true"] a {
+  margin-top: 0;
+}
+
+.official-popup-image a {
+  display: block;
+  flex: none;
+  margin: auto;
+}
+
+.official-popup-image img {
+  display: block;
+  max-width: none;
+}
+
+.official-popup-footer {
+  display: flex;
+  min-height: 44px;
+  margin-top: auto;
+  border-top: 1px solid #e2e8f0;
+}
+
+.official-popup-button {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.official-popup-button:hover {
+  background: #f1f5f9;
+}
+
+.official-popup-button:focus-visible,
+.official-popup-image:focus-visible,
+.official-popup-image a:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: -3px;
+}
+
+.official-popup-button:disabled {
+  opacity: 0.35;
+}
+
+.official-popup-navigation {
+  display: flex;
+  min-height: 45px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e2e8f0;
+}

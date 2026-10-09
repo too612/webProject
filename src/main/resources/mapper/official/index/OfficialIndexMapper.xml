@@ -38,7 +38,7 @@
         FROM com_post cp
         WHERE cp.menu_key = 'BANNER' AND cp.template_code = 'POPUP'
           AND cp.status = 'PUBLISHED' AND cp.is_deleted = FALSE
-        ORDER BY cp.order_no ASC LIMIT 5
+        ORDER BY cp.order_no ASC
     </select>
 
     <select id="selectRecentBulletins" resultType="com.main.app.official.index.dto.OfficialIndexDto$Item">

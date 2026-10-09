@@ -7,7 +7,7 @@
  * - 백엔드(/official/worship/live/stream)에서 라이브 상태를 조회합니다.
  * - 방송 중(live=true)일 때만 배너를 렌더링하고, 클릭 시 해당 라이브 영상으로 이동합니다.
  * - 방송이 아니거나 조회에 실패하면 화면에 아무것도 표시하지 않습니다.
- * - 디자인: 흰색 스트립 + LIVE 배지 + 원형 재생 아이콘 + 2줄 안내 문구
+ * - 디자인: 얇은 회색 테두리의 라운드 카드와 LIVE 상태 안내
  */
 
 import { useEffect, useState } from "react";
@@ -49,65 +49,51 @@ export default function LiveBanner() {
     : (status?.channelUrl ?? LIVE_CHANNEL_URL);
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label="유튜브 실시간 예배 방송 시청하기"
-      className="
-        flex w-full flex-col items-center justify-center gap-1
-        bg-white
-        px-3 py-3
-        text-center
-        focus-visible:outline-none
-        focus-visible:ring-2
-        focus-visible:ring-[#5C6BC0]
-        focus-visible:ring-offset-2
-      "
-    >
-      {/* 첫 번째 줄 */}
-      <div className="flex items-center justify-center gap-2 whitespace-nowrap sm:gap-3">
-        {/* 빨간 점 (점멸) */}
-        <span className="relative flex h-[15px] w-[15px]">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF2D55] opacity-70"></span>
-          <span className="relative inline-flex h-[15px] w-[15px] rounded-full bg-[#FF2D55]"></span>
+    <div className="bg-white px-4 py-4 sm:py-5">
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="유튜브 실시간 예배 방송 시청하기"
+        className="
+          mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-3
+          rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center
+          shadow-sm transition-colors hover:border-slate-300
+          focus-visible:outline-none focus-visible:ring-2
+          focus-visible:ring-[#5C6BC0] focus-visible:ring-offset-2
+          sm:gap-2 sm:px-8 sm:py-5
+        "
+      >
+        <div className="flex items-center justify-center gap-3">
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-500 opacity-60 motion-reduce:animate-none"></span>
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+          </span>
+          <span className="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold tracking-wide text-rose-600">
+            LIVE
+          </span>
+          <span className="text-lg font-semibold text-slate-900 sm:text-xl">
+            지금은 방송 중입니다
+          </span>
+        </div>
+
+        <span className="flex items-center gap-2 text-sm font-medium text-slate-500">
+          클릭하여 실시간 예배 시청하기
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="shrink-0 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          >
+            <circle cx="12" cy="12" r="9.5" />
+            <path d="m10 8 6 4-6 4V8Z" fill="currentColor" stroke="none" />
+          </svg>
         </span>
-
-        {/* LIVE 배지 */}
-        <span className="inline-flex items-center rounded bg-[#FF2D55] px-3 py-1 text-lg font-bold text-white">
-          LIVE
-        </span>
-
-        {/* 메인 문구 */}
-        <span className="text-xl font-bold text-gray-900 sm:text-2xl">
-          지금은 방송 중입니다
-        </span>
-
-        {/* 원형 + 채워진 삼각형 재생 아이콘 */}
-        <svg
-          width="30"
-          height="30"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          className="shrink-0"
-        >
-          {/* 원형 테두리 */}
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            fill="white"
-            stroke="#5C6BC0"
-            strokeWidth="2"
-          />
-
-          {/* 채워진 재생 삼각형 */}
-          <path d="M10 8L17 12L10 16V8Z" fill="#5C6BC0" />
-        </svg>
-      </div>
-
-      {/* 두 번째 줄 */}
-      <p className="text-lg text-gray-500">클릭하여 실시간 예배 시청하기</p>
-    </a>
+      </a>
+    </div>
   );
 }

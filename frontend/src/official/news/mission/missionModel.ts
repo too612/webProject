@@ -7,7 +7,7 @@ export type MissionarySummary = {
   description: string;
 };
 
-export type MissionaryApiResponse = {
+export type MissionApiResponse = {
   employeeNo: string;
   name: string;
   country: string;

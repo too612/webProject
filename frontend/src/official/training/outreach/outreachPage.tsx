@@ -11,6 +11,7 @@ import { useOutreachContent } from "./outreachHook";
 import {
   DEFAULT_OUTREACH_CONTENT,
   OUTREACH_OFFERING_ACCOUNT,
+  hasOutreachCoordinates,
 } from "./outreachModel";
 import { OutreachMap } from "./OutreachMap";
 
@@ -75,6 +76,28 @@ export default function OutreachPage() {
         <div className="space-y-5">
           <section>
             <OutreachMap activities={activities} />
+            <p className="px-1 pt-2 text-xs text-slate-600">
+              {content.missionSectionDescription}
+            </p>
+            <p className="px-1 pt-1 text-[11px] text-slate-500">
+              국가 대표 좌표 출처:{" "}
+              <a href="https://developers.google.com/public-data/docs/canonical/countries_csv"
+                target="_blank" rel="noopener noreferrer" className="underline">
+                Google Public Data
+              </a>
+              {" / "}
+              <a href="https://www.geonames.org/" target="_blank"
+                rel="noopener noreferrer" className="underline">
+                GeoNames
+              </a>
+              {" (CC BY 4.0)"}
+            </p>
+            {activities.some((activity) => !hasOutreachCoordinates(activity)) && (
+              <p role="status" className="px-1 pt-1 text-xs text-amber-700">
+                국가 대표 좌표가 없거나 올바르지 않은 항목은 지도에 표시되지 않습니다.
+                선교사 목록에서는 확인할 수 있습니다.
+              </p>
+            )}
             <div className="px-1 pt-4">
               <h3 className="text-slate-900 text-2xl md:text-4xl font-extrabold leading-tight md:leading-snug max-w-2xl">
                 {bannerTitleParts[0]}

@@ -26,6 +26,10 @@ export function colorHex(id: string): string {
   return EVENT_COLORS.find((c) => c.id === id)?.hex ?? EVENT_COLORS[7].hex;
 }
 
+export function mutedColorHex(id: string): string {
+  return `color-mix(in srgb, ${colorHex(id)} 62%, #94a3b8)`;
+}
+
 /** 배경색(hex) 기준으로 읽기 좋은 글자색을 반환 (밝은 배경=어두운 글자) */
 export function textColorForHex(hex: string): string {
   const value = hex.replace("#", "");

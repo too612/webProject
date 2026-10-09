@@ -13,6 +13,8 @@ CREATE TABLE sys_country_code (
   country_name_en VARCHAR(100) NOT NULL,
   flag_emoji CHAR(2) NOT NULL,
   region_code VARCHAR(20),
+  map_latitude NUMERIC(9, 6),
+  map_longitude NUMERIC(10, 6),
   
   -- Status
   use_yn CHAR(1) NOT NULL DEFAULT 'Y' CHECK (use_yn IN ('Y', 'N')),
@@ -24,7 +26,13 @@ CREATE TABLE sys_country_code (
   reg_user_ip VARCHAR(50),
   upd_user VARCHAR(50) NOT NULL,
   upd_dtm TIMESTAMP NOT NULL DEFAULT NOW(),
-  upd_user_ip VARCHAR(50)
+  upd_user_ip VARCHAR(50),
+  CONSTRAINT chk_country_map_coordinate_pair CHECK (
+    (map_latitude IS NULL AND map_longitude IS NULL)
+    OR (map_latitude IS NOT NULL AND map_longitude IS NOT NULL)
+  ),
+  CONSTRAINT chk_country_map_latitude CHECK (map_latitude BETWEEN -90 AND 90),
+  CONSTRAINT chk_country_map_longitude CHECK (map_longitude BETWEEN -180 AND 180)
 );
 
 -- Indexes
@@ -38,5 +46,7 @@ COMMENT ON COLUMN sys_country_code.country_name_ko IS '국가명(한글)';
 COMMENT ON COLUMN sys_country_code.country_name_en IS '국가명(영문)';
 COMMENT ON COLUMN sys_country_code.flag_emoji IS '국기 이모지 (2글자, 예: 🇰🇷)';
 COMMENT ON COLUMN sys_country_code.region_code IS '지역코드 (ASIA, AMERICA, EUROPE, AFRICA, OCEANIA, MIDDLE_EAST)';
+COMMENT ON COLUMN sys_country_code.map_latitude IS '지도 표시용 국가 대표 위도 (WGS84), 실제 파견지 아님';
+COMMENT ON COLUMN sys_country_code.map_longitude IS '지도 표시용 국가 대표 경도 (WGS84), 실제 파견지 아님';
 COMMENT ON COLUMN sys_country_code.use_yn IS '사용여부 (Y/N)';
 COMMENT ON COLUMN sys_country_code.sort_order IS '정렬순서';

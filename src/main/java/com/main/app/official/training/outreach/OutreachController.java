@@ -6,14 +6,18 @@ import com.main.app.official.training.outreach.dto.OutreachRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/official/training/outreach")
 @RequiredArgsConstructor
 public class OutreachController {
     private final OutreachService outreachService;
 
-    @GetMapping
-    public ApiResponse<OutreachDto> getOutreach() { return ApiResponse.ok(outreachService.getOutreach()); }
+    @GetMapping("/getInfo")
+    public ApiResponse<List<OutreachDto>> getInfo() {
+        return ApiResponse.ok(outreachService.getInfo());
+    }
 
     @PostMapping
     public ApiResponse<Void> createOutreach(@RequestBody OutreachRequest request) throws Exception {

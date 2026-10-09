@@ -6,13 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MissionService {
     private final MissionMapper missionMapper;
 
     @Transactional(readOnly = true)
-    public MissionDto getMission() { return missionMapper.selectMission(); }
+    public List<MissionDto> getInfo() {
+        return missionMapper.getInfo();
+    }
 
     @Transactional
     public void createMission(MissionRequest request) throws Exception {

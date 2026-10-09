@@ -1,15 +1,16 @@
+import { useEffect, useState } from "react";
 import { AlignLeft, MapPin, Pencil, Trash2, X } from "lucide-react";
 import { Popover, PopoverAnchor, PopoverContent } from "@/common/ui/popover";
 import { Button } from "@/common/ui/button";
 import type { CalendarEventOccurrence } from "./calendarTypes";
-import { colorHex, textColorForHex } from "./calendarTypes";
+import { mutedColorHex } from "./calendarTypes";
 
 interface CalendarEventDetailPopoverProps {
   anchor: HTMLElement | null;
   occurrence: CalendarEventOccurrence | null;
   onClose: () => void;
   onEdit: (occ: CalendarEventOccurrence) => void;
-  onDelete: (occ: CalendarEventOccurrence) => void;
+  onDelete: (occ: CalendarEventOccurrence) => boolean | void | Promise<boolean | void>;
 }
 
 export function CalendarEventDetailPopover({
@@ -20,6 +21,27 @@ export function CalendarEventDetailPopover({
   onDelete,
 }: CalendarEventDetailPopoverProps) {
   const open = Boolean(anchor && occurrence);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDeleteError(null);
+  }, [occurrence?.event.id]);
+
+  async function handleDelete() {
+    if (!occurrence) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await onDelete(occurrence);
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error ? error.message : "일정을 삭제하지 못했습니다.",
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <Popover open={open} onOpenChange={(v) => !v && onClose()}>
@@ -36,12 +58,12 @@ export function CalendarEventDetailPopover({
         />
       </PopoverAnchor>
       {occurrence && (
-        <PopoverContent className="w-80 p-4" side="right" align="start">
+        <PopoverContent className="w-80 rounded-xl border-slate-200 bg-white p-4 text-slate-700 shadow-lg" side="right" align="start">
           <div className="mb-2 flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
               <span
                 className="h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: colorHex(occurrence.event.color) }}
+                style={{ backgroundColor: mutedColorHex(occurrence.event.color) }}
               />
               <h3 className="text-base font-semibold leading-tight">{occurrence.event.title}</h3>
             </div>
@@ -52,8 +74,9 @@ export function CalendarEventDetailPopover({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive"
-                onClick={() => onDelete(occurrence)}
+                className="h-7 w-7 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
+                onClick={() => void handleDelete()}
+                disabled={deleting}
                 aria-label="삭제"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -64,8 +87,14 @@ export function CalendarEventDetailPopover({
             </div>
           </div>
 
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p className="text-foreground">
+          {deleteError && (
+            <p role="alert" className="mt-3 text-xs text-rose-700">
+              {deleteError}
+            </p>
+          )}
+
+          <div className="space-y-2 text-sm text-slate-500">
+            <p className="text-slate-600">
               {occurrence.occurrenceStart.toLocaleDateString("ko-KR", {
                 month: "long",
                 day: "numeric",
@@ -80,13 +109,12 @@ export function CalendarEventDetailPopover({
             {occurrence.event.categoryName && (
               <p className="flex items-center gap-1.5">
                 <span
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                  style={{
-                    backgroundColor: colorHex(occurrence.event.color),
-                    color: textColorForHex(colorHex(occurrence.event.color)),
-                  }}
+                  className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: mutedColorHex(occurrence.event.color) }}
+                  />
                   {occurrence.event.categoryName}
                 </span>
               </p>
@@ -102,7 +130,7 @@ export function CalendarEventDetailPopover({
             {occurrence.event.description && (
               <p className="flex items-start gap-2">
                 <AlignLeft className="mt-0.5 h-4 w-4 shrink-0" />
-                <span className="text-foreground">{occurrence.event.description}</span>
+                <span className="text-slate-600">{occurrence.event.description}</span>
               </p>
             )}
           </div>

@@ -38,16 +38,16 @@ export function CalendarHeader({
   const [pickerYear, setPickerYear] = useState(currentDate.getFullYear());
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-background px-4 py-3">
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={onToday}>
+    <div className="flex flex-col gap-3 border-b border-slate-200 bg-white px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+      <div className="flex min-w-0 items-center gap-1.5">
+        <Button variant="outline" size="sm" onClick={onToday} className="shrink-0 rounded-lg border-slate-200 text-slate-700 hover:bg-slate-50">
           오늘
         </Button>
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onPrev} aria-label="이전">
+        <div className="flex shrink-0 items-center">
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-600 hover:bg-slate-100" onClick={onPrev} aria-label="이전 기간">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onNext} aria-label="다음">
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-600 hover:bg-slate-100" onClick={onNext} aria-label="다음 기간">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -62,13 +62,13 @@ export function CalendarHeader({
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="ml-1 text-lg font-semibold tracking-tight hover:underline"
+              className="ml-1 truncate rounded-md px-1 text-left text-lg font-semibold tracking-tight text-slate-700 outline-none hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-slate-300 sm:text-xl"
               title="연도/월 이동"
             >
               {title}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-3" align="start">
+          <PopoverContent className="w-64 rounded-xl border-slate-200 bg-white p-3 text-slate-700 shadow-lg" align="start">
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
@@ -103,9 +103,9 @@ export function CalendarHeader({
                       onMonthSelect(pickerYear, m);
                       setPickerOpen(false);
                     }}
-                    className={`rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted ${
+                    className={`rounded-md px-2 py-1.5 text-sm text-slate-600 transition-colors hover:bg-slate-100 ${
                       isCurrent
-                        ? "bg-primary font-semibold text-primary-foreground"
+                        ? "bg-slate-200 font-semibold text-slate-800"
                         : ""
                     }`}
                   >
@@ -118,23 +118,25 @@ export function CalendarHeader({
         </Popover>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="flex rounded-md border p-0.5">
+      <div className="flex items-center justify-between gap-2 sm:justify-end">
+        <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5" role="group" aria-label="달력 보기 선택">
           {VIEW_OPTIONS.map((opt) => (
             <button
               key={opt.value}
+              type="button"
+              aria-pressed={view === opt.value}
               onClick={() => onViewChange(opt.value)}
-              className={`rounded-[4px] px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
                 view === opt.value
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted"
+                  ? "bg-white text-slate-700 shadow-sm"
+                  : "text-slate-500 hover:bg-white/70 hover:text-slate-800"
               }`}
             >
               {opt.label}
             </button>
           ))}
         </div>
-        <Button size="sm" onClick={onCreateEvent} className="gap-1.5">
+        <Button size="sm" onClick={onCreateEvent} className="gap-1.5 rounded-lg bg-slate-700 text-white hover:bg-slate-600">
           <Plus className="h-4 w-4" />
           새 일정
         </Button>

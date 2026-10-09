@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, addMonths, endOfMonth, endOfWeek, startOfMonth, startOfWeek, subMonths } from "date-fns";
+import { Search, X } from "lucide-react";
 import { CalendarHeader } from "./calendarHeader";
 import { CalendarMonthView } from "./calendarMonthView";
 import { CalendarTimeGridView } from "./calendarTimeGridView";
 import { CalendarListView } from "./calendarListView";
 import { CalendarEventDialog } from "./calendarEventDialog";
 import { CalendarEventDetailPopover } from "./calendarEventDetailPopover";
-import { colorHex } from "./calendarTypes";
+import { mutedColorHex } from "./calendarTypes";
 import type {
   CalendarCategory,
   CalendarEvent,
@@ -46,6 +47,7 @@ export function EventCalendar({
 
   const [detailAnchor, setDetailAnchor] = useState<HTMLElement | null>(null);
   const [detailOccurrence, setDetailOccurrence] = useState<CalendarEventOccurrence | null>(null);
+  const [search, setSearch] = useState("");
 
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
     () => new Set(categories.map((c) => c.code)),
@@ -79,14 +81,45 @@ export function EventCalendar({
     setCurrentDate(new Date(year, month - 1, 1));
   }
 
-  const visibleEvents = useMemo(
-    () => events.filter((e) => selectedCategories.has(e.categoryCode)),
-    [events, selectedCategories],
-  );
-
   const { rangeStart, rangeEnd, headerTitle, gridDays } = useMemo(
     () => computeRange(view, currentDate),
     [view, currentDate],
+  );
+
+  const rangeOccurrences = useMemo(
+    () => expandEventsToRange(events, rangeStart, rangeEnd),
+    [events, rangeStart, rangeEnd],
+  );
+
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const occurrence of rangeOccurrences) {
+      counts.set(
+        occurrence.event.categoryCode,
+        (counts.get(occurrence.event.categoryCode) ?? 0) + 1,
+      );
+    }
+    return counts;
+  }, [rangeOccurrences]);
+
+  const normalizedSearch = search.trim().toLocaleLowerCase("ko-KR");
+  const visibleEvents = useMemo(
+    () =>
+      events.filter((event) => {
+        if (!selectedCategories.has(event.categoryCode)) return false;
+        if (!normalizedSearch) return true;
+        const searchable = [
+          event.title,
+          event.description,
+          event.location,
+          event.categoryName,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLocaleLowerCase("ko-KR");
+        return searchable.includes(normalizedSearch);
+      }),
+    [events, normalizedSearch, selectedCategories],
   );
 
   const occurrences = useMemo(
@@ -130,14 +163,25 @@ export function EventCalendar({
     else await onCreateEvent?.(values);
   }
 
-  async function handleDelete(eventId: string) {
+  async function handleDelete(eventId: string): Promise<boolean> {
+    const event = events.find((item) => item.id === eventId);
+    if (
+      !window.confirm(
+        event
+          ? `"${event.title}" 일정을 삭제하시겠습니까?`
+          : "이 일정을 삭제하시겠습니까?",
+      )
+    ) {
+      return false;
+    }
     await onDeleteEvent?.(eventId);
     setDetailAnchor(null);
     setDetailOccurrence(null);
+    return true;
   }
 
   return (
-    <div className={`flex h-full flex-col border-b bg-background ${className ?? ""}`}>
+    <div className={`flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70 shadow-sm ${className ?? ""}`}>
       <CalendarHeader
         title={headerTitle}
         view={view}
@@ -150,43 +194,71 @@ export function EventCalendar({
         onMonthSelect={handleMonthSelect}
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-b bg-muted/20 px-4 py-2">
-        <button
-          type="button"
-          onClick={toggleAllCategories}
-          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-            allSelected
-              ? "border-transparent bg-foreground text-background"
-              : "border-border text-muted-foreground hover:bg-muted"
-          }`}
-        >
-          전체
-        </button>
-        {categories.map((c) => {
-          const active = selectedCategories.has(c.code);
-          const count = events.filter((e) => e.categoryCode === c.code).length;
-          return (
+      <div className="space-y-3 border-b border-slate-200 bg-slate-50/70 px-3 py-3 sm:px-4">
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="행사 구분 필터">
+          <button
+            type="button"
+            aria-pressed={allSelected}
+            onClick={toggleAllCategories}
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-1 ${
+              allSelected
+                ? "border-slate-300 bg-slate-200 text-slate-700"
+                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-100"
+            }`}
+          >
+            전체
+          </button>
+          {categories.map((c) => {
+            const active = selectedCategories.has(c.code);
+            const count = categoryCounts.get(c.code) ?? 0;
+            return (
+              <button
+                key={c.code}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggleCategory(c.code)}
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-1 ${
+                  active
+                    ? "border-slate-200 bg-white text-slate-700 shadow-sm"
+                    : "border-transparent bg-transparent text-slate-500 hover:border-slate-200 hover:bg-white"
+                }`}
+              >
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: mutedColorHex(c.color) }} />
+                {c.name}
+                <span className="rounded-full bg-slate-100 px-1.5 text-[10px] tabular-nums text-slate-500">
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <label className="relative block sm:max-w-xs">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="행사명, 장소, 내용 검색"
+            aria-label="행사 검색"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-9 text-sm text-slate-700 outline-none placeholder:text-slate-400 focus:border-slate-300 focus:ring-2 focus:ring-slate-100"
+          />
+          {search && (
             <button
-              key={c.code}
               type="button"
-              onClick={() => toggleCategory(c.code)}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                active
-                  ? "border-transparent bg-muted"
-                  : "border-border text-muted-foreground opacity-60 hover:opacity-100"
-              }`}
+              onClick={() => setSearch("")}
+              aria-label="검색어 지우기"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
             >
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: colorHex(c.color) }} />
-              {c.name}
-              <span className="rounded-full bg-background/70 px-1.5 text-[10px] tabular-nums text-muted-foreground">
-                {count}
-              </span>
+              <X aria-hidden="true" className="h-4 w-4" />
             </button>
-          );
-        })}
+          )}
+        </label>
       </div>
 
-      <div className="min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1">
         {view === "month" && (
           <CalendarMonthView
             monthDate={currentDate}
@@ -205,6 +277,11 @@ export function EventCalendar({
         )}
         {view === "list" && (
           <CalendarListView occurrences={occurrences} onSelectOccurrence={handleSelectOccurrence} />
+        )}
+        {view !== "list" && occurrences.length === 0 && (
+          <p className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-slate-200 bg-white/95 px-4 py-2 text-center text-sm text-slate-500 shadow-sm">
+            선택한 조건에 해당하는 일정이 없습니다.
+          </p>
         )}
       </div>
 

@@ -200,7 +200,7 @@ test("최초·추가 블록 로딩 구분, NO 51, 추가 로딩 중 재검색", 
   expect(state.errors).toEqual([]);
 });
 
-test("목록 오류는 0건과 구분하고 재시도, 직급·직위 서버 정렬", async ({ page }) => {
+test("검색 시 XML 기본 정렬로 초기화하고 이후 헤더 정렬을 서버에 전달", async ({ page }) => {
   const state = await setup(page);
   state.failList = true;
   await openManager(page);
@@ -210,11 +210,58 @@ test("목록 오류는 0건과 구분하고 재시도, 직급·직위 서버 정
   await grid(page).getByRole("button", { name: "다시 시도" }).click();
   await ready(page);
   await expect(grid(page).getByRole("alert")).toHaveCount(0);
-  for (const field of ["gradeName", "positionName"]) {
-    await grid(page).locator(`.ag-header-cell[col-id="${field}"]`).click();
-    await expect.poll(() => state.lists.at(-1)?.searchParams.get("sortField")).toBe(field);
-    await expect(page.getByRole("button", { name: "조회", exact: true })).toBeEnabled();
-  }
+  expect(state.lists.at(-1)?.searchParams.has("sortField")).toBe(false);
+  expect(state.lists.at(-1)?.searchParams.has("sortDirection")).toBe(false);
+  const gradeHeader = grid(page).locator('.ag-header-cell[col-id="gradeName"]');
+  await gradeHeader.click();
+  await expect.poll(() => state.lists.at(-1)?.searchParams.get("sortField")).toBe("gradeName");
+  await expect.poll(() => state.lists.at(-1)?.searchParams.get("sortDirection")).toBe("asc");
+  await gradeHeader.click();
+  await expect.poll(() => state.lists.at(-1)?.searchParams.get("sortDirection")).toBe("desc");
+
+  await searchPanel(page).getByLabel("성명 / 사번").fill("직원 00");
+  await page.getByRole("button", { name: "조회", exact: true }).click();
+  await ready(page);
+  expect(state.lists.at(-1)?.searchParams.has("sortField")).toBe(false);
+  expect(state.lists.at(-1)?.searchParams.has("sortDirection")).toBe(false);
+  await expect(gradeHeader).not.toHaveClass(/ag-header-cell-sorted-(asc|desc)/);
+  expect(state.errors).toEqual([]);
+});
+
+test("ERP 헤더에서 열 이동과 열 너비 조절을 허용", async ({ page }) => {
+  const state = await setup(page);
+  await openManager(page);
+  await ready(page);
+
+  const source = grid(page).locator('.ag-header-cell[col-id="employeeNo"]');
+  const target = grid(page).locator('.ag-header-cell[col-id="gradeName"]');
+  const sourceBox = await source.boundingBox();
+  const targetBox = await target.boundingBox();
+  if (!sourceBox || !targetBox) throw new Error("이동 대상 헤더가 표시되지 않았습니다.");
+  expect(sourceBox.x).toBeLessThan(targetBox.x);
+  const startX = sourceBox.x + sourceBox.width / 2;
+  const headerY = sourceBox.y + sourceBox.height / 2;
+  await page.mouse.move(startX, headerY);
+  await page.mouse.down();
+  await page.mouse.move(startX + 8, headerY, { steps: 2 });
+  await page.mouse.move(targetBox.x + targetBox.width - 2, headerY, { steps: 12 });
+  await page.mouse.up();
+  await expect.poll(async () => (await source.boundingBox())?.x)
+    .toBeGreaterThan((await target.boundingBox())!.x);
+
+  const employeeHeader = grid(page).locator('.ag-header-cell[col-id="employeeNo"]');
+  const initialWidth = (await employeeHeader.boundingBox())?.width;
+  const resizeHandle = employeeHeader.locator(".ag-header-cell-resize");
+  const handleBox = await resizeHandle.boundingBox();
+  if (initialWidth == null || !handleBox) throw new Error("사번 헤더 크기를 확인할 수 없습니다.");
+  const handleX = handleBox.x + handleBox.width / 2;
+  const handleY = handleBox.y + handleBox.height / 2;
+  await page.mouse.move(handleX, handleY);
+  await page.mouse.down();
+  await page.mouse.move(handleX - 35, handleY, { steps: 5 });
+  await page.mouse.up();
+  await expect.poll(async () => (await employeeHeader.boundingBox())?.width)
+    .toBeLessThan(initialWidth);
   expect(state.errors).toEqual([]);
 });
 

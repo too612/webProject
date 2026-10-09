@@ -85,8 +85,7 @@ export function useManagerPage() {
         ...appliedQuery,
         page,
         size,
-        sortField: sort?.colId ?? "employeeNo",
-        sortDirection: sort?.sort ?? "asc",
+        ...(sort ? { sortField: sort.colId, sortDirection: sort.sort ?? "asc" } : {}),
       }, signal);
       if (!signal?.aborted) excelState.current = { token: result.excelToken };
       return { rows: result.items, totalCount: result.totalElements };
