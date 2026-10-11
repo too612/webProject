@@ -40,6 +40,11 @@
           LEFT JOIN hrm_org_dept hd
                ON hp.dept_cd = hd.dept_cd
               AND hd.use_yn = 'Y'
+              AND hd.reorg_key = (
+                  SELECT reorg_key FROM hrm_org_reorg
+                  WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+                  ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+              )
           WHERE hp.grade_code IS NOT NULL
           AND hp.service_status_code = '101-010'
         ORDER BY

@@ -70,10 +70,15 @@
             FROM hrm_org_dept
             WHERE dept_cd = #{parentDeptCd}
               AND use_yn = 'Y'
+              AND reorg_key = (
+                  SELECT reorg_key FROM hrm_org_reorg
+                  WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+                  ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+              )
             LIMIT 1
         )
           AND child.use_yn = 'Y'
-        ORDER BY child.dept_cd
+        ORDER BY child.sort_order, child.dept_cd
     </select>
 
     <select id="selectCellMembers" parameterType="string" resultMap="cellGroupMemberResultMap">
@@ -96,6 +101,11 @@
               AND position_code.use_yn = 'Y'
         WHERE person.dept_cd = #{deptCode}
           AND person.service_status_code = '101-010'
+          AND dept.reorg_key = (
+              SELECT reorg_key FROM hrm_org_reorg
+              WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+              ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+          )
         ORDER BY
             CASE WHEN person.employee_no = dept.chef_emp_no THEN 0 ELSE 1 END,
             COALESCE(grade_code.sort_order, position_code.sort_order, 9999),

@@ -24,6 +24,11 @@
             hp.hire_date AS hire_date
         FROM hrm_person hp
         LEFT JOIN hrm_org_dept d ON hp.dept_cd = d.dept_cd AND d.use_yn = 'Y'
+            AND d.reorg_key = (
+                SELECT reorg_key FROM hrm_org_reorg
+                WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+                ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+            )
         LEFT JOIN com_code grade ON hp.grade_code = grade.code AND grade.parent_code = '102' AND grade.use_yn = 'Y'
         LEFT JOIN com_code position ON hp.position_code = position.code AND position.parent_code = '103' AND position.use_yn = 'Y'
         LEFT JOIN com_code employment ON hp.employment_type_code = employment.code AND employment.parent_code = '104' AND employment.use_yn = 'Y'
@@ -87,7 +92,12 @@
         SELECT dept_cd AS code, dept_nm AS name
         FROM hrm_org_dept
         WHERE use_yn = 'Y'
-        ORDER BY dept_level, dept_nm
+          AND reorg_key = (
+              SELECT reorg_key FROM hrm_org_reorg
+              WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+              ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+          )
+        ORDER BY dept_level, sort_order, dept_nm
     </select>
 
     <select id="selectPersonDetail" resultType="com.main.app.erp.humen.manager.dto.ManagerDto$PersonDetail">
@@ -106,6 +116,11 @@
             hp.ai_profile ->> 'summary' AS ai_summary
         FROM hrm_person hp
         LEFT JOIN hrm_org_dept d ON hp.dept_cd = d.dept_cd AND d.use_yn = 'Y'
+            AND d.reorg_key = (
+                SELECT reorg_key FROM hrm_org_reorg
+                WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+                ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+            )
         LEFT JOIN com_code grade ON hp.grade_code = grade.code AND grade.parent_code = '102' AND grade.use_yn = 'Y'
         LEFT JOIN com_code position ON hp.position_code = position.code AND position.parent_code = '103' AND position.use_yn = 'Y'
         LEFT JOIN com_code employment ON hp.employment_type_code = employment.code AND employment.parent_code = '104' AND employment.use_yn = 'Y'
@@ -127,6 +142,7 @@
 
     <select id="selectAssignmentList" resultType="com.main.app.erp.humen.manager.dto.ManagerDto$Assignment">
         SELECT a.assignment_key AS assignment_key, a.assignment_date AS assignment_date,
+               a.assignment_order AS assignment_order,
                a.assignment_end_date AS assignment_end_date, assignment_type.code_name AS assignment_type_name,
                d.dept_nm AS dept_name, grade.code_name AS grade_name, position.code_name AS position_name,
                job_title.code_name AS job_title_name, a.assignment_content AS assignment_content,
@@ -135,11 +151,17 @@
         LEFT JOIN com_code assignment_type ON a.assignment_type_code = assignment_type.code
              AND assignment_type.parent_code = '105' AND assignment_type.use_yn = 'Y'
         LEFT JOIN hrm_org_dept d ON a.dept_cd = d.dept_cd AND d.use_yn = 'Y'
+            AND d.reorg_key = (
+                SELECT reorg_key FROM hrm_org_reorg
+                WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+                ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+            )
         LEFT JOIN com_code grade ON a.grade_code = grade.code AND grade.parent_code = '102' AND grade.use_yn = 'Y'
         LEFT JOIN com_code position ON a.position_code = position.code AND position.parent_code = '103' AND position.use_yn = 'Y'
         LEFT JOIN com_code job_title ON a.job_title_code = job_title.code AND job_title.parent_code = '106' AND job_title.use_yn = 'Y'
         WHERE a.person_key = #{personKey} AND a.del_yn = 'N'
-        ORDER BY a.assignment_date DESC, a.assignment_key
+          AND a.concurrent_assignment_yn = 'N'
+        ORDER BY a.assignment_date DESC, a.assignment_order DESC, a.assignment_key
     </select>
 
     <select id="countByEmployeeNo" resultType="int">

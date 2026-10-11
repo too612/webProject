@@ -46,6 +46,7 @@ public class MyProfileDto {
     public static class Assignment {
         private String assignmentKey;
         private String assignmentDate;
+        private Integer assignmentOrder;
         private String assignmentEndDate;
         private String assignmentTypeName;
         private String deptName;

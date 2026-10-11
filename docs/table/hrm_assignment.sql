@@ -1,9 +1,9 @@
 -- PostgreSQL DDL: hrm_assignment
 -- 발령 테이블
+-- 기존 데이터를 유지하는 기본 스키마. 신규/기존 설치 모두 seed 이후
+-- hrm_assignment_migration.sql을 실행하여 순서/버전/겸임 마스터를 추가한다.
 
-DROP TABLE IF EXISTS hrm_assignment CASCADE;
-
-CREATE TABLE hrm_assignment (
+CREATE TABLE IF NOT EXISTS hrm_assignment (
   -- Primary Key
   assignment_key CHAR(80) PRIMARY KEY NOT NULL,
   
@@ -45,22 +45,28 @@ CREATE TABLE hrm_assignment (
 );
 
 -- Indexes
-CREATE INDEX idx_hrm_assignment_person_key ON hrm_assignment(person_key);
-CREATE INDEX idx_hrm_assignment_employee_no ON hrm_assignment(employee_no);
-CREATE INDEX idx_hrm_assignment_assignment_date ON hrm_assignment(assignment_date);
-CREATE INDEX idx_hrm_assignment_assignment_type_code ON hrm_assignment(assignment_type_code);
-CREATE INDEX idx_hrm_assignment_grade_code ON hrm_assignment(grade_code);
-CREATE INDEX idx_hrm_assignment_dispatch_country_code ON hrm_assignment(dispatch_country_code);
-CREATE INDEX idx_hrm_assignment_del_yn ON hrm_assignment(del_yn);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_person_key ON hrm_assignment(person_key);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_employee_no ON hrm_assignment(employee_no);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_assignment_date ON hrm_assignment(assignment_date);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_assignment_type_code ON hrm_assignment(assignment_type_code);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_grade_code ON hrm_assignment(grade_code);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_dispatch_country_code ON hrm_assignment(dispatch_country_code);
+CREATE INDEX IF NOT EXISTS idx_hrm_assignment_del_yn ON hrm_assignment(del_yn);
 
 -- Foreign Key Constraints
+DO $$ BEGIN
+IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='hrm_assignment'::regclass AND conname='fk_hrm_assignment_person_key') THEN
 ALTER TABLE hrm_assignment
 ADD CONSTRAINT fk_hrm_assignment_person_key
 FOREIGN KEY (person_key) REFERENCES hrm_person(person_key) ON DELETE CASCADE ON UPDATE CASCADE;
+END IF;
 
+IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='hrm_assignment'::regclass AND conname='fk_hrm_assignment_dispatch_country_code') THEN
 ALTER TABLE hrm_assignment
 ADD CONSTRAINT fk_hrm_assignment_dispatch_country_code
 FOREIGN KEY (dispatch_country_code) REFERENCES sys_country_code(country_code) ON DELETE SET NULL ON UPDATE CASCADE;
+END IF;
+END $$;
 
 COMMENT ON TABLE hrm_assignment IS '발령 정보';
 COMMENT ON COLUMN hrm_assignment.assignment_key IS '발령키 (80글자 HEX, UUID 형식)';

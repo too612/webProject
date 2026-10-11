@@ -431,6 +431,9 @@ export default function MyProfilePage() {
                     </div>
                     <div className="shrink-0 text-sm text-slate-500">
                       {formatDate(assignment.assignmentDate)}
+                      {assignment.assignmentOrder !== undefined && (
+                        <span className="ml-2">{assignment.assignmentOrder}차</span>
+                      )}
                       {assignment.assignmentEndDate
                         ? ` - ${formatDate(assignment.assignmentEndDate)}`
                         : ""}

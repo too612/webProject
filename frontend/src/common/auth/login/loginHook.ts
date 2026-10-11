@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../authHook";
 import { loginApi } from "./loginApi";
@@ -21,9 +21,11 @@ export function useLogin() {
     locationState?.registeredMessage ? "success" : "error",
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (submittingRef.current) return;
     setFeedbackMessage("");
 
     if (!username.trim()) {
@@ -38,6 +40,7 @@ export function useLogin() {
       return;
     }
 
+    submittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -64,6 +67,7 @@ export function useLogin() {
           : "아이디 또는 비밀번호를 확인해 주세요.",
       );
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.scheduler.SchedulerMapper">
+
+    <sql id="jobColumns">
+        job_code              AS jobCode
+       ,job_name              AS jobName
+       ,cron_expression       AS cronExpression
+       ,zone_id               AS zoneId
+       ,business_code         AS businessCode
+       ,is_enabled            AS enabled
+       ,run_on_startup        AS runOnStartup
+       ,catchup_enabled       AS catchupEnabled
+       ,lock_timeout_seconds  AS lockTimeoutSeconds
+       ,last_started_at       AS lastStartedAt
+       ,last_success_at       AS lastSuccessAt
+       ,last_status           AS lastStatus
+    </sql>
+
+    <select id="getJobList" resultType="com.main.app.common.scheduler.dto.SchedulerJobDto">
+        SELECT <include refid="jobColumns"/>
+          FROM sys_scheduler_job
+         WHERE is_active = TRUE
+           AND is_deleted = FALSE
+         ORDER BY job_code
+    </select>
+
+    <select id="getJobInfo" resultType="com.main.app.common.scheduler.dto.SchedulerJobDto">
+        SELECT <include refid="jobColumns"/>
+          FROM sys_scheduler_job
+         WHERE job_code = #{jobCode}
+           AND is_active = TRUE
+           AND is_deleted = FALSE
+    </select>
+
+    <select id="getActivePauseList" resultType="com.main.app.common.scheduler.dto.SchedulerPauseDto">
+        SELECT pause_id       AS pauseId
+              ,job_code       AS jobCode
+              ,pause_start_at AS pauseStartAt
+              ,pause_end_at   AS pauseEndAt
+              ,reason
+          FROM sys_scheduler_pause
+         WHERE is_active = TRUE
+           AND is_deleted = FALSE
+           AND (job_code = #{jobCode} OR job_code IS NULL)
+           AND pause_start_at &lt;= #{now}
+           AND pause_end_at &gt; #{now}
+         ORDER BY pause_end_at DESC
+    </select>
+
+    <select id="getActiveBusinessHoldList" resultType="com.main.app.common.scheduler.dto.SchedulerBusinessHoldDto">
+        SELECT hold_id       AS holdId
+              ,business_code AS businessCode
+              ,hold_start_at AS holdStartAt
+              ,hold_end_at   AS holdEndAt
+              ,reason
+          FROM sys_scheduler_business_hold
+         WHERE is_active = TRUE
+           AND is_deleted = FALSE
+           AND business_code = #{businessCode}
+           AND hold_start_at &lt;= #{now}
+           AND hold_end_at &gt; #{now}
+         ORDER BY hold_end_at DESC
+    </select>
+
+    <!-- 행 단위 원자적 UPDATE로 lease 잠금을 획득한다. 동시 UPDATE는 행 잠금 대기 후 WHERE를 재평가하므로 1개 인스턴스만 성공한다. -->
+    <update id="setAcquireLock">
+        UPDATE sys_scheduler_job
+           SET lock_owner = #{owner}
+              ,locked_at  = NOW()
+              ,lock_until = NOW() + make_interval(secs => #{leaseSeconds})
+         WHERE job_code = #{jobCode}
+           AND is_active = TRUE
+           AND is_deleted = FALSE
+           AND (lock_until IS NULL OR lock_until &lt; NOW())
+    </update>
+
+    <!-- 실행 중 lease 갱신(heartbeat). 소유자가 바뀌었으면 0건이 되어 lease 상실로 판정한다. -->
+    <update id="setRenewLock">
+        UPDATE sys_scheduler_job
+           SET lock_until = NOW() + make_interval(secs => #{leaseSeconds})
+         WHERE job_code   = #{jobCode}
+           AND lock_owner = #{owner}
+    </update>
+    <update id="setReleaseLock">
+        UPDATE sys_scheduler_job
+           SET lock_owner = NULL
+              ,locked_at  = NULL
+              ,lock_until = NULL
+         WHERE job_code = #{jobCode}
+           AND lock_owner = #{owner}
+    </update>
+
+    <insert id="setHistoryCreate" parameterType="com.main.app.common.scheduler.dto.SchedulerHistoryDto"
+            useGeneratedKeys="true" keyProperty="historyId" keyColumn="history_id">
+        INSERT INTO sys_scheduler_history (
+            job_code, trigger_type, status, scheduled_at, started_at, finished_at,
+            duration_ms, processed_count, message, error_message, instance_id
+        ) VALUES (
+            #{jobCode}, #{triggerType}, #{status}, #{scheduledAt}, #{startedAt}, #{finishedAt},
+            #{durationMs}, #{processedCount}, #{message}, #{errorMessage}, #{instanceId}
+        )
+    </insert>
+
+    <update id="setHistoryUpdate" parameterType="com.main.app.common.scheduler.dto.SchedulerHistoryDto">
+        UPDATE sys_scheduler_history
+           SET status          = #{status}
+              ,finished_at     = #{finishedAt}
+              ,duration_ms     = #{durationMs}
+              ,processed_count = #{processedCount}
+              ,message         = #{message}
+              ,error_message   = #{errorMessage}
+         WHERE history_id = #{historyId}
+    </update>
+
+    <update id="setJobStarted">
+        UPDATE sys_scheduler_job
+           SET last_started_at = #{startedAt}
+              ,last_status     = 'RUNNING'
+         WHERE job_code = #{jobCode}
+    </update>
+
+    <update id="setJobFinished">
+        UPDATE sys_scheduler_job
+           SET last_finished_at = #{finishedAt}
+              ,last_status      = #{status}
+              ,last_message     = #{message}
+              <if test="success">
+              ,last_success_at  = #{finishedAt}
+              </if>
+         WHERE job_code = #{jobCode}
+    </update>
+</mapper>

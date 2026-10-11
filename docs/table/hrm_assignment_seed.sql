@@ -38,7 +38,7 @@
     ad.assignment_type_code,
     ad.dept_cd,
     ad.employment_type_code,
-    ad.grade_code,
+    COALESCE(ad.grade_code, hp.grade_code, '102-050'),
     ad.position_code,
     ad.job_title_code,
     ad.assignment_content,

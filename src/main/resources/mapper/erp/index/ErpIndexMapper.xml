@@ -19,6 +19,11 @@
         SELECT COUNT(*)
           FROM hrm_org_dept
          WHERE use_yn = 'Y'
+            AND reorg_key = (
+                SELECT reorg_key FROM hrm_org_reorg
+                WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+                ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+            )
     </select>
 
     <select id="selectNewMemberCount" resultType="long">
@@ -85,6 +90,11 @@
           LEFT JOIN hrm_org_dept d
             ON d.dept_cd = p.dept_cd
            AND d.use_yn = 'Y'
+           AND d.reorg_key = (
+               SELECT reorg_key FROM hrm_org_reorg
+               WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+               ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+           )
          WHERE p.service_status_code = '101-010'
          GROUP BY COALESCE(d.dept_cd, ''), COALESCE(d.dept_nm, '미분류')
          ORDER BY COUNT(*) DESC, department, "departmentCode"

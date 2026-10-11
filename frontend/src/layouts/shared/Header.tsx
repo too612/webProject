@@ -312,7 +312,7 @@ export default function Header() {
                 {/* 버튼 고유의 회색 각진 테두리와 탁한 배경을 전면 몰수하고(bg-transparent border-0), 마우스를 올리면 클릭형 커서(cursor-pointer)로 반응하게 개조한 로그아웃 방출 버튼입니다. */}
                 <button
                   type="button"
-                  onClick={clearAuth}
+                  onClick={() => clearAuth()}
                   className="hover:text-brand-primary transition-colors bg-transparent border-0 cursor-pointer text-sm text-inherit p-0"
                 >
                   로그아웃
@@ -541,7 +541,7 @@ export default function Header() {
                 <span className="footer-separator">|</span>
                 <button
                   type="button"
-                  onClick={clearAuth} // 터치 터치 시 브라우저 내에 잔존하던 토큰 및 세션 키 스토어를 공중 분해시키고 초기 게스트 모드로 상태를 환원시키는 강제 퇴출 함수 가동
+                  onClick={() => clearAuth()}
                   className="mobile-footer-action bg-transparent border-0 cursor-pointer text-inherit p-0"
                 >
                   로그아웃

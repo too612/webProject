@@ -45,8 +45,20 @@ class ErpIndexDatabaseTest {
                           AND reg_dtm < DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month'
                         """, Long.class));
         assertThat(data.getDepartmentCount())
-                .isEqualTo(jdbcTemplate.queryForObject(
-                        "SELECT COUNT(*) FROM hrm_org_dept WHERE use_yn = 'Y'", Long.class));
+                .isEqualTo(jdbcTemplate.queryForObject("""
+                        SELECT COUNT(*)
+                        FROM hrm_org_dept
+                        WHERE use_yn = 'Y'
+                          AND reorg_key = (
+                              SELECT reorg_key
+                              FROM hrm_org_reorg
+                              WHERE reorg_dt <= CURRENT_DATE
+                                AND conf_yn = 'Y'
+                                AND use_yn = 'Y'
+                              ORDER BY reorg_dt DESC, reg_dtm DESC
+                              LIMIT 1
+                          )
+                        """, Long.class));
     }
 
     @Test

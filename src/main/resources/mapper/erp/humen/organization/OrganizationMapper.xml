@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.erp.humen.organization.OrganizationMapper">
+
+    <select id="selectReorgList" resultType="com.main.app.erp.humen.organization.dto.OrganizationDto$Reorg">
+        SELECT r.reorg_key, r.reorg_dt, r.conf_yn, r.use_yn, r.reorg_title, r.remark,
+               COUNT(d.dept_key)::int AS department_count
+        FROM hrm_org_reorg r
+        LEFT JOIN hrm_org_dept d ON d.reorg_key = r.reorg_key AND d.use_yn = 'Y'
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (r.reorg_title ILIKE '%' || #{keyword} || '%'
+                     OR r.remark ILIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+        GROUP BY r.reorg_key
+        ORDER BY r.reorg_dt DESC, r.reg_dtm DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countReorgList" resultType="long">
+        SELECT COUNT(*)
+        FROM hrm_org_reorg r
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (r.reorg_title ILIKE '%' || #{keyword} || '%'
+                     OR r.remark ILIKE '%' || #{keyword} || '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="countReorgByDate" resultType="int">
+        SELECT COUNT(*) FROM hrm_org_reorg WHERE reorg_dt = CAST(#{reorgDt} AS DATE)
+    </select>
+
+    <select id="selectReorg" resultType="com.main.app.erp.humen.organization.dto.OrganizationDto$ReorgDetail">
+        SELECT r.reorg_key, r.reorg_dt, r.conf_yn, r.use_yn, r.reorg_title, r.remark,
+               (SELECT COUNT(*) FROM hrm_org_dept d WHERE d.reorg_key = r.reorg_key AND d.use_yn = 'Y')::int
+               AS department_count
+        FROM hrm_org_reorg r
+        WHERE r.reorg_key = #{reorgKey}
+    </select>
+
+    <select id="lockReorg" resultType="string">
+        SELECT reorg_key
+        FROM hrm_org_reorg
+        WHERE reorg_key = #{reorgKey}
+        FOR UPDATE
+    </select>
+
+    <select id="selectActiveReorgKey" resultType="string">
+        SELECT reorg_key
+        FROM hrm_org_reorg
+        WHERE reorg_dt &lt;= CAST(#{baseDate} AS DATE)
+          AND conf_yn = 'Y'
+          AND use_yn = 'Y'
+        ORDER BY reorg_dt DESC, reg_dtm DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectDepartmentList" resultType="com.main.app.erp.humen.organization.dto.OrganizationDto$Department">
+        SELECT d.dept_key, d.reorg_key, d.dept_cd, d.dept_nm, d.eng_dept_nm, d.parent_dept_key,
+               d.dept_level, d.sort_order, d.change_type_cd, d.chef_emp_no, p.name_ko AS chef_name,
+               d.dept_sys_cd, d.use_yn,
+               (SELECT COUNT(*) FROM hrm_person member WHERE member.dept_cd = d.dept_cd) AS member_count
+        FROM hrm_org_dept d
+        LEFT JOIN hrm_person p ON p.employee_no = d.chef_emp_no
+        WHERE d.reorg_key = #{reorgKey} AND d.use_yn = 'Y'
+        ORDER BY d.dept_level, d.sort_order, d.dept_cd
+    </select>
+
+    <select id="selectDepartmentHistory" resultType="com.main.app.erp.humen.organization.dto.OrganizationDto$DepartmentHistory">
+        SELECT dept_hist_key, reorg_key, org_dept_key, chg_dept_key, org_dept_cd, org_dept_level,
+               chg_dept_cd, chg_dept_level, change_type_cd, change_note, reg_dtm
+        FROM hrm_org_dept_hist
+        WHERE reorg_key = #{reorgKey}
+        ORDER BY reg_dtm DESC
+    </select>
+
+    <select id="insertReorg" resultType="string">
+        INSERT INTO hrm_org_reorg (reorg_dt, reorg_title, remark, reg_user)
+        VALUES (CAST(#{request.reorgDt} AS DATE), #{request.reorgTitle}, #{request.remark}, #{regUser})
+        RETURNING reorg_key
+    </select>
+
+    <select id="nextDepartmentCode" resultType="string">
+        SELECT 'D' || LPAD((COALESCE(MAX(NULLIF(SUBSTRING(dept_cd FROM 2), '')::bigint), 0) + 1)::text, 6, '0')
+        FROM hrm_org_dept
+        WHERE dept_cd ~ '^D[0-9]+$'
+    </select>
+
+    <select id="nextSiblingSortOrder" resultType="int">
+        SELECT COALESCE(MAX(sort_order), 0) + 1
+        FROM hrm_org_dept
+        WHERE reorg_key = #{reorgKey}
+          AND use_yn = 'Y'
+          AND
+          <choose>
+              <when test="parentDeptKey != null and parentDeptKey != ''">
+                  parent_dept_key = #{parentDeptKey}
+              </when>
+              <otherwise>
+                  parent_dept_key IS NULL
+              </otherwise>
+          </choose>
+    </select>
+
+    <insert id="cloneDepartments">
+        WITH source AS MATERIALIZED (
+            SELECT d.*, encode(gen_random_bytes(40), 'hex') AS new_dept_key
+            FROM hrm_org_dept d
+            WHERE d.reorg_key = #{sourceReorgKey} AND d.use_yn = 'Y'
+        )
+        INSERT INTO hrm_org_dept
+        (dept_key, reorg_key, dept_cd, dept_nm, eng_dept_nm, parent_dept_key, dept_level, sort_order,
+         change_type_cd, chef_emp_no, dept_sys_cd, use_yn, remark, reg_user,
+         ai_profile, extra_attributes)
+        SELECT source.new_dept_key, #{targetReorgKey}, source.dept_cd, source.dept_nm,
+               source.eng_dept_nm, parent.new_dept_key, source.dept_level, source.sort_order,
+               source.change_type_cd, source.chef_emp_no, source.dept_sys_cd, 'Y',
+               source.remark, #{regUser}, source.ai_profile, source.extra_attributes
+        FROM source
+        LEFT JOIN source parent ON parent.dept_key = source.parent_dept_key
+    </insert>
+
+    <insert id="insertDepartment">
+        INSERT INTO hrm_org_dept
+        (reorg_key, dept_cd, dept_nm, eng_dept_nm, parent_dept_key, dept_level, sort_order,
+         change_type_cd, chef_emp_no, dept_sys_cd, remark, reg_user)
+        VALUES
+        (#{reorgKey}, #{deptCd}, #{request.deptNm}, #{request.engDeptNm}, #{request.parentDeptKey},
+         #{deptLevel}, #{sortOrder}, COALESCE(NULLIF(#{request.changeTypeCd}, ''), 'NEW'),
+         #{request.chefEmpNo}, COALESCE(NULLIF(#{request.deptSysCd}, ''), #{deptCd}),
+         #{request.remark}, #{regUser})
+    </insert>
+
+    <update id="updateDepartment">
+        UPDATE hrm_org_dept
+        SET dept_nm = #{request.deptNm},
+            eng_dept_nm = #{request.engDeptNm},
+            chef_emp_no = #{request.chefEmpNo},
+            dept_sys_cd = COALESCE(NULLIF(#{request.deptSysCd}, ''), dept_sys_cd),
+            remark = #{request.remark},
+            change_type_cd = 'UPDATE',
+            upd_user = #{updUser},
+            upd_dtm = NOW()
+        WHERE reorg_key = #{reorgKey} AND dept_key = #{deptKey} AND use_yn = 'Y'
+    </update>
+
+    <update id="updateDepartmentParent">
+        UPDATE hrm_org_dept
+        SET parent_dept_key = #{parentDeptKey}, dept_level = #{deptLevel},
+            change_type_cd = 'MOVE', upd_user = #{updUser}, upd_dtm = NOW()
+        WHERE reorg_key = #{reorgKey} AND dept_key = #{deptKey} AND use_yn = 'Y'
+    </update>
+
+    <update id="updateDepartmentPlacement">
+        UPDATE hrm_org_dept
+        SET parent_dept_key = #{parentDeptKey},
+            dept_level = #{deptLevel},
+            sort_order = #{sortOrder},
+            change_type_cd = 'MOVE',
+            upd_user = #{updUser},
+            upd_dtm = NOW()
+        WHERE reorg_key = #{reorgKey} AND dept_key = #{deptKey} AND use_yn = 'Y'
+    </update>
+
+    <update id="updateDepartmentSortOrder">
+        UPDATE hrm_org_dept
+        SET sort_order = #{sortOrder}, upd_user = #{updUser}, upd_dtm = NOW()
+        WHERE reorg_key = #{reorgKey} AND dept_key = #{deptKey} AND use_yn = 'Y'
+    </update>
+
+    <update id="updateDescendantLevels">
+        WITH RECURSIVE descendants AS (
+            SELECT dept_key
+            FROM hrm_org_dept
+            WHERE reorg_key = #{reorgKey} AND parent_dept_key = #{deptKey} AND use_yn = 'Y'
+            UNION ALL
+            SELECT child.dept_key
+            FROM hrm_org_dept child
+            JOIN descendants parent ON parent.dept_key = child.parent_dept_key
+            WHERE child.reorg_key = #{reorgKey} AND child.use_yn = 'Y'
+        )
+        UPDATE hrm_org_dept
+        SET dept_level = dept_level + #{levelDelta}, upd_user = #{updUser}, upd_dtm = NOW()
+        WHERE dept_key IN (SELECT dept_key FROM descendants)
+    </update>
+
+    <select id="countActiveChildren" resultType="int">
+        SELECT COUNT(*)
+        FROM hrm_org_dept
+        WHERE reorg_key = #{reorgKey} AND parent_dept_key = #{deptKey} AND use_yn = 'Y'
+    </select>
+
+    <update id="deactivateDepartment">
+        UPDATE hrm_org_dept
+        SET use_yn = 'N', change_type_cd = 'CLOSE', upd_user = #{updUser}, upd_dtm = NOW()
+        WHERE reorg_key = #{reorgKey} AND dept_key = #{deptKey} AND use_yn = 'Y'
+    </update>
+
+    <insert id="insertDepartmentHistory">
+        INSERT INTO hrm_org_dept_hist
+        (reorg_key, org_dept_key, chg_dept_key, org_dept_cd, org_dept_level,
+         chg_dept_cd, chg_dept_level, change_type_cd, change_note, reg_user)
+        VALUES
+        (#{reorgKey}, #{orgDeptKey}, #{chgDeptKey}, #{orgDeptCd}, #{orgDeptLevel},
+         #{chgDeptCd}, #{chgDeptLevel}, #{changeTypeCd}, #{changeNote}, #{regUser})
+    </insert>
+
+    <update id="confirmReorg">
+        UPDATE hrm_org_reorg
+        SET conf_yn = 'Y', use_yn = 'Y', upd_user = #{updUser}, upd_dtm = NOW()
+        WHERE reorg_key = #{reorgKey} AND conf_yn = 'N' AND use_yn = 'Y'
+    </update>
+</mapper>

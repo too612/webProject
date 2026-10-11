@@ -3,6 +3,7 @@
 -- 원본 현장 테이블명은 그대로 쓰지 않고, 의미가 드러나는 이름으로 재구성한다.
 -- 운영 규칙: dept_cd는 시스템 채번 +1 방식으로만 생성하고 사용자 임의수정은 금지한다.
 -- 최상위 부서는 예약 코드 D000000을 고정값으로 사용할 수 있다.
+-- 기존 환경은 이 파일을 부분 재실행하지 말고 hrm_department_migration.sql을 먼저 적용한다.
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
@@ -37,8 +38,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_hrm_org_reorg_reorg_dt
   ON hrm_org_reorg (reorg_dt)
 ;
 
-CREATE INDEX IF NOT EXISTS ix_hrm_org_reorg_use_yn
-  ON hrm_org_reorg (use_yn, reorg_dt DESC);
+CREATE INDEX IF NOT EXISTS ix_hrm_org_reorg_active_date
+  ON hrm_org_reorg (reorg_dt DESC)
+  WHERE conf_yn = 'Y' AND use_yn = 'Y';
+
+-- 과거/미래 확정 스냅샷을 함께 보존하므로 단일 활성 건 제약은 사용하지 않는다.
+DROP INDEX IF EXISTS uq_hrm_org_reorg_active;
 
 COMMENT ON TABLE hrm_org_reorg
   IS '조직개편 헤더 테이블';
@@ -78,6 +83,7 @@ CREATE TABLE IF NOT EXISTS hrm_org_dept (
   eng_dept_nm         VARCHAR(200),
   parent_dept_key     CHAR(80),
   dept_level          INTEGER NOT NULL DEFAULT 1,
+  sort_order          INTEGER NOT NULL DEFAULT 1,
   change_type_cd      VARCHAR(20) NOT NULL,
   chef_emp_no         VARCHAR(30),
   dept_sys_cd         VARCHAR(30) NOT NULL,
@@ -100,24 +106,23 @@ CREATE TABLE IF NOT EXISTS hrm_org_dept (
     CHECK (parent_dept_key IS NULL OR parent_dept_key ~ '^[0-9a-f]{80}$'),
   CONSTRAINT ck_hrm_org_dept_level
     CHECK (dept_level > 0),
+  CONSTRAINT ck_hrm_org_dept_sort_order
+    CHECK (sort_order > 0),
   CONSTRAINT ck_hrm_org_dept_use_yn
     CHECK (use_yn IN ('Y', 'N')),
-  CONSTRAINT ck_hrm_org_dept_parent_not_self
-    CHECK (parent_dept_key IS NULL OR parent_dept_key <> dept_key),
-  CONSTRAINT fk_hrm_org_dept_parent_dept_key
-    FOREIGN KEY (parent_dept_key) REFERENCES hrm_org_dept(dept_key)
-      DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT fk_hrm_org_dept_reorg_key
     FOREIGN KEY (reorg_key) REFERENCES hrm_org_reorg(reorg_key)
       DEFERRABLE INITIALLY DEFERRED
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_hrm_org_dept_dept_cd
-  ON hrm_org_dept (dept_cd)
+DROP INDEX IF EXISTS uq_hrm_org_dept_dept_cd;
+CREATE UNIQUE INDEX uq_hrm_org_dept_dept_cd
+  ON hrm_org_dept (reorg_key, dept_cd)
 ;
 
-CREATE UNIQUE INDEX IF NOT EXISTS uq_hrm_org_dept_dept_sys_cd
-  ON hrm_org_dept (dept_sys_cd)
+DROP INDEX IF EXISTS uq_hrm_org_dept_dept_sys_cd;
+CREATE UNIQUE INDEX uq_hrm_org_dept_dept_sys_cd
+  ON hrm_org_dept (reorg_key, dept_sys_cd)
 ;
 
 CREATE INDEX IF NOT EXISTS ix_hrm_org_dept_reorg_key
@@ -125,6 +130,9 @@ CREATE INDEX IF NOT EXISTS ix_hrm_org_dept_reorg_key
 
 CREATE INDEX IF NOT EXISTS ix_hrm_org_dept_parent_dept_key
   ON hrm_org_dept (parent_dept_key, dept_level, dept_cd);
+
+CREATE INDEX IF NOT EXISTS ix_hrm_org_dept_sibling_order
+  ON hrm_org_dept (reorg_key, parent_dept_key, sort_order, dept_cd);
 
 CREATE INDEX IF NOT EXISTS ix_hrm_org_dept_chef_emp_no
   ON hrm_org_dept (chef_emp_no);
@@ -151,6 +159,8 @@ COMMENT ON COLUMN hrm_org_dept.parent_dept_key
   IS '상위부서 내부키';
 COMMENT ON COLUMN hrm_org_dept.dept_level
   IS '부서레벨';
+COMMENT ON COLUMN hrm_org_dept.sort_order
+  IS '같은 상위부서 내 표시순서(1부터 시작)';
 COMMENT ON COLUMN hrm_org_dept.change_type_cd
   IS '변경구분코드';
 COMMENT ON COLUMN hrm_org_dept.chef_emp_no

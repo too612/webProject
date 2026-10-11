@@ -35,6 +35,7 @@ export type ManagerCareer = {
 export type ManagerAssignment = {
   assignmentKey: string;
   assignmentDate: string;
+  assignmentOrder?: number;
   assignmentEndDate?: string | null;
   assignmentTypeName?: string | null;
   deptName?: string | null;
@@ -79,6 +80,7 @@ export const CAREER_COLUMNS: GridColumnDef<ManagerCareer>[] = [
 export const ASSIGNMENT_COLUMNS: GridColumnDef<ManagerAssignment>[] = [
   rowNumberColumn<ManagerAssignment>(),
   erpColumn<ManagerAssignment>("date", { headerName: "발령일", field: "assignmentDate", minWidth: 115 }),
+  erpColumn<ManagerAssignment>("number", { headerName: "발령순서", field: "assignmentOrder", minWidth: 100 }),
   erpColumn<ManagerAssignment>("code", { headerName: "발령 종류", field: "assignmentTypeName", minWidth: 120 }),
   erpColumn<ManagerAssignment>("name", { headerName: "소속 부서", field: "deptName", minWidth: 140 }),
   erpColumn<ManagerAssignment>("code", { headerName: "직급", field: "gradeName", minWidth: 110 }),

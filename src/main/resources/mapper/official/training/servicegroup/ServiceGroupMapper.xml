@@ -64,6 +64,11 @@
               AND position_code.use_yn = 'Y'
         WHERE parent_dept.dept_cd = 'D000001'
           AND parent_dept.use_yn = 'Y'
+          AND parent_dept.reorg_key = (
+              SELECT reorg_key FROM hrm_org_reorg
+              WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+              ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+          )
     </select>
 
     <select id="selectServiceGroups" parameterType="map" resultMap="serviceGroupGroupResultMap">
@@ -98,7 +103,12 @@
               AND leader_position.use_yn = 'Y'
         WHERE parent.dept_cd = #{parentDeptCd}
           AND child.use_yn = 'Y'
-        ORDER BY child.dept_cd
+          AND parent.reorg_key = (
+              SELECT reorg_key FROM hrm_org_reorg
+              WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+              ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+          )
+        ORDER BY child.sort_order, child.dept_cd
     </select>
 
     <select id="selectServiceMembers" parameterType="map" resultMap="serviceGroupMemberResultMap">
@@ -125,6 +135,11 @@
               AND member_position.use_yn = 'Y'
         WHERE person.dept_cd = #{deptCode}
           AND person.service_status_code = '101-010'
+          AND dept.reorg_key = (
+              SELECT reorg_key FROM hrm_org_reorg
+              WHERE reorg_dt &lt;= CURRENT_DATE AND conf_yn = 'Y' AND use_yn = 'Y'
+              ORDER BY reorg_dt DESC, reg_dtm DESC LIMIT 1
+          )
         ORDER BY
             CASE WHEN person.employee_no = dept.chef_emp_no THEN 0 ELSE 1 END,
             COALESCE(member_grade.sort_order, member_position.sort_order, 9999),

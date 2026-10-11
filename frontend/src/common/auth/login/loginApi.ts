@@ -15,7 +15,7 @@ export const loginApi = {
         request,
       );
       const data = response.data.data;
-      if (!data) {
+      if (!response.data.success || !data?.userId) {
         throw new Error("로그인 응답이 올바르지 않습니다.");
       }
       return data;

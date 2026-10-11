@@ -124,7 +124,7 @@ INSERT INTO public.sys_menu (
 	('M_SYS_01_01', '성도정보조회및관리', 'M_SYS_01', '/erp/humen/manager', '1', '2', NULL),
 	('M_SYS_01_02', '내 정보 관리', 'M_SYS_01', '/erp/humen/myprofile', '2', '2', NULL),
 	('M_SYS_01_03', '인사발령', 'M_SYS_01', '/erp/humen/personnelmove', '3', '2', NULL),
-	('M_SYS_01_04', '가정/구역관리', 'M_SYS_01', '/erp/humen/district', '4', '2', NULL),
+	('M_SYS_01_04', '조직관리', 'M_SYS_01', '/erp/humen/organization', '4', '2', NULL),
 	('M_SYS_02', '예배관리', 'M_SYS', '/erp/sermon/manager', '2', '1', NULL),
 	('M_SYS_02_01', '설교본문관리', 'M_SYS_02', '/erp/sermon/write', '1', '2', NULL),
 	('M_SYS_02_02', '예배순서관리', 'M_SYS_02', '/erp/sermon/order', '2', '2', NULL),

@@ -2,11 +2,12 @@ import { create } from 'zustand';
 import type { UserType } from './authModel';
 
 type AuthStore = {
+  authRevision: number;
   isAuthenticated: boolean;
   user: UserType | null;
   token: string | null;
   setAuth: (user: UserType, token?: string | null) => void;
-  clearAuth: () => void;
+  clearAuth: (expectedRevision?: number) => void;
 };
 
 const loadInitial = (): Pick<AuthStore, 'isAuthenticated' | 'user' | 'token'> => {
@@ -32,21 +33,27 @@ const persist = (state: Pick<AuthStore, 'isAuthenticated' | 'user' | 'token'>) =
 
 export const useAuthStore = create<AuthStore>((set) => ({
   ...loadInitial(),
+  authRevision: 0,
   setAuth: (user, token = null) =>
-    set(() => {
+    set((state) => {
       const next = { isAuthenticated: true, user, token };
       persist(next);
       if (token) {
         localStorage.setItem('authToken', token);
+      } else {
+        localStorage.removeItem('authToken');
       }
-      return next;
+      return { ...next, authRevision: state.authRevision + 1 };
     }),
-  clearAuth: () =>
-    set(() => {
+  clearAuth: (expectedRevision) =>
+    set((state) => {
+      if (expectedRevision !== undefined && expectedRevision !== state.authRevision) {
+        return state;
+      }
       const next = { isAuthenticated: false, user: null, token: null };
       persist(next);
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
-      return next;
+      return { ...next, authRevision: state.authRevision + 1 };
     }),
 }));

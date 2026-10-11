@@ -12,6 +12,11 @@
 
 - [core/workspace-layout.md](core/workspace-layout.md): ERP·마이페이지·커뮤니티·시스템 작업공간의 적용 경계, 탭 상태, 브라우저 저장 정책과 재사용 방법
 - [core/grid-excel.md](core/grid-excel.md): 공통 그리드 엑셀 함수, 다중 시트, 서버 검증과 운영 제한
+- [core/personnel-assignment.md](core/personnel-assignment.md): 본무·겸임 발령 반영 규칙과 DB 스케줄 운영
+
+## DB 마이그레이션
+
+- [조직개편 스냅샷 전환](../table/hrm_department_migration.sql): 기존 `hrm_org_dept`의 전역 부서코드 유일성을 조직개편 단위로 변경
 
 ## 읽는 원칙
 

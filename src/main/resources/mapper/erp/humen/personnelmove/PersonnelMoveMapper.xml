@@ -1,39 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.main.app.erp.humen.personnelmove.PersonnelMoveMapper">
-
-    <select id="selectPersonnelMoveList" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$PersonnelMove">
-        SELECT
-            c.change_id,
-            m.name,
-            c.change_type,
-            c.change_date,
-            c.prev_status,
-            c.new_status,
-            c.reason,
-            c.reg_date AS registered_at
-        FROM erp_member_change c
-        LEFT JOIN erp_member m ON c.member_id = m.member_id
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND m.name LIKE '%' || #{keyword} || '%'
-            </if>
-        </where>
-        ORDER BY c.reg_date DESC
+    <sql id="assignmentColumns">
+        a.*, p.name_ko,
+        CASE WHEN a.concurrent_key IS NULL THEN 'main' ELSE 'concurrent' END AS scope,
+        a.assignment_key = due.assignment_key AS current_effective,
+        a.assignment_key = CASE WHEN a.concurrent_key IS NULL THEN p.applied_assignment_key ELSE cp.applied_assignment_key END
+            AND a.version = CASE WHEN a.concurrent_key IS NULL THEN p.applied_assignment_version ELSE cp.applied_assignment_version END AS applied,
+        (a.assignment_key = due.assignment_key OR a.assignment_date &gt; #{today})
+            AND NOT COALESCE(a.assignment_key = CASE WHEN a.concurrent_key IS NULL THEN p.applied_assignment_key ELSE cp.applied_assignment_key END
+                AND a.version = CASE WHEN a.concurrent_key IS NULL THEN p.applied_assignment_version ELSE cp.applied_assignment_version END, FALSE) AS pending
+    </sql>
+    <sql id="assignmentJoins">
+        FROM hrm_assignment a
+        JOIN hrm_person p ON p.person_key = a.person_key
+        LEFT JOIN hrm_concurrent_person cp ON cp.concurrent_key = a.concurrent_key
+        LEFT JOIN LATERAL (
+            SELECT d.assignment_key FROM hrm_assignment d
+            WHERE d.person_key = a.person_key AND d.concurrent_key IS NOT DISTINCT FROM a.concurrent_key
+                AND d.del_yn = 'N' AND d.assignment_date &lt;= #{today}
+            ORDER BY d.assignment_date DESC, d.assignment_order DESC, d.assignment_key DESC LIMIT 1
+        ) due ON TRUE
+    </sql>
+    <sql id="listWhere">
+        WHERE a.del_yn = 'N'
+        <choose>
+            <when test="scope == 'concurrent'">AND a.concurrent_key IS NOT NULL</when>
+            <otherwise>AND a.concurrent_key IS NULL</otherwise>
+        </choose>
+        <if test="keyword != null and keyword != ''">AND (p.name_ko ILIKE '%' || #{keyword} || '%' OR a.employee_no ILIKE '%' || #{keyword} || '%')</if>
+        <if test="personKey != null and personKey != ''">AND a.person_key = #{personKey}</if>
+        <if test="concurrentKey != null and concurrentKey != ''">AND a.concurrent_key = #{concurrentKey}</if>
+        <if test="deptCd != null and deptCd != ''">AND a.dept_cd = #{deptCd}</if>
+        <if test="gradeCode != null and gradeCode != ''">AND a.grade_code = #{gradeCode}</if>
+        <if test="assignmentTypeCode != null and assignmentTypeCode != ''">AND a.assignment_type_code = #{assignmentTypeCode}</if>
+        <if test="assignmentDateFrom != null">AND a.assignment_date &gt;= #{assignmentDateFrom}</if>
+        <if test="assignmentDateTo != null">AND a.assignment_date &lt;= #{assignmentDateTo}</if>
+    </sql>
+    <select id="selectPersonnelMoveList" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Assignment">
+        SELECT <include refid="assignmentColumns"/> <include refid="assignmentJoins"/> <include refid="listWhere"/>
+        ORDER BY
+        <choose>
+            <when test="sort == 'assignmentOrder'">a.assignment_order</when>
+            <when test="sort == 'employeeNo'">a.employee_no</when>
+            <when test="sort == 'nameKo'">p.name_ko</when>
+            <when test="sort == 'deptCd'">a.dept_cd</when>
+            <when test="sort == 'gradeCode'">a.grade_code</when>
+            <when test="sort == 'assignmentTypeCode'">a.assignment_type_code</when>
+            <otherwise>a.assignment_date</otherwise>
+        </choose>
+        <choose><when test="direction == 'asc'">ASC</when><otherwise>DESC</otherwise></choose>,
+        a.assignment_date DESC, a.assignment_order DESC, a.assignment_key ASC
         LIMIT #{limit} OFFSET #{offset}
     </select>
-
     <select id="countPersonnelMoveList" resultType="long">
-        SELECT COUNT(*)
-        FROM erp_member_change c
-        LEFT JOIN erp_member m ON c.member_id = m.member_id
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND m.name LIKE '%' || #{keyword} || '%'
-            </if>
-        </where>
+        SELECT COUNT(*) FROM hrm_assignment a JOIN hrm_person p ON p.person_key = a.person_key <include refid="listWhere"/>
     </select>
-
+    <select id="selectAssignment" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Assignment">
+        SELECT <include refid="assignmentColumns"/> <include refid="assignmentJoins"/>
+        WHERE a.assignment_key = #{key} AND a.del_yn = 'N'
+    </select>
+    <select id="lockPerson" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Person">
+        SELECT * FROM hrm_person WHERE person_key = #{personKey} FOR UPDATE
+    </select>
+    <select id="lockConcurrent" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Person">
+        SELECT cp.*, p.name_ko FROM hrm_concurrent_person cp JOIN hrm_person p ON p.person_key = cp.person_key
+        WHERE cp.person_key = #{personKey} AND cp.concurrent_key = #{concurrentKey} AND cp.del_yn = 'N' FOR UPDATE OF cp
+    </select>
+    <select id="selectTargetAssignments" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Assignment">
+        SELECT *, CASE WHEN concurrent_key IS NULL THEN 'main' ELSE 'concurrent' END AS scope
+        FROM hrm_assignment WHERE person_key = #{personKey}
+            AND concurrent_key IS NOT DISTINCT FROM #{concurrentKey,jdbcType=CHAR} AND del_yn = 'N'
+        ORDER BY assignment_date DESC, assignment_order DESC, assignment_key ASC
+    </select>
+    <insert id="insertAssignment">
+        INSERT INTO hrm_assignment (assignment_key,person_key,employee_no,concurrent_key,assignment_date,assignment_order,
+            assignment_type_code,dept_cd,grade_code,position_code,employment_type_code,job_title_code,
+            assignment_content,assignment_end_date,dispatch_country_code,remark,concurrent_assignment_yn,
+            historical_reason,version,del_yn,reg_user,reg_user_ip,upd_user,upd_user_ip)
+        VALUES (#{row.assignmentKey},#{row.personKey},#{row.employeeNo},#{row.concurrentKey},#{row.assignmentDate},#{row.assignmentOrder},
+            #{row.assignmentTypeCode},#{row.deptCd},#{row.gradeCode},#{row.positionCode},#{row.employmentTypeCode},#{row.jobTitleCode},
+            #{row.assignmentContent},#{row.assignmentEndDate},#{row.dispatchCountryCode},#{row.remark},
+            CASE WHEN #{row.scope} = 'main' THEN 'N' ELSE 'Y' END,
+            #{row.historicalReason},0,'N',#{audit.userId},#{audit.ip},#{audit.userId},#{audit.ip})
+    </insert>
+    <update id="updateAssignment">
+        UPDATE hrm_assignment SET employee_no=#{row.employeeNo},concurrent_key=#{row.concurrentKey},
+            concurrent_assignment_yn=CASE WHEN #{row.scope} = 'main' THEN 'N' ELSE 'Y' END,
+            assignment_date=#{row.assignmentDate},assignment_order=#{row.assignmentOrder},
+            assignment_type_code=#{row.assignmentTypeCode},dept_cd=#{row.deptCd},grade_code=#{row.gradeCode},
+            position_code=#{row.positionCode},employment_type_code=#{row.employmentTypeCode},job_title_code=#{row.jobTitleCode},
+            assignment_content=#{row.assignmentContent},assignment_end_date=#{row.assignmentEndDate},
+            dispatch_country_code=#{row.dispatchCountryCode},remark=#{row.remark},historical_reason=#{row.historicalReason},
+            version=version+1,upd_user=#{audit.userId},upd_user_ip=#{audit.ip},upd_dtm=NOW()
+        WHERE assignment_key=#{row.assignmentKey} AND version=#{row.version} AND del_yn='N'
+    </update>
+    <update id="deleteAssignment">
+        UPDATE hrm_assignment SET del_yn='Y',version=version+1,historical_reason=#{reason},
+            upd_user=#{audit.userId},upd_user_ip=#{audit.ip},upd_dtm=NOW()
+        WHERE assignment_key=#{key} AND version=#{version} AND del_yn='N'
+    </update>
+    <select id="departmentExists" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM hrm_org_dept WHERE dept_cd=#{deptCd} AND use_yn='Y')
+    </select>
+    <select id="codeExists" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM com_code WHERE code=#{code} AND parent_code=#{category} AND use_yn='Y')
+    </select>
+    <select id="countryExists" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM sys_country_code WHERE country_code=#{countryCode})
+    </select>
+    <select id="selectCodeOptions" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$CodeOption">
+        SELECT code,code_name FROM com_code WHERE parent_code=#{category} AND use_yn='Y' ORDER BY sort_order,code
+    </select>
+    <sql id="employeeWhere">
+        <where><if test="keyword != null and keyword != ''">
+            name_ko ILIKE '%' || #{keyword} || '%' OR employee_no ILIKE '%' || #{keyword} || '%'
+        </if></where>
+    </sql>
+    <select id="selectEmployees" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Person">
+        SELECT person_key,employee_no,name_ko,dept_cd,grade_code FROM hrm_person
+        <include refid="employeeWhere"/> ORDER BY employee_no,person_key LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="countEmployees" resultType="long">SELECT COUNT(*) FROM hrm_person <include refid="employeeWhere"/></select>
+    <select id="selectConcurrent" resultType="com.main.app.erp.humen.personnelmove.dto.PersonnelMoveDto$Person">
+        SELECT cp.*,p.name_ko FROM hrm_concurrent_person cp JOIN hrm_person p ON p.person_key=cp.person_key
+        WHERE cp.person_key=#{personKey} AND cp.del_yn='N' ORDER BY cp.concurrent_number,cp.concurrent_key
+    </select>
+    <update id="advanceConcurrentNumber">UPDATE hrm_person SET next_concurrent_number=next_concurrent_number+1 WHERE person_key=#{personKey}</update>
+    <insert id="insertConcurrent">
+        INSERT INTO hrm_concurrent_person(concurrent_key,person_key,employee_no,concurrent_number,reg_user,reg_ip,upd_user,upd_ip)
+        SELECT #{row.concurrentKey},#{row.personKey},#{row.employeeNo},next_concurrent_number-1,
+            #{audit.userId},CAST(#{audit.ip} AS INET),#{audit.userId},CAST(#{audit.ip} AS INET)
+        FROM hrm_person WHERE person_key=#{row.personKey}
+    </insert>
+    <update id="applyMain">
+        UPDATE hrm_person SET dept_cd=#{row.deptCd},grade_code=#{row.gradeCode},position_code=#{row.positionCode},
+            employment_type_code=#{row.employmentTypeCode},job_title_code=#{row.jobTitleCode},
+            service_status_code=CASE WHEN #{row.assignmentTypeCode}='105-060' THEN '101-020' ELSE '101-010' END,
+            retire_date=CASE WHEN #{row.assignmentTypeCode}='105-060' THEN #{row.assignmentDate} ELSE NULL END,
+            applied_assignment_key=#{row.assignmentKey},applied_assignment_version=#{row.version},
+            upd_user=#{audit.userId},upd_ip=CAST(#{audit.ip} AS INET),upd_dtm=NOW()
+        WHERE person_key=#{row.personKey}
+    </update>
+    <update id="applyConcurrent">
+        UPDATE hrm_concurrent_person SET dept_cd=#{row.deptCd},grade_code=#{row.gradeCode},position_code=#{row.positionCode},
+            employment_type_code=#{row.employmentTypeCode},job_title_code=#{row.jobTitleCode},
+            service_status_code=CASE WHEN #{row.assignmentTypeCode}='105-060' THEN '101-020' ELSE '101-010' END,
+            retire_date=CASE WHEN #{row.assignmentTypeCode}='105-060' THEN #{row.assignmentDate} ELSE NULL END,
+            applied_assignment_key=#{row.assignmentKey},applied_assignment_version=#{row.version},
+            upd_user=#{audit.userId},upd_ip=CAST(#{audit.ip} AS INET),upd_dtm=NOW()
+        WHERE concurrent_key=#{row.concurrentKey} AND person_key=#{row.personKey}
+    </update>
+    <select id="selectSyncPersonKeys" resultType="string">
+        SELECT DISTINCT person_key FROM hrm_assignment WHERE del_yn='N' ORDER BY person_key
+    </select>
 </mapper>

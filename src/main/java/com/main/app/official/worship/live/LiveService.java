@@ -49,7 +49,7 @@ public class LiveService {
 
         try {
             String url = String.format(YOUTUBE_ITEMS_URL, resolvePlaylistId(category), youtubeApiKey);
-            log.info("[YouTube API] 요청 시도 - URL: {}", url);
+            log.info("[YouTube API] 재생목록 조회 요청");
 
             // 2. 외부 API 호출
             // API 키가 리퍼러 제한(localhost:5173)이 걸려 있으므로 헤더를 수동으로 설정합니다.
@@ -79,7 +79,7 @@ public class LiveService {
                     .limit(MAX_LIVE_ITEMS) // 필터링 후 최신순으로 10개만 유지
                     .toList();
         } catch (Exception e) {
-            log.error("[YouTube API] 연동 중 예외 발생: {}", e.getMessage(), e);
+            log.error("[YouTube API] 연동 중 예외 발생 - 유형: {}", e.getClass().getSimpleName());
             log.info("[YouTube API] API 실패로 인해 DB(XML) 폴백 데이터를 반환합니다.");
             return liveMapper.selectLiveItems();
         }
@@ -110,7 +110,7 @@ public class LiveService {
 
         try {
             String url = String.format(YOUTUBE_LIVE_SEARCH_URL, youtubeChannelId, youtubeApiKey);
-            log.info("[YouTube API] 라이브 방송 상태 조회 - URL: {}", url);
+            log.info("[YouTube API] 라이브 방송 상태 조회 요청");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Referer", "http://localhost:5173/");
@@ -146,7 +146,7 @@ public class LiveService {
                     status.isLive(), status.getVideoId());
         } catch (Exception e) {
             status.setAvailable(false);
-            log.warn("[YouTube API] 라이브 방송 상태 조회 실패 - {}", e.getMessage());
+            log.warn("[YouTube API] 라이브 방송 상태 조회 실패 - 유형: {}", e.getClass().getSimpleName());
         }
         return status;
     }

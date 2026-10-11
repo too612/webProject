@@ -84,7 +84,7 @@ top_dept AS (
     jsonb_build_object('summary', '교회 최상위 조직'),
     jsonb_build_object('dept_cd', 'D000000', 'dept_name', '다사랑교회', 'dept_sys_cd', 'D000000')
   FROM reorg_seed r
-  ON CONFLICT (dept_cd) DO UPDATE
+  ON CONFLICT (reorg_key, dept_cd) DO UPDATE
     SET dept_nm = EXCLUDED.dept_nm,
         eng_dept_nm = EXCLUDED.eng_dept_nm,
         parent_dept_key = EXCLUDED.parent_dept_key,
@@ -152,7 +152,7 @@ level2_dept AS (
     ('D000002', '성도모임부', 'Member Fellowship Dept', 2, 'NEW', '000004', 'D000002', 'Y', '성도 그룹 관리', jsonb_build_object('summary', '성도모임부'), jsonb_build_object('dept_type', 'fellowship'))
   ) AS d(dept_cd, dept_nm, eng_dept_nm, dept_level, change_type_cd, chef_emp_no, dept_sys_cd, use_yn, remark, ai_profile, extra_attributes)
     ON TRUE
-  ON CONFLICT (dept_cd) DO UPDATE
+  ON CONFLICT (reorg_key, dept_cd) DO UPDATE
     SET dept_nm = EXCLUDED.dept_nm,
         eng_dept_nm = EXCLUDED.eng_dept_nm,
         parent_dept_key = EXCLUDED.parent_dept_key,
@@ -235,7 +235,7 @@ JOIN (VALUES
 ) AS d(dept_cd, dept_nm, eng_dept_nm, parent_dept_cd, dept_level, change_type_cd, chef_emp_no, dept_sys_cd, use_yn, remark, ai_profile, extra_attributes)
   ON TRUE
 LEFT JOIN level2_dept p ON p.dept_cd = d.parent_dept_cd
-ON CONFLICT (dept_cd) DO UPDATE
+ON CONFLICT (reorg_key, dept_cd) DO UPDATE
   SET dept_nm = EXCLUDED.dept_nm,
       eng_dept_nm = EXCLUDED.eng_dept_nm,
       parent_dept_key = EXCLUDED.parent_dept_key,
@@ -250,3 +250,22 @@ ON CONFLICT (dept_cd) DO UPDATE
       upd_ip = EXCLUDED.upd_ip,
       ai_profile = EXCLUDED.ai_profile,
       extra_attributes = EXCLUDED.extra_attributes;
+
+WITH target_reorg AS (
+  SELECT reorg_key
+  FROM hrm_org_reorg
+  WHERE reorg_dt = DATE '2026-07-11'
+),
+ranked AS (
+  SELECT department.dept_key,
+         ROW_NUMBER() OVER (
+           PARTITION BY department.reorg_key, department.parent_dept_key
+           ORDER BY department.dept_cd, department.dept_key
+         )::INTEGER AS sort_order
+  FROM hrm_org_dept department
+  JOIN target_reorg reorg ON reorg.reorg_key = department.reorg_key
+)
+UPDATE hrm_org_dept department
+SET sort_order = ranked.sort_order
+FROM ranked
+WHERE ranked.dept_key = department.dept_key;

@@ -31,8 +31,8 @@ const erpMenuPresentation: WorkspaceMenuPresentation = {
 
 const ErpIndexPage = lazy(() => import("../erp/index/erpIndexPage"));
 const HumenManagerPage = lazy(() => import("../erp/humen/manager/managerPage"));
-const HumenDistrictPage = lazy(
-  () => import("../erp/humen/district/districtPage"),
+const HumenOrganizationPage = lazy(
+  () => import("../erp/humen/organization/organizationPage"),
 );
 const HumenMyProfilePage = lazy(
   () => import("../erp/humen/myprofile/myprofilePage"),
@@ -155,7 +155,7 @@ export const erpRoutes: RouteObject[] = [
         path: "humen",
         children: [
           { path: "manager", element: <HumenManagerPage /> },
-          { path: "district", element: <HumenDistrictPage /> },
+          { path: "organization", element: <HumenOrganizationPage /> },
           { path: "myprofile", element: <HumenMyProfilePage /> },
           { path: "personnelmove", element: <HumenPersonnelMovePage /> },
         ],

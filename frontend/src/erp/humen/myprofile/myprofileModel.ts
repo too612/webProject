@@ -1,6 +1,7 @@
 export type MyProfileAssignment = {
   assignmentKey: string;
   assignmentDate: string;
+  assignmentOrder?: number;
   assignmentEndDate?: string | null;
   assignmentTypeName?: string | null;
   deptName?: string | null;

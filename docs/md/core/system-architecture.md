@@ -21,6 +21,15 @@
 - 프론트: `frontend/src/official/about/pastor/{feature}Page.tsx`, `Hook.ts`, `Api.ts`, `Model.ts`
 - 상세 복붙 템플릿: [official-domain-guide.md](../official/official-domain-guide.md)
 
+## 외부 서비스 자격증명
+
+- YouTube API 키와 Gmail 앱 비밀번호는 로컬 개발과 운영 모두 환경변수 `YOUTUBE_API_KEY`, `MAIL_PASSWORD`로 주입합니다. 설정 파일에 실제 값이나 비밀값 기본값을 추가하지 않습니다.
+- 실행하는 IDE의 환경변수 설정 또는 배포 환경의 비밀정보 저장소에서 등록합니다. Spring Boot는 `.env` 파일을 자동으로 읽지 않으므로 파일 생성만으로 설정됐다고 판단하지 않습니다.
+- 메일 계정은 `MAIL_USERNAME`, 발신 주소는 `APP_MAIL_FROM`으로 설정합니다. 운영에서는 기존 DB, CORS, 메일 서버 환경변수도 함께 등록해야 합니다.
+- 두 자격증명이 누락되면 해당 설정을 사용하는 빈 초기화가 실패할 수 있습니다. 실제 값 대신 빈 값이나 임의 값을 넣어 정상 연동된 것으로 간주하지 않습니다.
+- 공개 저장소에 기록된 기존 YouTube 키와 Gmail 앱 비밀번호는 계정 소유자가 폐기·재발급해야 합니다. 기본값 제거는 과거 Git 이력을 지우지 않습니다.
+- YouTube API 키는 YouTube Data API로 사용 범위를 제한하고 서버 실행 환경에 맞는 제한을 적용합니다. 요청 URL이나 외부 API 예외 메시지에는 키가 포함될 수 있으므로 로그에 출력하지 않습니다.
+
 ## 백엔드 규칙
 
 - 기능 폴더는 역할 기반 하위 폴더를 만들지 않습니다.

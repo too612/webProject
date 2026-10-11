@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test:erp": "node --test tests/erp-standard.test.mjs",
+    "test:erp": "node --test --test-concurrency=1 tests/erp-standard.test.mjs tests/personnelmove-validation.test.mjs",
     "test:erp:ui": "tsc --project tests/tsconfig.json --pretty false && playwright test --config tests/playwright.config.ts",
     "preview": "vite preview"
   },
@@ -55,6 +55,7 @@
     "@tiptap/extension-underline": "^3.24.0",
     "@tiptap/react": "^3.24.0",
     "@tiptap/starter-kit": "^3.24.0",
+    "@xyflow/react": "^12.12.0",
     "ag-grid-community": "^35.3.1",
     "ag-grid-react": "^35.3.1",
     "axios": "^1.9.0",

@@ -10,7 +10,7 @@ process.env.ERP_TEST_OUTPUT = outputDir;
 
 export default defineConfig({
   testDir: ".",
-  testMatch: "manager.ui.spec.ts",
+  testMatch: ["manager.ui.spec.ts", "personnelmove.ui.spec.ts"],
   fullyParallel: false,
   workers: 1,
   reporter: "list",
