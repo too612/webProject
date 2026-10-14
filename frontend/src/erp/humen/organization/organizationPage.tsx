@@ -279,7 +279,7 @@ export default function OrganizationPage() {
     [nodes, dropIntent],
   );
 
-  const sortedSiblings = (
+  const siblingsInXmlOrder = (
     parentKey: string | null | undefined,
     excludedKey?: string,
   ) =>
@@ -289,11 +289,6 @@ export default function OrganizationPage() {
           (department.parentDeptKey ?? null) === (parentKey ?? null),
       )
       .filter((department) => department.deptKey !== excludedKey)
-      .sort(
-        (left, right) =>
-          left.sortOrder - right.sortOrder ||
-          left.deptCd.localeCompare(right.deptCd),
-      );
 
   const isRootDrop = (event: MouseEvent | TouchEvent) => {
     const rect = rootDropRef.current?.getBoundingClientRect();
@@ -377,7 +372,7 @@ export default function OrganizationPage() {
     let targetIndex = 0;
     let description = "최상위 조직";
     if (intent.mode === "root") {
-      targetIndex = sortedSiblings(null, node.id).length;
+      targetIndex = siblingsInXmlOrder(null, node.id).length;
     } else {
       const target = detail.departments.find(
         (department) => department.deptKey === intent.targetKey,
@@ -388,11 +383,11 @@ export default function OrganizationPage() {
       }
       if (intent.mode === "child") {
         parentKey = target.deptKey;
-        targetIndex = sortedSiblings(parentKey, node.id).length;
+        targetIndex = siblingsInXmlOrder(parentKey, node.id).length;
         description = `'${target.deptNm}'의 하위`;
       } else {
         parentKey = target.parentDeptKey ?? null;
-        const siblings = sortedSiblings(parentKey, node.id);
+        const siblings = siblingsInXmlOrder(parentKey, node.id);
         const targetSiblingIndex = siblings.findIndex(
           (department) => department.deptKey === target.deptKey,
         );
@@ -518,7 +513,7 @@ export default function OrganizationPage() {
     (department) => department.deptKey === treeSelectedKey,
   );
   const selectedTreeSiblings = selectedTreeDepartment
-    ? sortedSiblings(selectedTreeDepartment.parentDeptKey)
+    ? siblingsInXmlOrder(selectedTreeDepartment.parentDeptKey)
     : [];
   const selectedTreeIndex = selectedTreeDepartment
     ? selectedTreeSiblings.findIndex(
@@ -588,13 +583,13 @@ export default function OrganizationPage() {
       void moveTreeDepartment(
         selectedTreeDepartment.deptKey,
         previousSibling.deptKey,
-        sortedSiblings(previousSibling.deptKey, selectedTreeDepartment.deptKey)
+        siblingsInXmlOrder(previousSibling.deptKey, selectedTreeDepartment.deptKey)
           .length,
       );
       return;
     }
     if (direction === "outdent" && selectedTreeParent) {
-      const parentSiblings = sortedSiblings(
+      const parentSiblings = siblingsInXmlOrder(
         selectedTreeParent.parentDeptKey,
         selectedTreeDepartment.deptKey,
       );
@@ -612,7 +607,7 @@ export default function OrganizationPage() {
       void moveTreeDepartment(
         selectedTreeDepartment.deptKey,
         null,
-        sortedSiblings(null, selectedTreeDepartment.deptKey).length,
+        siblingsInXmlOrder(null, selectedTreeDepartment.deptKey).length,
       );
     }
   };

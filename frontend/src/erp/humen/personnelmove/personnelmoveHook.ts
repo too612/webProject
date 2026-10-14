@@ -37,6 +37,7 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
   const [form, setForm] = useState<PersonnelMoveForm>({ ...EMPTY_FORM });
   const [baseline, setBaseline] = useState<PersonnelMoveForm>({ ...EMPTY_FORM });
   const [editing, setEditing] = useState<PersonnelMoveRow | null>(null);
+  const [formEmployee, setFormEmployee] = useState<EmployeeOption | null>(null);
   const [errors, setErrors] = useState<FieldErrors<PersonnelMoveForm>>({});
   const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -48,9 +49,6 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
   const [deleteReason, setDeleteReason] = useState("");
   const dirty = formOpen && JSON.stringify(form) !== JSON.stringify(baseline);
 
-  const [employeeKeyword, setEmployeeKeyword] = useState("");
-  const [employeeQuery, setEmployeeQuery] = useState("");
-  const [employeeRevision, setEmployeeRevision] = useState(0);
   const [employee, setEmployee] = useState<EmployeeOption | null>(null);
   const [master, setMaster] = useState<ConcurrentMaster | null>(null);
   const [masterSaving, setMasterSaving] = useState(false);
@@ -60,9 +58,6 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
   const [pendingEmployee, setPendingEmployee] = useState<EmployeeOption | null>(null);
   const [pendingMaster, setPendingMaster] = useState<ConcurrentMaster | null>(null);
   const [switchConfirm, setSwitchConfirm] = useState(false);
-  const employeeLoader = useCallback((signal: AbortSignal) =>
-    personnelmoveApi.getEmployees(employeeQuery, signal), [employeeQuery, employeeRevision]);
-  const employees = useAsyncResource(employeeLoader, "대상 인사를 불러오지 못했습니다.");
   const concurrentLoader = useCallback((signal: AbortSignal) =>
     personnelmoveApi.getConcurrent(employee?.personKey ?? "", signal), [employee?.personKey]);
   const masters = useAsyncResource(concurrentLoader, "겸임 인사를 불러오지 못했습니다.");
@@ -118,6 +113,7 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
   };
   const discardForm = () => {
     setFormOpen(false); setForm({ ...EMPTY_FORM }); setBaseline({ ...EMPTY_FORM });
+    setFormEmployee(null);
     setEditing(null); setErrors({}); setSaveError(""); setDiscardConfirm(false);
   };
   const closeForm = () => {
@@ -134,12 +130,14 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
       gradeCode: master?.gradeCode ?? employee?.gradeCode ?? "",
     };
     setForm(next); setBaseline(next); setEditing(null); setErrors({}); setSaveError("");
+    setFormEmployee(employee);
     setFormOpen(true); setMessage("");
   };
   const openEdit = () => {
     if (!detail || inFlight.current) return;
     const next = formFromRow(detail);
     setForm(next); setBaseline(next); setEditing(detail); setErrors({}); setSaveError(""); setFormOpen(true);
+    setFormEmployee(detail);
   };
   const updateForm = <K extends keyof PersonnelMoveForm>(key: K, value: PersonnelMoveForm[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -198,12 +196,14 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
     search.setDraft(next); search.apply(next); closeDetail();
   };
   const requestTarget = (nextEmployee: EmployeeOption | null, nextMaster: ConcurrentMaster | null) => {
-    if (inFlight.current || masterInFlight.current) return;
+    if (inFlight.current || masterInFlight.current) return false;
     if (dirty) {
       setPendingEmployee(nextEmployee); setPendingMaster(nextMaster); setSwitchConfirm(true);
+      return false;
     } else {
       if (formOpen) discardForm();
       changeTarget(nextEmployee, nextMaster);
+      return true;
     }
   };
   const confirmSwitch = () => {
@@ -237,11 +237,11 @@ export function usePersonnelMovePage(scope: AssignmentScope) {
     selectRow, closeDetail, formOpen, form, editing, errors, saveError, saving, message,
     openCreate, openEdit, closeForm, updateForm, save, dirty, discardConfirm, setDiscardConfirm, discardForm,
     deleteConfirm, setDeleteConfirm, historicalDelete, setHistoricalDelete, deleteReason, setDeleteReason,
-    requestDelete, remove, employeeKeyword, setEmployeeKeyword,
-    searchEmployees: (event: FormEvent) => {
-      event.preventDefault(); setEmployeeQuery(employeeKeyword.trim()); setEmployeeRevision((value) => value + 1);
+    requestDelete, remove, formEmployee,
+    selectFormEmployee: (nextEmployee: EmployeeOption | null) => {
+      setFormEmployee(nextEmployee); updateForm("personKey", nextEmployee?.personKey ?? "");
     },
-    employees, employee, master, masters, requestTarget, createMaster, masterSaving, masterError,
+    employee, master, masters, requestTarget, createMaster, masterSaving, masterError,
     switchConfirm, setSwitchConfirm, confirmSwitch,
   };
 }

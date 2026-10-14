@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.popup.employee.EmployeePopupMapper">
+    <select id="selectReorganization" resultType="com.main.app.common.popup.employee.dto.EmployeePopupDto$Reorganization">
+        SELECT reorg_key, reorg_dt FROM hrm_org_reorg
+        WHERE conf_yn = 'Y' AND use_yn = 'Y' AND reorg_dt &lt;= CURRENT_DATE
+        <if test="reorgKey != ''">AND reorg_key = #{reorgKey}</if>
+        ORDER BY reorg_dt DESC, reg_dtm DESC, reorg_key
+        LIMIT 1
+    </select>
+
+    <select id="selectDepartments" resultType="com.main.app.common.popup.employee.dto.EmployeePopupDto$Department">
+        SELECT dept_key, parent_dept_key, dept_cd, dept_nm
+        FROM hrm_org_dept
+        WHERE reorg_key = #{reorgKey} AND use_yn = 'Y'
+        ORDER BY dept_level, sort_order, dept_cd, dept_key
+    </select>
+
+    <select id="selectCodes" resultType="com.main.app.common.popup.employee.dto.EmployeePopupDto$CodeOption">
+        SELECT code, code_name AS name FROM com_code
+        WHERE parent_code = #{parentCode} AND use_yn = 'Y'
+        ORDER BY sort_order, code
+    </select>
+
+    <sql id="employeeFrom">
+        FROM hrm_person p
+        LEFT JOIN hrm_org_dept d ON d.dept_cd = p.dept_cd
+            AND d.reorg_key = #{query.reorgKey} AND d.use_yn = 'Y'
+        LEFT JOIN com_code grade ON grade.code = p.grade_code AND grade.parent_code = '102' AND grade.use_yn = 'Y'
+        LEFT JOIN com_code position ON position.code = p.position_code AND position.parent_code = '103' AND position.use_yn = 'Y'
+        LEFT JOIN com_code status ON status.code = p.service_status_code AND status.parent_code = '101' AND status.use_yn = 'Y'
+        <where>
+            <if test="query.personKey != ''">AND p.person_key = #{query.personKey}</if>
+            <if test="query.nameKo != ''">AND STRPOS(LOWER(p.name_ko), LOWER(#{query.nameKo})) > 0</if>
+            <if test="query.employeeNo != ''">AND STRPOS(LOWER(p.employee_no), LOWER(#{query.employeeNo})) > 0</if>
+            <if test="query.deptName != ''">AND STRPOS(LOWER(d.dept_nm), LOWER(#{query.deptName})) > 0</if>
+            <if test="query.deptCd != ''">AND d.dept_cd = #{query.deptCd}</if>
+            <if test="query.gradeCode != ''">AND p.grade_code = #{query.gradeCode}</if>
+            <if test="query.positionCode != ''">AND p.position_code = #{query.positionCode}</if>
+            <if test="query.serviceStatusCode != ''">AND p.service_status_code = #{query.serviceStatusCode}</if>
+        </where>
+    </sql>
+
+    <select id="countEmployees" resultType="long">
+        SELECT COUNT(*) <include refid="employeeFrom" />
+    </select>
+
+    <select id="selectEmployees" resultType="com.main.app.common.popup.employee.dto.EmployeePopupDto$Employee">
+        SELECT p.person_key, p.employee_no, p.name_ko, p.dept_cd, d.dept_nm AS dept_name,
+               p.grade_code, grade.code_name AS grade_name,
+               p.position_code, position.code_name AS position_name,
+               p.service_status_code, status.code_name AS service_status_name
+        <include refid="employeeFrom" />
+        ORDER BY
+        <choose>
+            <when test="query.sortField == 'nameKo'">p.name_ko</when>
+            <when test="query.sortField == 'deptName'">d.dept_nm</when>
+            <when test="query.sortField == 'gradeName'">grade.code_name</when>
+            <when test="query.sortField == 'positionName'">position.code_name</when>
+            <when test="query.sortField == 'serviceStatusName'">status.code_name</when>
+            <otherwise>p.employee_no</otherwise>
+        </choose>
+        <choose><when test="query.sortDirection == 'desc'">DESC</when><otherwise>ASC</otherwise></choose>
+        NULLS LAST, p.employee_no ASC, p.person_key ASC
+        LIMIT #{query.size} OFFSET #{query.offset}
+    </select>
+</mapper>

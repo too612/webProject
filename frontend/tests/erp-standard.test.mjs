@@ -3,13 +3,13 @@ import { after, before, test } from "node:test";
 import { createServer } from "vite";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 let server;
 let cacheDir;
-let validation, manager, datasource, columns, apiErrors, fields, search, actions, feedback, detail;
+let validation, manager, datasource, columns, apiErrors, fields, search, actions, feedback, detail, treeUtils, treeTable;
 before(async () => {
   cacheDir = await mkdtemp(join(tmpdir(), "webproject-erp-unit-"));
   server = await createServer({
@@ -17,7 +17,7 @@ before(async () => {
     server: { middlewareMode: true, hmr: false, watch: null },
     appType: "custom",
   });
-  [validation, manager, datasource, columns, apiErrors, fields, search, actions, feedback, detail] =
+  [validation, manager, datasource, columns, apiErrors, fields, search, actions, feedback, detail, treeUtils, treeTable] =
     await Promise.all([
       "/src/common/ui/form/formValidation.ts",
       "/src/erp/humen/manager/managerValidation.ts",
@@ -29,6 +29,8 @@ before(async () => {
       "/src/common/ui/shell/ListPageActions.tsx",
       "/src/common/ui/AsyncFeedback.tsx",
       "/src/common/grid/useGridDetail.ts",
+      "/src/common/ui/tree/treeUtils.ts",
+      "/src/common/ui/tree/TreeTable.tsx",
     ].map((path) => server.ssrLoadModule(path)));
 });
 after(async () => {
@@ -289,4 +291,69 @@ test("cached detail lookup uses domain identity and skips unloaded placeholders"
   const api = { forEachNode: (callback) => rows.forEach(callback) };
   assert.equal(detail.findCachedRow(api, "A", (row) => row.key).rowIndex, 5);
   assert.equal(detail.findCachedRow(api, "missing", (row) => row.key), null);
+});
+
+test("shared tree traversal preserves XML sibling order and traverses parent before children", () => {
+  const items = [
+    { id: "root-first", parentId: null, label: "Root first", data: {} },
+    { id: "root-second", parentId: null, label: "Root second", data: {} },
+    { id: "child-first", parentId: "root-first", label: "Child first", data: {} },
+    { id: "child-second", parentId: "root-first", label: "Child second", data: {} },
+    { id: "grandchild", parentId: "child-first", label: "Grandchild", data: {} },
+  ];
+  const rows = treeUtils.buildTreeRows(items, new Set());
+  assert.deepEqual(
+    rows.map(row => row.id),
+    ["root-first", "child-first", "grandchild", "child-second", "root-second"],
+  );
+  assert.deepEqual(
+    treeUtils.buildTreeRows(items, new Set(["root-first"])).map(row => row.id),
+    ["root-first", "root-second"],
+  );
+});
+
+test("read-only shared tree has no drag affordance and the organization XML defines stable sibling order", async () => {
+  const html = renderToStaticMarkup(createElement(treeTable.default, {
+    items: [
+      { id: "root", parentId: null, label: "Budget", data: {} },
+      { id: "child", parentId: "root", label: "Travel", data: {} },
+    ],
+    columns: [
+      { type: "tree", key: "label", header: "Name" },
+      { type: "data", key: "code", header: "Code", render: item => item.code ?? "-" },
+    ],
+    collapsed: new Set(),
+  }));
+  assert.ok(html.includes("Budget"));
+  assert.ok(html.includes("Travel"));
+  assert.ok(!html.includes("draggable=\"true\""));
+  assert.ok(!html.includes("최상위 항목으로 이동"));
+
+  const mapper = await readFile(
+    new URL("../../src/main/resources/mapper/erp/humen/organization/OrganizationMapper.xml", import.meta.url),
+    "utf8",
+  );
+  const departmentQuery = mapper.match(/<select id="selectDepartmentList"[\s\S]*?<\/select>/)?.[0];
+  assert.ok(departmentQuery);
+  assert.match(departmentQuery, /ORDER BY d\.dept_level, d\.sort_order, d\.dept_cd, d\.dept_key/);
+});
+
+test("shared tree connectors span cells, summary is optional, and activation supports keyboard", () => {
+  const props = {
+    items: [
+      { id: "root", parentId: null, label: "Root", data: {} },
+      { id: "first", parentId: "root", label: "First", data: {} },
+      { id: "grandchild", parentId: "first", label: "Grandchild", data: {} },
+      { id: "last", parentId: "root", label: "Last", data: {} },
+    ],
+    columns: [{ type: "tree", key: "label", header: "Name" }],
+    collapsed: new Set(), onActivate: () => {},
+  };
+  const html = renderToStaticMarkup(createElement(treeTable.default, { ...props, showSummary: false }));
+  assert.ok(html.includes('data-tree-connector="ancestor"'));
+  assert.ok(html.includes('data-tree-connector="children"'));
+  assert.ok(html.includes('pointer-events-none absolute inset-0'));
+  assert.ok(html.includes('tabindex="0"'));
+  assert.ok(!html.includes('data-ui="tree-summary"'));
+  assert.ok(renderToStaticMarkup(createElement(treeTable.default, props)).includes('data-ui="tree-summary"'));
 });

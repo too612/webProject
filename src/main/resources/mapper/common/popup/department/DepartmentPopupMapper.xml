@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.main.app.common.popup.department.DepartmentPopupMapper">
+    <select id="selectReorganizations" resultType="com.main.app.common.popup.department.dto.DepartmentPopupDto$Reorganization">
+        SELECT reorg_key, reorg_dt, reorg_title, conf_yn, use_yn
+        FROM hrm_org_reorg
+        ORDER BY reorg_dt DESC, reg_dtm DESC, reorg_key
+    </select>
+
+    <select id="selectReorganization" resultType="com.main.app.common.popup.department.dto.DepartmentPopupDto$Reorganization">
+        SELECT reorg_key, reorg_dt, reorg_title, conf_yn, use_yn
+        FROM hrm_org_reorg
+        WHERE reorg_key = #{reorgKey}
+    </select>
+
+    <select id="selectDepartments" resultType="com.main.app.common.popup.department.dto.DepartmentPopupDto$Department">
+        WITH RECURSIVE snapshot AS (
+            SELECT dept_key, parent_dept_key, dept_cd, dept_nm, dept_level, sort_order
+            FROM hrm_org_dept
+            WHERE reorg_key = #{reorgKey} AND use_yn = 'Y'
+        ), matches AS (
+            SELECT * FROM snapshot
+            <where>
+                <if test="deptCd != ''">
+                    <choose>
+                        <when test="exactCode">AND dept_cd = #{deptCd}</when>
+                        <otherwise>AND STRPOS(LOWER(dept_cd), LOWER(#{deptCd})) > 0</otherwise>
+                    </choose>
+                </if>
+                <if test="deptNm != ''">
+                    AND STRPOS(LOWER(dept_nm), LOWER(#{deptNm})) > 0
+                </if>
+            </where>
+        ), tree AS (
+            SELECT * FROM matches
+            UNION
+            SELECT parent.*
+            FROM snapshot parent
+            JOIN tree child ON child.parent_dept_key = parent.dept_key
+        )
+        SELECT tree.dept_key, tree.parent_dept_key, tree.dept_cd, tree.dept_nm,
+               EXISTS (SELECT 1 FROM matches WHERE matches.dept_key = tree.dept_key) AS matched
+        FROM tree
+        ORDER BY tree.dept_level, tree.sort_order, tree.dept_cd, tree.dept_key
+    </select>
+</mapper>

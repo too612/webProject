@@ -3,7 +3,7 @@ import type { GridApi } from "ag-grid-community";
 import { usePersonnelMovePage } from "./personnelmoveHook";
 import {
   assignmentKey, MOBILE_HIDDEN_COLUMNS, PERSONNELMOVE_COLUMNS,
-  type AssignmentCodeOption, type AssignmentScope, type PersonnelMoveForm, type PersonnelMoveRow,
+  type AssignmentCodeOption, type AssignmentScope, type EmployeeOption, type PersonnelMoveForm, type PersonnelMoveRow,
 } from "./personnelmoveModel";
 import { isHistorical } from "./personnelmoveValidation";
 import { ErpDataGrid, useGridDetail, type GridColumnDef } from "../../../common/grid";
@@ -15,6 +15,7 @@ import {
 } from "../../../common/ui";
 import { useWorkspaceDirty, useWorkspaceTab, WorkspaceTabContext } from "../../../common/workspace/workspaceHook";
 import { useExcelExport, type ExcelGridSource } from "../../../common/excel";
+import { DepartmentField, EmployeeField } from "../../../common/popup";
 
 const codeOptions = (items: AssignmentCodeOption[]) => items.map(({ code, codeName }) => ({ code, name: codeName }));
 const labelFor = (items: AssignmentCodeOption[], code: string | null) =>
@@ -33,6 +34,7 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
   const excel = useExcelExport();
   const grid = useRef<GridApi<PersonnelMoveRow> | null>(null);
   const state = usePersonnelMovePage(scope);
+  const [searchEmployee, setSearchEmployee] = useState<EmployeeOption | null>(null);
   useEffect(() => { onDirty(state.dirty); }, [onDirty, state.dirty]);
   const name = scope === "main" ? "인사발령" : "겸임발령";
   const {
@@ -70,12 +72,6 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
     scope: excel.scope, id: excelGridId, sheetName: name,
     getRowRef: (row) => row.excelRef, getEmptyToken: () => state.excelState.current.token,
   }), [excel.scope, excelGridId, name, state.excelState]);
-  const employeeOptions = (state.employees.data?.content ?? []).map((employee) => ({
-    code: employee.personKey, name: `${employee.nameKo} · ${employee.employeeNo}`,
-  }));
-  if (editing && !employeeOptions.some((item) => item.code === editing.personKey)) {
-    employeeOptions.push({ code: editing.personKey, name: `${editing.nameKo} · ${editing.employeeNo}` });
-  }
   const masterOptions = (state.masters.data ?? []).map((master) => ({
     code: master.concurrentKey, name: `${master.nameKo} · ${master.employeeNo}`,
   }));
@@ -119,9 +115,17 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
               <AsyncFeedback loading={detailLoading} error={state.detailError}
                 onRetry={() => { if (selectedRow) void selectRow(selectedRow); }} />
               {detail && !detailLoading && <>
+                <FormField label="성명">
+                  {(props) => <EmployeeField {...props} value={detail.personKey} employee={detail}
+                    active={visible}
+                    onChange={(employee) => {
+                      if (!employee) return;
+                      grid.current?.applyColumnState({ defaultState: { sort: null } });
+                      return state.requestTarget(employee, null);
+                    }} />}
+                </FormField>
                 <dl className="grid grid-cols-2 gap-3 text-sm">
                   {[
-                    ["사번", detail.employeeNo], ["성명", detail.nameKo],
                     ["발령일", detail.assignmentDate], ["발령 순서", String(detail.assignmentOrder)],
                     ["부서 코드", detail.deptCd], ["직급", labelFor(options.grades, detail.gradeCode)],
                     ["직위", labelFor(options.positions, detail.positionCode)],
@@ -159,13 +163,19 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
           }>
           <div className="min-w-0 space-y-4">
             <SearchPanel formId={searchFormId} onSearch={applySearch} pending={search.pending}>
-              <SearchField label="성명 / 사번" width="keyword">
-                {(fieldId) => <Input id={fieldId} value={search.draft.keyword}
-                  onChange={(event) => state.updateSearch("keyword", event.target.value)} placeholder="성명·사번 입력" />}
+              <SearchField label="성명" width="range">
+                {(fieldId) => <EmployeeField id={fieldId}
+                  value={search.draft.personKey} employee={searchEmployee}
+                  nameValue={search.draft.keyword} active={visible}
+                  onNameChange={(value) => state.updateSearch("keyword", value)}
+                  onChange={(employee) => {
+                    setSearchEmployee(employee);
+                    state.updateSearch("personKey", employee?.personKey ?? "");
+                  }} />}
               </SearchField>
-              <SearchField label="부서 코드" width="compact">
-                {(fieldId) => <Input id={fieldId} value={search.draft.deptCd}
-                  onChange={(event) => state.updateSearch("deptCd", event.target.value)} placeholder="부서 코드 직접 입력" />}
+              <SearchField label="부서명" width="range">
+                {(fieldId) => <DepartmentField id={fieldId} value={search.draft.deptCd} active={visible}
+                  onChange={(code) => state.updateSearch("deptCd", code)} />}
               </SearchField>
               <SearchField label="직급" width="compact">
                 {(fieldId) => <CodeSelect id={fieldId} value={search.draft.gradeCode} disabled={disabledOptions}
@@ -197,26 +207,16 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
               </SearchField>
             </SearchPanel>
             <AsyncFeedback loading={optionsLoading} error={optionsError} onRetry={state.retryOptions} />
-            <section aria-label={scope === "concurrent" ? "기준 인사와 겸임 인사" : "대상 인사"} className="rounded-md border p-3 space-y-3">
-              <form onSubmit={state.searchEmployees} className="flex flex-wrap items-end gap-2">
-                <FormField label={scope === "concurrent" ? "기준 인사 검색" : "대상 인사 검색"}>
-                  {(props) => <Input {...props} value={state.employeeKeyword} disabled={saving || state.masterSaving}
-                    onChange={(event) => state.setEmployeeKeyword(event.target.value)} placeholder="성명·사번 입력" />}
-                </FormField>
-                <Button type="submit" variant="outline" disabled={state.employees.loading}>인사 찾기</Button>
-              </form>
-              <AsyncFeedback loading={state.employees.loading} error={state.employees.error} onRetry={state.employees.retry} />
-              <FormField label={scope === "concurrent" ? "기준 인사" : "대상 인사"}>
-                {(props) => <CodeSelect {...props} value={state.employee?.personKey ?? search.applied.personKey}
-                  options={employeeOptions} placeholder="대상 인사" allLabel="전체" disabled={state.employees.loading || Boolean(state.employees.error) || saving || state.masterSaving}
-                  onChange={(value) => {
-                    grid.current?.applyColumnState({ defaultState: { sort: null } });
-                    state.requestTarget(state.employees.data?.content.find((item) => item.personKey === value) ?? null, null);
-                  }} />}
-              </FormField>
-              {state.employees.data && state.employees.data.totalElements > 50 &&
-                <p className="text-xs text-muted-foreground">검색 결과가 50명을 초과합니다. 성명·사번으로 범위를 좁히세요.</p>}
-              {scope === "concurrent" && <>
+            {scope === "concurrent" && <section aria-label="겸임 인사 대상" className="rounded-md border p-3 space-y-3">
+                {!detailOpen && <FormField label="성명">
+                  {(props) => <EmployeeField {...props}
+                    value={state.employee?.personKey ?? search.applied.personKey}
+                    employee={state.employee} active={visible} disabled={saving || state.masterSaving}
+                    onChange={(employee) => {
+                      grid.current?.applyColumnState({ defaultState: { sort: null } });
+                      return state.requestTarget(employee, null);
+                    }} />}
+                </FormField>}
                 <AsyncFeedback loading={state.masters.loading} error={state.masters.error} onRetry={state.masters.retry} />
                 <FormField label="겸임 인사">
                   {(props) => <CodeSelect {...props} value={state.master?.concurrentKey ?? search.applied.concurrentKey}
@@ -228,8 +228,7 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
                 </FormField>
                 <p className="text-xs text-muted-foreground">겸임 인사 생성은 발령 등록과 별개입니다. 사번은 기준 사번_1, _2 순으로 서버에서 생성됩니다.</p>
                 {state.masterError && <p role="alert" className="text-sm text-red-600">{state.masterError}</p>}
-              </>}
-            </section>
+            </section>}
             {state.message && <p role="status" className="rounded-md bg-green-50 p-3 text-sm text-green-800">{state.message}</p>}
             <ResultPanel totalCount={state.gridState.totalCount}>
               <ErpDataGrid<PersonnelMoveRow> columns={columns} excel={excelSource}
@@ -246,15 +245,15 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
             onPointerDownOutside={(event) => { if (saving) event.preventDefault(); }}>
             <DialogHeader>
               <DialogTitle>{name} {editing ? "수정" : "등록"}</DialogTitle>
-              <DialogDescription>같은 발령일에도 순서를 달리하여 여러 발령을 등록할 수 있습니다. 부서 코드는 직접 입력하세요.</DialogDescription>
+              <DialogDescription>같은 발령일에도 순서를 달리하여 여러 발령을 등록할 수 있습니다. 부서명 검색 또는 부서 조회로 부서를 선택하세요.</DialogDescription>
             </DialogHeader>
             <form id={editFormId} onSubmit={(event) => void state.save(event)} noValidate className="space-y-4">
               <AsyncFeedback loading={optionsLoading} error={optionsError} onRetry={state.retryOptions} />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField label="대상 인사" required error={errors.personKey}>
-                  {(props) => <CodeSelect {...props} value={form.personKey} options={employeeOptions}
-                    placeholder="대상 인사" allLabel="선택" disabled={saving || Boolean(editing) || scope === "concurrent" || state.employees.loading || Boolean(state.employees.error)}
-                    onChange={(value) => state.updateForm("personKey", value)} />}
+                <FormField label="성명" required error={errors.personKey}>
+                  {(props) => <EmployeeField {...props} value={form.personKey} employee={state.formEmployee}
+                    active={visible && state.formOpen} disabled={saving || Boolean(editing) || scope === "concurrent"}
+                    onChange={state.selectFormEmployee} />}
                 </FormField>
                 {scope === "concurrent" && <FormField label="겸임 인사" required error={errors.concurrentKey}>
                   {(props) => <CodeSelect {...props} value={form.concurrentKey} options={masterOptions}
@@ -263,7 +262,10 @@ function AssignmentTab({ scope, active, onDirty }: Readonly<{
                 </FormField>}
                 {inputField("assignmentDate", "발령일", "date", true)}
                 {inputField("assignmentOrder", "발령 순서", "number", true)}
-                {inputField("deptCd", "부서 코드", "text", true)}
+                <FormField label="부서명" required error={errors.deptCd}>
+                  {(props) => <DepartmentField {...props} value={form.deptCd} disabled={saving}
+                    active={visible && state.formOpen} onChange={(code) => state.updateForm("deptCd", code)} />}
+                </FormField>
                 {selectField("gradeCode", "직급", options.grades, true)}
                 {selectField("positionCode", "직위", options.positions)}
                 {selectField("employmentTypeCode", "고용형태", options.employmentTypes)}

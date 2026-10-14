@@ -68,7 +68,7 @@
         FROM hrm_org_dept d
         LEFT JOIN hrm_person p ON p.employee_no = d.chef_emp_no
         WHERE d.reorg_key = #{reorgKey} AND d.use_yn = 'Y'
-        ORDER BY d.dept_level, d.sort_order, d.dept_cd
+        ORDER BY d.dept_level, d.sort_order, d.dept_cd, d.dept_key
     </select>
 
     <select id="selectDepartmentHistory" resultType="com.main.app.erp.humen.organization.dto.OrganizationDto$DepartmentHistory">
