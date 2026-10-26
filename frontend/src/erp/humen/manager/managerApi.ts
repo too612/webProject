@@ -2,10 +2,12 @@ import client from "../../../common/api/api.client";
 import { getApiErrorMessage } from "../../../common/api/apiError";
 import type { ApiResponse } from "../../../common/api/api.types";
 import type {
+  ManagerBasicInfoRequest,
   ManagerCreateRequest,
   ManagerFilterOptions,
   ManagerFilters,
   ManagerPersonDetail,
+  ManagerProfilePhoto,
   ManagerRow,
 } from "./managerModel";
 
@@ -121,6 +123,53 @@ export const managerApi = {
       throw new Error(
         getApiErrorMessage(error, "인사정보 등록에 실패했습니다."),
       );
+    }
+  },
+
+  async updateBasicInfo(personKey: string, request: ManagerBasicInfoRequest): Promise<ManagerPersonDetail> {
+    try {
+      const response = await client.put<ApiResponse<ManagerPersonDetail>>(
+        `/erp/humen/manager/${encodeURIComponent(personKey)}/basic-info`,
+        request,
+      );
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || "기본정보 저장에 실패했습니다.");
+      }
+      return response.data.data;
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "기본정보 저장에 실패했습니다."));
+    }
+  },
+
+  async uploadProfilePhoto(personKey: string, file: File): Promise<ManagerProfilePhoto> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await client.put<ApiResponse<ManagerProfilePhoto>>(
+        `/erp/humen/manager/${encodeURIComponent(personKey)}/profile-photo`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } },
+      );
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || "프로필 사진 적용에 실패했습니다.");
+      }
+      return response.data.data;
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "프로필 사진 적용에 실패했습니다."));
+    }
+  },
+
+  async deleteProfilePhoto(personKey: string): Promise<ManagerProfilePhoto> {
+    try {
+      const response = await client.delete<ApiResponse<ManagerProfilePhoto>>(
+        `/erp/humen/manager/${encodeURIComponent(personKey)}/profile-photo`,
+      );
+      if (!response.data.success) {
+        throw new Error(response.data.message || "프로필 사진 삭제에 실패했습니다.");
+      }
+      return response.data.data ?? { profilePhotoUrl: null };
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "프로필 사진 삭제에 실패했습니다."));
     }
   },
 };

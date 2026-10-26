@@ -46,6 +46,7 @@ import {
 import { useWorkspaceTab } from "../../../common/workspace/workspaceHook";
 import { useExcelExport, type ExcelGridSource } from "../../../common/excel";
 import { ActionButton } from "../../../common/ui/action-button";
+import { ManagerBasicInfoForm, ManagerProfilePhotoEditor } from "./managerBasicEditor";
 
 const MOBILE_HIDDEN_COLUMNS = ["profilePhotoUrl", "gradeName", "positionName", "deptName", "employmentTypeName", "hireDate", "serviceStatusName", "detail"];
 const personKey = (row: ManagerRow) => row.personKey;
@@ -76,6 +77,10 @@ export default function ManagerPage() {
   const excelGridId = `${formId}-manager-grid`;
   const [detailTab, setDetailTab] = useState("basic");
   const gridApiRef = useRef<GridApi<ManagerRow> | null>(null);
+  const handleRowUpdated = useCallback((key: string, patch: Partial<ManagerRow>) => {
+    const node = gridApiRef.current?.getRowNode(key);
+    if (node?.data) node.setData({ ...node.data, ...patch });
+  }, []);
   const {
     loadRows,
     excelState,
@@ -111,7 +116,12 @@ export default function ManagerPage() {
     discardCreate,
     updateCreateForm,
     submitCreate,
-  } = useManagerPage();
+    retryPerson,
+    edit,
+    leaveConfirmOpen,
+    confirmLeave,
+    cancelLeave,
+  } = useManagerPage({ onRowUpdated: handleRowUpdated });
   const handleSearchWithDefaultSort = useCallback((event: FormEvent) => {
     gridApiRef.current?.applyColumnState({ defaultState: { sort: null } });
     handleSearch(event);
@@ -319,7 +329,7 @@ export default function ManagerPage() {
         detail={
           <div className="min-w-0">
             <AsyncFeedback loading={detailLoading} error={detailError}
-              onRetry={() => { if (selectedRow) void selectPerson(selectedRow); }} />
+              onRetry={retryPerson} />
             {!detailLoading && selectedPerson && (
               <Tabs value={detailTab} onValueChange={setDetailTab}>
                 <TabsList className="grid h-auto w-full grid-cols-4">
@@ -328,33 +338,9 @@ export default function ManagerPage() {
                   <TabsTrigger value="career">경력</TabsTrigger>
                   <TabsTrigger value="assignment">임면 이력</TabsTrigger>
                 </TabsList>
-                <TabsContent value="basic" className="mt-4">
-                  <dl className="grid grid-cols-2 gap-x-5">
-                    <InfoItem label="사번" value={selectedPerson.employeeNo} />
-                    <InfoItem
-                      label="성명(영문)"
-                      value={selectedPerson.nameEn}
-                    />
-                    <InfoItem
-                      label="성명(한자)"
-                      value={selectedPerson.nameHanja}
-                    />
-                    <InfoItem
-                      label="생년월일"
-                      value={formatDate(selectedPerson.birthDate)}
-                    />
-                    <InfoItem label="성별" value={selectedPerson.genderCode} />
-                    <InfoItem
-                      label="주소"
-                      value={[
-                        selectedPerson.postalCode,
-                        selectedPerson.addressLine1,
-                        selectedPerson.addressLine2,
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                    />
-                  </dl>
+                <TabsContent value="basic" className="mt-4 space-y-6">
+                  <ManagerProfilePhotoEditor person={selectedPerson} edit={edit} />
+                  <ManagerBasicInfoForm person={selectedPerson} edit={edit} />
                   {selectedPerson.aiSummary && (
                     <p className="mt-5 rounded-md bg-slate-50 p-3 text-sm text-slate-600">
                       {selectedPerson.aiSummary}
@@ -508,6 +494,15 @@ export default function ManagerPage() {
         cancelText="계속 작성"
         onConfirm={discardCreate}
         onCancel={() => setConfirmDiscard(false)}
+      />
+      <ConfirmModal
+        isOpen={leaveConfirmOpen && (workspace?.active ?? true)}
+        title="수정 취소"
+        message="저장하거나 적용하지 않은 기본정보·프로필 사진 변경이 있습니다. 변경을 버리고 이동하시겠습니까?"
+        confirmText="변경 버리기"
+        cancelText="계속 수정"
+        onConfirm={confirmLeave}
+        onCancel={cancelLeave}
       />
     </ListPageShell>
   );

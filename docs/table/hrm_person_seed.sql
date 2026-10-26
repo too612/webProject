@@ -42,8 +42,8 @@ SELECT
   s.hire_date,
   s.retire_date,
   s.promotion_date,
-  'data/humen/' || s.employee_no || '.png',
-  'data/humen/' || s.employee_no || '_profile.png',
+  NULL, -- photo_url: 레거시 정적 경로(data/humen)는 사용하지 않는다
+  NULL, -- profile_photo_url: 아래 프로필 사진 매핑에서 설정
   'SYSTEM', NOW(), '127.0.0.1'::inet, 'SYSTEM', NOW(), '127.0.0.1'::inet,
   jsonb_build_object('summary', s.role_name || ' 샘플', 'role', s.role_name, 'dept_cd', s.dept_cd, 'dept_name', s.dept_name) || s.ai_payload,
   jsonb_build_object('dept_cd', s.dept_cd, 'dept_name', s.dept_name, 'role', s.role_name)
@@ -94,8 +94,8 @@ SELECT
   s.hire_date,
   s.retire_date,
   s.promotion_date,
-  'data/humen/' || s.employee_no || '.png',
-  'data/humen/' || s.employee_no || '_profile.png',
+  NULL, -- photo_url: 레거시 정적 경로(data/humen)는 사용하지 않는다
+  NULL, -- profile_photo_url: 아래 프로필 사진 매핑에서 설정
   'SYSTEM', NOW(), '127.0.0.1'::inet, 'SYSTEM', NOW(), '127.0.0.1'::inet,
   jsonb_build_object('summary', s.role_name || ' 샘플', 'role', s.role_name, 'dept_cd', s.dept_cd, 'dept_name', s.dept_name) || s.ai_payload,
   jsonb_build_object('dept_cd', s.dept_cd, 'dept_name', s.dept_name, 'role', s.role_name)
@@ -177,8 +177,8 @@ SELECT
   s.hire_date,
   s.retire_date,
   s.promotion_date,
-  'data/humen/' || s.employee_no || '.png',
-  'data/humen/' || s.employee_no || '_profile.png',
+  NULL, -- photo_url: 레거시 정적 경로(data/humen)는 사용하지 않는다
+  NULL, -- profile_photo_url: 아래 프로필 사진 매핑에서 설정
   'SYSTEM', NOW(), '127.0.0.1'::inet, 'SYSTEM', NOW(), '127.0.0.1'::inet,
   jsonb_build_object('summary', s.role_name || ' 샘플', 'role', s.role_name, 'dept_cd', s.dept_cd) ,
   jsonb_build_object(
@@ -248,8 +248,8 @@ SELECT
   s.hire_date,
   s.retire_date,
   s.promotion_date,
-  'data/humen/' || s.employee_no || '.png',
-  'data/humen/' || s.employee_no || '_profile.png',
+  NULL, -- photo_url: 레거시 정적 경로(data/humen)는 사용하지 않는다
+  NULL, -- profile_photo_url: 아래 프로필 사진 매핑에서 설정
   'SYSTEM', NOW(), '127.0.0.1'::inet, 'SYSTEM', NOW(), '127.0.0.1'::inet,
   jsonb_build_object('summary', s.role_name || ' 샘플', 'role', s.role_name, 'dept_cd', s.dept_cd),
   jsonb_build_object('dept_cd', s.dept_cd, 'dept_name', CASE WHEN s.dept_cd = 'D000019' THEN '청A1' ELSE '청A2' END, 'role', s.role_name)
@@ -290,10 +290,40 @@ SELECT
   s.hire_date,
   s.retire_date,
   s.promotion_date,
-  'data/humen/' || s.employee_no || '.png',
-  'data/humen/' || s.employee_no || '_profile.png',
+  NULL, -- photo_url: 레거시 정적 경로(data/humen)는 사용하지 않는다
+  NULL, -- profile_photo_url: 아래 프로필 사진 매핑에서 설정
   'SYSTEM', NOW(), '127.0.0.1'::inet, 'SYSTEM', NOW(), '127.0.0.1'::inet,
   jsonb_build_object('summary', s.role_name || ' 샘플', 'role', s.role_name, 'dept_cd', s.dept_cd, 'dept_name', s.dept_name) || s.ai_payload,
   jsonb_build_object('dept_cd', s.dept_cd, 'dept_name', s.dept_name, 'role', s.role_name)
 FROM missionary_seed s
 ON CONFLICT (employee_no) DO NOTHING;
+
+-- 6) 프로필 사진: data/profile/<UUID>.png (기존 DB는 hrm_person_profile_photo_migration.sql 실행)
+WITH profile_map(employee_no, profile_photo_url) AS (
+  VALUES
+  ('000001', '/data/profile/ca629bc2-8f31-4aa8-954a-81095611fc33.png'),
+  ('000002', '/data/profile/3443d3b0-a9b2-4397-919e-f67ab893cda6.png'),
+  ('000003', '/data/profile/8de330c7-150d-4771-a7e0-5c0a217d2551.png'),
+  ('000004', '/data/profile/30e83b6c-0067-4105-aa53-66487dd700e0.png'),
+  ('000005', '/data/profile/fc567282-f27d-4ec4-bb21-c9701b3f2e5c.png'),
+  ('000006', '/data/profile/d2a70719-c234-45b3-8e61-fe3115765f86.png'),
+  ('000007', '/data/profile/065a82d9-4e0f-4a69-8743-8641b048c791.png'),
+  ('000008', '/data/profile/348ead7f-0ce0-429d-9e6c-2d32466105fe.png'),
+  ('000009', '/data/profile/76a6615a-7459-4abf-b297-fb3854052fbc.png'),
+  ('000010', '/data/profile/4fb458ce-a88f-410e-91ff-9320abcc0794.png'),
+  ('000011', '/data/profile/00ec5a60-d4a8-432d-bcea-53e6bff74c79.png'),
+  ('000012', '/data/profile/01c02c02-9d1a-4b27-a07b-815c540c15c9.png'),
+  ('000013', '/data/profile/57c11eaf-fd83-4374-9837-451366b755e1.png'),
+  ('000014', '/data/profile/58e3d53e-f365-4eb7-88da-202c53352e22.png'),
+  ('000015', '/data/profile/11812264-7a8c-4ff6-a4e6-95e9ca18d501.png'),
+  ('000016', '/data/profile/bd2df968-c791-47aa-8295-eaa44fa6ee38.png'),
+  ('000017', '/data/profile/8c228764-1522-44b1-abe9-05c70ed05194.png'),
+  ('000018', '/data/profile/ab917d0d-bed7-4746-b060-173086b9f67e.png'),
+  ('000019', '/data/profile/42a5a366-3389-49ab-b034-aae13e623723.png'),
+  ('000020', '/data/profile/ecae46da-8ed2-4aa6-8e56-b3ebc56ad644.png')
+)
+UPDATE hrm_person hp
+   SET profile_photo_url = m.profile_photo_url
+  FROM profile_map m
+ WHERE hp.employee_no = m.employee_no
+   AND hp.profile_photo_url IS NULL;

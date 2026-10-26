@@ -35,7 +35,7 @@ class ManagerServiceTest {
         query.setSortField("nameKo");
         query.setSortDirection("desc");
 
-        new ManagerService(mapper).getPersonList(query);
+        new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class)).getPersonList(query);
 
         ArgumentCaptor<ManagerDto.SearchCondition> captor =
                 ArgumentCaptor.forClass(ManagerDto.SearchCondition.class);
@@ -57,7 +57,7 @@ class ManagerServiceTest {
     @Test
     void unsupportedSortIsRejectedBeforeDatabaseAccess() {
         ManagerMapper mapper = mock(ManagerMapper.class);
-        ManagerService service = new ManagerService(mapper);
+        ManagerService service = new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class));
         ManagerDto.ListQuery query = new ManagerDto.ListQuery();
         query.setSortField("nameKo; DROP TABLE hrm_person");
         assertBadSort(service, query);
@@ -78,7 +78,7 @@ class ManagerServiceTest {
         ManagerDto.ListQuery query = new ManagerDto.ListQuery();
         query.setPage(Integer.MAX_VALUE);
         query.setSize(500);
-        new ManagerService(mapper).getPersonList(query);
+        new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class)).getPersonList(query);
 
         ArgumentCaptor<ManagerDto.SearchCondition> captor =
                 ArgumentCaptor.forClass(ManagerDto.SearchCondition.class);
@@ -100,7 +100,7 @@ class ManagerServiceTest {
     void gradeAndPositionAreIndependentAllowedSorts() {
         ManagerMapper mapper = mock(ManagerMapper.class);
         when(mapper.selectPersonList(any())).thenReturn(List.of());
-        ManagerService service = new ManagerService(mapper);
+        ManagerService service = new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class));
         for (String field : List.of("gradeName", "positionName")) {
             ManagerDto.ListQuery query = new ManagerDto.ListQuery();
             query.setSortField(field);
@@ -113,7 +113,7 @@ class ManagerServiceTest {
     @Test
     void invalidCreateIsRejectedBeforeDatabaseAccess() {
         ManagerMapper mapper = mock(ManagerMapper.class);
-        ManagerService service = new ManagerService(mapper);
+        ManagerService service = new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class));
         assertBadCreate(service, null);
         ManagerRequest request = validCreate();
         request.setEmployeeNo(" ");
@@ -147,7 +147,7 @@ class ManagerServiceTest {
     @Test
     void validCreateTrimsRequiredFieldsAndKeepsBoundaryValues() {
         ManagerMapper mapper = mock(ManagerMapper.class);
-        ManagerService service = new ManagerService(mapper);
+        ManagerService service = new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class));
         ManagerRequest request = validCreate();
         request.setEmployeeNo(" " + "x".repeat(30) + " ");
         request.setNameKo(" " + "x".repeat(100) + " ");
@@ -166,11 +166,127 @@ class ManagerServiceTest {
     void duplicateEmployeeNumberIsConflict() {
         ManagerMapper mapper = mock(ManagerMapper.class);
         when(mapper.countByEmployeeNo("TEST")).thenReturn(1);
-        assertThatThrownBy(() -> new ManagerService(mapper).createPerson(validCreate()))
+        assertThatThrownBy(() -> new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class)).createPerson(validCreate()))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode().value())
                         .isEqualTo(409));
         verify(mapper, org.mockito.Mockito.never()).insertPerson(any(), any());
+    }
+
+    @Test
+    void basicInfoUpdateNormalizesAllowedFieldsAndRecordsAudit() {
+        ManagerMapper mapper = mock(ManagerMapper.class);
+        when(mapper.selectEmployeeNoForUpdate("pk")).thenReturn("000001");
+        when(mapper.updateBasicInfo(any(), any(), any())).thenReturn(1);
+        ManagerDto.PersonDetail detail = new ManagerDto.PersonDetail();
+        detail.setPersonKey("pk");
+        when(mapper.selectPersonDetail("000001")).thenReturn(detail);
+        ManagerDto.BasicInfoUpdate request = new ManagerDto.BasicInfoUpdate();
+        request.setNameKo("  홍길동 ");
+        request.setNameEn(" ");
+        request.setBirthDate("1990-01-01");
+        request.setGenderCode("M");
+        request.setAddressLine1(" 서울 ");
+        ManagerDto.Audit audit = new ManagerDto.Audit("admin", "127.0.0.1");
+
+        var result = new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class))
+                .setUpdate("pk", request, audit);
+
+        assertThat(result).isSameAs(detail);
+        assertThat(request.getNameKo()).isEqualTo("홍길동");
+        assertThat(request.getNameEn()).isNull();
+        assertThat(request.getAddressLine1()).isEqualTo("서울");
+        verify(mapper).updateBasicInfo("pk", request, audit);
+    }
+
+    @Test
+    void basicInfoUpdateRejectsInvalidValuesBeforeWriting() {
+        ManagerMapper mapper = mock(ManagerMapper.class);
+        ManagerService service = new ManagerService(mapper, mock(ManagerProfilePhotoStorage.class));
+        ManagerDto.Audit audit = new ManagerDto.Audit("admin", "127.0.0.1");
+        for (var mutate : List.<java.util.function.Consumer<ManagerDto.BasicInfoUpdate>>of(
+                r -> r.setNameKo(" "),
+                r -> r.setNameKo("x".repeat(101)),
+                r -> r.setBirthDate("2024-02-30"),
+                r -> r.setBirthDate(java.time.LocalDate.now().plusDays(1).toString()),
+                r -> r.setGenderCode("X"),
+                r -> r.setPostalCode("12345678901"))) {
+            ManagerDto.BasicInfoUpdate request = new ManagerDto.BasicInfoUpdate();
+            request.setNameKo("홍길동");
+            mutate.accept(request);
+            assertThatThrownBy(() -> service.setUpdate("pk", request, audit))
+                    .isInstanceOf(ResponseStatusException.class)
+                    .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode().value())
+                            .isEqualTo(400));
+        }
+        verifyNoInteractions(mapper);
+    }
+
+    @Test
+    void missingPersonIsNotFoundAndNoPhotoIsStored() {
+        ManagerMapper mapper = mock(ManagerMapper.class);
+        ManagerProfilePhotoStorage storage = mock(ManagerProfilePhotoStorage.class);
+        ManagerService service = new ManagerService(mapper, storage);
+        ManagerDto.Audit audit = new ManagerDto.Audit("admin", "127.0.0.1");
+        ManagerDto.BasicInfoUpdate request = new ManagerDto.BasicInfoUpdate();
+        request.setNameKo("홍길동");
+        for (Runnable call : List.<Runnable>of(
+                () -> service.setUpdate("missing", request, audit),
+                () -> service.setUpdateProfilePhoto("missing", null, audit),
+                () -> service.delRemoveProfilePhoto("missing", audit))) {
+            assertThatThrownBy(call::run)
+                    .isInstanceOf(ResponseStatusException.class)
+                    .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode().value())
+                            .isEqualTo(404));
+        }
+        verifyNoInteractions(storage);
+        verify(mapper, org.mockito.Mockito.never()).updateBasicInfo(any(), any(), any());
+        verify(mapper, org.mockito.Mockito.never()).updateProfilePhoto(any(), any(), any());
+    }
+
+    @Test
+    void profilePhotoApplyStoresFileThenUpdatesUrl() {
+        ManagerMapper mapper = mock(ManagerMapper.class);
+        ManagerProfilePhotoStorage storage = mock(ManagerProfilePhotoStorage.class);
+        when(mapper.selectEmployeeNoForUpdate("pk")).thenReturn("000001");
+        when(storage.store(any())).thenReturn("/data/profile/new.png");
+        when(mapper.updateProfilePhoto(any(), any(), any())).thenReturn(1);
+        ManagerDto.Audit audit = new ManagerDto.Audit("admin", "127.0.0.1");
+
+        var result = new ManagerService(mapper, storage).setUpdateProfilePhoto("pk", null, audit);
+
+        assertThat(result.getProfilePhotoUrl()).isEqualTo("/data/profile/new.png");
+        verify(mapper).updateProfilePhoto("pk", "/data/profile/new.png", audit);
+        verify(storage, org.mockito.Mockito.never()).deleteQuietly(any());
+    }
+
+    @Test
+    void profilePhotoDatabaseFailureRemovesOnlyNewFile() {
+        ManagerMapper mapper = mock(ManagerMapper.class);
+        ManagerProfilePhotoStorage storage = mock(ManagerProfilePhotoStorage.class);
+        when(mapper.selectEmployeeNoForUpdate("pk")).thenReturn("000001");
+        when(storage.store(any())).thenReturn("/data/profile/new.png");
+        when(mapper.updateProfilePhoto(any(), any(), any())).thenThrow(new IllegalStateException("db"));
+
+        assertThatThrownBy(() -> new ManagerService(mapper, storage)
+                .setUpdateProfilePhoto("pk", null, new ManagerDto.Audit("admin", "127.0.0.1")))
+                .isInstanceOf(IllegalStateException.class);
+        verify(storage).deleteQuietly("/data/profile/new.png");
+    }
+
+    @Test
+    void profilePhotoRemoveOnlyClearsReference() {
+        ManagerMapper mapper = mock(ManagerMapper.class);
+        ManagerProfilePhotoStorage storage = mock(ManagerProfilePhotoStorage.class);
+        when(mapper.selectEmployeeNoForUpdate("pk")).thenReturn("000001");
+        when(mapper.updateProfilePhoto(any(), any(), any())).thenReturn(1);
+        ManagerDto.Audit audit = new ManagerDto.Audit("admin", "127.0.0.1");
+
+        var result = new ManagerService(mapper, storage).delRemoveProfilePhoto("pk", audit);
+
+        assertThat(result.getProfilePhotoUrl()).isNull();
+        verify(mapper).updateProfilePhoto("pk", null, audit);
+        verifyNoInteractions(storage);
     }
 
     private ManagerRequest validCreate() {

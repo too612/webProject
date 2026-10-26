@@ -15,7 +15,6 @@
             ce.code_name AS employmentTypeName,
             cs.code_name AS serviceStatusName,
             hp.profile_photo_url AS profilePhotoUrl,
-            hp.photo_url AS photoUrl,
             hp.ai_profile ->> 'summary' AS aiSummary,
             hd.dept_nm AS deptName,
             COALESCE(hp.extra_attributes ->> 'role', cp.code_name, cg.code_name) AS dutyName,

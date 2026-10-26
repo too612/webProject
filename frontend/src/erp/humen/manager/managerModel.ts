@@ -126,6 +126,32 @@ export type ManagerPersonDetail = ManagerRow & {
   assignments: ManagerAssignment[];
 };
 
+/** 발령에 영향을 주지 않는 수정 가능 기본정보 */
+export type ManagerBasicInfoRequest = {
+  nameKo: string;
+  nameEn: string;
+  nameHanja: string;
+  birthDate: string;
+  genderCode: string;
+  postalCode: string;
+  addressLine1: string;
+  addressLine2: string;
+};
+
+export type ManagerProfilePhoto = {
+  profilePhotoUrl?: string | null;
+};
+
+export const PROFILE_PHOTO_MAX_SIZE = 5 * 1024 * 1024;
+export const PROFILE_PHOTO_ACCEPT = ".jpg,.jpeg,.png,image/jpeg,image/png";
+
+export const GENDER_OPTIONS: ManagerCodeOption[] = [
+  { code: "M", name: "남" },
+  { code: "F", name: "여" },
+  { code: "O", name: "기타" },
+  { code: "U", name: "미상" },
+];
+
 export type ManagerCodeOption = {
   code: string;
   name: string;

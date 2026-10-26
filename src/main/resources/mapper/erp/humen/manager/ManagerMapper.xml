@@ -182,4 +182,34 @@
         )
     </insert>
 
+    <select id="selectEmployeeNoForUpdate" resultType="string">
+        SELECT employee_no FROM hrm_person WHERE person_key = #{personKey} FOR UPDATE
+    </select>
+
+    <!-- 발령 연동 컬럼(부서/직급/직위/고용형태/재직상태/입·퇴사·승진일)과 식별자는 갱신하지 않는다. -->
+    <update id="updateBasicInfo">
+        UPDATE hrm_person
+           SET name_ko = #{person.nameKo},
+               name_en = #{person.nameEn},
+               name_hanja = #{person.nameHanja},
+               birth_date = CAST(#{person.birthDate} AS DATE),
+               gender_code = #{person.genderCode},
+               postal_code = #{person.postalCode},
+               address_line1 = #{person.addressLine1},
+               address_line2 = #{person.addressLine2},
+               upd_user = #{audit.userId},
+               upd_dtm = NOW(),
+               upd_ip = CAST(#{audit.ip} AS INET)
+         WHERE person_key = #{personKey}
+    </update>
+
+    <update id="updateProfilePhoto">
+        UPDATE hrm_person
+           SET profile_photo_url = #{profilePhotoUrl},
+               upd_user = #{audit.userId},
+               upd_dtm = NOW(),
+               upd_ip = CAST(#{audit.ip} AS INET)
+         WHERE person_key = #{personKey}
+    </update>
+
 </mapper>

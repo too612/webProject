@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -22,6 +25,8 @@ import java.time.format.DateTimeParseException;
 public class ManagerService {
 
     private final ManagerMapper managerMapper;
+    private final ManagerProfilePhotoStorage profilePhotoStorage;
+    private static final Set<String> GENDER_CODES = Set.of("M", "F", "O", "U");
     private static final Set<String> SORT_FIELDS = Set.of(
             "employeeNo", "nameKo", "gradeName", "positionName", "deptName",
             "employmentTypeName", "hireDate", "serviceStatusName");
@@ -108,6 +113,93 @@ public class ManagerService {
             request.setServiceStatusCode("101-010");
         }
         managerMapper.insertPerson(request, "SYSTEM");
+    }
+
+    /** 기본 인적정보만 수정한다. 발령 연동 항목과 식별자는 변경하지 않는다. */
+    @Transactional
+    public ManagerDto.PersonDetail setUpdate(String personKey, ManagerDto.BasicInfoUpdate request,
+            ManagerDto.Audit audit) {
+        if (request == null || request.getNameKo() == null || request.getNameKo().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "성명은 필수입니다.");
+        }
+        request.setNameKo(request.getNameKo().trim());
+        request.setNameEn(normalizeOptional(request.getNameEn()));
+        request.setNameHanja(normalizeOptional(request.getNameHanja()));
+        request.setBirthDate(normalizeOptional(request.getBirthDate()));
+        request.setGenderCode(normalizeOptional(request.getGenderCode()));
+        request.setPostalCode(normalizeOptional(request.getPostalCode()));
+        request.setAddressLine1(normalizeOptional(request.getAddressLine1()));
+        request.setAddressLine2(normalizeOptional(request.getAddressLine2()));
+        validateLength(request.getNameKo(), 100, "성명");
+        validateLength(request.getNameEn(), 100, "영문 성명");
+        validateLength(request.getNameHanja(), 100, "한자 성명");
+        validateLength(request.getPostalCode(), 10, "우편번호");
+        validateLength(request.getAddressLine1(), 255, "주소");
+        validateLength(request.getAddressLine2(), 255, "상세 주소");
+        validateDate(request.getBirthDate(), "생년월일");
+        if (request.getBirthDate() != null && LocalDate.parse(request.getBirthDate()).isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "생년월일은 오늘 이후일 수 없습니다.");
+        }
+        if (request.getGenderCode() != null && !GENDER_CODES.contains(request.getGenderCode())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "성별 코드가 올바르지 않습니다.");
+        }
+        String employeeNo = lockPerson(personKey);
+        if (managerMapper.updateBasicInfo(personKey, request, audit) != 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "인사정보가 변경되지 않았습니다. 다시 시도하세요.");
+        }
+        return getPersonDetail(employeeNo);
+    }
+
+    /** 새 사진을 UUID 파일명으로 저장한 뒤 profile_photo_url을 교체한다. 이전 파일은 보존한다. */
+    @Transactional
+    public ManagerDto.ProfilePhoto setUpdateProfilePhoto(String personKey, MultipartFile file,
+            ManagerDto.Audit audit) {
+        lockPerson(personKey);
+        String url = profilePhotoStorage.store(file);
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status != STATUS_COMMITTED) {
+                        profilePhotoStorage.deleteQuietly(url);
+                    }
+                }
+            });
+        }
+        try {
+            if (managerMapper.updateProfilePhoto(personKey, url, audit) != 1) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "프로필 사진이 변경되지 않았습니다. 다시 시도하세요.");
+            }
+        } catch (RuntimeException exception) {
+            profilePhotoStorage.deleteQuietly(url);
+            throw exception;
+        }
+        ManagerDto.ProfilePhoto result = new ManagerDto.ProfilePhoto();
+        result.setProfilePhotoUrl(url);
+        return result;
+    }
+
+    /** 프로필 사진 연결만 해제한다. 파일은 물리 삭제하지 않는다. */
+    @Transactional
+    public ManagerDto.ProfilePhoto delRemoveProfilePhoto(String personKey, ManagerDto.Audit audit) {
+        lockPerson(personKey);
+        if (managerMapper.updateProfilePhoto(personKey, null, audit) != 1) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "프로필 사진이 변경되지 않았습니다. 다시 시도하세요.");
+        }
+        return new ManagerDto.ProfilePhoto();
+    }
+
+    private String lockPerson(String personKey) {
+        String employeeNo = personKey == null || personKey.isBlank()
+                ? null : managerMapper.selectEmployeeNoForUpdate(personKey);
+        if (employeeNo == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "인사정보를 찾을 수 없습니다.");
+        }
+        return employeeNo;
+    }
+
+    private static String normalizeOptional(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private void validateLength(String value, int max, String label) {

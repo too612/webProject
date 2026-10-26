@@ -13,6 +13,7 @@ import { useAsyncResource, useSearchQuery } from "../../../common/ui";
 import { focusFirstInvalid, type FieldErrors } from "../../../common/ui/form/formValidation";
 import { equalManagerSearch, hasManagerSearch, normalizeManagerCreate, validateManagerCreate, type ManagerSearch } from "./managerValidation";
 import { useWorkspaceDirty } from "../../../common/workspace/workspaceHook";
+import { useManagerEdit } from "./managerEditHook";
 import type {
   ManagerCreateRequest,
   ManagerFilterOptions,
@@ -43,7 +44,9 @@ const EMPTY_CREATE_FORM: ManagerCreateRequest = {
   serviceStatusCode: "101-010",
 };
 
-export function useManagerPage() {
+export function useManagerPage({ onRowUpdated }: {
+  onRowUpdated: (personKey: string, patch: Partial<ManagerRow>) => void;
+}) {
   const [searchParams] = useSearchParams();
   const [initialQuery] = useState<ManagerSearch>(() => ({
     ...EMPTY_FILTERS,
@@ -76,7 +79,24 @@ export function useManagerPage() {
   const createInFlight = useRef(false);
   const excelState = useRef<{ token?: string }>({});
   const createDirty = JSON.stringify(createForm) !== JSON.stringify(EMPTY_CREATE_FORM);
-  useWorkspaceDirty(createDirty);
+  const updateRow = useCallback((personKey: string, patch: Partial<ManagerRow>) => {
+    setSelectedRow((current) => current?.personKey === personKey ? { ...current, ...patch } : current);
+    onRowUpdated(personKey, patch);
+  }, [onRowUpdated]);
+  const edit = useManagerEdit({ person: selectedPerson, onPersonUpdated: setSelectedPerson, onRowUpdated: updateRow });
+  const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null);
+  useWorkspaceDirty(createDirty || edit.dirty);
+  const guardEdit = useCallback((action: () => void) => {
+    if (edit.dirty) setPendingLeave(() => action);
+    else action();
+  }, [edit.dirty]);
+  const confirmLeave = useCallback(() => {
+    const action = pendingLeave;
+    setPendingLeave(null);
+    edit.reset();
+    action?.();
+  }, [pendingLeave, edit.reset]);
+  const cancelLeave = useCallback(() => setPendingLeave(null), []);
   const loadRows = useCallback(
     async ({ startRow, endRow, sortModel, signal }: GridLoadParams) => {
       const { page, size } = blockToPage(startRow, endRow);
@@ -98,10 +118,12 @@ export function useManagerPage() {
   const handleSearch = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      apply({ ...filters, keyword: filters.keyword.trim() });
-      setIsSheetOpen(false);
+      guardEdit(() => {
+        apply({ ...filters, keyword: filters.keyword.trim() });
+        setIsSheetOpen(false);
+      });
     },
-    [apply, filters],
+    [apply, filters, guardEdit],
   );
 
   const handleFilterChange = useCallback(
@@ -118,7 +140,7 @@ export function useManagerPage() {
     setDraft((current) => ({ ...current, keyword: value }));
   }, [setDraft]);
 
-  const selectPerson = useCallback(async (row: ManagerRow) => {
+  const loadPerson = useCallback(async (row: ManagerRow) => {
     detailRequest.current?.abort();
     const controller = new AbortController();
     detailRequest.current = controller;
@@ -140,10 +162,22 @@ export function useManagerPage() {
     }
   }, []);
 
+  const selectPerson = useCallback((row: ManagerRow) => {
+    guardEdit(() => void loadPerson(row));
+  }, [guardEdit, loadPerson]);
+
+  const retryPerson = useCallback(() => {
+    if (selectedRow) void loadPerson(selectedRow);
+  }, [selectedRow, loadPerson]);
+
   const handleDetailOpenChange = useCallback((open: boolean) => {
-    setIsSheetOpen(open);
-    if (!open) detailRequest.current?.abort();
-  }, []);
+    const apply = () => {
+      setIsSheetOpen(open);
+      if (!open) detailRequest.current?.abort();
+    };
+    if (open) apply();
+    else guardEdit(apply);
+  }, [guardEdit]);
 
   const handleCreateOpenChange = useCallback((open: boolean) => {
     if (createInFlight.current) return;
@@ -245,9 +279,14 @@ export function useManagerPage() {
     handleInputKeywordChange,
     handleFilterChange,
     selectPerson,
+    retryPerson,
     handleDetailOpenChange,
     handleCreateOpenChange,
     updateCreateForm,
     submitCreate,
+    edit,
+    leaveConfirmOpen: pendingLeave !== null,
+    confirmLeave,
+    cancelLeave,
   };
 }

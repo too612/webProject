@@ -50,7 +50,7 @@ public class PeopleService {
                 firstNonBlank(pastorRow.getPositionName(), "섬기는 분") + "으로 함께 섬기고 있습니다."
         ));
         applyDetails(pastor, pastorRow);
-        pastor.setImageUrl(normalizeImageUrl(firstNonBlank(pastorRow.getProfilePhotoUrl(), pastorRow.getPhotoUrl())));
+        pastor.setImageUrl(normalizeImageUrl(pastorRow.getProfilePhotoUrl()));
         response.setPastor(pastor);
 
         List<PeopleDto.LeaderCard> leaders = new ArrayList<>();
@@ -68,7 +68,7 @@ public class PeopleService {
                     firstNonBlank(row.getServiceStatusName(), "재직") + " 상태로 섬기고 있습니다."
             ));
             applyDetails(card, row);
-            card.setImageUrl(normalizeImageUrl(firstNonBlank(row.getProfilePhotoUrl(), row.getPhotoUrl())));
+            card.setImageUrl(normalizeImageUrl(row.getProfilePhotoUrl()));
             leaders.add(card);
         }
         response.setLeaders(leaders);

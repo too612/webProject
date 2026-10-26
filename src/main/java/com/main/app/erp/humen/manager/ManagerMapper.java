@@ -27,4 +27,12 @@ public interface ManagerMapper {
     int countByEmployeeNo(@Param("employeeNo") String employeeNo);
 
     int insertPerson(@Param("person") ManagerRequest person, @Param("regUser") String regUser);
+
+    String selectEmployeeNoForUpdate(@Param("personKey") String personKey);
+
+    int updateBasicInfo(@Param("personKey") String personKey,
+            @Param("person") ManagerDto.BasicInfoUpdate person, @Param("audit") ManagerDto.Audit audit);
+
+    int updateProfilePhoto(@Param("personKey") String personKey,
+            @Param("profilePhotoUrl") String profilePhotoUrl, @Param("audit") ManagerDto.Audit audit);
 }

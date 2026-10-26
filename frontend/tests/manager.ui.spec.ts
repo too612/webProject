@@ -1,7 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import type { ManagerCreateRequest, ManagerFilterOptions, ManagerRow } from "../src/erp/humen/manager/managerModel";
+import type { ManagerBasicInfoRequest, ManagerCreateRequest, ManagerFilterOptions, ManagerRow } from "../src/erp/humen/manager/managerModel";
 
 const PATH = "/erp/humen/manager";
+const PHOTO_URL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 const OPTIONS: ManagerFilterOptions = {
   departments: [{ code: "D1", name: "운영부" }, { code: "D2", name: "기획부" }],
   grades: [{ code: "G1", name: "긴 직급 명칭 전체를 확인할 수 있는 관리자" }],
@@ -33,6 +34,7 @@ async function setup(page: Page) {
     holdFirst: false, holdMore: false, holdCreate: false,
     first: deferred(), more: deferred(), create: deferred(),
     lists: [] as URL[], creates: [] as ManagerCreateRequest[],
+    basicUpdates: [] as ManagerBasicInfoRequest[], photoRequests: [] as string[],
     exports: [] as { fileName: string; sheets: { columns: { id: string }[]; blocks: { token: string; indexes: number[] }[] }[] }[],
     errors: [] as string[],
   };
@@ -93,6 +95,18 @@ async function setup(page: Page) {
       rows = [...rows].sort((a, b) => direction * String(a[field]).localeCompare(String(b[field])) || a.employeeNo.localeCompare(b.employeeNo));
       return route.fulfill({ contentType: "application/json", headers: { "X-Excel-Snapshot": `snapshot-${pageIndex}` },
         body: JSON.stringify(response({ content: rows.slice(pageIndex * size, (pageIndex + 1) * size), number: pageIndex, size, totalElements: rows.length, totalPages: Math.ceil(rows.length / size) })) });
+    }
+    if (url.pathname.startsWith("/api/erp/humen/manager/") && url.pathname.endsWith("/basic-info")) {
+      const body = request.postDataJSON();
+      state.basicUpdates.push(body);
+      const key = url.pathname.split("/").at(-2);
+      const row = ROWS.find((item) => item.personKey === key);
+      return json({ ...row, ...body, careers: [], assignments: [] }, "저장 완료");
+    }
+    if (url.pathname.startsWith("/api/erp/humen/manager/") && url.pathname.endsWith("/profile-photo")) {
+      state.photoRequests.push(`${request.method()} ${request.headers()["content-type"]?.split(";")[0] ?? ""}`);
+      if (request.method() === "DELETE") return json({ profilePhotoUrl: null });
+      return json({ profilePhotoUrl: PHOTO_URL });
     }
     if (url.pathname.startsWith("/api/erp/humen/manager/")) {
       const row = ROWS.find((item) => item.employeeNo === decodeURIComponent(url.pathname.split("/").at(-1) ?? ""));
@@ -289,6 +303,63 @@ test("상세 이전·다음, 확대·축소 탭 유지, 키보드 포커스 복�
   await expect(separator).not.toHaveAttribute("aria-valuenow", width ?? "");
   await page.getByRole("button", { name: "상세 닫기" }).click();
   await expect(cell(page, 0)).toBeFocused();
+  expect(state.errors).toEqual([]);
+});
+
+test("기본정보 저장, 미저장 이동 확인, 프로필 사진 추가·적용·삭제", async ({ page }) => {
+  const state = await setup(page);
+  await openManager(page);
+  await ready(page);
+  await cell(page, 0).click();
+  await expect(page.getByRole("heading", { name: "직원 001" })).toBeVisible();
+  const form = page.getByRole("form", { name: "기본정보 수정" });
+  await expect(form.getByLabel("사번")).toHaveValue("E0001");
+  await expect(form.getByLabel("사번")).toBeDisabled();
+  await expect(form.getByRole("button", { name: "저장" })).toBeDisabled();
+
+  await form.getByLabel("성명", { exact: true }).fill("   ");
+  await form.getByRole("button", { name: "저장" }).click();
+  await expect(form.getByRole("alert")).toHaveText("입력 내용을 확인하세요.");
+  await expect(form.getByLabel("성명", { exact: true })).toBeFocused();
+  expect(state.basicUpdates).toEqual([]);
+
+  await form.getByLabel("성명", { exact: true }).fill(" 수정 직원 ");
+  await form.getByLabel("주소", { exact: true }).fill("서울시");
+  await page.getByRole("button", { name: "다음 인사정보" }).click();
+  await expect(page.getByRole("dialog", { name: "수정 취소" })).toContainText("변경을 버리고 이동하시겠습니까?");
+  await page.getByRole("button", { name: "계속 수정" }).click();
+  await expect(form.getByLabel("성명", { exact: true })).toHaveValue(" 수정 직원 ");
+
+  await form.getByRole("button", { name: "저장" }).click();
+  await expect(form.getByRole("status")).toHaveText("기본정보를 저장했습니다.");
+  expect(state.basicUpdates.at(-1)).toMatchObject({ nameKo: "수정 직원", addressLine1: "서울시", nameEn: "Test Person" });
+  await expect(cell(page, 0)).toHaveText("수정 직원");
+  await expect(page.getByRole("heading", { name: "수정 직원" })).toBeVisible();
+
+  const photo = page.getByRole("region", { name: "프로필 사진" });
+  await photo.getByLabel("프로필 사진 파일 선택").setInputFiles({ name: "a.gif", mimeType: "image/gif", buffer: Buffer.from("GIF") });
+  await expect(photo.getByRole("alert")).toHaveText("JPG 또는 PNG 파일만 업로드할 수 있습니다.");
+  await expect(photo.getByRole("button", { name: "적용" })).toBeDisabled();
+  await photo.getByLabel("프로필 사진 파일 선택").setInputFiles({
+    name: "me.png", mimeType: "image/png", buffer: Buffer.from(PHOTO_URL.split(",")[1], "base64"),
+  });
+  await expect(photo.getByText("적용 대기: me.png")).toBeVisible();
+  await expect(photo.getByRole("img")).toHaveAttribute("src", /^blob:/);
+  await photo.getByRole("button", { name: "적용" }).click();
+  await expect(photo.getByRole("status")).toHaveText("프로필 사진을 적용했습니다.");
+  await expect(photo.getByRole("img")).toHaveAttribute("src", PHOTO_URL);
+
+  await photo.getByRole("button", { name: "삭제" }).click();
+  await expect(photo.getByText("사진 없음")).toBeVisible();
+  await photo.getByRole("button", { name: "적용" }).click();
+  await expect(photo.getByRole("status")).toHaveText("프로필 사진을 삭제했습니다.");
+  expect(state.photoRequests).toEqual(["PUT multipart/form-data", "DELETE "]);
+
+  await form.getByLabel("우편번호").fill("12345");
+  await page.getByRole("button", { name: "상세 닫기" }).click();
+  await page.getByRole("button", { name: "변경 버리기" }).click();
+  await expect(page.getByRole("heading", { name: "수정 직원" })).toHaveCount(0);
+  expect(state.basicUpdates).toHaveLength(1);
   expect(state.errors).toEqual([]);
 });
 

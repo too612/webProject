@@ -73,6 +73,25 @@ public class ManagerDto {
     }
 
     @Data
+    public static class BasicInfoUpdate {
+        private String nameKo;
+        private String nameEn;
+        private String nameHanja;
+        private String birthDate;
+        private String genderCode;
+        private String postalCode;
+        private String addressLine1;
+        private String addressLine2;
+    }
+
+    @Data
+    public static class ProfilePhoto {
+        private String profilePhotoUrl;
+    }
+
+    public record Audit(String userId, String ip) {}
+
+    @Data
     public static class CodeOption {
         private String code;
         private String name;

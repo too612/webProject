@@ -15,7 +15,6 @@ public class PeopleMemberRowDto {
     private String employmentTypeName;
     private String serviceStatusName;
     private String profilePhotoUrl;
-    private String photoUrl;
     private String aiSummary;
     private String deptName;
     private String dutyName;
