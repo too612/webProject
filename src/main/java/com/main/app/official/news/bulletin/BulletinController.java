@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.CommentDto;
+import com.main.app.common.attachment.PublicContentAccessGuard;
 import com.main.app.common.attachment.dto.AttachmentDto;
 import com.main.app.official.news.bulletin.dto.BulletinDto;
 import com.main.app.official.news.bulletin.dto.BulletinRequest;
@@ -39,9 +40,11 @@ public class BulletinController {
     private static final String BASE_PATH = "/news/bulletin";
 
     private final BulletinService bulletinService;
+    private final PublicContentAccessGuard publicContentAccessGuard;
 
-    public BulletinController(BulletinService bulletinService) {
+    public BulletinController(BulletinService bulletinService, PublicContentAccessGuard publicContentAccessGuard) {
         this.bulletinService = bulletinService;
+        this.publicContentAccessGuard = publicContentAccessGuard;
     }
 
     @GetMapping
@@ -130,6 +133,10 @@ public class BulletinController {
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam("fileId") Long fileId) throws MalformedURLException {
         AttachmentDto file = bulletinService.getFile(fileId);
+        // 비공개 첨부는 존재 여부를 노출하지 않도록 404 로 응답한다.
+        if (publicContentAccessGuard.isFileBlocked(file) || file == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(Objects.requireNonNullElse(file.getOrgFileNm(), "download"), StandardCharsets.UTF_8) + "\"").body(new UrlResource("file:" + file.getFilePath()));
     }
 

@@ -30,6 +30,22 @@
 - 공개 저장소에 기록된 기존 YouTube 키와 Gmail 앱 비밀번호는 계정 소유자가 폐기·재발급해야 합니다. 기본값 제거는 과거 Git 이력을 지우지 않습니다.
 - YouTube API 키는 YouTube Data API로 사용 범위를 제한하고 서버 실행 환경에 맞는 제한을 적용합니다. 요청 URL이나 외부 API 예외 메시지에는 키가 포함될 수 있으므로 로그에 출력하지 않습니다.
 
+## 보안 기준
+
+- 인증/인가 기본값은 **차단(fail-closed)** 입니다. 공개 경로(`/`, 정적 자산, `/api/auth/**`, `/api/common/chatbot/**`, `/data/**`)만 허용하고 `/api/**`는 세션 인증을 요구하며, 그 외 경로는 모두 차단합니다.
+- 공개 홈페이지(official)는 **읽기(GET)만** 비로그인에게 열려 있습니다: `/api/official/**`, `/api/common/article/**`, `/api/common/files/**`, `/api/common/comment/**`, `/api/common/corp/getInfo`, `/api/menu/**`. ERP·마이페이지·시스템·커뮤니티(`/api/community/**`)·인사 팝업은 공개하지 않습니다.
+- 첨부 다운로드·파일 목록(`/api/common/files/**`)과 게시판별 다운로드 API, 댓글 목록(`GET /api/common/comment`)은 pgmId/refId·파일 ID 만으로 조회되므로, 비로그인 요청은 `PublicContentAccessGuard` → `AttachmentService.isPubliclyDownloadable*` 검사를 통과해야 내용이 내려갑니다. 공개 도메인은 `post`, `sermon`, `history`, `pastor` 이며, 게시글(`com_post.is_secret`)·설교(`official_sermon.is_secret`) 첨부·댓글은 비밀글이 아닌 경우에만 공개합니다(비밀글·삭제·미존재 원본의 첨부는 404, 목록·댓글은 빈 목록). 즉 비회원이 비밀번호로 비밀글을 열람하더라도 첨부 다운로드는 로그인이 필요합니다. 로그인 사용자는 기존과 동일하게 전체 첨부·댓글에 접근합니다.
+- official 게시판의 작성/답글 폼 조회(`GET .../write`, `.../reply`)는 게시글 원본(비밀번호 포함)을 반환하므로 공개 조회에서 제외하고 로그인 세션을 요구합니다.
+- 개발 편의를 위한 전체 허용은 `dev` 프로파일 + `app.security.dev-permit-all=true` 조합에서만 동작합니다. 운영 배포 시 `SPRING_PROFILES_ACTIVE=prod` 를 지정해야 하며, prod 프로파일은 이 값을 무시합니다.
+- `dev` 전체 허용 모드에서도 **등록·수정·삭제(POST/PUT/PATCH/DELETE) 요청은 로그인 세션을 요구합니다.** 공개 경로(`/api/auth/**`, `/api/common/chatbot/**`)만 예외이며, official 게시글·교역자 정보·이미지 등록 API도 이 규칙으로 보호됩니다. 따라서 등록 기능은 프로파일과 무관하게 항상 로그인 후에만 동작합니다. 댓글 등록·추천(`POST /api/common/comment/**`)도 같은 규칙을 따르므로 비로그인 댓글은 지원하지 않습니다.
+- `dev` 전체 허용 모드에서도 **등록·수정·삭제(POST/PUT/PATCH/DELETE) 요청은 로그인 세션을 요구합니다.** 공개 경로(`/api/auth/**`, `/api/common/chatbot/**`)만 예외이며, official 게시글·교역자 정보·이미지 등록 API도 이 규칙으로 보호됩니다. 따라서 등록 기능은 프로파일과 무관하게 항상 로그인 후에만 동작합니다.
+- CSRF는 세션 쿠키 인증에 맞춰 활성화되어 있습니다. 서버는 `XSRF-TOKEN` 쿠키를 발급하고, 프론트는 `X-XSRF-TOKEN` 헤더로 전송합니다. `axios` 인스턴스(`common/api/api.client.ts`)를 사용하면 자동 처리되며, `fetch` 로 직접 POST/DELETE 하는 경우 `withCsrfHeaders()` 를 사용합니다. 토큰이 없으면 `GET /api/auth/csrf` 로 선발급합니다.
+- 업로드 파일(`/data/**`)은 공개 이미지 확장자만 정적 서빙합니다. 문서 파일은 인증이 필요한 다운로드 API로만 접근할 수 있습니다.
+- 세션은 요청마다 신뢰하지 않고 `app.security.session.revalidate-ms`(기본 60초) 주기로 계정 상태를 재검증합니다. 비활성/삭제된 계정의 세션은 즉시 폐기됩니다.
+- 평문 비밀번호 로그인 호환은 `app.security.allow-plaintext-password` 로 제어하며 운영 기본값은 `false` 입니다. dev 프로파일에서만 `true` 로 두고, 로그인 성공 시 BCrypt 로 자동 승격합니다.
+- prod 프로파일은 세션 쿠키에 `Secure` 를 적용합니다(`APP_SESSION_COOKIE_SECURE`, 기본 `true`).
+- 인가 규칙은 회귀 테스트로 고정합니다. `SecurityAuthorizationTest`(fail-closed: 비로그인 API 401 JSON, CSRF 없는 변경 403, 비공개 경로 차단), `DevModeWriteAuthorizationTest`(dev 허용 모드에서도 변경 요청은 401), `PublicReadAuthorizationTest`(공개 홈페이지 GET 허용·비공개 영역 401·비공개 첨부 404), `AttachmentPublicAccessTest`(공개 도메인/비밀글 첨부 판별), `StaticResourceRuleTest`(`/data/**` 이미지 확장자만 공개)를 보안 설정 변경 시 함께 실행합니다.
+
 ## 백엔드 규칙
 
 - 기능 폴더는 역할 기반 하위 폴더를 만들지 않습니다.

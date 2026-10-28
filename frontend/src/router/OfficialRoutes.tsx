@@ -6,6 +6,7 @@ import { lazy } from "react";
 import { Navigate, type RouteObject } from "react-router-dom";
 import MainLayout from "../layouts/shared/MainLayout";
 import SubmenuLayout from "../layouts/site/SubmenuLayout";
+import ProtectedRoute from "./ProtectedRoute";
 
 const OfficialIndexPage = lazy(
   () => import("../official/index/officialIndexPage"),
@@ -115,7 +116,8 @@ export const officialRoutes: RouteObject[] = [
           { path: "pastor", element: <PastorPage /> },
           { path: "people", element: <PeoplePageView /> },
           { path: "history", element: <HistoryPageView /> },
-          { path: "history/write", element: <HistoryPageWrite /> },
+          // 등록/수정 화면은 로그인 세션이 있어야 열린다(서버도 변경 요청에 인증을 요구한다).
+          { path: "history/write", element: <ProtectedRoute><HistoryPageWrite /></ProtectedRoute> },
           { path: "location", element: <LocationPage /> },
           { path: "contribution", element: <ContributionPage /> },
         ],
@@ -125,11 +127,11 @@ export const officialRoutes: RouteObject[] = [
         element: <SubmenuLayout />,
         children: [
           { path: "time", element: <WorshipTimeView /> },
-          { path: "time/write", element: <WorshipTimeWrite /> },
+          { path: "time/write", element: <ProtectedRoute><WorshipTimeWrite /></ProtectedRoute> },
           { path: "live", element: <LivePage /> },
           { path: "sermons", element: <SermonsList /> },
           { path: "sermons/view", element: <SermonsView /> },
-          { path: "sermons/write", element: <SermonsWrite /> },
+          { path: "sermons/write", element: <ProtectedRoute><SermonsWrite /></ProtectedRoute> },
         ],
       },
       {
@@ -151,13 +153,13 @@ export const officialRoutes: RouteObject[] = [
             element: <SchoolPage />,
           },
           { path: "school/view", element: <SchoolView /> },
-          { path: "school/write", element: <SchoolWrite /> },
+          { path: "school/write", element: <ProtectedRoute><SchoolWrite /></ProtectedRoute> },
           {
             path: "youth",
             element: <YouthPage />,
           },
           { path: "youth/view", element: <YouthView /> },
-          { path: "youth/write", element: <YouthWrite /> },
+          { path: "youth/write", element: <ProtectedRoute><YouthWrite /></ProtectedRoute> },
         ],
       },
       {
@@ -166,23 +168,23 @@ export const officialRoutes: RouteObject[] = [
         children: [
           { path: "notice", element: <NoticeList /> },
           { path: "notice/view", element: <NoticeView /> },
-          { path: "notice/write", element: <NoticeWrite /> },
+          { path: "notice/write", element: <ProtectedRoute><NoticeWrite /></ProtectedRoute> },
           { path: "gallery", element: <GalleryList /> },
           { path: "gallery/view", element: <GalleryView /> },
-          { path: "gallery/write", element: <GalleryWrite /> },
+          { path: "gallery/write", element: <ProtectedRoute><GalleryWrite /></ProtectedRoute> },
           { path: "bulletin", element: <BulletinList /> },
           { path: "bulletin/view", element: <BulletinView /> },
-          { path: "bulletin/write", element: <BulletinWrite /> },
+          { path: "bulletin/write", element: <ProtectedRoute><BulletinWrite /></ProtectedRoute> },
           { path: "member", element: <MemberList /> },
           { path: "member/view", element: <MemberView /> },
-          { path: "member/write", element: <MemberWrite /> },
+          { path: "member/write", element: <ProtectedRoute><MemberWrite /></ProtectedRoute> },
           // ★ 배너 관리
           { path: "banner", element: <BannerList /> },
           { path: "banner/view", element: <BannerView /> },
-          { path: "banner/write", element: <BannerWrite /> },
+          { path: "banner/write", element: <ProtectedRoute><BannerWrite /></ProtectedRoute> },
           { path: "mission", element: <MissionPage /> },
           { path: "mission/view", element: <MissionView /> },
-          { path: "mission/write", element: <MissionWrite /> },
+          { path: "mission/write", element: <ProtectedRoute><MissionWrite /></ProtectedRoute> },
           { path: "nextsteps", element: <NextstepsPage /> },
           { path: "eventcalendar", element: <EventCalendarPage /> },
         ],

@@ -6,6 +6,7 @@ import com.main.app.common.auth.dto.UserTermsConsentDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,10 @@ public class UserService {
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+    // 평문으로 저장된 과거 비밀번호 로그인 호환 여부 (운영 기본 비활성)
+    @Value("${app.security.allow-plaintext-password:false}")
+    private boolean allowPlaintextPassword;
 
     // 로그인 실패 최대 횟수
     private static final int MAX_LOGIN_FAIL_CNT = 5;
@@ -273,13 +278,18 @@ public class UserService {
             passwordMatched = false;
         } else if (isBcryptHash(storedPassword)) {
             passwordMatched = passwordEncoder.matches(rawPassword, storedPassword);
-        } else {
-            // 과거 평문 비밀번호 호환 처리
+        } else if (allowPlaintextPassword) {
+            // 과거 평문 비밀번호 호환 처리 (개발 환경 한정). 로그인 성공 시 BCrypt 로 자동 승격한다.
             passwordMatched = rawPassword.equals(storedPassword);
             if (passwordMatched) {
                 String encodedPassword = passwordEncoder.encode(rawPassword);
                 userMapper.updatePassword(normalizedUserId, encodedPassword);
+                log.warn("평문 비밀번호 계정이 로그인되어 BCrypt 로 전환했습니다. userId={}", normalizedUserId);
             }
+        } else {
+            // 운영 환경에서는 평문 비밀번호 로그인을 허용하지 않는다.
+            passwordMatched = false;
+            log.warn("평문으로 저장된 비밀번호 계정의 로그인을 차단했습니다. userId={} (관리자 재설정 필요)", normalizedUserId);
         }
 
         log.debug("로그인 비밀번호 비교 결과: userId={}, passwordMatched={}, storedPasswordType={}",
@@ -356,8 +366,11 @@ public class UserService {
                 currentPasswordMatched = false;
             } else if (isBcryptHash(storedPassword)) {
                 currentPasswordMatched = passwordEncoder.matches(currentPassword, storedPassword);
-            } else {
+            } else if (allowPlaintextPassword) {
+                // 평문 비밀번호 호환은 개발 환경에서만 허용한다.
                 currentPasswordMatched = currentPassword.equals(storedPassword);
+            } else {
+                currentPasswordMatched = false;
             }
 
             if (!currentPasswordMatched) {

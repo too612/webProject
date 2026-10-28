@@ -2,6 +2,7 @@
  * File Name   : bannerApi
  * Description : 배너 관리 API
  */
+import { withCsrfHeaders } from '../../../common/api/api.client';
 import { BANNER_API_BASE_PATH } from './bannerModel';
 import type { BannerDto, BannerRequest } from './bannerModel';
 
@@ -23,7 +24,7 @@ export const bannerApi = {
   save: async (request: BannerRequest): Promise<void> => {
     const res = await fetch(`/api${BANNER_API_BASE_PATH}/write`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await withCsrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(request),
     });
     const json = await res.json();
@@ -33,6 +34,7 @@ export const bannerApi = {
   remove: async (rqstNo: string): Promise<void> => {
     const res = await fetch(`/api${BANNER_API_BASE_PATH}/delete/${rqstNo}`, {
       method: 'DELETE',
+      headers: await withCsrfHeaders(),
     });
     const json = await res.json();
     if (!json.success) throw new Error(json.message);

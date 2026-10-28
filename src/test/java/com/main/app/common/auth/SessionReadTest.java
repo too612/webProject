@@ -46,7 +46,7 @@ class SessionReadTest {
 
     @Test
     void authReadsAndLogoutDoNotCreateSessions() {
-        var controller = new AuthController(null, null, null);
+        var controller = new AuthController(null, null, null, null);
         var request = new MockHttpServletRequest();
 
         assertThat(controller.check(request).getData().get("authenticated")).isFalse();
@@ -57,7 +57,7 @@ class SessionReadTest {
 
     @Test
     void sessionCheckDoesNotChangeAnExistingSession() {
-        var controller = new AuthController(null, null, null);
+        var controller = new AuthController(null, null, null, null);
         var request = new MockHttpServletRequest();
         var session = request.getSession();
         session.setAttribute("userId", "session-contract-test");

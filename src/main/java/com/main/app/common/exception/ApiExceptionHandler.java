@@ -44,9 +44,10 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception exception) {
+        // 내부 예외 메시지(SQL/스택 정보 등)는 응답에 노출하지 않고 서버 로그에만 남긴다.
         log.error("Unhandled API exception", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        exception.getMessage() == null ? "서버 오류가 발생했습니다." : exception.getMessage()));
+                        "서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."));
     }
 }

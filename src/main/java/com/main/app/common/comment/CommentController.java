@@ -1,6 +1,7 @@
 package com.main.app.common.comment;
 
 import com.main.app.common.comment.dto.CommentDto;
+import com.main.app.common.attachment.PublicContentAccessGuard;
 import com.main.app.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -17,11 +18,16 @@ import java.util.Map;
 public class CommentController {
 
     private final CommentService commentService;
+    private final PublicContentAccessGuard publicContentAccessGuard;
 
     @GetMapping
     public ApiResponse<List<CommentDto>> getList(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId) {
+        // 비로그인 사용자가 비밀글·비공개 도메인의 댓글을 볼 수 없도록 공개 그룹만 응답한다.
+        if (publicContentAccessGuard.isGroupBlocked(pgmId, refId)) {
+            return ApiResponse.ok(List.of());
+        }
         return ApiResponse.ok(commentService.getCommentList(pgmId, refId));
     }
 

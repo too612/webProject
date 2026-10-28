@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.main.app.common.dto.ApiResponse;
 import com.main.app.common.dto.CommentDto;
+import com.main.app.common.attachment.PublicContentAccessGuard;
 import com.main.app.common.attachment.dto.AttachmentDto;
 import com.main.app.official.nextgen.school.dto.ChildrenDto;
 import com.main.app.official.nextgen.school.dto.ChildrenRequest;
@@ -39,9 +40,11 @@ public class ChildrenController {
     private static final String BASE_PATH = "/nextgen/school";
 
     private final ChildrenService childrenService;
+    private final PublicContentAccessGuard publicContentAccessGuard;
 
-    public ChildrenController(ChildrenService childrenService) {
+    public ChildrenController(ChildrenService childrenService, PublicContentAccessGuard publicContentAccessGuard) {
         this.childrenService = childrenService;
+        this.publicContentAccessGuard = publicContentAccessGuard;
     }
 
     @GetMapping
@@ -153,6 +156,10 @@ public class ChildrenController {
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam("fileId") Long fileId) throws MalformedURLException {
         AttachmentDto file = childrenService.getFile(fileId);
+        // 비공개 첨부는 존재 여부를 노출하지 않도록 404 로 응답한다.
+        if (publicContentAccessGuard.isFileBlocked(file) || file == null) {
+            return ResponseEntity.notFound().build();
+        }
         UrlResource resource = new UrlResource("file:" + file.getFilePath());
         String originalFileName = Objects.requireNonNullElse(file.getOrgFileNm(), "download");
         String encodedUploadFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8);

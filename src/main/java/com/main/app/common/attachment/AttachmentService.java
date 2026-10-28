@@ -9,8 +9,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -29,8 +31,108 @@ public class AttachmentService {
     // 파일 저장 루트 경로 (application.properties에서 주입 가능)
     private static final String FILE_STORAGE_ROOT = "./data/";
 
+    /**
+     * 비로그인 사용자에게도 공개되는 첨부 도메인.
+     * <p>
+     * official 은 공개 홈페이지이므로 게시글(post)·설교(sermon)·연혁(history)·교역자(pastor) 첨부는 로그인 없이
+     * 내려받을 수 있어야 한다. ERP/시스템 등 그 외 도메인의 첨부는 공개 대상이 아니므로 인증이 필요하다.
+     */
+    private static final Set<String> PUBLIC_PGM_IDS = Set.of("post", "sermon", "history", "pastor");
+    private static final String POST_PGM_ID = "post";
+    private static final String SERMON_PGM_ID = "sermon";
+    private static final String EDITOR_USAGE = "editor";
+    private static final String ATTACHMENT_USAGE = "attachment";
+
     public AttachmentService(AttachmentMapper attachmentMapper) {
         this.attachmentMapper = attachmentMapper;
+    }
+
+    /**
+     * 비로그인 사용자에게 내려도 되는 파일인지 판별한다.
+     * <p>
+     * - 공개 도메인({@link #PUBLIC_PGM_IDS})이 아니면 공개하지 않는다.
+     * - 게시글(post)·설교(sermon) 첨부는 비밀글·삭제된 원본의 첨부를 공개하지 않는다.
+     */
+    public boolean isPubliclyDownloadable(AttachmentDto file) {
+        if (file == null || file.getPgmId() == null) {
+            return false;
+        }
+        if (!PUBLIC_PGM_IDS.contains(file.getPgmId())) {
+            return false;
+        }
+        return isPublicRef(file.getPgmId(), file.getRefId(), file.getFileUsage());
+    }
+
+    /**
+     * 비로그인 사용자에게 pgmId + refId 그룹(파일 목록·ZIP·댓글)을 공개해도 되는지 판별한다.
+     */
+    public boolean isPubliclyDownloadableGroup(String pgmId, String refId) {
+        if (pgmId == null || !PUBLIC_PGM_IDS.contains(pgmId)) {
+            return false;
+        }
+        return isPublicRef(pgmId, refId, ATTACHMENT_USAGE);
+    }
+
+    /**
+     * 공개 도메인 내 원본(게시글·설교) 참조가 공개 대상인지 판별한다.
+     */
+    private boolean isPublicRef(String pgmId, String refId, String fileUsage) {
+        if (POST_PGM_ID.equals(pgmId)) {
+            return isPublicPostRef(refId, fileUsage);
+        }
+        if (SERMON_PGM_ID.equals(pgmId)) {
+            return isPublicSermonRef(refId, fileUsage);
+        }
+        // history·pastor 는 별도 비밀글 개념이 없다.
+        return true;
+    }
+
+    /**
+     * 게시글 참조 공개 여부. 저장 전 업로드분(refId='temp')은 editor 용도만 공개한다.
+     */
+    private boolean isPublicPostRef(String refId, String fileUsage) {
+        if (!isNumeric(refId)) {
+            return isEditorUpload(fileUsage);
+        }
+        return Boolean.FALSE.equals(attachmentMapper.selectPostSecretFlag(refId));
+    }
+
+    /**
+     * 설교 참조 공개 여부. 저장 전 업로드분(refId='temp')은 editor 용도만 공개한다.
+     * <p>
+     * official_sermon 테이블이 없는 구 스키마 환경에서도 비로그인 다운로드가 500 으로 깨지지 않도록,
+     * 조회 실패 시에는 공개하지 않는 쪽( fail-closed )으로 처리한다.
+     */
+    private boolean isPublicSermonRef(String refId, String fileUsage) {
+        if (!isNumeric(refId)) {
+            return isEditorUpload(fileUsage);
+        }
+        try {
+            return Boolean.FALSE.equals(attachmentMapper.selectSermonSecretFlag(refId));
+        } catch (DataAccessException exception) {
+            log.warn("[Attachment] 설교 공개 여부 조회에 실패하여 비공개로 처리합니다. refId={}", refId, exception);
+            return false;
+        }
+    }
+
+    /**
+     * 원본 저장 전 업로드된 파일인지 확인한다.
+     * file_usage 가 NULL 로 남은 과거 데이터가 있어 함께 허용한다.
+     */
+    private static boolean isEditorUpload(String fileUsage) {
+        return fileUsage == null || EDITOR_USAGE.equals(fileUsage);
+    }
+
+    private static boolean isNumeric(String value) {
+        if (!StringUtils.hasText(value)) {
+            return false;
+        }
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

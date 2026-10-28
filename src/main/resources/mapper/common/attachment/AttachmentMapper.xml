@@ -185,4 +185,20 @@
           AND is_deleted = FALSE
     </update>
 
+    <!-- 공개 첨부 판별용: 게시글(post) 의 비밀글 여부 조회 (게시글 없음/삭제 시 null) -->
+    <select id="selectPostSecretFlag" resultType="java.lang.Boolean">
+        SELECT is_secret
+        FROM com_post
+        WHERE post_id = CAST(#{refId} AS BIGINT)
+          AND is_deleted = FALSE
+    </select>
+
+    <!-- 공개 첨부 판별용: 설교(sermon) 의 비밀글 여부 조회 (설교 없음/삭제 시 null) -->
+    <select id="selectSermonSecretFlag" resultType="java.lang.Boolean">
+        SELECT is_secret
+        FROM official_sermon
+        WHERE sermon_id = CAST(#{refId} AS BIGINT)
+          AND is_deleted = FALSE
+    </select>
+
 </mapper>

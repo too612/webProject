@@ -5,11 +5,14 @@ import com.main.app.common.auth.dto.UserDto;
 import com.main.app.common.auth.dto.TermsPolicyDto;
 import com.main.app.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -45,16 +48,19 @@ public class AuthController {
     private final UserService userService;
     private final AuthMailService authMailService;
     private final PermissionService permissionService;
+    private final CsrfTokenRepository csrfTokenRepository;
 
-    public AuthController(UserService userService, AuthMailService authMailService, PermissionService permissionService) {
+    public AuthController(UserService userService, AuthMailService authMailService, PermissionService permissionService,
+            CsrfTokenRepository csrfTokenRepository) {
         this.userService = userService;
         this.authMailService = authMailService;
         this.permissionService = permissionService;
+        this.csrfTokenRepository = csrfTokenRepository;
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody LoginRequest request,
-            HttpSession session) {
+            HttpServletRequest httpServletRequest) {
         UserDto user = userService.login(request.getUsername(), request.getPassword());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -66,9 +72,16 @@ public class AuthController {
                     .body(ApiResponse.fail(HttpStatus.FORBIDDEN.value(), "잠긴 계정입니다."));
         }
 
+        HttpSession session = httpServletRequest.getSession(true);
+        // 세션 고정 공격 방지: 로그인 성공 시 세션 ID 를 새로 발급한다.
+        httpServletRequest.changeSessionId();
+
         session.setAttribute("loginUser", user);
         session.setAttribute(SESSION_USER_ID_KEY, user.getUserId());
         session.setAttribute(SESSION_USER_NAME_KEY, user.getUserName());
+        // 로그인 직후에는 계정 상태 재검증을 건너뛰지 않도록 캐시 시각을 초기화한다.
+        session.removeAttribute("auth.validatedAt");
+        session.removeAttribute("auth.roles");
 
         if (Boolean.TRUE.equals(request.getRememberMe())) {
             session.setMaxInactiveInterval(60 * 60 * 24 * 7);
@@ -360,6 +373,38 @@ public class AuthController {
         Map<String, Boolean> payload = new HashMap<>();
         payload.put("authenticated", session != null && session.getAttribute(SESSION_USER_ID_KEY) != null);
         return ApiResponse.ok(payload);
+    }
+
+    /**
+     * SPA(axios) 용 CSRF 토큰을 발급한다.
+     * <p>
+     * CSRF 필터가 XSRF-TOKEN 쿠키를 함께 내려주며, 프론트엔드는 이 값을 X-XSRF-TOKEN 헤더로 전송한다.
+     * 로그인처럼 쿠키가 아직 없는 상태에서 POST 를 보내야 하는 경우 이 API 로 먼저 토큰을 확보한다.
+     */
+    @GetMapping("/csrf")
+    public ApiResponse<Map<String, String>> csrf(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("token", resolveCsrfToken(request, response).getToken());
+        return ApiResponse.ok(payload);
+    }
+
+    /**
+     * 현재 요청의 CSRF 토큰을 반환한다. 없으면 새로 생성해 쿠키에 저장한다.
+     */
+    private CsrfToken resolveCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+        Object attribute = request.getAttribute(CsrfToken.class.getName());
+        if (attribute instanceof CsrfToken csrfToken) {
+            return csrfToken;
+        }
+
+        CsrfToken storedToken = csrfTokenRepository.loadToken(request);
+        if (storedToken != null) {
+            return storedToken;
+        }
+
+        CsrfToken generatedToken = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(generatedToken, request, response);
+        return generatedToken;
     }
 
     @PostMapping("/logout")

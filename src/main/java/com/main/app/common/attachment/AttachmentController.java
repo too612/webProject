@@ -36,9 +36,12 @@ import com.main.app.common.attachment.dto.AttachmentDto;
 public class AttachmentController {
 
     private final AttachmentService attachmentService;
+    private final PublicContentAccessGuard publicContentAccessGuard;
 
-    public AttachmentController(AttachmentService attachmentService) {
+    public AttachmentController(AttachmentService attachmentService,
+            PublicContentAccessGuard publicContentAccessGuard) {
         this.attachmentService = attachmentService;
+        this.publicContentAccessGuard = publicContentAccessGuard;
     }
 
     /**
@@ -69,6 +72,10 @@ public class AttachmentController {
     public ResponseEntity<ApiResponse<List<AttachmentDto>>> getFileList(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId) {
+        // 비공개 그룹(비밀글·비공개 도메인)은 존재 여부를 노출하지 않도록 빈 목록으로 응답한다.
+        if (publicContentAccessGuard.isGroupBlocked(pgmId, refId)) {
+            return ResponseEntity.ok(ApiResponse.ok(List.of()));
+        }
         return ResponseEntity.ok(ApiResponse.ok(attachmentService.getFileList(pgmId, refId)));
     }
 
@@ -81,6 +88,9 @@ public class AttachmentController {
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId,
             @RequestParam("fileUsage") String fileUsage) {
+        if (publicContentAccessGuard.isGroupBlocked(pgmId, refId)) {
+            return ResponseEntity.ok(ApiResponse.ok(List.of()));
+        }
         return ResponseEntity.ok(ApiResponse.ok(attachmentService.getFileListByUsage(pgmId, refId, fileUsage)));
     }
 
@@ -91,6 +101,10 @@ public class AttachmentController {
     @GetMapping("/{fileId}/download")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId) {
         AttachmentDto file = attachmentService.getFile(fileId);
+        // 비공개 첨부(비밀글·비공개 도메인)는 존재 여부를 노출하지 않도록 404 로 응답한다.
+        if (publicContentAccessGuard.isFileBlocked(file))
+            return ResponseEntity.notFound().build();
+
         if (file == null)
             return ResponseEntity.notFound().build();
 
@@ -124,6 +138,9 @@ public class AttachmentController {
     public ResponseEntity<byte[]> downloadZip(
             @RequestParam("pgmId") String pgmId,
             @RequestParam("refId") String refId) {
+        if (publicContentAccessGuard.isGroupBlocked(pgmId, refId))
+            return ResponseEntity.notFound().build();
+
         List<AttachmentDto> files = attachmentService.getFileList(pgmId, refId);
 
         if (files == null || files.isEmpty())

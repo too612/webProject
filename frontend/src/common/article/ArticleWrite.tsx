@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useArticle } from "./ArticleHook";
 import { attachmentApi, useAttachment } from "../../common/attachment";
+import { withCsrfHeaders } from "../api/api.client";
 import { getArticleTemplateConfig } from "./config";
 import {
   WriteLayout,
@@ -199,9 +200,10 @@ export function ArticleWrite({
       await saveArticle(formData, isEdit, payload.postId);
 
       if (attachment.deletedFileIds.length > 0) {
+        const csrfHeaders = await withCsrfHeaders();
         await Promise.all(
           attachment.deletedFileIds.map((id: string | number) =>
-            fetch(`/api/common/files/${id}`, { method: "DELETE" }),
+            fetch(`/api/common/files/${id}`, { method: "DELETE", headers: csrfHeaders }),
           ),
         );
       }
